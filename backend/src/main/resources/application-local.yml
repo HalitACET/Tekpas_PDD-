@@ -1,0 +1,6 @@
+# Local development: defaults match infra/docker-compose.yml, env (.env.example names) overrides.
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/tekpas}
+    username: ${DATABASE_USERNAME:tekpas}
+    password: ${DATABASE_PASSWORD:tekpas}
