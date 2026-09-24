@@ -77,3 +77,4 @@ Her kilometre taşı bittiğinde (veya kullanıcı "not yaz" dediğinde) `docs/h
 - Görevin kapsamı dışındaki kodu "bu arada" diye refactor etme. Gördüğün sorunu not et ve söyle.
 - Testi geçirmek için testi zayıflatma veya atlama.
 - `packages/api-client/` içini elle düzenleme.
+- Onaylı bir Claude Design tasarımı olmadan kullanıcı arayüzü ekranı kodlama. Tasarım yoksa dur ve sor. Tasarım geldiğinde renk, tipografi, boşluk ve bileşenleri ondan al, kendi yorumunu katma.
