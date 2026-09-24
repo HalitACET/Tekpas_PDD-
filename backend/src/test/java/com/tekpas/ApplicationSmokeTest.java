@@ -61,7 +61,11 @@ class ApplicationSmokeTest {
 
     @Test
     void everythingElseIsClosed() throws Exception {
-        assertThat(get("/api/v1/anything").statusCode()).isEqualTo(401);
+        var response = get("/api/v1/anything");
+
+        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.headers().firstValue("Content-Type")).hasValue("application/problem+json");
+        assertThat(response.body()).contains("\"type\":\"urn:tekpas:problem:unauthorized\"");
         assertThat(get("/actuator/env").statusCode()).isEqualTo(401);
     }
 
