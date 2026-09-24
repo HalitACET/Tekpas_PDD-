@@ -31,6 +31,7 @@ Her feature paketi içinde: `XController`, `XService`, `XRepository`, `dto/` (Ja
 - **Transaction:** `@Transactional` sadece service katmanında. Okuma işlemleri `readOnly = true`.
 - **Validasyon:** Request DTO'larında Jakarta Validation (`@NotBlank`, `@Size`, `@Pattern`). GTIN için özel `@Gtin` anotasyonu (14 hane + GS1 kontrol hanesi).
 - **Jackson 3 kullanılır:** databind importları `tools.jackson.*` paketinden. `com.fasterxml.jackson.databind` (Jackson 2) sadece springdoc'un bağımlılığı olarak classpath'te durur, kodda import edilmez. Anotasyonlar (`@JsonProperty` vb.) `com.fasterxml.jackson.annotation` paketinde kalır, bu doğrudur.
+- **Nullability:** DTO alanları varsayılan olarak non-null ve OpenAPI'de required. Boş gelebilen alan `org.jspecify.annotations.Nullable` ile işaretlenir. Alan başına `@Schema(requiredMode)` yazılmaz.
 - **JSONB:** `supply_step.data`, `document.extraction` ve `passport.snapshot` için Hibernate 7 `@JdbcTypeCode(SqlTypes.JSON)` ve tipli record'lar kullan, `Map<String,Object>` değil.
 - **OpenAPI:** Her controller'da `@Tag` ve her endpoint'te `@Operation(summary=...)`. Hata cevaplarını `@ApiResponse` ile belirt. Client bundan üretiliyor, isimler temiz olsun.
 - **Tokenlar:** Tedarikçi linki token'ı ve refresh token 32 bayt `SecureRandom` ile üretilir, DB'de sadece SHA-256 hash'i tutulur. Ham değer sadece bir kez cevapta döner.

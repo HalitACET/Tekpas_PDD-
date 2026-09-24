@@ -32,9 +32,12 @@ public class OpenApiConfig {
      * success schema), so controllers only state which error codes can happen.
      */
     @Bean
-    OpenApiCustomizer problemResponses() {
+    OpenApiCustomizer problemResponses(NonNullByDefaultModelConverter nonNullByDefault) {
+        // A fresh instance with our converter, so ApiProblem follows the same nullability rule.
+        ModelConverters converters = new ModelConverters();
+        converters.addConverter(nonNullByDefault);
         return openApi -> {
-            ModelConverters.getInstance().readAll(ApiProblem.class)
+            converters.readAll(ApiProblem.class)
                     .forEach((name, schema) -> openApi.getComponents().addSchemas(name, schema));
             Schema<?> ref = new Schema<>().$ref("#/components/schemas/ApiProblem");
 

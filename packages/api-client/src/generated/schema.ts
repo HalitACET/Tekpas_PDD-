@@ -103,15 +103,15 @@ export interface components {
         };
         CompanySummary: {
             /** Format: uuid */
-            id?: string;
-            name?: string;
+            id: string;
+            name: string;
             /** @enum {string} */
-            type?: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
+            type: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
         };
         /** @description Only for type urn:tekpas:problem:validation */
         FieldViolation: {
-            code?: string;
-            field?: string;
+            code: string;
+            field: string;
             message?: string;
         };
         LoginRequest: {
@@ -122,42 +122,42 @@ export interface components {
             password: string;
         };
         LoginResponse: {
-            accessToken?: string;
+            accessToken: string;
             /** Format: int64 */
-            expiresIn?: number;
+            expiresIn: number;
             refreshToken?: string;
-            tokenType?: string;
-            user?: components["schemas"]["UserSummary"];
+            tokenType: string;
+            user: components["schemas"]["UserSummary"];
         };
         MeResponse: {
-            company?: components["schemas"]["CompanySummary"];
-            email?: string;
-            fullName?: string;
+            company: components["schemas"]["CompanySummary"];
+            email: string;
+            fullName: string;
             /** Format: uuid */
-            id?: string;
-            locale?: string;
+            id: string;
+            locale: string;
             /** @enum {string} */
-            role?: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
+            role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
         };
         RefreshRequest: {
-            refreshToken?: string;
+            refreshToken: string;
         };
         TokenResponse: {
-            accessToken?: string;
+            accessToken: string;
             /** Format: int64 */
-            expiresIn?: number;
+            expiresIn: number;
             refreshToken?: string;
-            tokenType?: string;
+            tokenType: string;
         };
         UserSummary: {
-            company?: components["schemas"]["CompanySummary"];
-            email?: string;
-            fullName?: string;
+            company: components["schemas"]["CompanySummary"];
+            email: string;
+            fullName: string;
             /** Format: uuid */
-            id?: string;
-            locale?: string;
+            id: string;
+            locale: string;
             /** @enum {string} */
-            role?: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
+            role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
         };
     };
     responses: never;
