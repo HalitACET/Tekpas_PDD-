@@ -1,0 +1,41 @@
+# Local gelistirme servisleri. Backend/web/mobil makinede calisir.
+# Kullanim: docker compose -f infra/docker-compose.yml up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tekpas
+      POSTGRES_USER: tekpas
+      POSTGRES_PASSWORD: tekpas
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tekpas -d tekpas"]
+      interval: 5s
+      retries: 10
+
+  minio:                      # Cloudflare R2'nin local karsiligi (S3 API)
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: tekpas
+      MINIO_ROOT_PASSWORD: tekpas-secret
+    ports: ["9000:9000", "9001:9001"]   # 9001 = web konsolu
+    volumes: [miniodata:/data]
+
+  minio-init:                 # bucket'i otomatik olusturur
+    image: minio/mc:latest
+    depends_on: [minio]
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 tekpas tekpas-secret; do sleep 1; done;
+      mc mb --ignore-existing local/tekpas-docs;
+      "
+
+  mailpit:                    # giden e-postalari yakalar: http://localhost:8025
+    image: axllent/mailpit:latest
+    ports: ["1025:1025", "8025:8025"]
+
+volumes:
+  pgdata:
+  miniodata:
