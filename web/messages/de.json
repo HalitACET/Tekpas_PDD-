@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "title": "TekPas",
+    "description": "Digitaler Produktpass für Textilien"
+  },
+  "home": {
+    "title": "TekPas",
+    "subtitle": "Digitaler Produktpass für Textilien"
+  },
+  "health": {
+    "label": "Server",
+    "up": "Läuft (UP)",
+    "down": "Nicht erreichbar",
+    "checking": "Wird geprüft…"
+  }
+}

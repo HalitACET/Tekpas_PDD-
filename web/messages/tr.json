@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "title": "TekPas",
+    "description": "Tekstil için Dijital Ürün Pasaportu"
+  },
+  "home": {
+    "title": "TekPas",
+    "subtitle": "Tekstil için Dijital Ürün Pasaportu"
+  },
+  "health": {
+    "label": "Sunucu",
+    "up": "Çalışıyor (UP)",
+    "down": "Erişilemiyor",
+    "checking": "Kontrol ediliyor…"
+  }
+}
