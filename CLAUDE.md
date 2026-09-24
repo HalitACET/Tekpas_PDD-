@@ -13,7 +13,7 @@ Ayrıntılı plan, kararlar ve kilometre taşları: `docs/PLAN.md`. Her işe ba�
 | `backend/` | Java 21, Spring Boot 4.1, Maven, Spring Security (JWT), Spring Data JPA, Flyway, springdoc-openapi |
 | `web/` | Next.js (App Router), TypeScript, Tailwind, shadcn/ui, TanStack Query, next-intl, React Flow |
 | `mobile/` | React Native + Expo (Expo Router), TypeScript, expo-camera, expo-secure-store, expo-notifications |
-| `packages/api-client/` | Backend'in OpenAPI çıktısından **otomatik üretilen** TS client. Elle düzenlenmez. |
+| `packages/api-client/` | Backend'in OpenAPI çıktısından üretilen TS client (openapi-typescript + openapi-fetch). `openapi.json` ve `src/generated/` **otomatik üretilir**, elle düzenlenmez; `src/client.ts` elle yazılır. |
 | `packages/shared/` | Ortak Zod şemaları, sabitler, çeviri dosyaları |
 | DB | PostgreSQL 16 (local Docker, prod Neon) |
 | Dosya | S3 API (local MinIO, prod Supabase Storage (S3)) |
@@ -28,7 +28,7 @@ JS tarafı pnpm workspaces ile yönetilir. Backend Maven ile ayrı çalışır.
 docker compose -f infra/docker-compose.yml up -d   # Postgres :5433, MinIO :9000/:9001
 cd backend && ./mvnw spring-boot:run                # API :8080, Swagger: /swagger-ui.html
 cd backend && ./mvnw verify                         # testler (Testcontainers, Docker açık olmalı)
-pnpm --filter api-client generate                   # OpenAPI -> TS client (backend çalışırken)
+pnpm --filter api-client generate                   # openapi.json -> TS client (openapi.json'u ./mvnw verify üretir)
 pnpm --filter web dev                               # :3000
 pnpm --filter mobile start                          # Expo
 pnpm -r lint && pnpm -r typecheck && pnpm -r test
@@ -46,7 +46,7 @@ Not: 5432 makinedeki başka bir Postgres'e ait, local Docker DB 5433'te.
 6. **Yayınlanmış pasaport değişmez.** `passport.snapshot` yayından sonra güncellenmez. Değişiklik = yeni sürüm, eskisi `SUPERSEDED` olur.
 7. **Hata formatı:** Her hata RFC 7807 `ProblemDetail` olarak döner (`type`, `title`, `status`, `detail`, alan hataları için `errors`).
 8. **Dil:** Kod, değişken, commit ve API İngilizce. Kullanıcıya görünen her metin çeviri dosyasından gelir (varsayılan `tr`, sonra `en`, `de`). Arayüzde sabit Türkçe string yazma.
-9. **Sözleşme:** Backend'de bir DTO veya endpoint değişirse aynı iş içinde `pnpm --filter api-client generate` çalıştır ve üretilen client'ı commit et. CI uyuşmazlığı yakalar.
+9. **Sözleşme:** Backend'de bir DTO veya endpoint değişirse aynı iş içinde `./mvnw verify` (openapi.json'u günceller) ve `pnpm --filter api-client generate` çalıştır, `openapi.json` ile `src/generated/`'ı commit et. CI'daki `contract` job'u uyuşmazlığı yakalar.
 
 ## Çalışma döngüsü (her görevde)
 
@@ -76,5 +76,5 @@ Her kilometre taşı bittiğinde (veya kullanıcı "not yaz" dediğinde) `docs/h
 - Kullanıcıya sormadan yeni bir üçüncü parti servis, ücretli servis veya büyük bir bağımlılık ekleme.
 - Görevin kapsamı dışındaki kodu "bu arada" diye refactor etme. Gördüğün sorunu not et ve söyle.
 - Testi geçirmek için testi zayıflatma veya atlama.
-- `packages/api-client/` içini elle düzenleme.
+- `packages/api-client/openapi.json` ve `packages/api-client/src/generated/` içini elle düzenleme.
 - Onaylı bir Claude Design tasarımı olmadan kullanıcı arayüzü ekranı kodlama. Tasarım yoksa dur ve sor. Tasarım geldiğinde renk, tipografi, boşluk ve bileşenleri ondan al, kendi yorumunu katma.

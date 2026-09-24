@@ -1,5 +1,6 @@
 package com.tekpas.auth;
 
+import com.tekpas.auth.dto.MeResponse;
 import com.tekpas.auth.dto.UserSummary;
 import com.tekpas.common.error.NotFoundException;
 import com.tekpas.company.AppUser;
@@ -83,10 +84,10 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public UserSummary me(UUID userId, UUID companyId) {
+    public MeResponse me(UUID userId, UUID companyId) {
         AppUser user = users.findByIdAndCompanyId(userId, companyId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        return UserSummary.from(user, company(user));
+        return MeResponse.from(user, company(user));
     }
 
     private Session session(AppUser user, RefreshTokenService.Issued refresh) {
