@@ -2,9 +2,9 @@ package com.tekpas.auth;
 
 import com.tekpas.auth.dto.LoginRequest;
 import com.tekpas.auth.dto.LoginResponse;
+import com.tekpas.auth.dto.MeResponse;
 import com.tekpas.auth.dto.RefreshRequest;
 import com.tekpas.auth.dto.TokenResponse;
-import com.tekpas.auth.dto.UserSummary;
 import com.tekpas.common.security.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
-@Tag(name = "Auth", description = "Login, token refresh, logout and the current user")
+@RequestMapping(path = "/api/v1/auth", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "auth", description = "Login, token refresh, logout and the current user")
 public class AuthController {
 
     private static final String BEARER = "Bearer";
@@ -42,7 +43,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @SecurityRequirements
-    @Operation(summary = "Log in with e-mail and password",
+    @Operation(operationId = "login", summary = "Log in with e-mail and password",
             description = "WEB clients receive the refresh token as an httpOnly cookie, MOBILE clients in the body.")
     @ApiResponse(responseCode = "200", description = "Logged in")
     @ApiResponse(responseCode = "400", description = "Validation failed")
@@ -58,7 +59,7 @@ public class AuthController {
 
     @PostMapping("/refresh")
     @SecurityRequirements
-    @Operation(summary = "Rotate the refresh token and issue a new access token",
+    @Operation(operationId = "refresh", summary = "Rotate the refresh token and issue a new access token",
             description = "Reads the refresh token from the cookie (WEB) or the body (MOBILE). "
                     + "A reused token revokes its whole family.")
     @Parameter(name = RefreshCookies.NAME, in = ParameterIn.COOKIE, required = false)
@@ -76,7 +77,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     @SecurityRequirements
-    @Operation(summary = "Log out: revoke the refresh token family and clear the cookie",
+    @Operation(operationId = "logout", summary = "Log out: revoke the refresh token family and clear the cookie",
             description = "Authenticated by the refresh token itself. Always 204, also for missing or unknown tokens.")
     @Parameter(name = RefreshCookies.NAME, in = ParameterIn.COOKIE, required = false)
     @ApiResponse(responseCode = "204", description = "Logged out")
@@ -90,10 +91,10 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    @Operation(summary = "The current user with company and role")
+    @Operation(operationId = "getMe", summary = "The current user with company and role")
     @ApiResponse(responseCode = "200", description = "Current user")
     @ApiResponse(responseCode = "401", description = "Missing or invalid access token")
-    public UserSummary me() {
+    public MeResponse getMe() {
         return authService.me(currentUser.userId(), currentUser.companyId());
     }
 

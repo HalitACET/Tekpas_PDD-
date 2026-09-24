@@ -33,6 +33,10 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+  # Stable, sorted output: packages/api-client/openapi.json is generated from it and diffed in CI.
+  writer-with-order-by-keys: true
+  # Error responses are declared per endpoint (and typed as ApiProblem), not guessed from @ExceptionHandler.
+  override-with-generic-response: false
 
 tekpas:
   jwt:
