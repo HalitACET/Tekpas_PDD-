@@ -101,9 +101,9 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 **M1–M10 Arden demosu için kritik.** M11–M12 aynı zamanda tampondur.
 
 ### M1 — Temel altyapı
-- [ ] Monorepo iskeleti (pnpm workspaces, `backend/` Maven, `web/`, `mobile/`, `packages/`)
-- [ ] `infra/docker-compose.yml` (Postgres, MinIO), `.env.example`
-- [ ] Flyway V1 + V2, `DemoDataSeeder` (**demo kullanıcılarının gerçek BCrypt hash'i**)
+- [x] Monorepo iskeleti (pnpm workspaces, `backend/` Maven, `web/`, `mobile/`, `packages/`)
+- [x] `infra/docker-compose.yml` (Postgres, MinIO), `.env.example`
+- [x] Flyway V1 + V2, `DemoDataSeeder` (**demo kullanıcılarının gerçek BCrypt hash'i**)
 - [x] ProblemDetail handler, `CurrentUser`, JWT login / refresh (rotation) / logout / me
 - [ ] OpenAPI → `packages/api-client` üretim hattı
 - [ ] Next.js login ekranı + korumalı panel iskeleti (shadcn)
