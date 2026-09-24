@@ -6,11 +6,13 @@ packages:
 engineStrict: true
 
 # Build scripts are blocked by default; list explicit decisions here.
+# All four ship prebuilt native binaries as per-platform optional dependencies;
+# their scripts only build from source when no prebuilt binary matches.
 allowBuilds:
-  sharp: false
-  unrs-resolver: false
-  '@parcel/watcher': false
-  '@swc/core': false
+  sharp: false            # next image optimization; uses @img/sharp-<platform> (0.35 has no install script)
+  unrs-resolver: false    # eslint import resolver; uses @unrs/resolver-binding-<platform>
+  '@parcel/watcher': false  # next-intl message extractor watch mode; uses @parcel/watcher-<platform>
+  '@swc/core': false      # next-intl message extractor; uses @swc/core-<platform>
 
 minimumReleaseAgeExclude:
   - '@expo/cli@57.0.27'
