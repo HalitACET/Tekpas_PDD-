@@ -17,8 +17,7 @@ INSERT INTO company_supplier (manufacturer_id, supplier_id, contact_email) VALUE
  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000004', 'lab@uludagboya.example'),
  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000005', 'usta@inegolfason.example');
 
--- DIKKAT: password_hash yer tutucudur, gercek bir sifreye karsilik gelmez.
--- Backend ayaga kalkinca demo kullanicilarinin hash'ini BCryptPasswordEncoder ile uretip guncelle.
+-- password_hash yer tutucudur: gercek hash DemoDataSeeder'da DEMO_PASSWORD'dan uretilir.
 INSERT INTO app_user (id, company_id, email, password_hash, full_name, role) VALUES
  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001',
   'admin@nilufergiyim.example', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5BWX4Z6ZlF6yF6oGqI0Kc1s9u8Z9e', 'Demo Yonetici', 'OWNER'),
