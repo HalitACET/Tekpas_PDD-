@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A new push to the same branch cancels the run that is still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      # Unit + integration tests (Testcontainers uses the runner's Docker).
+      # OpenApiExportTest writes packages/api-client/openapi.json along the way.
+      - name: mvn verify
+        working-directory: backend
+        run: ./mvnw -B -ntp verify
+
+      - name: Upload OpenAPI spec
+        uses: actions/upload-artifact@v7
+        with:
+          name: openapi-spec
+          path: packages/api-client/openapi.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: surefire-reports
+          path: backend/target/surefire-reports
+          retention-days: 7
+
+  js:
+    name: js
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      # Version comes from "packageManager" in package.json.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r lint
+      - run: pnpm -r typecheck
+      - run: pnpm -r test
+
+      # No backend runs in this job: the build must not need one.
+      - name: next build
+        run: pnpm --filter web build
+
+      - name: Home page is rendered per request, not at build time
+        working-directory: web
+        run: |
+          node -e '
+            const routes = require("./.next/prerender-manifest.json").routes;
+            if ("/" in routes) {
+              console.error("::error::/ was prerendered at build time; the health badge must be fetched per request.");
+              process.exit(1);
+            }
+            console.log("/ is dynamic (not in prerender-manifest).");
+          '
+
+  contract:
+    name: contract
+    needs: backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The spec the backend tests just produced, on top of the committed one.
+      - uses: actions/download-artifact@v8
+        with:
+          name: openapi-spec
+          path: packages/api-client
+
+      - run: pnpm --filter api-client generate
+
+      - name: Committed client matches the backend
+        run: |
+          paths="packages/api-client/openapi.json packages/api-client/src/generated"
+          if [ -n "$(git status --porcelain -- $paths)" ]; then
+            git --no-pager diff --stat -- $paths
+            git status --porcelain -- $paths
+            echo "::error::Client güncel değil: pnpm --filter api-client generate çalıştırıp commit et. (Önce cd backend && ./mvnw verify ile openapi.json'u güncelle.)"
+            exit 1
+          fi
+          echo "openapi.json and src/generated/ are up to date."
