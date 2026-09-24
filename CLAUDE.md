@@ -10,22 +10,22 @@ Ayrıntılı plan, kararlar ve kilometre taşları: `docs/PLAN.md`. Her işe ba�
 
 | Parça | Teknoloji |
 | --- | --- |
-| `backend/` | Java 21, Spring Boot 3, Maven, Spring Security (JWT), Spring Data JPA, Flyway, springdoc-openapi |
+| `backend/` | Java 21, Spring Boot 4.1, Maven, Spring Security (JWT), Spring Data JPA, Flyway, springdoc-openapi |
 | `web/` | Next.js (App Router), TypeScript, Tailwind, shadcn/ui, TanStack Query, next-intl, React Flow |
 | `mobile/` | React Native + Expo (Expo Router), TypeScript, expo-camera, expo-secure-store, expo-notifications |
 | `packages/api-client/` | Backend'in OpenAPI çıktısından **otomatik üretilen** TS client. Elle düzenlenmez. |
 | `packages/shared/` | Ortak Zod şemaları, sabitler, çeviri dosyaları |
 | DB | PostgreSQL 16 (local Docker, prod Neon) |
-| Dosya | S3 API (local MinIO, prod Cloudflare R2) |
+| Dosya | S3 API (local MinIO, prod Supabase Storage (S3)) |
 | AI | Google Gemini API, `AiClient` arayüzünün arkasında |
-| Deploy | Render (backend), Vercel (web), Neon (DB), R2, Expo EAS / Expo Go. **Hepsi ücretsiz katman.** |
+| Deploy | Render (backend), Vercel (web), Neon (DB), Supabase Storage (S3), Expo EAS / Expo Go. **Hepsi ücretsiz katman.** |
 
 JS tarafı pnpm workspaces ile yönetilir. Backend Maven ile ayrı çalışır.
 
 ## Komutlar
 
 ```bash
-docker compose -f infra/docker-compose.yml up -d   # Postgres :5432, MinIO :9000/:9001, Mailpit :8025
+docker compose -f infra/docker-compose.yml up -d   # Postgres :5432, MinIO :9000/:9001
 cd backend && ./mvnw spring-boot:run                # API :8080, Swagger: /swagger-ui.html
 cd backend && ./mvnw verify                         # testler (Testcontainers, Docker açık olmalı)
 pnpm --filter api-client generate                   # OpenAPI -> TS client (backend çalışırken)

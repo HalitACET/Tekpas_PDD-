@@ -30,7 +30,7 @@ Her feature paketi içinde: `XController`, `XService`, `XRepository`, `dto/` (Ja
 - **Yetki:** `@PreAuthorize("hasAnyRole('OWNER','ADMIN')")` gibi metot seviyesinde. Rol matrisi `docs/PLAN.md` içinde.
 - **Transaction:** `@Transactional` sadece service katmanında. Okuma işlemleri `readOnly = true`.
 - **Validasyon:** Request DTO'larında Jakarta Validation (`@NotBlank`, `@Size`, `@Pattern`). GTIN için özel `@Gtin` anotasyonu (14 hane + GS1 kontrol hanesi).
-- **JSONB:** `supply_step.data`, `document.extraction` ve `passport.snapshot` için Hibernate 6 `@JdbcTypeCode(SqlTypes.JSON)` ve tipli record'lar kullan, `Map<String,Object>` değil.
+- **JSONB:** `supply_step.data`, `document.extraction` ve `passport.snapshot` için Hibernate 7 `@JdbcTypeCode(SqlTypes.JSON)` ve tipli record'lar kullan, `Map<String,Object>` değil.
 - **OpenAPI:** Her controller'da `@Tag` ve her endpoint'te `@Operation(summary=...)`. Hata cevaplarını `@ApiResponse` ile belirt. Client bundan üretiliyor, isimler temiz olsun.
 - **Tokenlar:** Tedarikçi linki token'ı ve refresh token 32 bayt `SecureRandom` ile üretilir, DB'de sadece SHA-256 hash'i tutulur. Ham değer sadece bir kez cevapta döner.
 - **Şifre:** `BCryptPasswordEncoder` (strength 10). Demo kullanıcılarının hash'i `DemoDataSeeder` ile uygulama açılırken üretilir (sadece `demo` profilinde).

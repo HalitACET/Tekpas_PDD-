@@ -10,7 +10,7 @@ Bütçe: **sıfır** — her servis ücretsiz katmanda.
 | # | Konu | Karar | Gerekçe |
 | --- | --- | --- | --- |
 | K1 | Repo | Monorepo (`backend/`, `web/`, `mobile/`, `packages/`) | Tipler paylaşılır, tek PR'da uçtan uca özellik, Claude Code bütünü görür |
-| K2 | Backend | Java 21, Spring Boot 3, **Maven** | Kurumsal müşterinin güvendiği yığın, mevcut tecrübe |
+| K2 | Backend | Java 21, Spring Boot 4.1, **Maven** | Kurumsal müşterinin güvendiği yığın, mevcut tecrübe; 3.x serisi OSS desteği bitti |
 | K3 | DB | PostgreSQL 16, esnek alanlar JSONB | Zincir ilişkisel (recursive CTE), AB veri şeması henüz kesin değil |
 | K4 | API | Code-first: springdoc → OpenAPI → üretilen TS client | Hızlı, tipler hep senkron, CI uyuşmazlığı yakalar |
 | K5 | Auth | Kendi JWT'miz: access 15 dk + refresh 30 gün (rotation, aile iptali) | Dış bağımlılık yok, çok kiracılı yapıya tam kontrol |
@@ -18,18 +18,21 @@ Bütçe: **sıfır** — her servis ücretsiz katmanda.
 | K7 | Mobil | React Native + Expo | Web ile aynı dil ve client, kamera/QR hazır |
 | K8 | AI | Google Gemini, `AiClient` arayüzü arkasında, model adı config'te | Ücretsiz katman, sağlayıcı değişirse tek sınıf |
 | K9 | Arka plan işleri | Postgres tabanlı kuyruk (`FOR UPDATE SKIP LOCKED`) | Ek servis yok, Render ücretsiz katmanında çalışır |
-| K10 | Dosya | S3 API: local MinIO, prod Cloudflare R2, backend üzerinden yükleme, max 10 MB | Tek kod yolu, demo için yeterli |
+| K10 | Dosya | S3 API: local MinIO, prod Supabase Storage (S3), backend üzerinden yükleme, max 10 MB | Tek kod yolu, demo için yeterli |
 | K11 | Pasaport seviyesi | **Parti** (üretim emri) | Her partinin gerçek zinciri farklı olabilir |
 | K12 | Pasaport değişmezliği | Yayında snapshot dondurulur, değişiklik = yeni sürüm | Denetim izi, güven |
 | K13 | QR | GS1 Digital Link: `{PUBLIC_BASE_URL}/01/{gtin}/10/{batch}` | AB'nin öne çıkardığı standart |
 | K14 | Tedarikçi erişimi | Girişsiz, tek kullanımlık token linki; **WhatsApp / kopyala** ile paylaşım | E-posta için alan adı yok, sektörde iletişim zaten WhatsApp |
 | K15 | Web vs mobil | **Web yönetir, mobil sahada iş görür** (bkz. §3) | Her platform kendi kullanıcısının bağlamına göre |
 | K16 | Git | Feature branch + PR, CI yeşilse merge, `main` → otomatik deploy | `main` her zaman gösterilebilir |
+| K17 | Prod depolama | Supabase Storage (S3 protokolü) | R2 kart istiyor, bütçe sıfır |
 
 ### Ücretsiz katman notları
 - **Alan adı yok:** QR'lar `*.vercel.app` adresine gider. `PUBLIC_BASE_URL` config'te, ileride tek satır değişir. Gerçek etikete basılmaz.
 - **Render ücretsiz sunucu uyur:** cron-job.org gibi ücretsiz bir servisle `/actuator/health` her 10 dakikada bir çağrılır.
 - **Gemini ücretsiz katmanı:** Gönderilen veri Google tarafından kullanılabilir → **sadece demo verisi.** Gerçek firmayla pilotta ücretli katman şart.
+- **Supabase ücretsiz projeleri hareketsizlikte duraklar:** uyanık tutma cron'u storage'a da küçük bir istek atmalı.
+- **MinIO topluluk imajları güncellenmiyor** (`minio/minio` artık yayınlanmıyor): local için Pigsty topluluk fork'u `pgsty/minio` sabit sürümle kullanılıyor. Sorun çıkarsa B planı: `chrislusf/seaweedfs`.
 
 ---
 
@@ -98,7 +101,7 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 
 ### M1 — Temel altyapı
 - [ ] Monorepo iskeleti (pnpm workspaces, `backend/` Maven, `web/`, `mobile/`, `packages/`)
-- [ ] `infra/docker-compose.yml` (Postgres, MinIO, Mailpit), `.env.example`
+- [ ] `infra/docker-compose.yml` (Postgres, MinIO), `.env.example`
 - [ ] Flyway V1 + V2, `DemoDataSeeder` (**demo kullanıcılarının gerçek BCrypt hash'i**)
 - [ ] ProblemDetail handler, `CurrentUser`, JWT login / refresh (rotation) / logout / me
 - [ ] Next.js login ekranı + korumalı panel iskeleti (shadcn)
@@ -131,9 +134,10 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 **Kabul:** Üretici link paylaşır, tedarikçi telefondan girişsiz veri girer, üretici onaylar, düğüm yeşile döner.
 
 ### M5 — Belge ve AI çıkarımı
-- [ ] S3 depolama (MinIO / R2), belge yükleme (10 MB, PDF/JPG/PNG, SHA-256 tekrar kontrolü)
+- [ ] S3 depolama (MinIO / Supabase Storage), belge yükleme (10 MB, PDF/JPG/PNG, SHA-256 tekrar kontrolü)
 - [ ] Job kuyruğu + worker + retry/backoff
 - [ ] `AiClient` + `GeminiAiClient` + fake client (testler için), yapılandırılmış JSON çıktı
+- *Not:* Testcontainers MinIO modülü varsayılan `minio/minio` ister → `DockerImageName.parse("pgsty/minio:...").asCompatibleSubstituteFor("minio/minio")` kullan
 - [ ] Web: yükle → "AI okuyor" → alan alan öneri (güven < 0.8 sarı) → düzenle → onayla
 
 **Kabul:** Örnek bir OEKO-TEX PDF'i yüklenir, sertifika no, sahibi ve geçerlilik tarihi otomatik dolar, kullanıcı onaylayınca asıl alanlara geçer.
