@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "title": "TekPas",
+    "description": "Digital Product Passport for textiles"
+  },
+  "home": {
+    "title": "TekPas",
+    "subtitle": "Digital Product Passport for textiles"
+  },
+  "health": {
+    "label": "Server",
+    "up": "Running (UP)",
+    "down": "Unreachable",
+    "checking": "Checking…"
+  }
+}

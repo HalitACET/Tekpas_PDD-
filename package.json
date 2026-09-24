@@ -1,0 +1,14 @@
+{
+  "name": "tekpas",
+  "private": true,
+  "packageManager": "pnpm@11.27.1",
+  "engines": {
+    "node": ">=22.13 <23",
+    "pnpm": ">=11.27 <12"
+  },
+  "scripts": {
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test"
+  }
+}

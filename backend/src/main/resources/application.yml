@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: tekpas-backend
+  profiles:
+    # No SPRING_PROFILES_ACTIVE -> local (docker-compose). Prod sets it explicitly.
+    default: local
+  autoconfigure:
+    # No in-memory user with a generated password; JWT auth replaces it in the next task.
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations: classpath:db/migration
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

@@ -1,4 +1,8 @@
+@AGENTS.md
+
 # web/ — Next.js kuralları
+
+Next 16 yeni; güncel davranış için paketle gelen dokümanı (`AGENTS.md`) esas al.
 
 Kök `CLAUDE.md` kuralları burada da geçerli.
 

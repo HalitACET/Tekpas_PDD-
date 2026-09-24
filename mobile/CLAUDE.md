@@ -1,4 +1,8 @@
+@AGENTS.md
+
 # mobile/ — Expo kuralları
+
+Expo SDK 57 yeni; güncel davranış için paketle gelen dokümanı (`AGENTS.md`) esas al.
 
 Kök `CLAUDE.md` kuralları burada da geçerli.
 
