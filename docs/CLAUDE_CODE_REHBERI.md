@@ -9,9 +9,10 @@
 1. Planlama sohbetinden (Claude) sıradaki görevin prompt'unu al.
 2. Claude Code'a ver. Önce **plan modunda** (Shift+Tab) planını göster, onayla, sonra uygulasın.
 3. Test + lint yeşil mi kontrol et, çalışan uygulamayı kendin bir kez dene.
-4. PR'ı aç ya da Claude Code'a açtır, CI yeşilse merge et.
-5. Takıldığın, emin olmadığın ya da beğenmediğin yeri planlama sohbetine getir.
-6. Kilometre taşı bitince: *"M_ bitti, docs/haftalik notunu yaz ve PLAN.md'yi işaretle."*
+4. PR'ı Claude Code'a açtır.
+5. Merge için Claude Code'a açıkça *"merge et"* de. CI yeşilse `gh pr merge --squash --delete-branch` ile squash merge eder (commit mesajı = PR başlığı, Conventional Commits), sonra `main`'e geçip pull eder. CI kırmızıysa merge etmez, sebebini raporlar.
+6. Takıldığın, emin olmadığın ya da beğenmediğin yeri planlama sohbetine getir.
+7. Kilometre taşı bitince: *"M_ bitti, docs/haftalik notunu yaz ve PLAN.md'yi işaretle."*
 
 ## İyi bir görev prompt'unun şablonu
 
