@@ -1,0 +1,9 @@
+tekpas:
+  jwt:
+    secret: integration-test-only-jwt-secret-0123456789
+  auth:
+    cookie-secure: false
+  cors:
+    allowed-origins: http://localhost:3000
+  demo:
+    password: test-demo-password

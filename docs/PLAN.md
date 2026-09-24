@@ -26,6 +26,7 @@ Bütçe: **sıfır** — her servis ücretsiz katmanda.
 | K15 | Web vs mobil | **Web yönetir, mobil sahada iş görür** (bkz. §3) | Her platform kendi kullanıcısının bağlamına göre |
 | K16 | Git | Feature branch + PR, CI yeşilse merge, `main` → otomatik deploy | `main` her zaman gösterilebilir |
 | K17 | Prod depolama | Supabase Storage (S3 protokolü) | R2 kart istiyor, bütçe sıfır |
+| K18 | Web → API erişimi | Web, API'ye kendi origin'i üzerinden proxy ile erişir (Next.js rewrites, `/api/v1/*`) | Refresh cookie birinci taraf olur (SameSite=Strict çalışır), web için CORS gerekmez |
 
 ### Ücretsiz katman notları
 - **Alan adı yok:** QR'lar `*.vercel.app` adresine gider. `PUBLIC_BASE_URL` config'te, ileride tek satır değişir. Gerçek etikete basılmaz.
@@ -100,10 +101,11 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 **M1–M10 Arden demosu için kritik.** M11–M12 aynı zamanda tampondur.
 
 ### M1 — Temel altyapı
-- [ ] Monorepo iskeleti (pnpm workspaces, `backend/` Maven, `web/`, `mobile/`, `packages/`)
-- [ ] `infra/docker-compose.yml` (Postgres, MinIO), `.env.example`
-- [ ] Flyway V1 + V2, `DemoDataSeeder` (**demo kullanıcılarının gerçek BCrypt hash'i**)
-- [ ] ProblemDetail handler, `CurrentUser`, JWT login / refresh (rotation) / logout / me
+- [x] Monorepo iskeleti (pnpm workspaces, `backend/` Maven, `web/`, `mobile/`, `packages/`)
+- [x] `infra/docker-compose.yml` (Postgres, MinIO), `.env.example`
+- [x] Flyway V1 + V2, `DemoDataSeeder` (**demo kullanıcılarının gerçek BCrypt hash'i**)
+- [x] ProblemDetail handler, `CurrentUser`, JWT login / refresh (rotation) / logout / me
+- [ ] OpenAPI → `packages/api-client` üretim hattı
 - [ ] Next.js login ekranı + korumalı panel iskeleti (shadcn)
 - [ ] CI: backend `mvn verify`, web lint/typecheck/test, OpenAPI ↔ client kontrolü
 - [ ] Deploy: Render + Neon + Vercel, sağlık kontrolü + uyanık tutma cron'u
@@ -112,7 +114,6 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 
 ### M2 — Ürün ve parti
 - [ ] Ürün CRUD (GTIN kontrol hanesi doğrulaması), parti CRUD
-- [ ] OpenAPI → `packages/api-client` üretim hattı
 - [ ] Web: ürün listesi/formu, parti listesi/formu/detay iskeleti
 
 **Kabul:** Panelden ürün ve parti oluşturulur. Hatalı GTIN alan bazında hata gösterir. Başka firmanın ürününe erişim 404.
@@ -189,6 +190,7 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 - [ ] §2 rol matrisinin tamamı + kullanıcı yönetimi ekranı
 - [ ] Denetim izi ekranı (kim, neyi, ne zaman)
 - [ ] Kritik akışlar için Playwright testleri
+- [ ] Login rate limiting (IP + e-posta başına deneme sınırı)
 
 **Kabul:** EDITOR yayınla butonunu göremez, API da 403 döner. Her yayın denetim izinde görünür.
 
@@ -201,7 +203,7 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 
 ## 6. Unutulmayacaklar
 
-- [ ] Demo kullanıcılarının gerçek BCrypt hash'i (M1, `DemoDataSeeder`)
+- [x] Demo kullanıcılarının gerçek BCrypt hash'i (M1, `DemoDataSeeder`)
 - [ ] Render uyanık tutma cron'u (M1, demo ve jüri haftalarında kontrol et)
 - [ ] Gemini'ye asla gerçek firma verisi gönderme
 - [ ] Gemini model ID'sini geliştirme günü AI Studio'dan kontrol et, `GEMINI_MODEL`'e yaz

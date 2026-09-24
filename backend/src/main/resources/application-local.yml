@@ -4,3 +4,14 @@ spring:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/tekpas}
     username: ${DATABASE_USERNAME:tekpas}
     password: ${DATABASE_PASSWORD:tekpas}
+
+tekpas:
+  jwt:
+    # Development-only fallback so the app starts without a .env; never used outside the local profile.
+    secret: ${JWT_SECRET:local-development-only-jwt-secret-0123456789}
+  auth:
+    cookie-secure: false
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  demo:
+    password: ${DEMO_PASSWORD:demo1234}
