@@ -7,7 +7,7 @@ services:
       POSTGRES_DB: tekpas
       POSTGRES_USER: tekpas
       POSTGRES_PASSWORD: tekpas
-    ports: ["5432:5432"]
+    ports: ["5433:5432"]   # 5432 makinedeki baska bir Postgres servisine ait
     volumes: [pgdata:/var/lib/postgresql/data]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tekpas -d tekpas"]

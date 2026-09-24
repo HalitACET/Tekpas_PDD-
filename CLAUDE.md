@@ -25,7 +25,7 @@ JS tarafı pnpm workspaces ile yönetilir. Backend Maven ile ayrı çalışır.
 ## Komutlar
 
 ```bash
-docker compose -f infra/docker-compose.yml up -d   # Postgres :5432, MinIO :9000/:9001
+docker compose -f infra/docker-compose.yml up -d   # Postgres :5433, MinIO :9000/:9001
 cd backend && ./mvnw spring-boot:run                # API :8080, Swagger: /swagger-ui.html
 cd backend && ./mvnw verify                         # testler (Testcontainers, Docker açık olmalı)
 pnpm --filter api-client generate                   # OpenAPI -> TS client (backend çalışırken)
@@ -33,6 +33,8 @@ pnpm --filter web dev                               # :3000
 pnpm --filter mobile start                          # Expo
 pnpm -r lint && pnpm -r typecheck && pnpm -r test
 ```
+
+Not: 5432 makinedeki başka bir Postgres'e ait, local Docker DB 5433'te.
 
 ## Değişmez kurallar
 
