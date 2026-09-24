@@ -19,7 +19,14 @@ Ayrıntılı plan ve kararlar: [docs/PLAN.md](docs/PLAN.md). Geliştirme kuralla
 
 - **Java 21** (JDK). Maven gerekmez, `backend/mvnw` wrapper'ı kullanılır.
 - **Node 22 LTS** (`>=22.13`)
-- **pnpm 11** — corepack ile: `corepack enable` (Node `Program Files` altındaysa yönetici yetkisi ister; alternatif: `corepack enable --install-directory "%APPDATA%\npm" pnpm`)
+- **pnpm 11** — corepack ile: `corepack enable` (Node `Program Files` altındaysa yönetici yetkisi ister). Yönetici yetkisi yoksa Windows'ta PowerShell ile kullanıcı klasörüne kur ve o klasörü PATH'e ekle, sonra terminali yeniden aç:
+
+  ```powershell
+  corepack enable --install-directory "$env:APPDATA\npm" pnpm
+  [Environment]::SetEnvironmentVariable('Path', [Environment]::GetEnvironmentVariable('Path','User') + ";$env:APPDATA\npm", 'User')
+  ```
+
+  Kontrol: `pnpm -v` → `11.27.1`
 - **Docker** (Docker Desktop). Backend testleri de Testcontainers için Docker ister.
 - Mobil için telefonda **Expo Go**.
 
