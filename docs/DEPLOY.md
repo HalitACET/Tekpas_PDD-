@@ -84,6 +84,7 @@ Beklenen: `1 init` ve `2 auth and jobs`, ikisi de `success = true`.
    - **Root Directory:** `web` (Edit → `web`)
    - **Framework Preset:** Next.js (otomatik)
    - Build ve Install komutlarına dokunma (pnpm workspace kökteki lockfile'dan algılanır, `packages/*` build'e dahildir).
+   - **Node.js Version:** `22.x` (Vercel'in varsayılanı Node 24; repo Node 22 istiyor). `web/package.json`'daki `engines.node: "22.x"` bunu zaten seçer, panelde de 22.x olduğundan emin ol.
 3. **Environment Variables** (Production ve Preview için):
 
    | Name | Value |
@@ -93,7 +94,6 @@ Beklenen: `1 init` ve `2 auth and jobs`, ikisi de `success = true`.
 
    Corepack açık olmazsa Vercel pnpm 10 kullanır; repo pnpm 11 istediği için (`engineStrict`) kurulum düşer. `BACKEND_URL` yoksa build bilerek hata verir.
 4. **Deploy**. Sonra **Settings → Build and Deployment**:
-   - **Node.js Version:** `22.x`
    - **Root Directory → Skip deployment:** açık (sadece web'i etkileyen commit'ler build eder; yeni projelerde varsayılan).
 5. Canlı adresi aç (`https://<proje>.vercel.app`): "TekPas" başlığı ve **Sunucu: Çalışıyor (UP)** rozeti.
    Render uyuyorsa rozet ilk açılışta "Erişilemiyor" der; ~1 dk sonra yenile.
@@ -154,5 +154,6 @@ Render workspace'inde ayda **500 pipeline dakikası** var; Docker build süresi 
 | Render log: bağlantı hatası, host'ta `-pooler` | Pooler adresi girilmiş; Neon Connect'te pooling'i kapatıp adresi yeniden al. |
 | Vercel build: `BACKEND_URL is not set` | Vercel env'e `BACKEND_URL` ekle, yeniden deploy et. |
 | Vercel build: pnpm sürüm/engine hatası | `ENABLE_EXPERIMENTAL_COREPACK=1` eksik. |
+| Vercel build: `Expected version: >=22.13 <23, Got: v24…` | Node.js Version 22.x değil: Settings → Build and Deployment → Node.js Version → `22.x`, sonra Redeploy. |
 | Rozet "Erişilemiyor" | Render uyuyor (~1 dk bekle) veya `BACKEND_URL` yanlış. |
 | Login 401, doğru şifreyle | `DEMO_PASSWORD` değiştiyse servis yeniden başlayınca yeni şifre geçerli olur (Render → **Manual Deploy → Restart**). |
