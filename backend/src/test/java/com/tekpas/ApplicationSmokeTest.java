@@ -54,6 +54,15 @@ class ApplicationSmokeTest {
         assertThat(response.body()).contains("\"status\":\"UP\"");
     }
 
+    /** Render health checks and the keep-awake cron use this; it must not need the database. */
+    @Test
+    void livenessIsPublicAndUp() throws Exception {
+        var response = get("/actuator/health/liveness");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).contains("\"status\":\"UP\"").doesNotContain("db");
+    }
+
     @Test
     void apiDocsArePublic() throws Exception {
         assertThat(get("/v3/api-docs").statusCode()).isEqualTo(200);

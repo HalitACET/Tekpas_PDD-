@@ -29,6 +29,10 @@ management:
   endpoint:
     health:
       show-details: never
+      # /actuator/health/liveness does not touch the DB: Render health checks and the keep-awake cron use it,
+      # so Neon can scale to zero. /actuator/health (with DB) is what the web badge shows.
+      probes:
+        enabled: true
 
 springdoc:
   swagger-ui:
