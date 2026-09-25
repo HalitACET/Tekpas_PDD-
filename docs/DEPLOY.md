@@ -120,9 +120,19 @@ Render ücretsiz servis 15 dk trafiksizlikte uyur, uyanması ~1 dk sürer. Sadec
 
 **Bütçe:** 09:00–22:00 penceresi ayda ~410 Render saati. Workspace başına 750 saat var ve diğer servisler uyanık tutulmuyor (Eylül 2026: toplam 7,9 saat), yani 7/24 demo günleri de sığar. Neon tarafında uyanık tutma DB'ye dokunmadığı için sadece gerçek kullanım CU-saat harcar.
 
-## 7. Canlı doğrulama (curl)
+## 7. Canlı doğrulama
 
-`W` yerine Vercel adresini, şifre yerine `DEMO_PASSWORD`'ü yaz. İstekler Vercel üzerinden gider (proxy).
+Production adresi: **https://tekpas.vercel.app** (deploy'a özel `web-xxxx-….vercel.app` adresleri Vercel Deployment Protection arkasındadır, onları kullanma).
+
+Kısa yol (şifreyi ekrana yazmadan sorar; token ve cookie değerini göstermez):
+
+```bash
+node scripts/live-check.mjs https://tekpas.vercel.app
+```
+
+Beklenen çıktı: sayfa `200` + rozet `Çalışıyor (UP)`, login `200` ve cookie bayrakları `HttpOnly ✓ Secure ✓ SameSite=Strict ✓ Path=/api/v1/auth ✓`, `/me` → `Nilufer Giyim A.S. (MANUFACTURER)`, refresh `200` ve cookie döndürüldü.
+
+Elle curl ile: `W` yerine Vercel adresini, şifre yerine `DEMO_PASSWORD`'ü yaz. İstekler Vercel üzerinden gider (proxy).
 
 ```bash
 W=https://<proje>.vercel.app
@@ -142,7 +152,19 @@ Render workspace'inde ayda **500 pipeline dakikası** var; Docker build süresi 
 - `buildFilter`: web, mobil, doküman ve test değişiklikleri Render build'i tetiklemez.
 - `checksPass`: CI kırmızıysa build de yapılmaz.
 
-*Canlı build süresi ve aylık deploy kapasitesi ilk deploy'dan sonra buraya eklenecek.*
+**Ölçüm (25.09.2026, ilk canlı build, cache yok):** ~2 dk. Adımlar: imaj çekme ~15 sn, `dependency:go-offline` 24 sn, `package` 5 sn, CDS eğitim koşusu 10 sn, imaj ve cache push ~20 sn, klonlama/hazırlık. Render build cache'ini registry'e yazıyor; sonraki build'lerde bağımlılık katmanı cache'ten gelir, kod değişikliğinde build'in ~1–1,5 dk sürmesi beklenir (ilk backend değişikliğinde doğrulanacak).
+
+| | Build başına | 500 dk ile aylık deploy |
+| --- | --- | --- |
+| Kötü durum (cache yok / `pom.xml` değişti) | ~2,5 dk | ~200 |
+| Normal (sadece kod değişti) | ~1,5 dk | ~330 |
+
+Bir ayda backend'e 200 deploy yapılmayacağı için bütçe rahat. Web, mobil ve doküman değişiklikleri Render build'i hiç tetiklemez.
+
+**Sınıra yaklaşınca** (Render → Workspace → Billing → Pipeline minutes, ~400 dk):
+1. Küçük backend değişikliklerini tek PR'da topla (her `main` merge'i bir build).
+2. Geçici olarak `autoDeployTrigger: off` yapıp elle deploy et (Render → **Manual Deploy**), sadece gerektiğinde.
+3. CDS eğitim koşusu her build'e ~10 sn ekler; son çare olarak Dockerfile'dan çıkarılabilir (açılış ~60 sn → ~130 sn olur).
 
 ## Sorun giderme
 
