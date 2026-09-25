@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
-import { backendOrigin } from "@/lib/env";
+import { backendUrl } from "@/lib/env";
 
 type HealthStatus = "up" | "down";
 
@@ -8,7 +8,7 @@ type HealthStatus = "up" | "down";
 // directly instead of @tekpas/api-client. It runs on the server, so no CORS is involved.
 async function fetchHealth(): Promise<HealthStatus> {
   try {
-    const res = await fetch(`${backendOrigin}/actuator/health`, {
+    const res = await fetch(`${backendUrl}/actuator/health`, {
       cache: "no-store",
       signal: AbortSignal.timeout(3000),
     });
