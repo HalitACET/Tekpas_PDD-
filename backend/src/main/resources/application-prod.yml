@@ -1,10 +1,34 @@
-# Production (Render): no defaults, a missing variable fails startup.
+# Production (Render + Neon): values come from the environment, no defaults. A missing variable stops startup.
+# Deploy guide: docs/DEPLOY.md
 spring:
   datasource:
+    # Direct (non-pooler) Neon endpoint, JDBC form, sslmode=require (checked by DatabaseSslGuard). See K19.
     url: ${DATABASE_URL}
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
+    hikari:
+      # Neon free: keep it small, and hold no idle connections so the compute can scale to zero.
+      # Hikari timeouts are plain milliseconds (no 2m/20s duration syntax here).
+      maximum-pool-size: 5
+      minimum-idle: 0
+      idle-timeout: 120000
+      max-lifetime: 900000
+      connection-timeout: 20000
+      data-source-properties:
+        sslmode: require
+  # Flyway uses the same DataSource (and thus the same direct connection).
+
+server:
+  tomcat:
+    threads:
+      # 512 MB instance: fewer threads, less stack memory.
+      max: 20
 
 tekpas:
+  jwt:
+    secret: ${JWT_SECRET}
   auth:
     cookie-secure: true
+  cors:
+    # Optional: the web app goes through its own origin (K18), so CORS stays off unless origins are listed.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}

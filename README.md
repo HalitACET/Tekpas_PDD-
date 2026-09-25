@@ -2,7 +2,7 @@
 
 TekPas, tekstil üreticileri için bir Dijital Ürün Pasaportu (DPP) platformudur. Üretici bir üretim partisi açar, tedarik zincirindeki firmalardan (iplikçi, kumaşçı, boyahane, fason dikim) veri ve sertifika toplar, AI belgeleri okur ve tutarlılığı kontrol eder. Sonunda parti için GS1 Digital Link QR'lı, herkese açık bir pasaport yayınlanır.
 
-Ayrıntılı plan ve kararlar: [docs/PLAN.md](docs/PLAN.md). Geliştirme kuralları: [CLAUDE.md](CLAUDE.md).
+Ayrıntılı plan ve kararlar: [docs/PLAN.md](docs/PLAN.md). Geliştirme kuralları: [CLAUDE.md](CLAUDE.md). Canlıya çıkış: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Yapı
 

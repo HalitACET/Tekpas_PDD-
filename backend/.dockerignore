@@ -1,0 +1,5 @@
+target/
+.idea/
+*.iml
+CLAUDE.md
+src/test/
