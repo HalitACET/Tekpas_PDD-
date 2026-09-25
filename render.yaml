@@ -1,0 +1,37 @@
+# Render Blueprint: TekPas backend (Docker, free plan). Setup and env values: docs/DEPLOY.md
+# Values marked sync: false are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: tekpas-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    # Liveness does not touch the database, so Neon can scale to zero while Render is awake.
+    healthCheckPath: /actuator/health/liveness
+    # Deploy main only after GitHub checks (CI) pass.
+    autoDeployTrigger: checksPass
+    # Pipeline minutes are limited: only backend changes trigger a build.
+    buildFilter:
+      paths:
+        - backend/**
+        - render.yaml
+      ignoredPaths:
+        - backend/src/test/**
+        - backend/**/*.md
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod,demo
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: DEMO_PASSWORD
+        sync: false
+      # CORS_ALLOWED_ORIGINS is optional (K18: the web app goes through its own origin); add it in the
+      # dashboard only if a browser client ever calls the API directly.
