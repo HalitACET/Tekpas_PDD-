@@ -2,6 +2,7 @@ package com.tekpas.common.error;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * OpenAPI schema of every error response (RFC 7807). Documentation only: the handlers write Spring's
@@ -9,10 +10,10 @@ import java.util.List;
  */
 @Schema(name = "ApiProblem", description = "RFC 7807 problem detail")
 public record ApiProblem(
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "urn:tekpas:problem:validation") String type,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Validation failed") String title,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "400") int status,
-        String detail,
-        String instance,
-        @Schema(description = "Only for type urn:tekpas:problem:validation") List<FieldViolation> errors) {
+        @Schema(example = "urn:tekpas:problem:validation") String type,
+        @Schema(example = "Validation failed") String title,
+        @Schema(example = "400") int status,
+        @Nullable String detail,
+        @Nullable String instance,
+        @Schema(description = "Only for type urn:tekpas:problem:validation") @Nullable List<FieldViolation> errors) {
 }

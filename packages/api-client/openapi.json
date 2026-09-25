@@ -47,6 +47,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "id", "name", "type" ],
         "type" : "object"
       },
       "FieldViolation" : {
@@ -61,7 +62,8 @@
           "message" : {
             "type" : "string"
           }
-        }
+        },
+        "required" : [ "code", "field" ]
       },
       "LoginRequest" : {
         "properties" : {
@@ -103,6 +105,7 @@
             "$ref" : "#/components/schemas/UserSummary"
           }
         },
+        "required" : [ "accessToken", "expiresIn", "tokenType", "user" ],
         "type" : "object"
       },
       "MeResponse" : {
@@ -128,6 +131,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "company", "email", "fullName", "id", "locale", "role" ],
         "type" : "object"
       },
       "RefreshRequest" : {
@@ -136,6 +140,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "refreshToken" ],
         "type" : "object"
       },
       "TokenResponse" : {
@@ -154,6 +159,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "accessToken", "expiresIn", "tokenType" ],
         "type" : "object"
       },
       "UserSummary" : {
@@ -179,6 +185,7 @@
             "type" : "string"
           }
         },
+        "required" : [ "company", "email", "fullName", "id", "locale", "role" ],
         "type" : "object"
       }
     },
