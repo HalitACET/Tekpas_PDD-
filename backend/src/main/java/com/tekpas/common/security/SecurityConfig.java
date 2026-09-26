@@ -1,6 +1,7 @@
 package com.tekpas.common.security;
 
 import java.util.List;
+import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +12,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -23,6 +26,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    /** Authenticated by credentials or the refresh token, never by a bearer token. */
+    private static final Set<String> BEARERLESS_AUTH_PATHS =
+            Set.of("/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/logout");
 
     private static final String[] PUBLIC_PATHS = {
         "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/logout",
@@ -42,6 +49,7 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth -> oauth
+                        .bearerTokenResolver(bearerTokenResolver())
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
                         .authenticationEntryPoint(problemHandler)
                         .accessDeniedHandler(problemHandler))
@@ -74,6 +82,15 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         source.registerCorsConfiguration("/api/**", config);
         return source;
+    }
+
+    /**
+     * An expired access token sent along with /auth/refresh must not stop the refresh: the bearer filter
+     * would reject it before the refresh cookie is read. These endpoints ignore Authorization entirely.
+     */
+    static BearerTokenResolver bearerTokenResolver() {
+        DefaultBearerTokenResolver delegate = new DefaultBearerTokenResolver();
+        return request -> BEARERLESS_AUTH_PATHS.contains(request.getRequestURI()) ? null : delegate.resolve(request);
     }
 
     @Bean

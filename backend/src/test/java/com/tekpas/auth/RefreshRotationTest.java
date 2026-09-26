@@ -122,6 +122,43 @@ class RefreshRotationTest {
         assertThat(result.getResponse().getHeader(HttpHeaders.SET_COOKIE)).contains("HttpOnly", "SameSite=Strict");
     }
 
+    /** Clients may send their expired access token along; refresh must still work. */
+    @Test
+    void refreshIgnoresAnExpiredOrInvalidBearerHeader() {
+        String token = mobileLogin();
+
+        MvcTestResult result = fixtures.mvc().post().uri("/api/v1/auth/refresh")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer expired.or.garbage")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"refreshToken\":\"" + token + "\"}")
+                .exchange();
+
+        assertThat(result).hasStatusOk();
+    }
+
+    @Test
+    void logoutAndLoginIgnoreABearerHeaderToo() {
+        AppUser user = fixtures.user(fixtures.company(), UserRole.OWNER);
+
+        assertThat(fixtures.mvc().post().uri("/api/v1/auth/logout")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer garbage").exchange())
+                .hasStatus(HttpStatus.NO_CONTENT);
+        assertThat(fixtures.mvc().post().uri("/api/v1/auth/login")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer garbage")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"" + user.getEmail() + "\",\"password\":\"" + TestFixtures.PASSWORD
+                        + "\",\"client\":\"MOBILE\"}")
+                .exchange())
+                .hasStatusOk();
+    }
+
+    @Test
+    void protectedEndpointsStillRejectABadBearer() {
+        assertThat(fixtures.mvc().get().uri("/api/v1/auth/me")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer garbage").exchange())
+                .hasStatus(HttpStatus.UNAUTHORIZED);
+    }
+
     @Test
     void inactiveUsersCannotRefresh() {
         AppUser user = fixtures.user(fixtures.company(), UserRole.OWNER);
