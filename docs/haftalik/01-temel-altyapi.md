@@ -42,12 +42,12 @@
 - **Backend:** 69 test (Testcontainers + Postgres 16). Kapsanan senaryolar: tenant izolasyonu, token rotation ve tekrar kullanım, hoşgörü süresi, 401'e rağmen commit edilen iptal, beni hatırla, proxy Origin, bearer'sız auth uçları.
 - **api-client:** 9 test (single-flight, gövdenin tekrar gönderilmesi, auth uçlarına token gönderilmemesi).
 - **Web:** 30 birim testi; Playwright ile 2 klavye testi ve 15 ekran görüntüsü.
-- **Lighthouse erişilebilirlik:** login 100, panel 100, uyarı yok.
+- **Lighthouse erişilebilirlik:** login ve panel, masaüstü ve 390 px mobil, dördü de 100; uyarı yok.
 - **CI:** üç job da yeşil. Kritik testler mutasyonla doğrulandı: düzeltme geri alınınca test kırmızıya dönüyor.
 
 ## Ekran görüntüleri
 - `docs/design/impl-v0.2/`: tasarım (`design-*`) ve uygulama (`impl-*`) yan yana; açık ve koyu tema; login varsayılan/hata/yükleniyor; panel Partiler.
-- Tasarımla piksel farkı %1'in altında. Panelin 390 px tasarımı bekleniyor.
+- Tasarımla piksel farkı ~%1 (panelin 390 px mobil görünümü dahil: menü kapalı, drawer, kullanıcı menüsü).
 
 ## Sonraki adım
 - **M2:** ürün ve parti CRUD (GTIN kontrol hanesi), ilk gerçek liste ekranları (TanStack Query, react-hook-form + Zod).

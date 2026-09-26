@@ -105,13 +105,13 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 **M1–M10 Arden demosu için kritik.** M11–M12 aynı zamanda tampondur.
 
 ### M1 — Temel altyapı ✓
-_Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md`. Canlı kabul, PR #9 merge edilip `kozapass.vercel.app` alan adı yeniden bağlandıktan sonra doğrulanacak._
+_Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md`. Canlı kabul 27.09.2026'da `https://kozapass.vercel.app` üzerinde doğrulandı: gerçek Chrome ile giriş, yenilemede oturumun kalması, çıkış, "Beni hatırla" kapalıyken tarayıcı kapanınca oturumun düşmesi; `scripts/live-check.mjs` yeşil._
 - [x] Monorepo iskeleti (pnpm workspaces, `backend/` Maven, `web/`, `mobile/`, `packages/`)
 - [x] `infra/docker-compose.yml` (Postgres, MinIO), `.env.example`
 - [x] Flyway V1 + V2, `DemoDataSeeder` (**demo kullanıcılarının gerçek BCrypt hash'i**)
 - [x] ProblemDetail handler, `CurrentUser`, JWT login / refresh (rotation) / logout / me
 - [x] OpenAPI → `packages/api-client` üretim hattı
-- [x] Next.js login ekranı + korumalı panel iskeleti (shadcn) — Claude Design v0.2; panelin 390 px görünümü tasarım bekliyor
+- [x] Next.js login ekranı + korumalı panel iskeleti (shadcn) — Claude Design v0.2, masaüstü ve mobil (390 px)
 - [x] CI: backend `mvn verify`, web lint/typecheck/test, OpenAPI ↔ client kontrolü
 - [x] Deploy: Render + Neon + Vercel, sağlık kontrolü + uyanık tutma cron'u
 
