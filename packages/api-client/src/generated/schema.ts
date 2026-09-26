@@ -15,7 +15,7 @@ export interface paths {
         put?: never;
         /**
          * Log in with e-mail and password
-         * @description WEB clients receive the refresh token as an httpOnly cookie, MOBILE clients in the body.
+         * @description WEB clients receive the refresh token as an httpOnly cookie, MOBILE clients in the body. With rememberMe=false the WEB cookie is a session cookie (no Max-Age).
          */
         post: operations["login"];
         delete?: never;
@@ -120,6 +120,7 @@ export interface components {
             /** Format: email */
             email: string;
             password: string;
+            rememberMe?: boolean;
         };
         LoginResponse: {
             accessToken: string;
@@ -274,6 +275,7 @@ export interface operations {
             path?: never;
             cookie?: {
                 tekpas_rt?: string;
+                tekpas_rt_mode?: string;
             };
         };
         requestBody?: {

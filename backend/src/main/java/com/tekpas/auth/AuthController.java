@@ -44,7 +44,8 @@ public class AuthController {
     @PostMapping("/login")
     @SecurityRequirements
     @Operation(operationId = "login", summary = "Log in with e-mail and password",
-            description = "WEB clients receive the refresh token as an httpOnly cookie, MOBILE clients in the body.")
+            description = "WEB clients receive the refresh token as an httpOnly cookie, MOBILE clients in the body. "
+                    + "With rememberMe=false the WEB cookie is a session cookie (no Max-Age).")
     @ApiResponse(responseCode = "200", description = "Logged in")
     @ApiResponse(responseCode = "400", description = "Validation failed")
     @ApiResponse(responseCode = "401", description = "Invalid credentials")
@@ -54,7 +55,7 @@ public class AuthController {
                 userAgent);
         LoginResponse body = new LoginResponse(session.accessToken(), BEARER, session.expiresIn(),
                 bodyRefreshToken(session), session.user());
-        return withRefreshCookie(session).body(body);
+        return withRefreshCookie(session, request.rememberMeOrDefault()).body(body);
     }
 
     @PostMapping("/refresh")
@@ -67,12 +68,14 @@ public class AuthController {
     @ApiResponse(responseCode = "401", description = "Missing, expired, reused or revoked refresh token")
     public ResponseEntity<TokenResponse> refresh(
             @CookieValue(name = RefreshCookies.NAME, required = false) String cookieToken,
+            @CookieValue(name = RefreshCookies.MODE_NAME, required = false) String cookieMode,
             @RequestBody(required = false) RefreshRequest request,
             @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
         AuthService.Session session = authService.refresh(refreshTokenFrom(cookieToken, request), userAgent);
         TokenResponse body = new TokenResponse(session.accessToken(), BEARER, session.expiresIn(),
                 bodyRefreshToken(session));
-        return withRefreshCookie(session).body(body);
+        // A session-only login stays session-only across rotations.
+        return withRefreshCookie(session, !RefreshCookies.isSessionMode(cookieMode)).body(body);
     }
 
     @PostMapping("/logout")
@@ -85,9 +88,9 @@ public class AuthController {
             @CookieValue(name = RefreshCookies.NAME, required = false) String cookieToken,
             @RequestBody(required = false) RefreshRequest request) {
         authService.logout(refreshTokenFrom(cookieToken, request));
-        return ResponseEntity.noContent()
-                .header(HttpHeaders.SET_COOKIE, refreshCookies.clear().toString())
-                .build();
+        ResponseEntity.HeadersBuilder<?> response = ResponseEntity.noContent();
+        refreshCookies.clear().forEach(cookie -> response.header(HttpHeaders.SET_COOKIE, cookie.toString()));
+        return response.build();
     }
 
     @GetMapping("/me")
@@ -98,10 +101,11 @@ public class AuthController {
         return authService.me(currentUser.userId(), currentUser.companyId());
     }
 
-    private ResponseEntity.BodyBuilder withRefreshCookie(AuthService.Session session) {
+    private ResponseEntity.BodyBuilder withRefreshCookie(AuthService.Session session, boolean persistent) {
         ResponseEntity.BodyBuilder response = ResponseEntity.ok();
         if (session.client() == ClientType.WEB) {
-            response.header(HttpHeaders.SET_COOKIE, refreshCookies.create(session.refreshToken()).toString());
+            refreshCookies.create(session.refreshToken(), persistent)
+                    .forEach(cookie -> response.header(HttpHeaders.SET_COOKIE, cookie.toString()));
         }
         return response;
     }

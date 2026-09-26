@@ -42,7 +42,8 @@ class OpenApiNullabilityTest {
     @Test
     void nestedAndRequestSchemasFollowTheSameRule() {
         assertThat(required("CompanySummary")).containsExactlyInAnyOrder("id", "name", "type");
-        assertThat(required("LoginRequest")).containsExactlyInAnyOrder("email", "password", "client");
+        assertThat(required("LoginRequest")).containsExactlyInAnyOrder("email", "password", "client")
+                .doesNotContain("rememberMe");
     }
 
     private List<String> required(String schema) {
