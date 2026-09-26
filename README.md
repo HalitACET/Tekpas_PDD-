@@ -1,6 +1,8 @@
-# TekPas
+# KozaPass (kod adı: tekpas)
 
-TekPas, tekstil üreticileri için bir Dijital Ürün Pasaportu (DPP) platformudur. Üretici bir üretim partisi açar, tedarik zincirindeki firmalardan (iplikçi, kumaşçı, boyahane, fason dikim) veri ve sertifika toplar, AI belgeleri okur ve tutarlılığı kontrol eder. Sonunda parti için GS1 Digital Link QR'lı, herkese açık bir pasaport yayınlanır.
+KozaPass, tekstil üreticileri için bir Dijital Ürün Pasaportu (DPP) platformudur. Üretici bir üretim partisi açar, tedarik zincirindeki firmalardan (iplikçi, kumaşçı, boyahane, fason dikim) veri ve sertifika toplar, AI belgeleri okur ve tutarlılığı kontrol eder. Sonunda parti için GS1 Digital Link QR'lı, herkese açık bir pasaport yayınlanır.
+
+Repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`) ve servis adları kod adını kullanır; kullanıcıya görünen marka KozaPass'tir (K20).
 
 Ayrıntılı plan ve kararlar: [docs/PLAN.md](docs/PLAN.md). Geliştirme kuralları: [CLAUDE.md](CLAUDE.md). Canlıya çıkış: [docs/DEPLOY.md](docs/DEPLOY.md).
 

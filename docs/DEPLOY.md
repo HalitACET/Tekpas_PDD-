@@ -1,4 +1,4 @@
-# TekPas — Canlıya çıkış rehberi
+# KozaPass (kod adı: tekpas) — Canlıya çıkış rehberi
 
 Sıfırdan canlı ortam kurulumu. Hepsi ücretsiz katman. **Hiçbir değeri (şifre, bağlantı adresi, secret) bir dosyaya yazma**: her değer ilgili panelin kutusuna girilir.
 
@@ -58,7 +58,7 @@ openssl rand -base64 48
    | `JWT_SECRET` | 1. adımın çıktısı |
    | `DEMO_PASSWORD` | Demo kullanıcılarının şifresi (sen belirle). Boş bırakırsan demo kullanıcıları oluşmaz. |
 
-   `SPRING_PROFILES_ACTIVE=prod,demo` Blueprint'ten otomatik gelir. `CORS_ALLOWED_ORIGINS` yok: web kendi origin'i üzerinden eriştiği için (K18) gerekmez, boşsa CORS kapalıdır.
+   `SPRING_PROFILES_ACTIVE=prod,demo` Blueprint'ten otomatik gelir. `PUBLIC_BASE_URL` (QR adresleri, K13) M6'da eklenecek; değeri `https://kozapass.vercel.app` olacak. `CORS_ALLOWED_ORIGINS` yok: web kendi origin'i üzerinden eriştiği için (K18) gerekmez, boşsa CORS kapalıdır.
 4. **Apply**. İlk build 3–5 dk sürer (Maven bağımlılıkları + CDS arşivi).
 5. **Logs** sekmesinde şu iki satırı bekle:
    - `Started TekpasApplication in … seconds`
@@ -95,7 +95,7 @@ Beklenen: `1 init` ve `2 auth and jobs`, ikisi de `success = true`.
    Corepack açık olmazsa Vercel pnpm 10 kullanır; repo pnpm 11 istediği için (`engineStrict`) kurulum düşer. `BACKEND_URL` yoksa build bilerek hata verir.
 4. **Deploy**. Sonra **Settings → Build and Deployment**:
    - **Root Directory → Skip deployment:** açık (sadece web'i etkileyen commit'ler build eder; yeni projelerde varsayılan).
-5. Canlı adresi aç (`https://<proje>.vercel.app`): "TekPas" başlığı ve **Sunucu: Çalışıyor (UP)** rozeti.
+5. Canlı adresi aç (production: `https://kozapass.vercel.app`; Vercel → Settings → Domains): "KozaPass" başlığı ve **Sunucu: Çalışıyor (UP)** rozeti.
    Render uyuyorsa rozet ilk açılışta "Erişilemiyor" der; ~1 dk sonra yenile.
 
 **Otomatik deploy:** `main`'e her push production deploy'u, her PR bir preview deploy'u üretir.
@@ -122,12 +122,12 @@ Render ücretsiz servis 15 dk trafiksizlikte uyur, uyanması ~1 dk sürer. Sadec
 
 ## 7. Canlı doğrulama
 
-Production adresi: **https://tekpas.vercel.app** (deploy'a özel `web-xxxx-….vercel.app` adresleri Vercel Deployment Protection arkasındadır, onları kullanma).
+Production adresi: **https://kozapass.vercel.app** (deploy'a özel `web-xxxx-….vercel.app` adresleri Vercel Deployment Protection arkasındadır, onları kullanma).
 
 Kısa yol (şifreyi ekrana yazmadan sorar; token ve cookie değerini göstermez):
 
 ```bash
-node scripts/live-check.mjs https://tekpas.vercel.app
+node scripts/live-check.mjs https://kozapass.vercel.app
 ```
 
 Beklenen çıktı: sayfa `200` + rozet `Çalışıyor (UP)`, login `200` ve cookie bayrakları `HttpOnly ✓ Secure ✓ SameSite=Strict ✓ Path=/api/v1/auth ✓`, `/me` → `Nilufer Giyim A.S. (MANUFACTURER)`, refresh `200` ve cookie döndürüldü.
@@ -135,7 +135,7 @@ Beklenen çıktı: sayfa `200` + rozet `Çalışıyor (UP)`, login `200` ve cook
 Elle curl ile: `W` yerine Vercel adresini, şifre yerine `DEMO_PASSWORD`'ü yaz. İstekler Vercel üzerinden gider (proxy).
 
 ```bash
-W=https://<proje>.vercel.app
+W=https://kozapass.vercel.app
 curl -s -c jar.txt -D - -H "Content-Type: application/json" \
   -d '{"email":"admin@nilufergiyim.example","password":"<DEMO_PASSWORD>","client":"WEB"}' \
   $W/api/v1/auth/login -o login.json | grep -i set-cookie   # Secure; HttpOnly; SameSite=Strict
