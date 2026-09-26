@@ -130,7 +130,18 @@ Kısa yol (şifreyi ekrana yazmadan sorar; token ve cookie değerini göstermez)
 node scripts/live-check.mjs https://kozapass.vercel.app
 ```
 
-Beklenen çıktı: sayfa `200` + rozet `Çalışıyor (UP)`, login `200` ve cookie bayrakları `HttpOnly ✓ Secure ✓ SameSite=Strict ✓ Path=/api/v1/auth ✓`, `/me` → `Nilufer Giyim A.S. (MANUFACTURER)`, refresh `200` ve cookie döndürüldü.
+Beklenen çıktı: login sayfası `200` (başlık `Giriş yap · KozaPass`), login `200` ve cookie bayrakları `HttpOnly ✓ Secure ✓ SameSite=Strict ✓ Path=/api/v1/auth ✓`, `/me` → `Nilufer Giyim A.S. (MANUFACTURER)`, refresh `200` ve cookie döndürüldü. Betik istekleri tarayıcı gibi `Origin` başlığıyla gönderir; login `403` dönerse backend proxy'nin ilettiği Origin'i CORS olarak reddediyordur.
+
+`DEPLOYMENT_NOT_FOUND` (404) görürsen alan adı bir deploy'a bağlı değildir: Vercel → proje → **Settings → Domains**'te `kozapass.vercel.app`'in listelendiğini ve **Deployments**'ta en son `main` deploy'unun **Production** olduğunu kontrol et.
+
+**Tarayıcıda elle (giriş ekranı):**
+
+1. `https://kozapass.vercel.app` → `/login`'e yönlenir. Demo kullanıcıyla giriş yap → Partiler açılır, üst barda firma adı ve rol görünür.
+2. Sayfayı yenile → oturum kalır (kısa bir iskelet görünebilir, içerik görünmez).
+3. Kullanıcı menüsü → **Çıkış yap** → `/login`. Adres çubuğundan `/batches` aç → tekrar `/login?next=%2Fbatches`.
+4. "Beni hatırla" **işaretsiz** giriş yap, tarayıcıyı tamamen kapatıp aç → oturum düşmüş olmalı.
+
+> **Not (4. adım):** Chrome ve Edge'de "Kaldığın yerden devam et" (Başlangıçta → önceki oturumu geri yükle) açıksa tarayıcı kapanıp açıldığında oturum cookie'lerini de geri yükler; bu durumda oturum düşmez. Bu tarayıcının davranışıdır, uygulamanın değil. Testi bu ayar kapalıyken (ya da gizli pencerede, tüm gizli pencereler kapatılarak) yap.
 
 Elle curl ile: `W` yerine Vercel adresini, şifre yerine `DEMO_PASSWORD`'ü yaz. İstekler Vercel üzerinden gider (proxy).
 
