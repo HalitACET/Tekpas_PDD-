@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Favicon 32 (design A1 v0.2): simplified mark on a cocoon-cream tile -->
+  <rect x="0.5" y="0.5" width="31" height="31" rx="7" fill="#FAF6EE" stroke="#E6E3DD"/>
+  <g transform="translate(4 4) scale(0.75)">
+    <g transform="translate(13 18.5) rotate(35)">
+      <ellipse rx="8.5" ry="11.5" fill="#8C2F4B"/>
+      <path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" fill="none" stroke="#FAF6EE" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" fill="none" stroke="#8C2F4B" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -3,14 +3,171 @@
     "title": "KozaPass",
     "description": "Digital Product Passport for textiles"
   },
-  "home": {
-    "title": "KozaPass",
-    "subtitle": "Digital Product Passport for textiles"
+  "common": {
+    "brand": "KozaPass",
+    "comingSoon": {
+      "title": "Coming soon",
+      "description": "This feature arrives in an upcoming release."
+    },
+    "language": "Language",
+    "languages": {
+      "tr": "Türkçe",
+      "en": "English",
+      "de": "Deutsch"
+    },
+    "loading": "Loading…"
   },
-  "health": {
-    "label": "Server",
-    "up": "Running (UP)",
-    "down": "Unreachable",
-    "checking": "Checking…"
+  "login": {
+    "overline": "Koza Han, Bursa · 1491",
+    "headline": "Every fibre begins with a <em>cocoon</em>.",
+    "story": "For five hundred years, silk carried its origin with it as it changed hands in Bursa. KozaPass follows the same trail through today's supply chain: it brings each batch's spinner, weaver, dyehouse and certificates together in a single passport.",
+    "storyShort": "Every step of your supply chain, in a single passport.",
+    "illustrationLabel": "A thread leaving a cocoon and passing through the yarn, fabric, dyeing and garment steps.",
+    "stages": {
+      "yarn": "Yarn",
+      "fabric": "Fabric",
+      "dye": "Dyeing",
+      "garment": "Garment"
+    },
+    "title": "Sign in",
+    "subtitle": "Continue with your company account.",
+    "email": "Email",
+    "emailPlaceholder": "name@company.com",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "rememberMe": "Remember me",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "invalidCredentials": "Email or password is incorrect.",
+    "serverError": "The server can't be reached right now. Please try again in a few seconds.",
+    "forgotPassword": "Forgot your password? Contact your company administrator.",
+    "footer": "© 2026 KozaPass · Bursa"
+  },
+  "nav": {
+    "label": "Main menu",
+    "groups": {
+      "passport": "Passport",
+      "supplyChain": "Supply chain",
+      "admin": "Administration"
+    },
+    "items": {
+      "tasks": "Tasks",
+      "products": "Products",
+      "batches": "Batches",
+      "suppliers": "Suppliers",
+      "documents": "Documents",
+      "imports": "Imports",
+      "users": "Users",
+      "settings": "Settings"
+    },
+    "collapse": "Collapse menu",
+    "expand": "Expand menu"
+  },
+  "shell": {
+    "skipToContent": "Skip to content",
+    "breadcrumb": "Breadcrumb",
+    "search": "Search batches, GTINs or suppliers",
+    "searchUnavailable": "Search coming soon",
+    "userMenu": "User menu",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "logout": "Sign out"
+  },
+  "roles": {
+    "OWNER": "Company owner",
+    "ADMIN": "Administrator",
+    "EDITOR": "Editor",
+    "SUPPLIER": "Supplier",
+    "VIEWER": "Viewer"
+  },
+  "page": {
+    "import": "Import",
+    "filter": "Filter",
+    "status": "Status",
+    "supplier": "Supplier",
+    "emptyIllustration": "Empty list"
+  },
+  "pages": {
+    "tasks": {
+      "title": "Tasks",
+      "sub": "Supply chain steps and documents waiting for your approval.",
+      "emptyTitle": "No tasks waiting for your approval",
+      "emptyBody": "Steps sent by suppliers and documents read by AI are collected here. Fields with confidence below 0.80 are listed first.",
+      "cols": ["Task", "Batch", "Supplier", "Status", "Waiting"]
+    },
+    "products": {
+      "title": "Products",
+      "sub": "Product cards and fibre compositions by GTIN.",
+      "cta": "New product",
+      "cta2": "Import from Excel",
+      "emptyTitle": "No products yet",
+      "emptyBody": "A passport always belongs to a product. Define your first product with its GTIN, name and fibre composition.",
+      "cols": ["GTIN", "Product", "Fibre composition", "Batches", "Updated"]
+    },
+    "batches": {
+      "title": "Batches",
+      "sub": "A digital product passport is published for every production batch.",
+      "cta": "New batch",
+      "cta2": "Import from Excel",
+      "emptyTitle": "No batches yet",
+      "emptyBody": "Create your first batch: choose the product, assign the workshops in the supply chain and collect the documents. An approved batch is published as a passport with a QR code.",
+      "cols": ["Batch no.", "Product", "Supply chain", "Status", "Updated"],
+      "guide": {
+        "label": "How to start",
+        "steps": [
+          { "title": "Choose the product", "body": "GTIN and fibre composition" },
+          { "title": "Assign suppliers", "body": "Yarn → garment" },
+          { "title": "Collect documents", "body": "AI reads, you approve" }
+        ]
+      }
+    },
+    "suppliers": {
+      "title": "Suppliers",
+      "sub": "Spinners, weavers, dyehouses and contract workshops.",
+      "cta": "Add supplier",
+      "cta2": "Send invitation link",
+      "emptyTitle": "No suppliers yet",
+      "emptyBody": "Add or invite your suppliers; they can upload their documents through the link you send them.",
+      "cols": ["Company", "Role", "City", "Certificates", "Updated"]
+    },
+    "documents": {
+      "title": "Documents",
+      "sub": "Certificates, delivery notes and technical sheets. AI reads, you approve.",
+      "cta": "Upload document",
+      "cta2": "Request from supplier",
+      "emptyTitle": "No documents yet",
+      "emptyBody": "Upload PDF, JPG or PNG files (up to 10 MB each). AI extracts the certificate number, validity date and fibre percentages and submits them for your approval.",
+      "cols": ["Document", "Type", "Supplier", "Status", "Valid until"]
+    },
+    "imports": {
+      "title": "Imports",
+      "sub": "Bulk data from Excel (XLSX) files.",
+      "cta": "New import",
+      "cta2": "Download template",
+      "emptyTitle": "No imports yet",
+      "emptyBody": "Upload your product and batch lists as Excel. Download the template and fill it in.",
+      "cols": ["File", "Source", "Rows", "Status", "Date"]
+    },
+    "users": {
+      "title": "Users",
+      "sub": "Team members and their roles.",
+      "cta": "Invite user",
+      "cta2": "View roles",
+      "emptyTitle": "It's just you",
+      "emptyBody": "Invite your office team. Only Company owners and Administrators can approve and publish.",
+      "cols": ["Name", "Email", "Role", "Last sign-in", "Status"]
+    },
+    "settings": {
+      "title": "Settings",
+      "sub": "Company details and passport appearance.",
+      "cta": "Save",
+      "cta2": "Cancel",
+      "emptyTitle": "Company profile incomplete",
+      "emptyBody": "Complete the company name, address and logo that appear on the passport.",
+      "cols": ["Setting", "Value", "", "", ""]
+    }
   }
 }

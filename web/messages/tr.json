@@ -3,14 +3,171 @@
     "title": "KozaPass",
     "description": "Tekstil için Dijital Ürün Pasaportu"
   },
-  "home": {
-    "title": "KozaPass",
-    "subtitle": "Tekstil için Dijital Ürün Pasaportu"
+  "common": {
+    "brand": "KozaPass",
+    "comingSoon": {
+      "title": "Yakında",
+      "description": "Bu özellik bir sonraki sürümlerde gelecek."
+    },
+    "language": "Dil",
+    "languages": {
+      "tr": "Türkçe",
+      "en": "English",
+      "de": "Deutsch"
+    },
+    "loading": "Yükleniyor…"
   },
-  "health": {
-    "label": "Sunucu",
-    "up": "Çalışıyor (UP)",
-    "down": "Erişilemiyor",
-    "checking": "Kontrol ediliyor…"
+  "login": {
+    "overline": "Koza Han, Bursa · 1491",
+    "headline": "Her lif bir <em>kozadan</em> başlar.",
+    "story": "Beş yüz yıldır ipek, Bursa'da el değiştirirken kökenini yanında taşıdı. KozaPass aynı izi bugünün tedarik zincirinde sürer: her partinin iplikçisini, kumaşçısını, boyahanesini ve sertifikalarını tek bir pasaportta toplar.",
+    "storyShort": "Tedarik zincirinizin her adımı, tek bir pasaportta.",
+    "illustrationLabel": "Kozadan çıkan bir iplik; iplik, kumaş, boya ve konfeksiyon adımlarından geçiyor.",
+    "stages": {
+      "yarn": "İplik",
+      "fabric": "Kumaş",
+      "dye": "Boya",
+      "garment": "Konfeksiyon"
+    },
+    "title": "Giriş yap",
+    "subtitle": "Firma hesabınızla devam edin.",
+    "email": "E-posta",
+    "emailPlaceholder": "ad@firma.com.tr",
+    "password": "Şifre",
+    "showPassword": "Şifreyi göster",
+    "hidePassword": "Şifreyi gizle",
+    "rememberMe": "Beni hatırla",
+    "submit": "Giriş yap",
+    "submitting": "Giriş yapılıyor…",
+    "invalidCredentials": "E-posta veya şifre hatalı.",
+    "serverError": "Sunucuya şu an ulaşılamıyor. Birkaç saniye sonra tekrar deneyin.",
+    "forgotPassword": "Şifrenizi mi unuttunuz? Firma yöneticinizle iletişime geçin.",
+    "footer": "© 2026 KozaPass · Bursa"
+  },
+  "nav": {
+    "label": "Ana menü",
+    "groups": {
+      "passport": "Pasaport",
+      "supplyChain": "Tedarik zinciri",
+      "admin": "Yönetim"
+    },
+    "items": {
+      "tasks": "Görevler",
+      "products": "Ürünler",
+      "batches": "Partiler",
+      "suppliers": "Tedarikçiler",
+      "documents": "Belgeler",
+      "imports": "İçe aktarma",
+      "users": "Kullanıcılar",
+      "settings": "Ayarlar"
+    },
+    "collapse": "Menüyü daralt",
+    "expand": "Menüyü genişlet"
+  },
+  "shell": {
+    "skipToContent": "İçeriğe geç",
+    "breadcrumb": "Konum",
+    "search": "Parti, GTIN veya tedarikçi ara",
+    "searchUnavailable": "Arama yakında",
+    "userMenu": "Kullanıcı menüsü",
+    "theme": "Tema",
+    "themeLight": "Açık",
+    "themeDark": "Koyu",
+    "themeSystem": "Sistem",
+    "logout": "Çıkış yap"
+  },
+  "roles": {
+    "OWNER": "Firma sahibi",
+    "ADMIN": "Yönetici",
+    "EDITOR": "Editör",
+    "SUPPLIER": "Tedarikçi",
+    "VIEWER": "Görüntüleyici"
+  },
+  "page": {
+    "import": "İçe aktar",
+    "filter": "Filtrele",
+    "status": "Durum",
+    "supplier": "Tedarikçi",
+    "emptyIllustration": "Boş liste"
+  },
+  "pages": {
+    "tasks": {
+      "title": "Görevler",
+      "sub": "Onayınızı bekleyen tedarik zinciri adımları ve belgeler.",
+      "emptyTitle": "Onayınızı bekleyen görev yok",
+      "emptyBody": "Tedarikçiden gelen adımlar ve AI tarafından okunan belgeler burada toplanır. Güveni 0,80 altında kalan alanlar önce listelenir.",
+      "cols": ["Görev", "Parti", "Tedarikçi", "Durum", "Bekleme"]
+    },
+    "products": {
+      "title": "Ürünler",
+      "sub": "GTIN bazında ürün kartları ve lif bileşimleri.",
+      "cta": "Yeni ürün",
+      "cta2": "Excel'den içe aktar",
+      "emptyTitle": "Henüz ürün yok",
+      "emptyBody": "Pasaport her zaman bir ürüne bağlıdır. GTIN, ürün adı ve lif bileşimiyle ilk ürününüzü tanımlayın.",
+      "cols": ["GTIN", "Ürün", "Lif bileşimi", "Parti sayısı", "Güncelleme"]
+    },
+    "batches": {
+      "title": "Partiler",
+      "sub": "Her üretim partisi için bir dijital ürün pasaportu yayınlanır.",
+      "cta": "Yeni parti",
+      "cta2": "Excel'den içe aktar",
+      "emptyTitle": "Henüz parti yok",
+      "emptyBody": "İlk partinizi oluşturun: ürünü seçin, tedarik zincirindeki atölyeleri atayın, belgeleri toplayın. Onaylanan parti QR'lı pasaport olarak yayınlanır.",
+      "cols": ["Parti no", "Ürün", "Tedarik zinciri", "Durum", "Güncelleme"],
+      "guide": {
+        "label": "Nasıl başlanır",
+        "steps": [
+          { "title": "Ürünü seç", "body": "GTIN ve lif bileşimi" },
+          { "title": "Tedarikçileri ata", "body": "İplik → konfeksiyon" },
+          { "title": "Belgeleri topla", "body": "AI okur, siz onaylarsınız" }
+        ]
+      }
+    },
+    "suppliers": {
+      "title": "Tedarikçiler",
+      "sub": "İplikçi, kumaşçı, boyahane ve fason atölyeler.",
+      "cta": "Tedarikçi ekle",
+      "cta2": "Davet bağlantısı gönder",
+      "emptyTitle": "Henüz tedarikçi yok",
+      "emptyBody": "Tedarikçilerinizi ekleyin ya da davet edin; belgelerini gönderdiğiniz bağlantıdan yükleyebilirler.",
+      "cols": ["Firma", "Rol", "Şehir", "Sertifikalar", "Güncelleme"]
+    },
+    "documents": {
+      "title": "Belgeler",
+      "sub": "Sertifika, irsaliye ve teknik föyler. AI okur, siz onaylarsınız.",
+      "cta": "Belge yükle",
+      "cta2": "Tedarikçiden iste",
+      "emptyTitle": "Henüz belge yok",
+      "emptyBody": "PDF, JPG veya PNG yükleyin (dosya başına en fazla 10 MB). AI; sertifika numarası, geçerlilik tarihi ve lif oranlarını çıkarır, onayınıza sunar.",
+      "cols": ["Belge", "Tür", "Tedarikçi", "Durum", "Geçerlilik"]
+    },
+    "imports": {
+      "title": "İçe aktarma",
+      "sub": "Excel (XLSX) dosyalarından toplu veri.",
+      "cta": "Yeni içe aktarma",
+      "cta2": "Şablonu indir",
+      "emptyTitle": "Henüz içe aktarma yapılmadı",
+      "emptyBody": "Ürün ve parti listelerinizi Excel olarak yükleyin. Şablonu indirip doldurmanız yeterli.",
+      "cols": ["Dosya", "Kaynak", "Satır", "Durum", "Tarih"]
+    },
+    "users": {
+      "title": "Kullanıcılar",
+      "sub": "Ekip üyeleri ve rolleri.",
+      "cta": "Kullanıcı davet et",
+      "cta2": "Rolleri gör",
+      "emptyTitle": "Yalnızca siz varsınız",
+      "emptyBody": "Ofis ekibinizi davet edin. Onay ve yayınlama yetkisi yalnızca Firma sahibi ve Yöneticilerdedir.",
+      "cols": ["Ad", "E-posta", "Rol", "Son giriş", "Durum"]
+    },
+    "settings": {
+      "title": "Ayarlar",
+      "sub": "Firma bilgileri ve pasaport görünümü.",
+      "cta": "Kaydet",
+      "cta2": "Vazgeç",
+      "emptyTitle": "Firma profili eksik",
+      "emptyBody": "Pasaportta görünecek firma adı, adres ve logo bilgilerini tamamlayın.",
+      "cols": ["Ayar", "Değer", "", "", ""]
+    }
   }
 }
