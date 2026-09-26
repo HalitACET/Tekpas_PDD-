@@ -63,6 +63,8 @@
       "settings": "Settings"
     },
     "collapse": "Collapse menu",
+    "open": "Open menu",
+    "close": "Close menu",
     "expand": "Expand menu"
   },
   "shell": {
@@ -70,6 +72,7 @@
     "breadcrumb": "Breadcrumb",
     "search": "Search batches, GTINs or suppliers",
     "searchUnavailable": "Search coming soon",
+    "userMenu": "User menu",
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
@@ -114,6 +117,7 @@
       "cta2": "Import from Excel",
       "emptyTitle": "No batches yet",
       "emptyBody": "Create your first batch: choose the product, assign the workshops in the supply chain and collect the documents. An approved batch is published as a passport with a QR code.",
+      "emptyBodyShort": "Create your first batch. An approved batch is published as a passport with a QR code.",
       "cols": ["Batch no.", "Product", "Supply chain", "Status", "Updated"],
       "guide": {
         "label": "How to start",

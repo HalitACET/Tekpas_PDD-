@@ -13,7 +13,7 @@ import {
 import { LOCALE_COOKIE, locales, type Locale } from "@/i18n/locales";
 import { cn } from "@/lib/utils";
 
-function useSwitchLocale() {
+export function useSwitchLocale() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const switchTo = (locale: Locale) => {

@@ -32,97 +32,188 @@ export function PageView({ page }: { page: PageKey }) {
 
   return (
     <>
-      <div className="flex items-end gap-3">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold tracking-[-0.015em]">{t("title")}</h1>
-          <p className="text-[13px] leading-[normal] text-muted-foreground">{t("sub")}</p>
-        </div>
-        {hasActions && (
-          <div className="ml-auto flex gap-3">
-            {PAGES_WITH_IMPORT.includes(page) && (
-              <Button variant="secondary" onClick={comingSoon}>
-                <Upload strokeWidth={1.75} aria-hidden />
-                {tPage("import")}
-              </Button>
-            )}
-            <Button onClick={comingSoon}>
-              <Plus strokeWidth={1.75} aria-hidden />
-              {t("cta")}
-            </Button>
+      <MobilePageView page={page} onAction={comingSoon} guide={guide} hasActions={hasActions} />
+
+      {/* From md up: design G desktop. */}
+      <div className="hidden min-h-0 flex-1 flex-col gap-5 md:flex">
+        <div className="flex items-end gap-3">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-xl font-semibold tracking-[-0.015em]">{t("title")}</h1>
+            <p className="text-[13px] leading-[normal] text-muted-foreground">{t("sub")}</p>
           </div>
-        )}
-      </div>
-
-      {/* Filters are not built yet: shown dimmed and inert, as in the design. */}
-      <div className="flex gap-2 opacity-55" aria-hidden inert>
-        <div className="flex h-8 w-[280px] items-center gap-2 rounded-md border border-input px-2.5 text-[13px] text-muted-foreground">
-          <Search className="size-3.5" strokeWidth={1.75} />
-          {tPage("filter")}
-        </div>
-        {[tPage("status"), tPage("supplier")].map((label) => (
-          <div
-            key={label}
-            className="flex h-8 items-center gap-1.5 rounded-md border border-dashed border-input px-2.5 text-[13px] text-muted-foreground"
-          >
-            <Plus className="size-3.5" strokeWidth={1.75} />
-            {label}
-          </div>
-        ))}
-      </div>
-
-      <section
-        aria-labelledby={`${page}-empty-title`}
-        className="flex min-h-[420px] flex-1 flex-col overflow-hidden rounded-lg border bg-card"
-      >
-        <div
-          className={`grid h-9 shrink-0 items-center border-b bg-muted px-1 text-xs font-medium text-muted-foreground ${TABLE_COLUMNS}`}
-          aria-hidden
-        >
-          <span />
-          {columns.map((column, i) => (
-            <span key={i}>{column}</span>
-          ))}
-        </div>
-
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
-          <span className="flex size-14 items-center justify-center rounded-[14px] bg-muted">
-            <LogoMark size={30} variant="simplified" color="var(--muted-foreground)" cutout="var(--muted)" />
-          </span>
-          <h2 id={`${page}-empty-title`} className="font-serif text-[26px] leading-[normal] font-normal tracking-[-0.015em]">
-            {t("emptyTitle")}
-          </h2>
-          <p className="max-w-[420px] text-sm leading-[1.55] text-pretty text-muted-foreground">{t("emptyBody")}</p>
           {hasActions && (
-            <div className="mt-1.5 flex gap-2">
-              <Button onClick={comingSoon}>{t("cta")}</Button>
-              <Button variant="secondary" onClick={comingSoon}>
-                {t("cta2")}
+            <div className="ml-auto flex gap-3">
+              {PAGES_WITH_IMPORT.includes(page) && (
+                <Button variant="secondary" onClick={comingSoon}>
+                  <Upload strokeWidth={1.75} aria-hidden />
+                  {tPage("import")}
+                </Button>
+              )}
+              <Button onClick={comingSoon}>
+                <Plus strokeWidth={1.75} aria-hidden />
+                {t("cta")}
               </Button>
             </div>
           )}
-          {guide && (
-            <ol
-              aria-label={t("guide.label")}
-              className="mt-7 flex flex-wrap justify-center gap-7 border-t pt-5 text-left text-[13px]"
-            >
-              {guide.map((step, i) => (
-                <li key={step.title} className="flex items-center gap-2.5">
-                  <span
-                    className="flex size-[22px] items-center justify-center rounded-full border border-input font-mono text-[11px] font-medium text-muted-foreground"
-                    aria-hidden
-                  >
-                    {i + 1}
-                  </span>
-                  <span className="flex flex-col leading-[normal]">
-                    <span className="font-medium">{step.title}</span>
-                    <span className="text-xs leading-[normal] text-muted-foreground">{step.body}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
-          )}
         </div>
-      </section>
+
+        {/* Filters are not built yet: shown dimmed and inert, as in the design. */}
+        <div className="flex gap-2 opacity-55" aria-hidden inert>
+          <div className="flex h-8 w-[280px] items-center gap-2 rounded-md border border-input px-2.5 text-[13px] text-muted-foreground">
+            <Search className="size-3.5" strokeWidth={1.75} />
+            {tPage("filter")}
+          </div>
+          {[tPage("status"), tPage("supplier")].map((label) => (
+            <div
+              key={label}
+              className="flex h-8 items-center gap-1.5 rounded-md border border-dashed border-input px-2.5 text-[13px] text-muted-foreground"
+            >
+              <Plus className="size-3.5" strokeWidth={1.75} />
+              {label}
+            </div>
+          ))}
+        </div>
+
+        <section
+          aria-labelledby={`${page}-empty-title`}
+          className="flex min-h-[420px] flex-1 flex-col overflow-hidden rounded-lg border bg-card"
+        >
+          <div
+            className={`grid h-9 shrink-0 items-center border-b bg-muted px-1 text-xs font-medium text-muted-foreground ${TABLE_COLUMNS}`}
+            aria-hidden
+          >
+            <span />
+            {columns.map((column, i) => (
+              <span key={i}>{column}</span>
+            ))}
+          </div>
+
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+            <span className="flex size-14 items-center justify-center rounded-[14px] bg-muted">
+              <LogoMark size={30} variant="simplified" color="var(--muted-foreground)" cutout="var(--muted)" />
+            </span>
+            <h2 id={`${page}-empty-title`} className="font-serif text-[26px] leading-[normal] font-normal tracking-[-0.015em]">
+              {t("emptyTitle")}
+            </h2>
+            <p className="max-w-[420px] text-sm leading-[1.55] text-pretty text-muted-foreground">{t("emptyBody")}</p>
+            {hasActions && (
+              <div className="mt-1.5 flex gap-2">
+                <Button onClick={comingSoon}>{t("cta")}</Button>
+                <Button variant="secondary" onClick={comingSoon}>
+                  {t("cta2")}
+                </Button>
+              </div>
+            )}
+            {guide && (
+              <ol
+                aria-label={t("guide.label")}
+                className="mt-7 flex flex-wrap justify-center gap-7 border-t pt-5 text-left text-[13px]"
+              >
+                {guide.map((step, i) => (
+                  <li key={step.title} className="flex items-center gap-2.5">
+                    <span
+                      className="flex size-[22px] items-center justify-center rounded-full border border-input font-mono text-[11px] font-medium text-muted-foreground"
+                      aria-hidden
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="flex flex-col leading-[normal]">
+                      <span className="font-medium">{step.title}</span>
+                      <span className="text-xs leading-[normal] text-muted-foreground">{step.body}</span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </section>
+      </div>
     </>
+  );
+}
+
+/** Design G mobile (below md): stacked 44 px actions, empty-state card, "how to start" list. */
+function MobilePageView({
+  page,
+  onAction,
+  guide,
+  hasActions,
+}: {
+  page: PageKey;
+  onAction: () => void;
+  guide?: GuideStep[];
+  hasActions: boolean;
+}) {
+  const t = useTranslations(`pages.${page}`);
+  const withImport = PAGES_WITH_IMPORT.includes(page);
+  const body = t.has("emptyBodyShort") ? t("emptyBodyShort") : t("emptyBody");
+
+  return (
+    <div className="flex flex-col gap-4 md:hidden">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-[22px] leading-7 font-semibold tracking-[-0.015em]">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("sub")}</p>
+      </div>
+
+      {hasActions && (
+        <div className="flex flex-col gap-2">
+          <Button onClick={onAction} className="h-11 gap-2 rounded-lg text-[15px] [&_svg:not([class*='size-'])]:size-[18px]">
+            <Plus strokeWidth={1.75} aria-hidden />
+            {t("cta")}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={onAction}
+            className="h-11 gap-2 rounded-lg text-[15px] shadow-none [&_svg:not([class*='size-'])]:size-[18px]"
+          >
+            {withImport && <Upload strokeWidth={1.75} aria-hidden />}
+            {t("cta2")}
+          </Button>
+        </div>
+      )}
+
+      <section
+        aria-labelledby={`${page}-empty-title-mobile`}
+        className="flex flex-col items-center gap-2.5 rounded-xl border bg-card px-5 py-7 text-center"
+      >
+        <span className="flex size-[52px] items-center justify-center rounded-[14px] bg-muted">
+          <LogoMark size={28} variant="simplified" color="var(--muted-foreground)" cutout="var(--muted)" />
+        </span>
+        <h2
+          id={`${page}-empty-title-mobile`}
+          className="font-serif text-2xl leading-[normal] font-normal tracking-[-0.015em]"
+        >
+          {t("emptyTitle")}
+        </h2>
+        <p className="text-sm leading-normal text-pretty text-muted-foreground">{body}</p>
+      </section>
+
+      {guide && (
+        <section aria-labelledby={`${page}-guide-mobile`} className="flex flex-col rounded-xl border bg-card">
+          <h2
+            id={`${page}-guide-mobile`}
+            className="px-4 pt-3.5 pb-1.5 text-[11px] leading-[normal] font-semibold tracking-[0.06em] text-muted-foreground uppercase"
+          >
+            {t("guide.label")}
+          </h2>
+          <ol>
+            {guide.map((step, i) => (
+              <li key={step.title} className="flex min-h-14 items-center gap-3 border-t px-4 py-2">
+                <span
+                  className="flex size-[26px] shrink-0 items-center justify-center rounded-full border border-input font-mono text-xs font-medium text-muted-foreground"
+                  aria-hidden
+                >
+                  {i + 1}
+                </span>
+                <span className="flex flex-col leading-[normal]">
+                  <span className="text-sm font-medium">{step.title}</span>
+                  <span className="text-[13px] leading-[normal] text-muted-foreground">{step.body}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+    </div>
   );
 }

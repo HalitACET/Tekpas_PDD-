@@ -63,6 +63,8 @@
       "settings": "Einstellungen"
     },
     "collapse": "Menü einklappen",
+    "open": "Menü öffnen",
+    "close": "Menü schließen",
     "expand": "Menü ausklappen"
   },
   "shell": {
@@ -70,6 +72,7 @@
     "breadcrumb": "Pfad",
     "search": "Chargen, GTINs oder Lieferanten suchen",
     "searchUnavailable": "Suche folgt demnächst",
+    "userMenu": "Benutzermenü",
     "theme": "Design",
     "themeLight": "Hell",
     "themeDark": "Dunkel",
@@ -114,6 +117,7 @@
       "cta2": "Aus Excel importieren",
       "emptyTitle": "Noch keine Chargen",
       "emptyBody": "Legen Sie Ihre erste Charge an: Produkt wählen, die Betriebe der Lieferkette zuweisen, Dokumente sammeln. Eine freigegebene Charge wird als Pass mit QR-Code veröffentlicht.",
+      "emptyBodyShort": "Legen Sie Ihre erste Charge an. Eine freigegebene Charge wird als Pass mit QR-Code veröffentlicht.",
       "cols": ["Chargen-Nr.", "Produkt", "Lieferkette", "Status", "Aktualisiert"],
       "guide": {
         "label": "So starten Sie",

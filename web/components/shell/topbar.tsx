@@ -18,7 +18,7 @@ export function Topbar({ user, page }: { user: SessionUser; page?: PageKey }) {
   const shortcut = useSearchShortcutLabel();
 
   return (
-    <header className="flex h-[52px] shrink-0 items-center gap-3 border-b pr-4 pl-6">
+    <header className="hidden h-[52px] shrink-0 items-center gap-3 border-b pr-4 pl-6 md:flex">
       <nav aria-label={t("breadcrumb")}>
         <ol className="flex items-center gap-2 text-[13px]">
           <li className="flex items-center gap-2 font-medium">
