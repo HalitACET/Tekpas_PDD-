@@ -33,7 +33,7 @@ Bütçe: **sıfır** — her servis ücretsiz katmanda.
 - **Alan adı yok:** QR'lar `*.vercel.app` adresine gider. `PUBLIC_BASE_URL` config'te, ileride tek satır değişir. Gerçek etikete basılmaz.
 - **Render ücretsiz sunucu uyur** (15 dk trafiksizlikte, uyanma ~1 dk): cron-job.org `/actuator/health/liveness`'ı (DB'ye dokunmaz) **sadece 09:00–22:00 (Europe/Istanbul)** arasında 10 dakikada bir çağırır. Bu ayda ~410 saat eder. 750 saat **workspace başına** ve diğer servislerle paylaşılıyor; diğer iki servis uyanık tutulmuyor (Eylül 2026 kullanımı toplam 7,9 saat), bu yüzden pencere sorunsuz ve demo günlerinde 7/24'e geçmek de sığar. Ayrıntı: `docs/DEPLOY.md` §6.
 - **Neon ücretsiz:** proje başına ayda 100 CU-saat (0.25 CU ile ~400 saat), 5 dk hareketsizlikte uyur (kapatılamaz). Render'ın health check'i ve cron DB'ye dokunmayan liveness'ı kullandığı için Neon sadece gerçek kullanımda uyanır; Hikari boşta bağlantı tutmaz (`minimum-idle: 0`).
-- **Render pipeline dakikaları:** workspace başına ayda 500 dk, Docker build süresi buradan düşer. Bağımlılık katmanı cache'li, `buildFilter` sadece backend değişikliklerinde build eder, `checksPass` kırmızı CI'da build etmez. Aylık bütçe hesabı ilk canlı deploy'dan sonra `docs/DEPLOY.md` §8'e yazılacak.
+- **Render pipeline dakikaları:** workspace başına ayda 500 dk, Docker build süresi buradan düşer. Bağımlılık katmanı cache'li, `buildFilter` sadece backend değişikliklerinde build eder, `checksPass` kırmızı CI'da build etmez. İlk canlı build ~2 dk (cache yok); kod değişikliğinde ~1,5 dk beklenir → ayda ~200–330 backend deploy'a yeter. Ayrıntı ve sınıra yaklaşınca yapılacaklar: `docs/DEPLOY.md` §8.
 - **Gemini ücretsiz katmanı:** Gönderilen veri Google tarafından kullanılabilir → **sadece demo verisi.** Gerçek firmayla pilotta ücretli katman şart.
 - **Supabase ücretsiz projeleri hareketsizlikte duraklar:** uyanık tutma cron'u storage'a da küçük bir istek atmalı.
 - **MinIO topluluk imajları güncellenmiyor** (`minio/minio` artık yayınlanmıyor): local için Pigsty topluluk fork'u `pgsty/minio` sabit sürümle kullanılıyor. Sorun çıkarsa B planı: `chrislusf/seaweedfs`.
@@ -111,7 +111,7 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 - [x] OpenAPI → `packages/api-client` üretim hattı
 - [ ] Next.js login ekranı + korumalı panel iskeleti (shadcn)
 - [x] CI: backend `mvn verify`, web lint/typecheck/test, OpenAPI ↔ client kontrolü
-- [ ] Deploy: Render + Neon + Vercel, sağlık kontrolü + uyanık tutma cron'u
+- [x] Deploy: Render + Neon + Vercel, sağlık kontrolü + uyanık tutma cron'u
 
 **Kabul:** Canlı web linkinde demo kullanıcıyla giriş yapılır, yenilenince oturum korunur, başka firmanın kullanıcısı olarak `/auth/me` doğru firmayı döner.
 
@@ -207,7 +207,7 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 ## 6. Unutulmayacaklar
 
 - [x] Demo kullanıcılarının gerçek BCrypt hash'i (M1, `DemoDataSeeder`)
-- [ ] Render uyanık tutma cron'u (M1, demo ve jüri haftalarında kontrol et)
+- [x] Render uyanık tutma cron'u (M1, demo ve jüri haftalarında kontrol et)
 - [ ] Gemini'ye asla gerçek firma verisi gönderme
 - [ ] Gemini model ID'sini geliştirme günü AI Studio'dan kontrol et, `GEMINI_MODEL`'e yaz
 - [ ] Demo öncesi: sahte OEKO-TEX / GOTS örnek belgeleri hazırla (gerçek firma adı ve numarası olmadan)
