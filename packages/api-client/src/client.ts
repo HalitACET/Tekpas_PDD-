@@ -52,7 +52,11 @@ export interface ApiClientOptions {
 
 export type ApiClient = Client<paths>;
 
-/** These authenticate by other means; a 401 from them must not trigger a refresh. */
+/**
+ * These authenticate by other means (credentials, refresh token): they get no Authorization header,
+ * and a 401 from them must not trigger a refresh. An expired bearer on /auth/refresh would otherwise
+ * be rejected before the refresh cookie is even read.
+ */
 const NO_REFRESH_PATHS = ["/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/logout"];
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
@@ -77,7 +81,10 @@ function authMiddleware(options: ApiClientOptions): Middleware {
 
   return {
     async onRequest({ request, id }) {
-      if (refresh && !isNoRefreshPath(request)) {
+      if (isNoRefreshPath(request)) {
+        return request;
+      }
+      if (refresh) {
         pending.set(id, request.clone());
       }
       return withToken(request);

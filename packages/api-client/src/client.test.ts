@@ -202,6 +202,29 @@ describe("createApiClient", () => {
   });
 });
 
+describe("auth endpoints", () => {
+  it("never sends the (possibly expired) access token to login, refresh or logout", async () => {
+    const seen: [string, string | null][] = [];
+    const fetch = mockFetch(async (input) => {
+      seen.push([new URL(input.url).pathname, input.headers.get("Authorization")]);
+      return json(200, {});
+    });
+    const api = createApiClient({ baseUrl: BASE, fetch, getAccessToken: () => "expired" });
+
+    await api.POST("/api/v1/auth/refresh", {});
+    await api.POST("/api/v1/auth/logout", {});
+    await api.POST("/api/v1/auth/login", { body: { email: "a@test.example", password: "x", client: "WEB" } });
+    await api.GET("/api/v1/auth/me");
+
+    expect(seen).toEqual([
+      ["/api/v1/auth/refresh", null],
+      ["/api/v1/auth/logout", null],
+      ["/api/v1/auth/login", null],
+      ["/api/v1/auth/me", "Bearer expired"],
+    ]);
+  });
+});
+
 describe("problem helpers", () => {
   it("recognizes problem bodies by shape and type", () => {
     expect(isProblem(unauthorized)).toBe(true);

@@ -36,6 +36,8 @@ function fakeBackend({ cookie = true, password = "right" } = {}) {
     switch (path) {
       case "/api/v1/auth/refresh":
         await new Promise((r) => setTimeout(r, 5));
+        // Like Spring's bearer filter: a stale Authorization header is rejected before the cookie is read.
+        if (auth && auth !== `Bearer ${valid}`) return problem(401, "unauthorized");
         if (!hasCookie) return problem(401, "invalid-refresh-token");
         valid = `t${++issued}`;
         return json(200, { accessToken: valid, tokenType: "Bearer", expiresIn: 900 });
