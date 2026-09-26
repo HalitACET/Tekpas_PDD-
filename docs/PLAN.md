@@ -111,7 +111,7 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 - [x] OpenAPI → `packages/api-client` üretim hattı
 - [ ] Next.js login ekranı + korumalı panel iskeleti (shadcn)
 - [x] CI: backend `mvn verify`, web lint/typecheck/test, OpenAPI ↔ client kontrolü
-- [ ] Deploy: Render + Neon + Vercel, sağlık kontrolü + uyanık tutma cron'u
+- [x] Deploy: Render + Neon + Vercel, sağlık kontrolü + uyanık tutma cron'u
 
 **Kabul:** Canlı web linkinde demo kullanıcıyla giriş yapılır, yenilenince oturum korunur, başka firmanın kullanıcısı olarak `/auth/me` doğru firmayı döner.
 
@@ -207,7 +207,7 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 ## 6. Unutulmayacaklar
 
 - [x] Demo kullanıcılarının gerçek BCrypt hash'i (M1, `DemoDataSeeder`)
-- [ ] Render uyanık tutma cron'u (M1, demo ve jüri haftalarında kontrol et)
+- [x] Render uyanık tutma cron'u (M1, demo ve jüri haftalarında kontrol et)
 - [ ] Gemini'ye asla gerçek firma verisi gönderme
 - [ ] Gemini model ID'sini geliştirme günü AI Studio'dan kontrol et, `GEMINI_MODEL`'e yaz
 - [ ] Demo öncesi: sahte OEKO-TEX / GOTS örnek belgeleri hazırla (gerçek firma adı ve numarası olmadan)
