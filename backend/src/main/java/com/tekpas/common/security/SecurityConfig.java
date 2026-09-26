@@ -54,16 +54,24 @@ public class SecurityConfig {
                 .build();
     }
 
+    /**
+     * CORS only when origins are configured. The web app calls the API through its own origin (K18), but
+     * the browser still sends an Origin header that the proxy forwards; with an empty or different allow
+     * list Spring would treat that as a foreign origin and answer 403. No configuration means the Origin
+     * header is ignored and no CORS headers are sent, so other sites still cannot read responses.
+     */
     @Bean
     CorsConfigurationSource corsConfigurationSource(CorsProperties properties) {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        if (properties.allowedOrigins().isEmpty()) {
+            return source;
+        }
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(properties.allowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE,
                 HttpHeaders.ACCEPT_LANGUAGE));
         config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
         return source;
     }
