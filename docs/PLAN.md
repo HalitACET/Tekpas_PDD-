@@ -209,6 +209,11 @@ _Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md
 
 ## 6. Unutulmayacaklar
 
+**Tasarım borcu** (tasarımı olmayan, şimdilik geçici çözümle duran yerler):
+- [ ] Koyu tema login tasarımı: hikâye paneli koyu temada da açık (koza kremi) kalıyor.
+- [ ] Login "sunucu uyanıyor" durumu (5 sn sonra buton metni) tasarımda yok; kullanıcı onayıyla eklendi.
+
+
 - [x] Demo kullanıcılarının gerçek BCrypt hash'i (M1, `DemoDataSeeder`)
 - [x] Render uyanık tutma cron'u (M1, demo ve jüri haftalarında kontrol et)
 - [ ] Gemini'ye asla gerçek firma verisi gönderme
