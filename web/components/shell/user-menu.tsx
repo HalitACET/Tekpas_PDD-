@@ -37,8 +37,8 @@ export function UserMenu({ user }: { user: SessionUser }) {
 
   return (
     <DropdownMenu>
+      {/* Name comes from the visible text (WCAG 2.5.3); aria-haspopup announces the menu. */}
       <DropdownMenuTrigger
-        aria-label={`${t("userMenu")}: ${user.fullName}, ${tRoles(user.role)}`}
         className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/18"
       >
         <span
@@ -47,8 +47,8 @@ export function UserMenu({ user }: { user: SessionUser }) {
         >
           {initials(user.fullName)}
         </span>
-        <span className="hidden flex-col text-left leading-[1.2] lg:flex" aria-hidden>
-          <span className="text-xs font-medium">{user.fullName}</span>
+        <span className="sr-only lg:not-sr-only lg:flex lg:flex-col lg:text-left lg:leading-[1.2]">
+          <span className="text-xs font-medium">{user.fullName}</span>{" "}
           <span className="text-[11px] text-muted-foreground">{tRoles(user.role)}</span>
         </span>
         <ChevronDown className="size-3.5 text-muted-foreground" strokeWidth={1.75} aria-hidden />
