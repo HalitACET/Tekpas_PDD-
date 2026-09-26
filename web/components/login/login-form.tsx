@@ -73,7 +73,7 @@ export function LoginForm() {
         <div
           id={ids.error}
           role="alert"
-          className="flex gap-2.5 rounded-lg bg-status-rejected-muted p-3 text-[13px] leading-[1.45] text-destructive"
+          className="flex gap-2.5 rounded-lg bg-status-rejected-muted p-3 text-[13px] leading-[1.45] text-status-rejected-foreground"
         >
           <CircleAlert className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />
           <span className="font-medium">{error}</span>

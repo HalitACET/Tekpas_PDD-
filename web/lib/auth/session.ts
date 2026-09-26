@@ -43,7 +43,8 @@ export function setSessionLostHandler(handler: (() => void) | undefined) {
  * shared refresh and a single retry; if that fails, the session is dropped and the app redirects.
  */
 export const api = createApiClient({
-  baseUrl: "",
+  // Same origin (K18). Absolute so the Request URL also parses outside a document (tests).
+  baseUrl: typeof window === "undefined" ? "" : window.location.origin,
   getAccessToken: () => accessToken,
   refreshAccessToken: () => refreshAccessToken(),
   onUnauthorized: () => {
