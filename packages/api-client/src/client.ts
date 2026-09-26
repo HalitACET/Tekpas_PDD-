@@ -38,7 +38,13 @@ export interface ApiClientOptions {
   baseUrl: string;
   /** Current access token, if any. Called before every request. */
   getAccessToken?: () => string | null | undefined | Promise<string | null | undefined>;
-  /** Called on every 401 response with its problem body (when there is one). */
+  /**
+   * Gets a new access token (web: POST /auth/refresh with the cookie) and resolves true on success.
+   * On a 401 the client calls it once for all requests that fail at the same time (single-flight),
+   * then retries each of them once. Not used for login, refresh and logout themselves.
+   */
+  refreshAccessToken?: () => Promise<boolean>;
+  /** Called when a 401 cannot be recovered (no refresh, refresh failed, or the retry is 401 again). */
   onUnauthorized?: (problem: ApiProblem | undefined, request: Request) => void;
   /** Custom fetch, e.g. for tests. */
   fetch?: typeof globalThis.fetch;
@@ -46,23 +52,52 @@ export interface ApiClientOptions {
 
 export type ApiClient = Client<paths>;
 
+/** These authenticate by other means; a 401 from them must not trigger a refresh. */
+const NO_REFRESH_PATHS = ["/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/logout"];
+
 export function createApiClient(options: ApiClientOptions): ApiClient {
   const client = createClient<paths>({ baseUrl: options.baseUrl, fetch: options.fetch });
   client.use(authMiddleware(options));
   return client;
 }
 
-function authMiddleware({ getAccessToken, onUnauthorized }: ApiClientOptions): Middleware {
+function authMiddleware(options: ApiClientOptions): Middleware {
+  const { getAccessToken, onUnauthorized } = options;
+  const refresh = options.refreshAccessToken ? singleFlight(options.refreshAccessToken) : undefined;
+  // Unsent copies of requests, kept so a 401 can be retried with the same body.
+  const pending = new Map<string, Request>();
+
+  const withToken = async (request: Request) => {
+    const token = await getAccessToken?.();
+    if (token) {
+      request.headers.set("Authorization", `Bearer ${token}`);
+    }
+    return request;
+  };
+
   return {
-    async onRequest({ request }) {
-      const token = await getAccessToken?.();
-      if (token) {
-        request.headers.set("Authorization", `Bearer ${token}`);
+    async onRequest({ request, id }) {
+      if (refresh && !isNoRefreshPath(request)) {
+        pending.set(id, request.clone());
       }
-      return request;
+      return withToken(request);
     },
-    async onResponse({ request, response }) {
-      if (response.status === 401 && onUnauthorized) {
+    async onResponse({ request, response, id }) {
+      const original = pending.get(id);
+      pending.delete(id);
+      if (response.status !== 401) {
+        return response;
+      }
+
+      if (refresh && original && (await refresh())) {
+        const retried = await (options.fetch ?? globalThis.fetch)(await withToken(original));
+        if (retried.status !== 401) {
+          return retried;
+        }
+        response = retried;
+      }
+
+      if (onUnauthorized) {
         const body: unknown = await response
           .clone()
           .json()
@@ -71,5 +106,26 @@ function authMiddleware({ getAccessToken, onUnauthorized }: ApiClientOptions): M
       }
       return response;
     },
+    onError({ id }) {
+      pending.delete(id);
+    },
+  };
+}
+
+function isNoRefreshPath(request: Request): boolean {
+  const path = new URL(request.url).pathname;
+  return NO_REFRESH_PATHS.some((p) => path === p);
+}
+
+/** Concurrent callers share one in-flight call; the next call after it settles starts a new one. */
+function singleFlight(fn: () => Promise<boolean>): () => Promise<boolean> {
+  let inFlight: Promise<boolean> | undefined;
+  return () => {
+    inFlight ??= fn()
+      .catch(() => false)
+      .finally(() => {
+        inFlight = undefined;
+      });
+    return inFlight;
   };
 }
