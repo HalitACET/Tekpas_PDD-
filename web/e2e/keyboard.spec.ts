@@ -101,3 +101,75 @@ test("the panel menu, language switch and user menu work from the keyboard", asy
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/login$/);
 });
+
+test.describe("mobile panel (390 × 800)", () => {
+  test.use({ viewport: { width: 390, height: 800 } });
+
+  /** Every visible button/link inside the scope is at least 44 × 44 px (design G mobile). */
+  async function expectTouchTargets(page: Page, scope: Locator) {
+    const small = await scope.locator("button:visible, a:visible").evaluateAll((elements) =>
+      elements
+        .map((el) => ({ name: el.getAttribute("aria-label") ?? el.textContent?.trim(), r: el.getBoundingClientRect() }))
+        .filter(({ r }) => r.width < 44 || r.height < 44)
+        .map(({ name, r }) => `${name} ${Math.round(r.width)}×${Math.round(r.height)}`),
+    );
+    expect(small, "touch targets smaller than 44 px").toEqual([]);
+  }
+
+  test("drawer and user menu work by keyboard and touch, with 44 px targets", async ({ page }) => {
+    await mockAuthApi(page, { signedIn: true });
+    await page.goto("/batches");
+    await expect(page.getByRole("heading", { level: 1, name: "Partiler" }).first()).toBeVisible();
+
+    const header = page.locator("header:visible");
+    await expectTouchTargets(page, header);
+    await expectTouchTargets(page, page.locator("main"));
+
+    // Drawer: opens from the keyboard, traps focus, closes with Escape and returns focus.
+    const open = page.getByRole("button", { name: "Menüyü aç" });
+    await open.focus();
+    await expectVisibleFocus(open);
+    await page.keyboard.press("Enter");
+    const drawer = page.getByRole("dialog", { name: "KozaPass" });
+    await expect(drawer).toBeVisible();
+    // While the modal is open the page behind it is hidden from assistive tech, so query by attribute.
+    await expect(page.locator('button[aria-label="Menüyü aç"]')).toHaveAttribute("aria-expanded", "true");
+    await expectTouchTargets(page, drawer);
+    for (let i = 0; i < 12; i++) {
+      await tab(page);
+      expect(await drawer.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+    }
+    await page.keyboard.press("Escape");
+    await expect(drawer).toBeHidden();
+    await expect(open).toBeFocused();
+
+    // Choosing a page navigates and closes the drawer.
+    await open.click();
+    await drawer.getByRole("link", { name: "Tedarikçiler" }).click();
+    await expect(page).toHaveURL(/\/suppliers$/);
+    await expect(drawer).toBeHidden();
+
+    // User menu: 44 px segmented language/theme controls and sign out.
+    const userButton = page.getByRole("button", { name: /Kullanıcı menüsü/ });
+    // The last input was a tap; a key press puts the browser back in keyboard mode (:focus-visible).
+    await page.keyboard.press("Shift");
+    await userButton.focus();
+    await expectVisibleFocus(userButton);
+    await page.keyboard.press("Enter");
+    const sheet = page.getByRole("dialog", { name: "Kullanıcı menüsü" });
+    await expect(sheet).toBeVisible();
+    await expectTouchTargets(page, sheet);
+    await sheet.getByRole("button", { name: "Koyu" }).click();
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await sheet.getByRole("button", { name: "EN" }).click();
+    // The page behind the modal is hidden from assistive tech: check the language inside the sheet.
+    await expect(page.getByRole("dialog", { name: "User menu" }).getByRole("button", { name: "Dark" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("heading", { level: 1, name: "Suppliers" }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /User menu/ })).toBeFocused();
+
+    await page.getByRole("button", { name: /User menu/ }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Sign out" }).click();
+    await expect(page).toHaveURL(/\/login$/);
+  });
+});

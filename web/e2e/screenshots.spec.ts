@@ -14,6 +14,8 @@ const DESIGN_DIR = path.resolve(__dirname, "../../docs/design/v0.2");
 
 const DESKTOP = { width: 1440, height: 900 };
 const MOBILE = { width: 390, height: 844 };
+/** The design's 844 px phone frame includes a 44 px status bar; the app itself gets 390 × 800. */
+const MOBILE_APP = { width: 390, height: 800 };
 const FORM = { email: "elif@karacatekstil.com.tr", password: "yanlissifre" };
 
 type LoginState = "default" | "error" | "loading";
@@ -55,6 +57,28 @@ for (const scheme of ["light", "dark"] as const) {
       });
     }
 
+    for (const state of ["closed", "drawer", "user"] as const) {
+      test(`panel batches mobile ${state}`, async ({ page }) => {
+        await page.setViewportSize(MOBILE_APP);
+        // The design shows the theme matching the frame selected (Açık / Koyu), not "Sistem".
+        await page.addInitScript((theme) => localStorage.setItem("theme", theme), scheme);
+        await mockAuthApi(page, { signedIn: true });
+        await page.goto("/batches");
+        await expect(page.getByRole("heading", { level: 1, name: "Partiler" }).first()).toBeVisible();
+        if (state === "drawer") {
+          await page.getByRole("button", { name: "Menüyü aç" }).click();
+          await expect(page.getByRole("dialog")).toBeVisible();
+        }
+        if (state === "user") {
+          await page.getByRole("button", { name: /Kullanıcı menüsü/ }).click();
+          await expect(page.getByRole("dialog", { name: "Kullanıcı menüsü" })).toBeVisible();
+        }
+        await page.waitForTimeout(300); // open transition
+        await settle(page);
+        await page.screenshot({ path: `${OUT}/impl-panel-batches-mobile-${state}-${scheme}.png` });
+      });
+    }
+
     test("panel batches desktop", async ({ page }) => {
       await page.setViewportSize(DESKTOP);
       await mockAuthApi(page, { signedIn: true });
@@ -69,7 +93,7 @@ for (const scheme of ["light", "dark"] as const) {
 test.describe("design references", () => {
   // The design canvas (third-party support.js) sometimes never lays out a frame; a fresh page fixes it.
   // The references are static files, so a retry is enough here.
-  test.describe.configure({ retries: 2 });
+  test.describe.configure({ retries: 4 });
   // The design canvas (support.js) needs http, not file://: serve the committed copy locally.
   let server: Server;
   let designUrl: string;
@@ -122,5 +146,10 @@ test.describe("design references", () => {
     // The label sits on a full-width wrapper; the 1440 × 900 screen is its first child.
     await crop('[data-screen-label="Panel"] > div', 0, "design-panel-batches-desktop-light.png");
     await crop('[data-screen-label="Panel"] > div', 1, "design-panel-batches-desktop-dark.png");
+    const mobile = ["closed", "drawer", "user"] as const;
+    for (const [i, state] of mobile.entries()) {
+      await crop('[data-screen-label="Panel mobil"]', i, `design-panel-batches-mobile-${state}-light.png`);
+      await crop('[data-screen-label="Panel mobil"]', i + 3, `design-panel-batches-mobile-${state}-dark.png`);
+    }
   });
 });
