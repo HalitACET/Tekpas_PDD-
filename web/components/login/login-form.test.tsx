@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithIntl } from "@/test/render";
@@ -59,7 +59,7 @@ describe("LoginForm", () => {
 
     await fillAndSubmit();
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Sunucuya şu an ulaşılamıyor");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Sunucuya ulaşılamadı.");
   });
 
   it("shows the loading state and blocks double submits", async () => {
@@ -75,6 +75,33 @@ describe("LoginForm", () => {
 
     finish("ok");
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/batches"));
+  });
+
+  it("says the server is waking up after 5 s, keeps the spinner and shows no error", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      let finish: (value: string) => void = () => {};
+      login.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+      renderWithIntl(<LoginForm />);
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      await user.type(screen.getByLabelText("E-posta"), "elif@karacatekstil.com.tr");
+      await user.type(screen.getByLabelText("Şifre"), "sifre");
+      await user.click(screen.getByRole("button", { name: "Giriş yap" }));
+      expect(screen.getByRole("button", { name: "Giriş yapılıyor…" })).toBeDisabled();
+
+      await act(() => vi.advanceTimersByTimeAsync(5_000));
+
+      const waking = screen.getByRole("button", { name: "Sunucu uyanıyor, bu bir dakika sürebilir…" });
+      expect(waking).toBeDisabled();
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      expect(screen.getByRole("status")).toHaveTextContent("Sunucu uyanıyor");
+
+      await act(async () => finish("unavailable"));
+      expect(await screen.findByRole("alert")).toHaveTextContent("Sunucuya ulaşılamadı.");
+      expect(screen.getByRole("button", { name: "Giriş yap" })).toBeEnabled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("sends the trimmed e-mail and the remember-me choice, then goes to ?next", async () => {

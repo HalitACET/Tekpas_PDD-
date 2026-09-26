@@ -39,8 +39,9 @@
     "rememberMe": "Beni hatırla",
     "submit": "Giriş yap",
     "submitting": "Giriş yapılıyor…",
+    "waking": "Sunucu uyanıyor, bu bir dakika sürebilir…",
     "invalidCredentials": "E-posta veya şifre hatalı.",
-    "serverError": "Sunucuya şu an ulaşılamıyor. Birkaç saniye sonra tekrar deneyin.",
+    "serverError": "Sunucuya ulaşılamadı. Lütfen biraz sonra tekrar deneyin.",
     "forgotPassword": "Şifrenizi mi unuttunuz? Firma yöneticinizle iletişime geçin.",
     "footer": "© 2026 KozaPass · Bursa"
   },

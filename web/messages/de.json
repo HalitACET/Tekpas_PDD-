@@ -39,8 +39,9 @@
     "rememberMe": "Angemeldet bleiben",
     "submit": "Anmelden",
     "submitting": "Anmeldung läuft…",
+    "waking": "Der Server startet, das kann eine Minute dauern…",
     "invalidCredentials": "E-Mail oder Passwort ist falsch.",
-    "serverError": "Der Server ist gerade nicht erreichbar. Bitte versuchen Sie es in einigen Sekunden erneut.",
+    "serverError": "Der Server war nicht erreichbar. Bitte versuchen Sie es gleich noch einmal.",
     "forgotPassword": "Passwort vergessen? Wenden Sie sich an den Administrator Ihrer Firma.",
     "footer": "© 2026 KozaPass · Bursa"
   },

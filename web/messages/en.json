@@ -39,8 +39,9 @@
     "rememberMe": "Remember me",
     "submit": "Sign in",
     "submitting": "Signing in…",
+    "waking": "The server is waking up, this can take a minute…",
     "invalidCredentials": "Email or password is incorrect.",
-    "serverError": "The server can't be reached right now. Please try again in a few seconds.",
+    "serverError": "The server could not be reached. Please try again in a moment.",
     "forgotPassword": "Forgot your password? Contact your company administrator.",
     "footer": "© 2026 KozaPass · Bursa"
   },

@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils";
 
 type Status = "idle" | "submitting" | Exclude<LoginResult, "ok">;
 
+/** After this, a still-running login most likely waits for a sleeping server to start. */
+export const WAKING_HINT_AFTER_MS = 5_000;
+
 /**
  * Design F form. Sizes follow the design per breakpoint: 40 px controls on desktop, 48 px (and 16 px
  * text, no iOS zoom) on mobile. Every failed attempt shows one generic message; nothing reveals which
@@ -29,6 +32,17 @@ export function LoginForm() {
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
+  const [waking, setWaking] = useState(false);
+
+  // Slow login: keep the spinner, change the button text (not an error until the request really fails).
+  useEffect(() => {
+    if (status !== "submitting") return;
+    const timer = setTimeout(() => setWaking(true), WAKING_HINT_AFTER_MS);
+    return () => {
+      clearTimeout(timer);
+      setWaking(false);
+    };
+  }, [status]);
 
   // Already signed in (refresh cookie still valid): skip the form.
   useEffect(() => {
@@ -161,8 +175,11 @@ export function LoginForm() {
             aria-hidden
           />
         )}
-        {submitting ? t("submitting") : t("submit")}
+        {submitting ? (waking ? t("waking") : t("submitting")) : t("submit")}
       </Button>
+      <span className="sr-only" role="status" aria-live="polite">
+        {waking ? t("waking") : ""}
+      </span>
 
       <p className="text-center text-xs leading-[1.5] text-muted-foreground">{t("forgotPassword")}</p>
     </form>
