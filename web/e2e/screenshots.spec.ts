@@ -67,6 +67,9 @@ for (const scheme of ["light", "dark"] as const) {
 }
 
 test.describe("design references", () => {
+  // The design canvas (third-party support.js) sometimes never lays out a frame; a fresh page fixes it.
+  // The references are static files, so a retry is enough here.
+  test.describe.configure({ retries: 2 });
   // The design canvas (support.js) needs http, not file://: serve the committed copy locally.
   let server: Server;
   let designUrl: string;
@@ -96,12 +99,15 @@ test.describe("design references", () => {
     await page.goto(designUrl);
     await page.locator('[data-screen-label="Login masaüstü"]').first().waitFor({ state: "attached", timeout: 60_000 });
     await settle(page);
-    await page.waitForTimeout(2_000);
 
     // Crop from a full-page capture by each screen's box (the design canvas can report its frames as
     // not "visible" to Playwright's element screenshot).
     const crop = async (selector: string, index: number, file: string) => {
-      const box = await page.locator(selector).nth(index).evaluate((el) => {
+      const frame = page.locator(selector).nth(index);
+      // The canvas renders frames lazily: bring each into view and wait until it has a real size.
+      await frame.evaluate((el) => el.scrollIntoView({ block: "start" }));
+      await expect.poll(() => frame.evaluate((el) => el.getBoundingClientRect().width), { timeout: 30_000 }).toBeGreaterThan(0);
+      const box = await frame.evaluate((el) => {
         const r = el.getBoundingClientRect();
         return { x: r.left + window.scrollX, y: r.top + window.scrollY, width: r.width, height: r.height };
       });

@@ -81,6 +81,7 @@ export function LoginForm() {
       )}
 
       <div className="flex flex-col gap-[18px] md:gap-4">
+        {/* aria-invalid marks the fields for screen readers; the design shows the error only in the alert. */}
         <div className="flex flex-col gap-1.5">
           <label htmlFor={ids.email} className="text-sm leading-[normal] font-medium md:text-[13px]">
             {t("email")}
@@ -96,7 +97,7 @@ export function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t("emailPlaceholder")}
             aria-invalid={status === "invalid" || undefined}
-            className="h-12 rounded-lg px-3.5 text-base shadow-none md:h-10 md:rounded-md md:px-3 md:text-sm md:shadow-xs"
+            className="h-12 rounded-lg px-3.5 text-base shadow-none aria-invalid:border-input aria-invalid:ring-0 md:h-10 md:rounded-md md:px-3 md:text-sm md:shadow-xs"
           />
         </div>
 
@@ -115,7 +116,7 @@ export function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               aria-invalid={status === "invalid" || undefined}
-              className="h-12 rounded-lg pr-12 pl-3.5 text-base shadow-none md:h-10 md:rounded-md md:pr-10 md:pl-3 md:text-sm md:shadow-xs"
+              className="h-12 rounded-lg pr-12 pl-3.5 text-base shadow-none aria-invalid:border-input aria-invalid:ring-0 md:h-10 md:rounded-md md:pr-10 md:pl-3 md:text-sm md:shadow-xs"
             />
             <button
               type="button"
