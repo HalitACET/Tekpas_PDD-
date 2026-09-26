@@ -1,4 +1,4 @@
-# TekPas — Proje Planı
+# KozaPass (kod adı: tekpas) — Proje Planı
 
 Tekstil için Dijital Ürün Pasaportu platformu. Bitirme projesi + ERP firmasına gösterilecek çalışan demo.
 Bütçe: **sıfır** — her servis ücretsiz katmanda.
@@ -28,9 +28,10 @@ Bütçe: **sıfır** — her servis ücretsiz katmanda.
 | K17 | Prod depolama | Supabase Storage (S3 protokolü) | R2 kart istiyor, bütçe sıfır |
 | K18 | Web → API erişimi | Web, API'ye kendi origin'i üzerinden proxy ile erişir (Next.js rewrites, `/api/v1/*`) | Refresh cookie birinci taraf olur (SameSite=Strict çalışır), web için CORS gerekmez |
 | K19 | Neon bağlantısı | Pooler yok: uygulama ve Flyway tek bir doğrudan bağlantı (`DATABASE_URL`, `sslmode=require`) kullanır | PgBouncer transaction modu ile pgjdbc/Hibernate prepared statement'ları arasında sadece canlıda görülen sorun riski; tek uygulama ve en fazla 5 bağlantı için pooler gereksiz |
+| K20 | Marka | Kullanıcıya görünen ad **KozaPass**, kod adı `tekpas` (repo, paketler, `com.tekpas`, Render servisi) | Bursa ipekçiliği / koza hikâyesi; kod adını değiştirmek gereksiz churn |
 
 ### Ücretsiz katman notları
-- **Alan adı yok:** QR'lar `*.vercel.app` adresine gider. `PUBLIC_BASE_URL` config'te, ileride tek satır değişir. Gerçek etikete basılmaz.
+- **Alan adı yok:** QR'lar `https://kozapass.vercel.app` adresine gider. `PUBLIC_BASE_URL` config'te, ileride tek satır değişir. Gerçek etikete basılmaz.
 - **Render ücretsiz sunucu uyur** (15 dk trafiksizlikte, uyanma ~1 dk): cron-job.org `/actuator/health/liveness`'ı (DB'ye dokunmaz) **sadece 09:00–22:00 (Europe/Istanbul)** arasında 10 dakikada bir çağırır. Bu ayda ~410 saat eder. 750 saat **workspace başına** ve diğer servislerle paylaşılıyor; diğer iki servis uyanık tutulmuyor (Eylül 2026 kullanımı toplam 7,9 saat), bu yüzden pencere sorunsuz ve demo günlerinde 7/24'e geçmek de sığar. Ayrıntı: `docs/DEPLOY.md` §6.
 - **Neon ücretsiz:** proje başına ayda 100 CU-saat (0.25 CU ile ~400 saat), 5 dk hareketsizlikte uyur (kapatılamaz). Render'ın health check'i ve cron DB'ye dokunmayan liveness'ı kullandığı için Neon sadece gerçek kullanımda uyanır; Hikari boşta bağlantı tutmaz (`minimum-idle: 0`).
 - **Render pipeline dakikaları:** workspace başına ayda 500 dk, Docker build süresi buradan düşer. Bağımlılık katmanı cache'li, `buildFilter` sadece backend değişikliklerinde build eder, `checksPass` kırmızı CI'da build etmez. İlk canlı build ~2 dk (cache yok); kod değişikliğinde ~1,5 dk beklenir → ayda ~200–330 backend deploy'a yeter. Ayrıntı ve sınıra yaklaşınca yapılacaklar: `docs/DEPLOY.md` §8.

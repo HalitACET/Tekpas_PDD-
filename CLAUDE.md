@@ -1,6 +1,6 @@
-# TekPas — Claude Code Kuralları
+# KozaPass (kod adı: tekpas) — Claude Code Kuralları
 
-Tekstil üreticileri için **Dijital Ürün Pasaportu (DPP)** platformu. Üretici bir üretim partisi açar, tedarik zincirindeki firmalardan (iplikçi, kumaşçı, boyahane, fason dikim) veri ve sertifika toplar, AI belgeleri okur ve tutarlılığı kontrol eder, sonunda parti için GS1 Digital Link QR'lı, herkese açık bir pasaport yayınlanır.
+Tekstil üreticileri için **Dijital Ürün Pasaportu (DPP)** platformu. Kullanıcıya görünen marka **KozaPass**; kod adı `tekpas` (repo, `@tekpas/*` paketleri, `com.tekpas`, Render servisi) değişmez. Arayüzde marka adı da çeviri dosyasından gelir. Üretici bir üretim partisi açar, tedarik zincirindeki firmalardan (iplikçi, kumaşçı, boyahane, fason dikim) veri ve sertifika toplar, AI belgeleri okur ve tutarlılığı kontrol eder, sonunda parti için GS1 Digital Link QR'lı, herkese açık bir pasaport yayınlanır.
 
 Bu hem bir bitirme projesi hem de bir ERP firmasına gösterilecek çalışan bir demo. Kod kalitesi, güvenlik ve anlatılabilirlik önemli.
 
