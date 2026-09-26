@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#E9E6E0;color:#1C1B19;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#8C2F4B}a:hover{color:#6E2239}*{box-sizing:border-box}input{font:inherit}@keyframes kp-spin{to{transform:rotate(360deg)}}</style>
+</helmet>
+<div style="padding:64px;display:flex;flex-direction:column;gap:72px;width:max-content">
+  <div style="display:flex;align-items:baseline;gap:16px">
+    <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#8C2F4B">F–G</span>
+    <h1 style="margin:0;font-size:28px;font-weight:600;letter-spacing:-0.025em">Ekranlar</h1>
+    <span style="font-size:14px;color:#57534C">Login (masaüstü + mobil: varsayılan, hata, yükleniyor) · Panel iskeleti (açık + koyu). Logo: A1 v0.2.</span>
+    <a href="KozaPass Bilesenler.dc.html" style="font-size:13px">← Bileşenler</a>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#57534C">F · Login — masaüstü 1440 × 900</span>
+    <div style="display:flex;gap:48px">
+      <sc-for list="{{ logins }}" as="v" hint-placeholder-count="2">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font:12px 'Geist Mono',monospace;color:#57534C">{{ v.tag }}</span>
+          <div data-screen-label="Login masaüstü" style="width:1440px;height:900px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);background:#FFFFFF;border-radius:10px;overflow:hidden;box-shadow:0 20px 50px -20px rgba(28,27,25,.3)">
+            <div style="background:#FAF6EE;padding:48px 64px;display:flex;flex-direction:column;gap:40px;border-right:1px solid #EFE6D8">
+              <div style="display:flex;align-items:center;gap:10px">
+                <svg width="30" height="30" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8" ry="11" style="fill:#8C2F4B"></ellipse><path d="M-7.1 -4.5Q0 -2 7.1 -4.5M-7.8 0.6Q0 3.1 7.8 0.6M-6.8 5.6Q0 8 6.8 5.6" style="fill:none;stroke:#FAF6EE;stroke-width:1.1;stroke-linecap:round"></path></g><path d="M19.3 9.5C20 6 24 5.5 24.5 8C25 10.5 21.5 10.5 22.5 7.5C23.5 4.5 27 4 30 2.5" style="fill:none;stroke:#8C2F4B;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"></path></svg>
+                <span style="font-weight:600;font-size:19px;letter-spacing:-0.03em">KozaPass</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:20px;margin-top:40px;max-width:560px">
+                <span style="font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#8C2F4B">Koza Han, Bursa · 1491</span>
+                <h2 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:56px;line-height:1.02;letter-spacing:-0.025em;color:#1F1E1C">Her lif bir <span style="font-style:italic">kozadan</span> başlar.</h2>
+                <p style="margin:0;font-size:17px;line-height:1.6;color:#57534C;text-wrap:pretty">Beş yüz yıldır ipek, Bursa'da el değiştirirken kökenini yanında taşıdı. KozaPass aynı izi bugünün tedarik zincirinde sürer: her partinin iplikçisini, kumaşçısını, boyahanesini ve sertifikalarını tek bir pasaportta toplar.</p>
+              </div>
+              <div style="flex:1;min-height:0;display:flex;align-items:center">
+                <svg viewBox="0 0 720 320" style="width:100%;height:auto;overflow:visible">
+                  <g transform="translate(96 196) rotate(35)"><ellipse rx="52" ry="72" style="fill:#8C2F4B"></ellipse><path d="M-46 -30Q0 -14 46 -30M-51 2Q0 18 51 2M-45 34Q0 50 45 34" style="fill:none;stroke:#FAF6EE;stroke-width:2;stroke-linecap:round"></path></g>
+                  <path d="M137 137C142 112 168 100 176 118C184 136 158 146 156 128C154 106 190 92 230 112C258 126 262 150 290 150S360 212 400 212S470 128 510 128S580 192 620 192C652 192 672 172 704 170" style="fill:none;stroke:#8C2F4B;stroke-width:1.6;stroke-linecap:round"></path>
+                  <circle cx="290" cy="150" r="6" style="fill:#FAF6EE;stroke:#1F1E1C;stroke-width:1.5"></circle><text x="290" y="180" style="text-anchor:middle;font:12px 'Geist Mono',monospace;fill:#57534C">İplik</text>
+                  <circle cx="400" cy="212" r="6" style="fill:#FAF6EE;stroke:#1F1E1C;stroke-width:1.5"></circle><text x="400" y="242" style="text-anchor:middle;font:12px 'Geist Mono',monospace;fill:#57534C">Kumaş</text>
+                  <circle cx="510" cy="128" r="6" style="fill:#FAF6EE;stroke:#1F1E1C;stroke-width:1.5"></circle><text x="510" y="158" style="text-anchor:middle;font:12px 'Geist Mono',monospace;fill:#57534C">Boya</text>
+                  <circle cx="620" cy="192" r="6" style="fill:#FAF6EE;stroke:#1F1E1C;stroke-width:1.5"></circle><text x="620" y="222" style="text-anchor:middle;font:12px 'Geist Mono',monospace;fill:#57534C">Konfeksiyon</text>
+                </svg>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;padding:48px 64px">
+              <div style="display:flex;justify-content:flex-end;gap:2px;font:500 11px 'Geist Mono',monospace;color:#6B665E">
+                <span style="padding:5px 8px;border-radius:4px;background:#F2F0EC;color:#1C1B19">TR</span><span style="padding:5px 8px">EN</span><span style="padding:5px 8px">DE</span>
+              </div>
+              <div style="flex:1;display:flex;align-items:center;justify-content:center">
+                <div style="width:380px;display:flex;flex-direction:column;gap:24px">
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <h1 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-0.02em">Giriş yap</h1>
+                    <span style="font-size:14px;color:#6B665E">Firma hesabınızla devam edin.</span>
+                  </div>
+                  <sc-if value="{{ v.error }}" hint-placeholder-val="{{ false }}">
+                    <div role="alert" style="display:flex;gap:10px;padding:12px;border-radius:8px;background:#FDECEA;color:#B42318;font-size:13px;line-height:1.45"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.alert }}"></path></svg><span style="font-weight:500">E-posta veya şifre hatalı.</span></div>
+                  </sc-if>
+                  <div style="display:flex;flex-direction:column;gap:16px">
+                    <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">E-posta
+                      <input value="{{ v.email }}" placeholder="ad@firma.com.tr" readonly style="height:40px;padding:0 12px;border-radius:6px;border:1px solid #D2CEC6;background:#FFFFFF;font-size:14px;color:#1C1B19;outline:none;box-shadow:0 1px 2px rgba(28,27,25,.05)">
+                    </label>
+                    <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Şifre
+                      <span style="position:relative;display:flex">
+                        <input type="password" value="{{ v.pw }}" placeholder="••••••••" readonly style="flex:1;height:40px;padding:0 40px 0 12px;border-radius:6px;border:1px solid #D2CEC6;background:#FFFFFF;font-size:14px;color:#1C1B19;outline:none;box-shadow:0 1px 2px rgba(28,27,25,.05)">
+                        <span style="position:absolute;right:10px;top:11px;color:#6B665E;display:flex"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.eye }}"></path></svg></span>
+                      </span>
+                      
+                    </label>
+                    <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px">
+                      <span style="display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:4px;background:#1F1E1C;color:#FAF8F4;display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span>Beni hatırla</span>
+                      
+                    </div>
+                  </div>
+                  <button style="height:40px;border-radius:6px;border:none;background:#1F1E1C;color:#FAF8F4;font:500 14px 'Geist',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="background:#3D3A35"><sc-if value="{{ v.loading }}" hint-placeholder-val="{{ false }}">{{ spinner }}Giriş yapılıyor…</sc-if><sc-if value="{{ v.idle }}" hint-placeholder-val="{{ true }}">Giriş yap</sc-if></button>
+                  <span style="font-size:12px;line-height:1.5;color:#6B665E;text-align:center">Şifrenizi mi unuttunuz? Firma yöneticinizle iletişime geçin.</span>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:#6B665E"><span>© 2026 KozaPass · Bursa</span><span style="display:flex;gap:16px"><span>KVKK</span><span>Gizlilik</span><span>Durum</span></span></div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#57534C">F · Login — mobil 390 × 844</span>
+    <div style="display:flex;gap:48px">
+      <sc-for list="{{ logins }}" as="v" hint-placeholder-count="2">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font:12px 'Geist Mono',monospace;color:#57534C">{{ v.tag }}</span>
+          <div data-screen-label="Login mobil" style="width:390px;height:844px;background:#FFFFFF;border-radius:36px;overflow:hidden;box-shadow:0 20px 50px -20px rgba(28,27,25,.3),0 0 0 8px #1F1E1C;display:flex;flex-direction:column">
+            <div style="background:#FAF6EE;padding:56px 24px 28px;display:flex;flex-direction:column;gap:18px;border-bottom:1px solid #EFE6D8">
+              <div style="display:flex;align-items:center;gap:8px">
+                <svg width="24" height="24" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:#8C2F4B"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:#FAF6EE;stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:#8C2F4B;stroke-width:2.6;stroke-linecap:round"></path></svg>
+                <span style="font-weight:600;font-size:16px;letter-spacing:-0.03em">KozaPass</span>
+                <span style="margin-left:auto;font:500 11px 'Geist Mono',monospace;color:#57534C;border:1px solid #D9CDB8;border-radius:4px;padding:3px 6px">TR</span>
+              </div>
+              <h2 style="margin:8px 0 0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:34px;line-height:1.05;letter-spacing:-0.02em">Her lif bir <span style="font-style:italic">kozadan</span> başlar.</h2>
+              <p style="margin:0;font-size:14px;line-height:1.55;color:#57534C">Tedarik zincirinizin her adımı, tek bir pasaportta.</p>
+              <svg viewBox="0 0 342 72" style="width:100%;height:auto;overflow:visible">
+                <g transform="translate(24 42) rotate(35)"><ellipse rx="13" ry="18" style="fill:#8C2F4B"></ellipse><path d="M-11.5 -5Q0 -1 11.5 -5M-11 5Q0 9 11 5" style="fill:none;stroke:#FAF6EE;stroke-width:1.5;stroke-linecap:round"></path></g>
+                <path d="M34 27C40 14 52 16 50 26C48 34 40 28 46 20C60 6 75 40 100 40S150 22 170 22S215 44 240 44S290 26 310 26C322 26 330 28 338 30" style="fill:none;stroke:#8C2F4B;stroke-width:1.3;stroke-linecap:round"></path>
+                <circle cx="100" cy="40" r="3.5" style="fill:#FAF6EE;stroke:#1F1E1C;stroke-width:1.2"></circle><text x="100" y="58" style="text-anchor:middle;font:9px 'Geist Mono',monospace;fill:#57534C">İplik</text><circle cx="170" cy="22" r="3.5" style="fill:#FAF6EE;stroke:#1F1E1C;stroke-width:1.2"></circle><text x="170" y="40" style="text-anchor:middle;font:9px 'Geist Mono',monospace;fill:#57534C">Kumaş</text><circle cx="240" cy="44" r="3.5" style="fill:#FAF6EE;stroke:#1F1E1C;stroke-width:1.2"></circle><text x="240" y="62" style="text-anchor:middle;font:9px 'Geist Mono',monospace;fill:#57534C">Boya</text><circle cx="310" cy="26" r="3.5" style="fill:#FAF6EE;stroke:#1F1E1C;stroke-width:1.2"></circle><text x="310" y="44" style="text-anchor:middle;font:9px 'Geist Mono',monospace;fill:#57534C">Konfeksiyon</text>
+              </svg>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:18px;flex:1">
+              <h1 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em">Giriş yap</h1>
+              <sc-if value="{{ v.error }}" hint-placeholder-val="{{ false }}">
+                <div role="alert" style="display:flex;gap:10px;padding:12px;border-radius:8px;background:#FDECEA;color:#B42318;font-size:13px;line-height:1.45"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.alert }}"></path></svg><span style="font-weight:500">E-posta veya şifre hatalı.</span></div>
+              </sc-if>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:500">E-posta
+                <input value="{{ v.email }}" placeholder="ad@firma.com.tr" readonly style="height:48px;padding:0 14px;border-radius:8px;border:1px solid #D2CEC6;font-size:16px;color:#1C1B19;outline:none">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:500">Şifre
+                <input type="password" value="{{ v.pw }}" placeholder="••••••••" readonly style="height:48px;padding:0 14px;border-radius:8px;border:1px solid #D2CEC6;font-size:16px;color:#1C1B19;outline:none">
+              </label>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:14px;min-height:44px">
+                <span style="display:flex;align-items:center;gap:10px"><span style="width:20px;height:20px;border-radius:5px;background:#1F1E1C;color:#FAF8F4;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span>Beni hatırla</span>
+                
+              </div>
+              <button style="height:48px;border-radius:8px;border:none;background:#1F1E1C;color:#FAF8F4;font:500 16px 'Geist',sans-serif;margin-top:auto;display:flex;align-items:center;justify-content:center;gap:8px"><sc-if value="{{ v.loading }}" hint-placeholder-val="{{ false }}">{{ spinner }}Giriş yapılıyor…</sc-if><sc-if value="{{ v.idle }}" hint-placeholder-val="{{ true }}">Giriş yap</sc-if></button>
+              <span style="font-size:12px;line-height:1.5;color:#6B665E;text-align:center">Şifrenizi mi unuttunuz? Firma yöneticinizle iletişime geçin.</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#57534C">G · Panel iskeleti — boş Partiler · menü ve dil seçici tıklanabilir</span>
+    <div style="display:flex;flex-direction:column;gap:48px">
+      
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font:12px 'Geist Mono',monospace;color:#57534C">Açık tema</span>
+          <div data-screen-label="Panel" style="--radius:8px;--background:#FCFBF9;--foreground:#1C1B19;--card:#FFFFFF;--muted:#F2F0EC;--muted-foreground:#6B665E;--primary:#1F1E1C;--primary-foreground:#FAF8F4;--accent:#EEEBE6;--brand:#8C2F4B;--brand-foreground:#FFFFFF;--border:#E6E3DD;--input:#D2CEC6;--sidebar:#F6F4F0;--sidebar-accent:#EAE7E1;--shadow-xs:0 1px 2px rgba(28,27,25,.06)">
+          <div style="width:1440px;height:900px;display:grid;grid-template-columns:240px minmax(0,1fr);background:var(--background);color:var(--foreground);border-radius:10px;overflow:hidden;box-shadow:0 20px 50px -20px rgba(28,27,25,.35)">
+            <aside style="background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px">
+              <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 8px;margin-bottom:12px">
+                <svg width="22" height="22" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--brand)"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:var(--sidebar);stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:var(--brand);stroke-width:2.6;stroke-linecap:round"></path></svg>
+                <span style="font-weight:600;font-size:15px;letter-spacing:-0.03em">KozaPass</span>
+              </div>
+              <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px">
+                  <sc-if value="{{ g.hasTitle }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:500;color:var(--muted-foreground);padding:0 8px 6px">{{ g.title }}</span></sc-if>
+                  <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="3">
+                    <div onClick="{{ n.go }}" style="height:32px;padding:0 8px;border-radius:6px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:{{ n.w }};color:{{ n.fg }};background:{{ n.bg }};cursor:pointer" style-hover="background:var(--sidebar-accent);color:var(--foreground)">
+                      <svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="{{ n.d }}"></path></svg>{{ n.label }}<sc-if value="{{ n.hasCount }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;min-width:20px;height:18px;padding:0 6px;border-radius:999px;background:var(--brand);color:var(--brand-foreground);font:600 11px 'Geist Mono',monospace;display:flex;align-items:center;justify-content:center">{{ n.count }}</span></sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+              <div style="margin-top:auto;height:32px;padding:0 8px;border-radius:6px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.panel }}"></path></svg>Menüyü daralt</div>
+            </aside>
+            <div style="display:flex;flex-direction:column;min-width:0">
+              <header style="height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 16px 0 24px;flex:none">
+                <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;cursor:pointer"><span style="width:24px;height:24px;border-radius:6px;background:var(--muted);color:var(--muted-foreground);display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.building }}"></path></svg></span>Karaca Tekstil A.Ş.<svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+                <span style="color:var(--input)">/</span><span style="font-size:13px;color:var(--muted-foreground)">{{ page.title }}</span>
+                <div style="margin-left:auto;height:32px;width:260px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg>Parti, GTIN veya tedarikçi ara<span style="margin-left:auto;font:11px 'Geist Mono',monospace;border:1px solid var(--border);border-radius:4px;padding:0 4px">⌘K</span></div>
+                <div style="display:flex;background:var(--muted);border-radius:6px;padding:2px;gap:2px;font:500 11px 'Geist Mono',monospace">
+                  <sc-for list="{{ langs }}" as="l" hint-placeholder-count="3">
+                    <span onClick="{{ l.go }}" style="padding:5px 8px;border-radius:4px;cursor:pointer;background:{{ l.bg }};color:{{ l.fg }};box-shadow:{{ l.sh }}">{{ l.code }}</span>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;cursor:pointer" style-hover="background:var(--accent)"><span style="width:28px;height:28px;border-radius:50%;background:#EFE6D8;color:#3D3A35;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">EY</span><span style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:12px;font-weight:500">Elif Yılmaz</span><span style="font-size:11px;color:var(--muted-foreground)">Yönetici</span></span><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+              </header>
+              <main style="flex:1;padding:28px 32px;display:flex;flex-direction:column;gap:20px;min-height:0">
+                <div style="display:flex;align-items:flex-end;gap:12px">
+                  <div style="display:flex;flex-direction:column;gap:4px"><h1 style="margin:0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.015em">{{ page.title }}</h1><span style="font-size:13px;color:var(--muted-foreground)">{{ page.sub }}</span></div>
+                  <button style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:6px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>İçe aktar</button>
+                  <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>{{ page.cta }}</button>
+                </div>
+                <div style="display:flex;gap:8px;opacity:.55">
+                  <div style="height:32px;width:280px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg>Filtrele</div>
+                  <div style="height:32px;padding:0 10px;border:1px dashed var(--input);border-radius:6px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>Durum</div>
+                  <div style="height:32px;padding:0 10px;border:1px dashed var(--input);border-radius:6px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>Tedarikçi</div>
+                </div>
+                <div style="flex:1;border:1px solid var(--border);border-radius:8px;background:var(--card);display:flex;flex-direction:column;overflow:hidden">
+                  <div style="height:36px;display:grid;grid-template-columns:40px 170px minmax(0,1.6fr) 160px 150px 120px;align-items:center;padding:0 4px;background:var(--muted);border-bottom:1px solid var(--border);font-size:12px;font-weight:500;color:var(--muted-foreground)">
+                    <span></span><sc-for list="{{ page.cols }}" as="c" hint-placeholder-count="5"><span>{{ c }}</span></sc-for>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:32px">
+                    <span style="width:56px;height:56px;border-radius:14px;background:var(--muted);display:flex;align-items:center;justify-content:center"><svg width="30" height="30" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--muted-foreground)"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:var(--muted-foreground);stroke-width:2.6;stroke-linecap:round"></path></svg></span>
+                    <strong style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:400;letter-spacing:-0.015em">{{ page.emptyTitle }}</strong>
+                    <span style="font-size:14px;line-height:1.55;color:var(--muted-foreground);max-width:420px;text-wrap:pretty">{{ page.emptyBody }}</span>
+                    <div style="display:flex;gap:8px;margin-top:6px">
+                      <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">{{ page.cta }}</button>
+                      <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input)">{{ page.cta2 }}</button>
+                    </div>
+                    <sc-if value="{{ page.isBatches }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex;gap:28px;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
+                        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+                          <div style="display:flex;align-items:center;gap:10px;font-size:13px;text-align:left"><span style="width:22px;height:22px;border-radius:50%;border:1px solid var(--input);font:500 11px 'Geist Mono',monospace;display:flex;align-items:center;justify-content:center;color:var(--muted-foreground)">{{ s.n }}</span><span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ s.t }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ s.d }}</span></span></div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </main>
+            </div>
+          </div>
+          </div>
+        </div>
+      
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font:12px 'Geist Mono',monospace;color:#57534C">Koyu tema</span>
+          <div data-screen-label="Panel" style="--radius:8px;--background:#0F1218;--foreground:#E9E7E3;--card:#151922;--muted:#1B202A;--muted-foreground:#9AA1AE;--primary:#E9E7E3;--primary-foreground:#151922;--accent:#1F2531;--brand:#D98AA3;--brand-foreground:#1A0C12;--border:#262C38;--input:#303746;--sidebar:#0C0F14;--sidebar-accent:#1B202A;--shadow-xs:none">
+          <div style="width:1440px;height:900px;display:grid;grid-template-columns:240px minmax(0,1fr);background:var(--background);color:var(--foreground);border-radius:10px;overflow:hidden;box-shadow:0 20px 50px -20px rgba(28,27,25,.35)">
+            <aside style="background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px">
+              <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 8px;margin-bottom:12px">
+                <svg width="22" height="22" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--brand)"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:var(--sidebar);stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:var(--brand);stroke-width:2.6;stroke-linecap:round"></path></svg>
+                <span style="font-weight:600;font-size:15px;letter-spacing:-0.03em">KozaPass</span>
+              </div>
+              <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px">
+                  <sc-if value="{{ g.hasTitle }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:500;color:var(--muted-foreground);padding:0 8px 6px">{{ g.title }}</span></sc-if>
+                  <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="3">
+                    <div onClick="{{ n.go }}" style="height:32px;padding:0 8px;border-radius:6px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:{{ n.w }};color:{{ n.fg }};background:{{ n.bg }};cursor:pointer" style-hover="background:var(--sidebar-accent);color:var(--foreground)">
+                      <svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="{{ n.d }}"></path></svg>{{ n.label }}<sc-if value="{{ n.hasCount }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;min-width:20px;height:18px;padding:0 6px;border-radius:999px;background:var(--brand);color:var(--brand-foreground);font:600 11px 'Geist Mono',monospace;display:flex;align-items:center;justify-content:center">{{ n.count }}</span></sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+              <div style="margin-top:auto;height:32px;padding:0 8px;border-radius:6px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.panel }}"></path></svg>Menüyü daralt</div>
+            </aside>
+            <div style="display:flex;flex-direction:column;min-width:0">
+              <header style="height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 16px 0 24px;flex:none">
+                <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;cursor:pointer"><span style="width:24px;height:24px;border-radius:6px;background:var(--muted);color:var(--muted-foreground);display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.building }}"></path></svg></span>Karaca Tekstil A.Ş.<svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+                <span style="color:var(--input)">/</span><span style="font-size:13px;color:var(--muted-foreground)">{{ page.title }}</span>
+                <div style="margin-left:auto;height:32px;width:260px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg>Parti, GTIN veya tedarikçi ara<span style="margin-left:auto;font:11px 'Geist Mono',monospace;border:1px solid var(--border);border-radius:4px;padding:0 4px">⌘K</span></div>
+                <div style="display:flex;background:var(--muted);border-radius:6px;padding:2px;gap:2px;font:500 11px 'Geist Mono',monospace">
+                  <sc-for list="{{ langs }}" as="l" hint-placeholder-count="3">
+                    <span onClick="{{ l.go }}" style="padding:5px 8px;border-radius:4px;cursor:pointer;background:{{ l.bg }};color:{{ l.fg }};box-shadow:{{ l.sh }}">{{ l.code }}</span>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;cursor:pointer" style-hover="background:var(--accent)"><span style="width:28px;height:28px;border-radius:50%;background:#EFE6D8;color:#3D3A35;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">EY</span><span style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:12px;font-weight:500">Elif Yılmaz</span><span style="font-size:11px;color:var(--muted-foreground)">Yönetici</span></span><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+              </header>
+              <main style="flex:1;padding:28px 32px;display:flex;flex-direction:column;gap:20px;min-height:0">
+                <div style="display:flex;align-items:flex-end;gap:12px">
+                  <div style="display:flex;flex-direction:column;gap:4px"><h1 style="margin:0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.015em">{{ page.title }}</h1><span style="font-size:13px;color:var(--muted-foreground)">{{ page.sub }}</span></div>
+                  <button style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:6px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>İçe aktar</button>
+                  <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>{{ page.cta }}</button>
+                </div>
+                <div style="display:flex;gap:8px;opacity:.55">
+                  <div style="height:32px;width:280px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg>Filtrele</div>
+                  <div style="height:32px;padding:0 10px;border:1px dashed var(--input);border-radius:6px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>Durum</div>
+                  <div style="height:32px;padding:0 10px;border:1px dashed var(--input);border-radius:6px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>Tedarikçi</div>
+                </div>
+                <div style="flex:1;border:1px solid var(--border);border-radius:8px;background:var(--card);display:flex;flex-direction:column;overflow:hidden">
+                  <div style="height:36px;display:grid;grid-template-columns:40px 170px minmax(0,1.6fr) 160px 150px 120px;align-items:center;padding:0 4px;background:var(--muted);border-bottom:1px solid var(--border);font-size:12px;font-weight:500;color:var(--muted-foreground)">
+                    <span></span><sc-for list="{{ page.cols }}" as="c" hint-placeholder-count="5"><span>{{ c }}</span></sc-for>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:32px">
+                    <span style="width:56px;height:56px;border-radius:14px;background:var(--muted);display:flex;align-items:center;justify-content:center"><svg width="30" height="30" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--muted-foreground)"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:var(--muted-foreground);stroke-width:2.6;stroke-linecap:round"></path></svg></span>
+                    <strong style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:400;letter-spacing:-0.015em">{{ page.emptyTitle }}</strong>
+                    <span style="font-size:14px;line-height:1.55;color:var(--muted-foreground);max-width:420px;text-wrap:pretty">{{ page.emptyBody }}</span>
+                    <div style="display:flex;gap:8px;margin-top:6px">
+                      <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">{{ page.cta }}</button>
+                      <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input)">{{ page.cta2 }}</button>
+                    </div>
+                    <sc-if value="{{ page.isBatches }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex;gap:28px;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
+                        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+                          <div style="display:flex;align-items:center;gap:10px;font-size:13px;text-align:left"><span style="width:22px;height:22px;border-radius:50%;border:1px solid var(--input);font:500 11px 'Geist Mono',monospace;display:flex;align-items:center;justify-content:center;color:var(--muted-foreground)">{{ s.n }}</span><span style="display:flex;flex-direction:column"><span style="font-weight:500">{{ s.t }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ s.d }}</span></span></div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </main>
+            </div>
+          </div>
+          </div>
+        </div>
+      
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { active: 'partiler', lang: 'TR' };
+  renderVals() {
+    const ic = {
+      check: 'M20 6 9 17l-5-5', chev: 'm6 9 6 6 6-6', plus: 'M12 5v14M5 12h14',
+      search: 'M3 11a8 8 0 1 0 16 0a8 8 0 1 0-16 0M21 21l-4.3-4.3',
+      alert: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 8v4M12 16h.01',
+      eye: 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7ZM9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
+      building: 'M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18ZM6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4',
+      upload: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12',
+      panel: 'M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2ZM9 3v18',
+    };
+    const D = {
+      package: 'M7.5 4.27l9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16ZM3.3 7l8.7 5 8.7-5M12 22V12',
+      layers: 'M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83ZM22 17.65l-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65M22 12.65l-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65',
+      factory: 'M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2ZM17 18h1M12 18h1M7 18h1',
+      file: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7ZM14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8',
+      upload: ic.upload,
+      users: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M5 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+      sliders: 'M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4',
+    };
+    const pages = {
+      gorevler: { title: 'Görevler', sub: 'Onayınızı bekleyen tedarik zinciri adımları ve belgeler.', cta: 'İlk görevi aç', cta2: 'Tümünü listele', emptyTitle: '7 görev onayınızı bekliyor', emptyBody: 'Tedarikçiden gelen adımlar ve AI tarafından okunan belgeler burada toplanır. Güveni 0,80 altında kalan alanlar önce listelenir.', cols: ['Görev', 'Parti', 'Tedarikçi', 'Durum', 'Bekleme'] },
+      urunler: { title: 'Ürünler', sub: 'GTIN bazında ürün kartları ve lif bileşimleri.', cta: 'Yeni ürün', cta2: 'CSV ile içe aktar', emptyTitle: 'Henüz ürün yok', emptyBody: 'Pasaport her zaman bir ürüne bağlıdır. GTIN, ürün adı ve lif bileşimiyle ilk ürününüzü tanımlayın.', cols: ['GTIN', 'Ürün', 'Lif bileşimi', 'Parti sayısı', 'Güncelleme'] },
+      partiler: { title: 'Partiler', sub: 'Her üretim partisi için bir dijital ürün pasaportu yayınlanır.', cta: 'Yeni parti', cta2: 'Excel\'den içe aktar', emptyTitle: 'Henüz parti yok', emptyBody: 'İlk partinizi oluşturun: ürünü seçin, tedarik zincirindeki atölyeleri atayın, belgeleri toplayın. Onaylanan parti QR\'lı pasaport olarak yayınlanır.', cols: ['Parti no', 'Ürün', 'Tedarik zinciri', 'Durum', 'Güncelleme'] },
+      tedarikciler: { title: 'Tedarikçiler', sub: 'İplikçi, kumaşçı, boyahane ve fason atölyeler.', cta: 'Tedarikçi ekle', cta2: 'Davet bağlantısı gönder', emptyTitle: 'Henüz tedarikçi yok', emptyBody: 'Tedarikçilerinizi ekleyin ya da davet edin; belgelerini kendi portallarından yükleyebilirler.', cols: ['Firma', 'Rol', 'Şehir', 'Sertifikalar', 'Güncelleme'] },
+      belgeler: { title: 'Belgeler', sub: 'Sertifika, irsaliye ve teknik föyler. AI okur, siz onaylarsınız.', cta: 'Belge yükle', cta2: 'Tedarikçiden iste', emptyTitle: 'Henüz belge yok', emptyBody: 'PDF, JPG veya PNG yükleyin (dosya başına en fazla 10 MB). AI; sertifika numarası, geçerlilik tarihi ve lif oranlarını çıkarır, onayınıza sunar.', cols: ['Belge', 'Tür', 'Tedarikçi', 'Durum', 'Geçerlilik'] },
+      iceaktarma: { title: 'İçe aktarma', sub: 'Excel (XLSX) veya CSV dosyalarından toplu veri.', cta: 'Yeni içe aktarma', cta2: 'Şablonu indir', emptyTitle: 'Henüz içe aktarma yapılmadı', emptyBody: 'Ürün ve parti listelerinizi Excel veya CSV olarak yükleyin. Şablonu indirip doldurmanız yeterli.', cols: ['Dosya', 'Kaynak', 'Satır', 'Durum', 'Tarih'] },
+      kullanicilar: { title: 'Kullanıcılar', sub: 'Ekip üyeleri ve rolleri.', cta: 'Kullanıcı davet et', cta2: 'Rolleri gör', emptyTitle: 'Yalnızca siz varsınız', emptyBody: 'Ofis ekibinizi davet edin. Onay yetkisini yalnızca uyum sorumlularına verebilirsiniz.', cols: ['Ad', 'E-posta', 'Rol', 'Son giriş', 'Durum'] },
+      ayarlar: { title: 'Ayarlar', sub: 'Firma bilgileri, pasaport görünümü, entegrasyonlar.', cta: 'Kaydet', cta2: 'Vazgeç', emptyTitle: 'Firma profili eksik', emptyBody: 'Pasaportta görünecek firma adı, adres ve logo bilgilerini tamamlayın.', cols: ['Ayar', 'Değer', '', '', ''] },
+    };
+    const groups = [
+      { title: '', items: [['gorevler', 'Görevler', 'M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11Z', 7]] },
+      { title: 'Pasaport', items: [['urunler', 'Ürünler', D.package], ['partiler', 'Partiler', D.layers]] },
+      { title: 'Tedarik zinciri', items: [['tedarikciler', 'Tedarikçiler', D.factory], ['belgeler', 'Belgeler', D.file], ['iceaktarma', 'İçe aktarma', D.upload]] },
+      { title: 'Yönetim', items: [['kullanicilar', 'Kullanıcılar', D.users], ['ayarlar', 'Ayarlar', D.sliders]] },
+    ];
+    const navGroups = groups.map(g => ({ title: g.title, hasTitle: !!g.title, items: g.items.map(([key, label, d, count]) => {
+      const on = key === this.state.active;
+      return { label, d, count: count || '', hasCount: !!count, go: () => this.setState({ active: key }), bg: on ? 'var(--sidebar-accent)' : 'transparent', fg: on ? 'var(--foreground)' : 'var(--muted-foreground)', w: on ? 600 : 500 };
+    }) }));
+    const langs = ['TR', 'EN', 'DE'].map(code => { const on = code === this.state.lang; return { code, go: () => this.setState({ lang: code }), bg: on ? 'var(--card)' : 'transparent', fg: on ? 'var(--foreground)' : 'var(--muted-foreground)', sh: on ? 'var(--shadow-xs)' : 'none' }; });
+    const page = { ...pages[this.state.active], isBatches: this.state.active === 'partiler' };
+    const journey = [['Koza', '#8C2F4B'], ['İplik', '#A9A49B'], ['Kumaş', '#A9A49B'], ['Boya', '#A9A49B'], ['Konfeksiyon', '#A9A49B'], ['Pasaport', '#1F1E1C']].map(([n, c]) => ({ n, c, r: c }));
+    const logins = [
+      { tag: 'Varsayılan', error: false, loading: false, idle: true, email: '', pw: '' },
+      { tag: 'Hata durumu', error: true, loading: false, idle: true, email: 'elif@karacatekstil.com.tr', pw: 'yanlissifre' },
+      { tag: 'Yükleniyor', error: false, loading: true, idle: false, email: 'elif@karacatekstil.com.tr', pw: 'dogrusifre1' },
+    ];
+    const spinner = React.createElement('span', { style: { width: 14, height: 14, borderRadius: '50%', border: '1.5px solid currentColor', borderRightColor: 'transparent', animation: 'kp-spin .7s linear infinite', flex: 'none' } });
+    const common = { '--radius': '8px' };
+    const light = { ...common, '--background': '#FCFBF9', '--foreground': '#1C1B19', '--card': '#FFFFFF', '--muted': '#F2F0EC', '--muted-foreground': '#6B665E', '--primary': '#1F1E1C', '--primary-foreground': '#FAF8F4', '--accent': '#EEEBE6', '--brand': '#8C2F4B', '--brand-foreground': '#FFFFFF', '--border': '#E6E3DD', '--input': '#D2CEC6', '--sidebar': '#F6F4F0', '--sidebar-accent': '#EAE7E1', '--shadow-xs': '0 1px 2px rgba(28,27,25,.06)' };
+    const dark = { ...common, '--background': '#0F1218', '--foreground': '#E9E7E3', '--card': '#151922', '--muted': '#1B202A', '--muted-foreground': '#9AA1AE', '--primary': '#E9E7E3', '--primary-foreground': '#151922', '--accent': '#1F2531', '--brand': '#D98AA3', '--brand-foreground': '#1A0C12', '--border': '#262C38', '--input': '#303746', '--sidebar': '#0C0F14', '--sidebar-accent': '#1B202A', '--shadow-xs': 'none' };
+    const themes = [{ label: 'Açık tema', vars: light }, { label: 'Koyu tema', vars: dark }];
+    const steps = [{ n: '1', t: 'Ürünü seç', d: 'GTIN ve lif bileşimi' }, { n: '2', t: 'Tedarikçileri ata', d: 'İplik → konfeksiyon' }, { n: '3', t: 'Belgeleri topla', d: 'AI okur, siz onaylarsınız' }];
+    return { ic, navGroups, langs, page, journey, logins, themes, steps, spinner };
+  }
+}
+</script>
+</body>
+</html>

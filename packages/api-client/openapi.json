@@ -81,6 +81,9 @@
             "maxLength" : 200,
             "minLength" : 0,
             "type" : "string"
+          },
+          "rememberMe" : {
+            "type" : "boolean"
           }
         },
         "required" : [ "client", "email", "password" ],
@@ -206,7 +209,7 @@
   "paths" : {
     "/api/v1/auth/login" : {
       "post" : {
-        "description" : "WEB clients receive the refresh token as an httpOnly cookie, MOBILE clients in the body.",
+        "description" : "WEB clients receive the refresh token as an httpOnly cookie, MOBILE clients in the body. With rememberMe=false the WEB cookie is a session cookie (no Max-Age).",
         "operationId" : "login",
         "parameters" : [ {
           "in" : "header",
@@ -330,6 +333,13 @@
         "parameters" : [ {
           "in" : "cookie",
           "name" : "tekpas_rt",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "cookie",
+          "name" : "tekpas_rt_mode",
           "required" : false,
           "schema" : {
             "type" : "string"

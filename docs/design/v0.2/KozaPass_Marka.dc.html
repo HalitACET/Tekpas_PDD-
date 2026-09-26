@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#FCFBF9;color:#1C1B19;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#8C2F4B}a:hover{color:#6E2239}*{box-sizing:border-box}</style>
+</helmet>
+<div style="max-width:1240px;margin:0 auto;padding:56px 40px 120px;display:flex;flex-direction:column;gap:96px">
+
+<header style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:center;gap:12px">
+    <svg width="28" height="28" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8" ry="11" style="fill:#8C2F4B"></ellipse><path d="M-7.1 -4.5Q0 -2 7.1 -4.5M-7.8 0.6Q0 3.1 7.8 0.6M-6.8 5.6Q0 8 6.8 5.6" style="fill:none;stroke:#FAF6EE;stroke-width:1.1;stroke-linecap:round"></path></g><path d="M19.3 9.5C20 6 24 5.5 24.5 8C25 10.5 21.5 10.5 22.5 7.5C23.5 4.5 27 4 30 2.5" style="fill:none;stroke:#8C2F4B;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"></path></svg>
+    <span style="font-weight:600;font-size:18px;letter-spacing:-0.02em">KozaPass</span>
+    <span style="font-family:'Geist Mono',monospace;font-size:12px;color:#6B665E;margin-left:8px">Marka ve token sistemi · v0.2 · Eylül 2026</span>
+  </div>
+  <h1 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:56px;line-height:1.05;letter-spacing:-0.02em;max-width:880px;text-wrap:pretty">Her lif bir kozadan başlar. Tek sistem, iki ton: yoğun panel, ferah pasaport.</h1>
+  <p style="margin:0;max-width:640px;font-size:16px;line-height:1.6;color:#57534C;text-wrap:pretty">Panel ve pasaport aynı renk, tip ve boşluk token'larını kullanır. Panel antrasit ağırlıklı ve sıkıdır; pasaport koza kremi zemin, serif başlıklar ve geniş boşluklarla anlatır. Token adları shadcn/ui tema yapısıyla birebir eşleşir.</p>
+</header>
+
+<section style="display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:16px;border-top:1px solid #1C1B19;padding-top:16px">
+    <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#8C2F4B">A</span>
+    <h2 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-0.02em">Logo — üç yön</h2>
+    <p style="margin:0 0 0 auto;max-width:460px;font-size:14px;line-height:1.5;color:#6B665E">Üçü de koza ve iplikten türer, 16 px'te okunur. Renkler: Dut vurgu, ipek beji, antrasit.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px">
+
+    <div id="A1" style="border:1px solid #E6E3DD;border-radius:12px;overflow:hidden;background:#FFFFFF;display:flex;flex-direction:column">
+      <div style="background:#FAF6EE;padding:48px 32px;display:flex;align-items:center;justify-content:center;gap:14px;min-height:200px">
+        <svg width="56" height="56" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8" ry="11" style="fill:#8C2F4B"></ellipse><path d="M-7.1 -4.5Q0 -2 7.1 -4.5M-7.8 0.6Q0 3.1 7.8 0.6M-6.8 5.6Q0 8 6.8 5.6" style="fill:none;stroke:#FAF6EE;stroke-width:1.1;stroke-linecap:round"></path></g><path d="M19.3 9.5C20 6 24 5.5 24.5 8C25 10.5 21.5 10.5 22.5 7.5C23.5 4.5 27 4 30 2.5" style="fill:none;stroke:#8C2F4B;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"></path></svg>
+        <span style="font-weight:600;font-size:34px;letter-spacing:-0.035em;color:#1F1E1C">KozaPass</span>
+      </div>
+      <div style="background:#1F1E1C;padding:28px 32px;display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg width="32" height="32" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8" ry="11" style="fill:#EFE6D8"></ellipse><path d="M-7.1 -4.5Q0 -2 7.1 -4.5M-7.8 0.6Q0 3.1 7.8 0.6M-6.8 5.6Q0 8 6.8 5.6" style="fill:none;stroke:#1F1E1C;stroke-width:1.1;stroke-linecap:round"></path></g><path d="M19.3 9.5C20 6 24 5.5 24.5 8C25 10.5 21.5 10.5 22.5 7.5C23.5 4.5 27 4 30 2.5" style="fill:none;stroke:#D98AA3;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"></path></svg>
+        <span style="font-weight:600;font-size:20px;letter-spacing:-0.03em;color:#EFE6D8">KozaPass</span>
+      </div>
+      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid #E6E3DD">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:6px;background:#F2F0EC;border-radius:6px;padding:6px 10px;font-size:12px"><svg width="16" height="16" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:#8C2F4B"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:#F2F0EC;stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:#8C2F4B;stroke-width:2.6;stroke-linecap:round"></path></svg>KozaPass</div>
+          <div style="display:flex;align-items:center;gap:6px;background:#1B2436;color:#E9E7E3;border-radius:6px;padding:6px 10px;font-size:12px"><svg width="16" height="16" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:#EFE6D8"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:#1B2436;stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:#D98AA3;stroke-width:2.6;stroke-linecap:round"></path></svg>KozaPass</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-left:auto"><div style="width:68px;height:68px;border:1px dashed #D2CEC6;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#FFFFFF"><svg width="64" height="64" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:#8C2F4B"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:#8C2F4B;stroke-width:2.6;stroke-linecap:round"></path></svg></div><span style="font:10px 'Geist Mono',monospace;color:#6B665E;line-height:1.5">favicon çizimi<br>16 px, 4× büyük</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+          <div style="width:72px;height:72px;border-radius:16px;background:#8C2F4B;display:flex;align-items:center;justify-content:center"><svg width="48" height="48" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8" ry="11" style="fill:#FAF6EE"></ellipse><path d="M-7.1 -4.5Q0 -2 7.1 -4.5M-7.8 0.6Q0 3.1 7.8 0.6M-6.8 5.6Q0 8 6.8 5.6" style="fill:none;stroke:#8C2F4B;stroke-width:1.1;stroke-linecap:round"></path></g><path d="M19.3 9.5C20 6 24 5.5 24.5 8C25 10.5 21.5 10.5 22.5 7.5C23.5 4.5 27 4 30 2.5" style="fill:none;stroke:#FAF6EE;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"></path></svg></div>
+          <div style="width:48px;height:48px;border-radius:11px;background:#1F1E1C;display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8" ry="11" style="fill:#EFE6D8"></ellipse><path d="M-7.1 -4.5Q0 -2 7.1 -4.5M-7.8 0.6Q0 3.1 7.8 0.6M-6.8 5.6Q0 8 6.8 5.6" style="fill:none;stroke:#1F1E1C;stroke-width:1.1;stroke-linecap:round"></path></g><path d="M19.3 9.5C20 6 24 5.5 24.5 8C25 10.5 21.5 10.5 22.5 7.5C23.5 4.5 27 4 30 2.5" style="fill:none;stroke:#D98AA3;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"></path></svg></div>
+          <div style="width:32px;height:32px;border-radius:7px;background:#FAF6EE;border:1px solid #E6E3DD;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:#8C2F4B"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:#FAF6EE;stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:#8C2F4B;stroke-width:2.6;stroke-linecap:round"></path></svg></div>
+          <span style="font:10px 'Geist Mono',monospace;color:#6B665E;line-height:1.5">app ikonu 180 · 48<br>favicon 32</span>
+        </div>
+      </div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:11px;background:#1F1E1C;color:#FAF8F4;padding:2px 6px;border-radius:4px">A1</span><strong style="font-size:15px;font-weight:600">Koza ipliği</strong></div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#57534C">v0.2: Kozanın üzerinde üç ince sarım çizgisi, ucundan bir kıvrımla çözülen iplik. Sarımlar onu meyve siluetinden ayırır. 24 px ve altında iki kalın sarım ve sade iplikle çizilir. En sıcak, en hikâyeci yön.</p>
+      </div>
+    </div>
+
+    <div id="A2" style="border:1px solid #E6E3DD;border-radius:12px;overflow:hidden;background:#FFFFFF;display:flex;flex-direction:column">
+      <div style="background:#FAF6EE;padding:48px 32px;display:flex;align-items:center;justify-content:center;gap:14px;min-height:200px">
+        <svg width="56" height="56" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="8" style="fill:#1F1E1C"></rect><ellipse cx="16" cy="16" rx="6.5" ry="9.5" style="fill:none;stroke:#EFE6D8;stroke-width:2.4"></ellipse><ellipse cx="16" cy="16" rx="2.4" ry="4" style="fill:#D98AA3"></ellipse></svg>
+        <span style="font-family:'Newsreader',Georgia,serif;font-weight:500;font-size:38px;letter-spacing:-0.02em;color:#1F1E1C">KozaPass</span>
+      </div>
+      <div style="background:#1F1E1C;padding:28px 32px;display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg width="32" height="32" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="8" style="fill:#EFE6D8"></rect><ellipse cx="16" cy="16" rx="6.5" ry="9.5" style="fill:none;stroke:#1F1E1C;stroke-width:2.4"></ellipse><ellipse cx="16" cy="16" rx="2.4" ry="4" style="fill:#8C2F4B"></ellipse></svg>
+        <span style="font-family:'Newsreader',Georgia,serif;font-weight:500;font-size:22px;color:#EFE6D8">KozaPass</span>
+      </div>
+      <div style="padding:16px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E6E3DD;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px;background:#F2F0EC;border-radius:6px;padding:6px 10px;font-size:12px"><svg width="16" height="16" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="8" style="fill:#1F1E1C"></rect><ellipse cx="16" cy="16" rx="6.5" ry="9.5" style="fill:none;stroke:#EFE6D8;stroke-width:3"></ellipse><ellipse cx="16" cy="16" rx="2.4" ry="4" style="fill:#D98AA3"></ellipse></svg>KozaPass</div>
+        <div style="display:flex;align-items:center;gap:6px;background:#1B2436;color:#E9E7E3;border-radius:6px;padding:6px 10px;font-size:12px"><svg width="16" height="16" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="8" style="fill:#EFE6D8"></rect><ellipse cx="16" cy="16" rx="6.5" ry="9.5" style="fill:none;stroke:#1F1E1C;stroke-width:3"></ellipse><ellipse cx="16" cy="16" rx="2.4" ry="4" style="fill:#8C2F4B"></ellipse></svg>KozaPass</div>
+        <svg width="32" height="32" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="8" style="fill:#1F1E1C"></rect><ellipse cx="16" cy="16" rx="6.5" ry="9.5" style="fill:none;stroke:#EFE6D8;stroke-width:2.4"></ellipse><ellipse cx="16" cy="16" rx="2.4" ry="4" style="fill:#D98AA3"></ellipse></svg>
+        <svg width="48" height="48" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="8" style="fill:#8C2F4B"></rect><ellipse cx="16" cy="16" rx="6.5" ry="9.5" style="fill:none;stroke:#FAF6EE;stroke-width:2.2"></ellipse><ellipse cx="16" cy="16" rx="2.4" ry="4" style="fill:#FAF6EE"></ellipse></svg>
+      </div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:11px;background:#1F1E1C;color:#FAF8F4;padding:2px 6px;border-radius:4px">A2</span><strong style="font-size:15px;font-weight:600">Kabuk</strong></div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#57534C">Pasaport kartının içinde kozanın kabuğu ve özü. "Veriyi koruyoruz" fikrini öne alır. En kurumsal yön; kendi zemini olduğu için her yüzeyde çalışır, app ikonu olarak güçlü.</p>
+      </div>
+    </div>
+
+    <div id="A3" style="border:1px solid #E6E3DD;border-radius:12px;overflow:hidden;background:#FFFFFF;display:flex;flex-direction:column">
+      <div style="background:#FAF6EE;padding:48px 32px;display:flex;align-items:center;justify-content:center;gap:14px;min-height:200px">
+        <svg width="56" height="56" viewBox="0 0 32 32"><g transform="rotate(-30 16 16)" style="fill:#8C2F4B"><rect x="10" y="3.3" width="12" height="5" rx="2.5"></rect><rect x="5.5" y="10.1" width="21" height="5" rx="2.5"></rect><rect x="5.5" y="16.9" width="21" height="5" rx="2.5"></rect><rect x="10" y="23.7" width="12" height="5" rx="2.5"></rect></g></svg>
+        <span style="font-weight:500;font-size:34px;letter-spacing:-0.03em;color:#1F1E1C">Koza<span style="font-weight:700">Pass</span></span>
+      </div>
+      <div style="background:#1F1E1C;padding:28px 32px;display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg width="32" height="32" viewBox="0 0 32 32"><g transform="rotate(-30 16 16)" style="fill:#EFE6D8"><rect x="10" y="3.3" width="12" height="5" rx="2.5"></rect><rect x="5.5" y="10.1" width="21" height="5" rx="2.5"></rect><rect x="5.5" y="16.9" width="21" height="5" rx="2.5"></rect><rect x="10" y="23.7" width="12" height="5" rx="2.5"></rect></g></svg>
+        <span style="font-weight:500;font-size:20px;letter-spacing:-0.03em;color:#EFE6D8">Koza<span style="font-weight:700">Pass</span></span>
+      </div>
+      <div style="padding:16px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E6E3DD;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px;background:#F2F0EC;border-radius:6px;padding:6px 10px;font-size:12px"><svg width="16" height="16" viewBox="0 0 32 32"><g transform="rotate(-30 16 16)" style="fill:#8C2F4B"><rect x="10" y="3.3" width="12" height="5" rx="2.5"></rect><rect x="5.5" y="10.1" width="21" height="5" rx="2.5"></rect><rect x="5.5" y="16.9" width="21" height="5" rx="2.5"></rect><rect x="10" y="23.7" width="12" height="5" rx="2.5"></rect></g></svg>KozaPass</div>
+        <div style="display:flex;align-items:center;gap:6px;background:#1B2436;color:#E9E7E3;border-radius:6px;padding:6px 10px;font-size:12px"><svg width="16" height="16" viewBox="0 0 32 32"><g transform="rotate(-30 16 16)" style="fill:#EFE6D8"><rect x="10" y="3.3" width="12" height="5" rx="2.5"></rect><rect x="5.5" y="10.1" width="21" height="5" rx="2.5"></rect><rect x="5.5" y="16.9" width="21" height="5" rx="2.5"></rect><rect x="10" y="23.7" width="12" height="5" rx="2.5"></rect></g></svg>KozaPass</div>
+        <div style="width:32px;height:32px;border-radius:7px;background:#FAF6EE;border:1px solid #E6E3DD;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 32 32"><g transform="rotate(-30 16 16)" style="fill:#8C2F4B"><rect x="10" y="3.3" width="12" height="5" rx="2.5"></rect><rect x="5.5" y="10.1" width="21" height="5" rx="2.5"></rect><rect x="5.5" y="16.9" width="21" height="5" rx="2.5"></rect><rect x="10" y="23.7" width="12" height="5" rx="2.5"></rect></g></svg></div>
+        <div style="width:48px;height:48px;border-radius:11px;background:#1F1E1C;display:flex;align-items:center;justify-content:center"><svg width="32" height="32" viewBox="0 0 32 32"><g transform="rotate(-30 16 16)" style="fill:#EFE6D8"><rect x="10" y="3.3" width="12" height="5" rx="2.5"></rect><rect x="5.5" y="10.1" width="21" height="5" rx="2.5"></rect><rect x="5.5" y="16.9" width="21" height="5" rx="2.5"></rect><rect x="10" y="23.7" width="12" height="5" rx="2.5"></rect></g></svg></div>
+      </div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'Geist Mono',monospace;font-size:11px;background:#1F1E1C;color:#FAF8F4;padding:2px 6px;border-radius:4px">A3</span><strong style="font-size:15px;font-weight:600">Sarım</strong></div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#57534C">Kozanın sarılmış ipek katları, dört şerit. Aynı zamanda katmanlı tedarik zinciri: iplik, kumaş, boya, konfeksiyon. En geometrik yön; tablo ve rozet diliyle akraba.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:16px;border-top:1px solid #1C1B19;padding-top:16px">
+    <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#8C2F4B">B</span>
+    <h2 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-0.02em">Renk sistemi</h2>
+    <p style="margin:0 0 0 auto;max-width:460px;font-size:14px;line-height:1.5;color:#6B665E">Vurgu rengi Dut: ipek böceği dut yaprağıyla beslenir. Kırmızı, turuncu ve amber durum renklerinden ayrışacak kadar mor-şarap tonunda. Kontrastlar canlı hesaplanır.</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <h3 style="margin:0;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6B665E">Marka paleti</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+      <sc-for list="{{ brand }}" as="c" hint-placeholder-count="5">
+        <div style="border-radius:12px;overflow:hidden;border:1px solid #E6E3DD;background:#FFFFFF">
+          <div style="height:140px;background:{{ c.hex }};padding:16px;display:flex;flex-direction:column;justify-content:space-between;color:{{ c.ink }}">
+            <span style="font-family:'Newsreader',Georgia,serif;font-size:26px">Aa</span>
+            <span style="font-family:'Geist Mono',monospace;font-size:11px">{{ c.contrast }}</span>
+          </div>
+          <div style="padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+            <strong style="font-size:14px;font-weight:600">{{ c.name }}</strong>
+            <span style="font-family:'Geist Mono',monospace;font-size:12px;color:#6B665E">{{ c.hex }} · {{ c.token }}</span>
+            <span style="font-size:12px;color:#57534C;margin-top:4px">{{ c.use }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <h3 style="margin:0;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6B665E">Nötr ölçek — sıcak antrasit (açık tema) · gece laciverti (koyu tema)</h3>
+    <div style="display:grid;grid-template-columns:repeat(11,minmax(0,1fr));border-radius:10px;overflow:hidden;border:1px solid #E6E3DD">
+      <sc-for list="{{ neutrals }}" as="n" hint-placeholder-count="11">
+        <div style="background:{{ n.hex }};color:{{ n.ink }};height:88px;padding:8px;display:flex;flex-direction:column;justify-content:flex-end;font-family:'Geist Mono',monospace;font-size:10px;line-height:1.4"><span>{{ n.step }}</span><span>{{ n.hex }}</span></div>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(11,minmax(0,1fr));border-radius:10px;overflow:hidden;border:1px solid #E6E3DD">
+      <sc-for list="{{ navy }}" as="n" hint-placeholder-count="11">
+        <div style="background:{{ n.hex }};color:{{ n.ink }};height:64px;padding:8px;display:flex;flex-direction:column;justify-content:flex-end;font-family:'Geist Mono',monospace;font-size:10px;line-height:1.4"><span>{{ n.step }}</span><span>{{ n.hex }}</span></div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <h3 style="margin:0;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6B665E">Panel teması — shadcn değişkenleri</h3>
+    <div style="border:1px solid #E6E3DD;border-radius:12px;overflow:hidden;background:#FFFFFF">
+      <div style="display:grid;grid-template-columns:200px minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);gap:16px;padding:10px 16px;background:#F6F4F0;border-bottom:1px solid #E6E3DD;font-size:12px;font-weight:600;color:#57534C">
+        <span>Token</span><span>Açık</span><span>Koyu</span><span>Kullanım</span>
+      </div>
+      <sc-for list="{{ themeRows }}" as="r" hint-placeholder-count="12">
+        <div style="display:grid;grid-template-columns:200px minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);gap:16px;padding:9px 16px;border-bottom:1px solid #F0EEEA;align-items:center;font-size:13px">
+          <span style="font-family:'Geist Mono',monospace;font-size:12px">{{ r.name }}</span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="width:28px;height:20px;border-radius:4px;background:{{ r.l }};border:1px solid rgba(0,0,0,.1);flex:none"></span><span style="font-family:'Geist Mono',monospace;font-size:12px">{{ r.l }}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;color:#1E7042">{{ r.lc }}</span></span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="width:28px;height:20px;border-radius:4px;background:{{ r.d }};border:1px solid rgba(0,0,0,.1);flex:none"></span><span style="font-family:'Geist Mono',monospace;font-size:12px">{{ r.d }}</span><span style="font-family:'Geist Mono',monospace;font-size:11px;color:#1E7042">{{ r.dc }}</span></span>
+          <span style="color:#57534C;font-size:12px">{{ r.use }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <h3 style="margin:0;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#6B665E">Durum renkleri — her yerde aynı</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px">
+      <div style="background:#FFFFFF;border:1px solid #E6E3DD;border-radius:12px;padding:8px 0">
+        <sc-for list="{{ statuses }}" as="s" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:170px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 16px">
+            <span style="display:inline-flex;align-items:center;gap:6px;justify-self:start;background:{{ s.bg }};color:{{ s.fg }};font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:{{ s.dot }}"></span>{{ s.label }}</span>
+            <span style="font-size:12px;color:#6B665E">{{ s.use }}</span>
+            <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#1E7042">{{ s.lc }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#151922;border:1px solid #262C38;border-radius:12px;padding:8px 0">
+        <sc-for list="{{ statuses }}" as="s" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:170px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 16px">
+            <span style="display:inline-flex;align-items:center;gap:6px;justify-self:start;background:{{ s.dbg }};color:{{ s.dfg }};font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:{{ s.dfg }}"></span>{{ s.label }}</span>
+            <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#9AA1AE">--status-{{ s.key }}</span>
+            <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#86D3A5">{{ s.dc }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <p style="margin:0;font-size:12px;color:#6B665E">Rozet her zaman nokta + metin taşır; renk tek başına anlam taşımaz (renk körlüğü). Her durum 3 token: <code style="font-family:'Geist Mono',monospace">--status-x</code> (nokta), <code style="font-family:'Geist Mono',monospace">-foreground</code> (metin), <code style="font-family:'Geist Mono',monospace">-muted</code> (zemin).</p>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:16px;border-top:1px solid #1C1B19;padding-top:16px">
+    <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#8C2F4B">C</span>
+    <h2 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-0.02em">Tipografi</h2>
+    <p style="margin:0 0 0 auto;max-width:460px;font-size:14px;line-height:1.5;color:#6B665E">Üçü de Google Fonts'ta, Türkçe karakter destekli, <code style="font-family:'Geist Mono',monospace">next/font</code> ile yüklenir.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px">
+    <div style="border:1px solid #E6E3DD;border-radius:12px;padding:24px;background:#FFFFFF;display:flex;flex-direction:column;gap:14px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#6B665E">--font-sans · Arayüz</span>
+      <span style="font-size:64px;font-weight:500;letter-spacing:-0.04em;line-height:1">Geist</span>
+      <span style="font-size:14px;line-height:1.5;color:#3D3A35">Partiler, tedarikçiler, belgeler. Çok ince ve çok kalın ağırlıklar yok: 400 · 500 · 600. Rakamlar tabular.</span>
+      <span style="font-size:13px;color:#6B665E;font-variant-numeric:tabular-nums">ÇĞİÖŞÜ çğıöşü 0123456789</span>
+    </div>
+    <div style="border:1px solid #E6E3DD;border-radius:12px;padding:24px;background:#FAF6EE;display:flex;flex-direction:column;gap:14px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#6B665E">--font-serif · Pasaport başlıkları</span>
+      <span style="font-family:'Newsreader',Georgia,serif;font-size:64px;font-weight:400;letter-spacing:-0.02em;line-height:1">Newsreader</span>
+      <span style="font-family:'Newsreader',Georgia,serif;font-size:18px;line-height:1.45;color:#3D3A35;font-style:italic">Bursa'da çekilen iplik, Denizli'de dokunan kumaş.</span>
+      <span style="font-size:13px;color:#6B665E">Optik boyutlu: 40 px üstünde ince ve zarif, küçükte sağlam. Panelde yalnızca boş durum başlıklarında.</span>
+    </div>
+    <div style="border:1px solid #E6E3DD;border-radius:12px;padding:24px;background:#1F1E1C;color:#EFE6D8;display:flex;flex-direction:column;gap:14px">
+      <span style="font-family:'Geist Mono',monospace;font-size:11px;color:#A9A49B">--font-mono · Kimlik verisi</span>
+      <span style="font-family:'Geist Mono',monospace;font-size:52px;font-weight:400;letter-spacing:-0.03em;line-height:1">Geist Mono</span>
+      <div style="display:flex;flex-direction:column;gap:4px;font-family:'Geist Mono',monospace;font-size:13px;line-height:1.6">
+        <span><span style="color:#A9A49B">GTIN&#160;&#160;</span> 08690123456783</span>
+        <span><span style="color:#A9A49B">Parti&#160;</span> KP-2026-0918-A</span>
+        <span><span style="color:#A9A49B">GOTS&#160;&#160;</span> CU-1043927</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(480px,1fr));gap:12px">
+    <div style="border:1px solid #E6E3DD;border-radius:12px;background:#FFFFFF;overflow:hidden">
+      <div style="padding:12px 16px;border-bottom:1px solid #E6E3DD;display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#57534C"><span>Panel ölçeği · yoğun</span><span style="font-family:'Geist Mono',monospace;font-weight:400">taban 14 px</span></div>
+      <sc-for list="{{ panelScale }}" as="t" hint-placeholder-count="8">
+        <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding:12px 16px;border-bottom:1px solid #F0EEEA;align-items:baseline">
+          <div style="display:flex;flex-direction:column;gap:2px;font-family:'Geist Mono',monospace;font-size:11px;color:#6B665E"><span style="color:#1C1B19">{{ t.token }}</span><span>{{ t.spec }}</span></div>
+          <span style="font-family:{{ t.fam }};font-size:{{ t.size }};line-height:{{ t.lh }};font-weight:{{ t.w }};letter-spacing:{{ t.ls }};text-transform:{{ t.tt }}">{{ t.sample }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="border:1px solid #E6E3DD;border-radius:12px;background:#FAF6EE;overflow:hidden">
+      <div style="padding:12px 16px;border-bottom:1px solid #EAE0CF;display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#57534C"><span>Pasaport ölçeği · ferah</span><span style="font-family:'Geist Mono',monospace;font-weight:400">taban 16 px</span></div>
+      <sc-for list="{{ passportScale }}" as="t" hint-placeholder-count="7">
+        <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;padding:14px 16px;border-bottom:1px solid #EFE6D8;align-items:baseline">
+          <div style="display:flex;flex-direction:column;gap:2px;font-family:'Geist Mono',monospace;font-size:11px;color:#6B665E"><span style="color:#1C1B19">{{ t.token }}</span><span>{{ t.spec }}</span></div>
+          <span style="font-family:{{ t.fam }};font-size:{{ t.size }};line-height:{{ t.lh }};font-weight:{{ t.w }};letter-spacing:{{ t.ls }};text-transform:{{ t.tt }};text-wrap:pretty">{{ t.sample }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:16px;border-top:1px solid #1C1B19;padding-top:16px">
+    <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#8C2F4B">D</span>
+    <h2 style="margin:0;font-size:24px;font-weight:600;letter-spacing:-0.02em">Boşluk, köşe, gölge, kenarlık</h2>
+    <p style="margin:0 0 0 auto;max-width:460px;font-size:14px;line-height:1.5;color:#6B665E">4 px taban, Tailwind ölçeğiyle aynı. Panel 8–16 px aralıkta, pasaport 24–64 px aralıkta yaşar.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px">
+    <div style="border:1px solid #E6E3DD;border-radius:12px;background:#FFFFFF;padding:20px;display:flex;flex-direction:column;gap:8px">
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600">Boşluk</h3>
+      <sc-for list="{{ spacing }}" as="s" hint-placeholder-count="12">
+        <div style="display:grid;grid-template-columns:44px 52px minmax(0,1fr) 110px;gap:10px;align-items:center;font-family:'Geist Mono',monospace;font-size:11px">
+          <span>{{ s.t }}</span><span style="color:#6B665E">{{ s.px }}px</span>
+          <span style="height:10px;width:{{ s.w }};background:{{ s.c }};border-radius:2px"></span>
+          <span style="color:#6B665E;font-family:'Geist',sans-serif">{{ s.use }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="border:1px solid #E6E3DD;border-radius:12px;background:#FFFFFF;padding:20px">
+        <h3 style="margin:0 0 16px;font-size:13px;font-weight:600">Köşe yarıçapı <span style="font-family:'Geist Mono',monospace;font-weight:400;color:#6B665E">--radius: 0.5rem</span></h3>
+        <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px">
+          <sc-for list="{{ radii }}" as="r" hint-placeholder-count="6">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="aspect-ratio:1;background:#EFE6D8;border:1px solid #D9CDB8;border-radius:{{ r.v }}"></div>
+              <span style="font-family:'Geist Mono',monospace;font-size:10px">{{ r.t }}</span>
+              <span style="font-size:10px;color:#6B665E;line-height:1.3">{{ r.use }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="border:1px solid #E6E3DD;border-radius:12px;background:#F6F4F0;padding:20px">
+        <h3 style="margin:0 0 16px;font-size:13px;font-weight:600">Gölge</h3>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px">
+          <sc-for list="{{ shadows }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="height:64px;background:#FFFFFF;border-radius:8px;box-shadow:{{ s.v }}"></div>
+              <span style="font-family:'Geist Mono',monospace;font-size:10px">{{ s.t }}</span>
+              <span style="font-size:10px;color:#6B665E;line-height:1.3">{{ s.use }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <p style="margin:14px 0 0;font-size:11px;color:#6B665E">Koyu temada gölge yerine bir ton açık yüzey + kenarlık kullanılır.</p>
+      </div>
+      <div style="border:1px solid #E6E3DD;border-radius:12px;background:#FFFFFF;padding:20px;display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-size:13px;font-weight:600">Kenarlık ve odak</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:11px">
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:36px;border-radius:6px;border:1px solid #E6E3DD"></div><span style="font-family:'Geist Mono',monospace">1px --border</span><span style="color:#6B665E">Kart, tablo, ayırıcı</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:36px;border-radius:6px;border:1px solid #D2CEC6;box-shadow:0 1px 2px rgba(28,27,25,.05)"></div><span style="font-family:'Geist Mono',monospace">1px --input</span><span style="color:#6B665E">Form alanları</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:36px;border-radius:6px;border:1px solid #8C2F4B;box-shadow:0 0 0 3px rgba(140,47,75,.18)"></div><span style="font-family:'Geist Mono',monospace">--ring 3px/18%</span><span style="color:#6B665E">Klavye odağı</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:#6B665E;border-top:1px solid #E6E3DD;padding-top:20px">
+  <a href="KozaPass Bilesenler.dc.html">E · Bileşenler →</a>
+  <a href="KozaPass Ekranlar.dc.html">F–G · Ekranlar →</a>
+  <a href="globals.css">globals.css (shadcn token'ları)</a>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  lum(h) {
+    const n = parseInt(h.slice(1), 16);
+    const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  cr(a, b) { const x = this.lum(a), y = this.lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  lbl(a, b) { const r = this.cr(a, b); return r.toFixed(1) + ':1 ' + (r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? 'AA-büyük' : '✕'); }
+  renderVals() {
+    const brand = [
+      { name: 'Koza kremi', hex: '#FAF6EE', token: '--cocoon', ink: '#1F1E1C', use: 'Pasaport zemini, login hikâye alanı', on: '#1F1E1C' },
+      { name: 'İpek beji', hex: '#EFE6D8', token: '--silk', ink: '#1F1E1C', use: 'Pasaport kartları, vurgu yüzeyleri', on: '#1F1E1C' },
+      { name: 'Dut', hex: '#8C2F4B', token: '--brand', ink: '#FAF6EE', use: 'Vurgu, odak halkası, pasaport CTA', on: '#FAF6EE' },
+      { name: 'Antrasit', hex: '#1F1E1C', token: '--primary', ink: '#EFE6D8', use: 'Panel birincil, metin', on: '#EFE6D8' },
+      { name: 'Gece laciverti', hex: '#1B2436', token: '--navy', ink: '#EFE6D8', use: 'Koyu tema tabanı, pasaport alt bilgi', on: '#EFE6D8' },
+    ].map(c => ({ ...c, contrast: 'metin ' + this.lbl(c.hex, c.on) }));
+    const ink = h => this.lum(h) > 0.3 ? '#1C1B19' : '#FAF8F4';
+    const neutrals = [['50','#FAF9F7'],['100','#F3F1ED'],['200','#E6E3DD'],['300','#D2CEC6'],['400','#A9A49B'],['500','#6B665E'],['600','#57534C'],['700','#3D3A35'],['800','#2A2825'],['900','#1F1E1C'],['950','#121211']].map(([step,hex]) => ({ step: 'stone-' + step, hex, ink: ink(hex) }));
+    const navy = [['50','#F4F6F9'],['100','#E4E8EF'],['200','#C9D0DC'],['300','#9AA1AE'],['400','#6E7788'],['500','#4B5466'],['600','#303746'],['700','#262C38'],['800','#1B202A'],['900','#151922'],['950','#0F1218']].map(([step,hex]) => ({ step: 'navy-' + step, hex, ink: ink(hex) }));
+    const L = { background: '#FCFBF9', primary: '#1F1E1C', secondary: '#F2F0EC', brand: '#8C2F4B', destructive: '#B42318', card: '#FFFFFF', sidebar: '#F6F4F0' };
+    const D = { background: '#0F1218', primary: '#E9E7E3', secondary: '#1B202A', brand: '#D98AA3', destructive: '#C23B2F', card: '#151922', sidebar: '#0C0F14' };
+    const rows = [
+      ['--background', '#FCFBF9', '#0F1218', 'Sayfa zemini'],
+      ['--foreground', '#1C1B19', '#E9E7E3', 'Ana metin', 'background'],
+      ['--card', '#FFFFFF', '#151922', 'Kart, tablo, popover'],
+      ['--muted', '#F2F0EC', '#1B202A', 'Pasif zemin, iskelet'],
+      ['--muted-foreground', '#6B665E', '#9AA1AE', 'İkincil metin, etiket', 'background'],
+      ['--primary', '#1F1E1C', '#E9E7E3', 'Birincil buton, aktif menü'],
+      ['--primary-foreground', '#FAF8F4', '#151922', 'Birincil üstü metin', 'primary'],
+      ['--secondary', '#F2F0EC', '#1B202A', 'İkincil buton'],
+      ['--secondary-foreground', '#1C1B19', '#E9E7E3', 'İkincil üstü metin', 'secondary'],
+      ['--accent', '#EEEBE6', '#1F2531', 'Hover zemini (shadcn accent)'],
+      ['--brand', '#8C2F4B', '#D98AA3', 'Marka vurgusu, link'],
+      ['--brand-foreground', '#FFFFFF', '#1A0C12', 'Vurgu üstü metin', 'brand'],
+      ['--destructive', '#B42318', '#C23B2F', 'Silme, geri alınamaz'],
+      ['--destructive-foreground', '#FFFFFF', '#FFFFFF', 'Tehlike üstü metin', 'destructive'],
+      ['--border', '#E6E3DD', '#262C38', 'Ayırıcı, kart kenarı'],
+      ['--input', '#D2CEC6', '#303746', 'Form kenarı'],
+      ['--ring', '#8C2F4B', '#D98AA3', 'Odak halkası'],
+      ['--sidebar', '#F6F4F0', '#0C0F14', 'Sol menü zemini'],
+      ['--sidebar-accent', '#EAE7E1', '#1B202A', 'Aktif menü öğesi'],
+    ];
+    const themeRows = rows.map(([name, l, d, use, on]) => ({ name, l, d, use, lc: on ? this.lbl(l, L[on]) : '', dc: on ? this.lbl(d, D[on]) : '' }));
+    const statuses = [
+      { key: 'pending', label: 'Beklemede', dot: '#8A857C', fg: '#57534C', bg: '#F1EFEB', dfg: '#BDB8AF', dbg: '#232833', use: 'Tedarikçiden belge bekleniyor' },
+      { key: 'submitted', label: 'Gönderildi', dot: '#2F6FDB', fg: '#1F5BB8', bg: '#E8F0FB', dfg: '#93B8F6', dbg: '#16233A', use: 'Belge yüklendi, incelemede' },
+      { key: 'approved', label: 'Onaylandı', dot: '#22945A', fg: '#1E7042', bg: '#E6F4EC', dfg: '#86D3A5', dbg: '#13291D', use: 'İnsan onayından geçti' },
+      { key: 'rejected', label: 'Reddedildi', dot: '#D92D20', fg: '#B42318', bg: '#FDECEA', dfg: '#F4A097', dbg: '#34181A', use: 'Belge veya değer kabul edilmedi' },
+      { key: 'low-confidence', label: 'AI güveni düşük', dot: '#D99A06', fg: '#8A5A00', bg: '#FDF3DC', dfg: '#F0C666', dbg: '#2F2610', use: 'Güven < %80 (0,80), insan kontrolü şart' },
+      { key: 'expiring', label: 'Süresi doluyor', dot: '#E8680C', fg: '#B54708', bg: '#FEEFE3', dfg: '#F6A86F', dbg: '#35220F', use: 'Sertifika 30 gün içinde bitiyor' },
+    ].map(s => ({ ...s, lc: this.lbl(s.fg, s.bg), dc: this.lbl(s.dfg, s.dbg) }));
+    const sans = "'Geist',sans-serif", serif = "'Newsreader',Georgia,serif", mono = "'Geist Mono',monospace";
+    const T = (token, spec, fam, size, lh, w, ls, sample, tt) => ({ token, spec, fam, size, lh, w, ls: ls || 'normal', sample, tt: tt || 'none' });
+    const panelScale = [
+      T('text-2xl', '24/32 · 600', sans, '24px', '32px', 600, '-0.02em', 'Parti KP-2026-0918'),
+      T('text-xl', '20/28 · 600', sans, '20px', '28px', 600, '-0.015em', 'Partiler'),
+      T('text-base', '16/24 · 600', sans, '16px', '24px', 600, '-0.01em', 'Tedarik zinciri adımları'),
+      T('text-sm', '14/20 · 400', sans, '14px', '20px', 400, '0', 'Boyahane belgesi AI tarafından okundu, onay bekliyor.'),
+      T('text-[13px]', '13/18 · 500', sans, '13px', '18px', 500, '0', 'Tablo hücresi · Menü öğesi'),
+      T('text-xs', '12/16 · 500', sans, '12px', '16px', 500, '0', 'Rozet · Yardım metni'),
+      T('overline', '11/16 · 600 · +6%', sans, '11px', '16px', 600, '0.06em', 'Tedarik zinciri', 'uppercase'),
+      T('mono-sm', '13/20 · 400', mono, '13px', '20px', 400, '0', '08690123456783'),
+    ];
+    const passportScale = [
+      T('display', '44/48 · 400 · −2%', serif, '44px', '48px', 400, '-0.02em', 'Kozadan rafa'),
+      T('title', '30/36 · 400', serif, '30px', '36px', 400, '-0.015em', 'Organik pamuk tişört'),
+      T('heading', '22/28 · 500', serif, '22px', '28px', 500, '-0.01em', 'Denizli, dokuma'),
+      T('lead', '18/28 · 400', sans, '18px', '28px', 400, '0', 'Bu ürün dört atölyeden geçti ve üç sertifikaya sahip.'),
+      T('body', '16/26 · 400', sans, '16px', '26px', 400, '0', 'İplik Bursa\'da GOTS sertifikalı bir tesiste büküldü.'),
+      T('label', '12/16 · 500 · +6%', sans, '12px', '16px', 500, '0.06em', 'Lif bileşimi', 'uppercase'),
+      T('mono', '14/20 · 400', mono, '14px', '20px', 400, '0', 'GOTS CU-1043927'),
+    ];
+    const spacing = [['0.5',2,'İkon–metin'],['1',4,'Rozet içi'],['1.5',6,''],['2',8,'Buton ikon aralığı'],['3',12,'Tablo hücre dikey'],['4',16,'Kart iç (panel)'],['5',20,''],['6',24,'Panel sayfa kenarı'],['8',32,'Bölüm arası (panel)'],['10',40,''],['12',48,'Pasaport bölüm arası'],['16',64,'Pasaport üst boşluk']]
+      .map(([t, px, use]) => ({ t, px, w: (px * 3) + 'px', use, c: px >= 24 ? '#8C2F4B' : '#1F1E1C' }));
+    const radii = [['sm · 4', '4px', 'Rozet içi, checkbox'], ['md · 6', '6px', 'Buton, input'], ['lg · 8', '8px', 'Kart, menü öğesi'], ['xl · 12', '12px', 'Dialog, toast'], ['2xl · 20', '20px', 'Pasaport kartı'], ['full', '999px', 'Durum rozeti, avatar']].map(([t, v, use]) => ({ t, v, use }));
+    const shadows = [
+      { t: 'shadow-xs', v: '0 1px 2px rgba(28,27,25,.05)', use: 'Input, ikincil buton' },
+      { t: 'shadow-sm', v: '0 1px 3px rgba(28,27,25,.08), 0 1px 2px rgba(28,27,25,.04)', use: 'Kart' },
+      { t: 'shadow-md', v: '0 6px 16px -4px rgba(28,27,25,.12), 0 2px 4px -2px rgba(28,27,25,.06)', use: 'Dropdown, popover' },
+      { t: 'shadow-lg', v: '0 20px 40px -12px rgba(28,27,25,.22), 0 4px 8px -4px rgba(28,27,25,.08)', use: 'Dialog, toast' },
+    ];
+    return { brand, neutrals, navy, themeRows, statuses, panelScale, passportScale, spacing, radii, shadows };
+  }
+}
+</script>
+</body>
+</html>

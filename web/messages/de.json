@@ -3,14 +3,170 @@
     "title": "KozaPass",
     "description": "Digitaler Produktpass für Textilien"
   },
-  "home": {
-    "title": "KozaPass",
-    "subtitle": "Digitaler Produktpass für Textilien"
+  "common": {
+    "brand": "KozaPass",
+    "comingSoon": {
+      "title": "Demnächst",
+      "description": "Diese Funktion kommt mit einer der nächsten Versionen."
+    },
+    "language": "Sprache",
+    "languages": {
+      "tr": "Türkçe",
+      "en": "English",
+      "de": "Deutsch"
+    },
+    "loading": "Wird geladen…"
   },
-  "health": {
-    "label": "Server",
-    "up": "Läuft (UP)",
-    "down": "Nicht erreichbar",
-    "checking": "Wird geprüft…"
+  "login": {
+    "overline": "Koza Han, Bursa · 1491",
+    "headline": "Jede Faser beginnt mit einem <em>Kokon</em>.",
+    "story": "Seit fünfhundert Jahren trägt die Seide ihre Herkunft mit sich, wenn sie in Bursa den Besitzer wechselt. KozaPass verfolgt dieselbe Spur in der heutigen Lieferkette: Spinnerei, Weberei, Färberei und Zertifikate jeder Charge in einem einzigen Pass.",
+    "storyShort": "Jeder Schritt Ihrer Lieferkette in einem einzigen Pass.",
+    "illustrationLabel": "Ein Faden, der einen Kokon verlässt und die Schritte Garn, Stoff, Färben und Konfektion durchläuft.",
+    "stages": {
+      "yarn": "Garn",
+      "fabric": "Stoff",
+      "dye": "Färben",
+      "garment": "Konfektion"
+    },
+    "title": "Anmelden",
+    "subtitle": "Weiter mit Ihrem Firmenkonto.",
+    "email": "E-Mail",
+    "emailPlaceholder": "name@firma.de",
+    "password": "Passwort",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen",
+    "rememberMe": "Angemeldet bleiben",
+    "submit": "Anmelden",
+    "submitting": "Anmeldung läuft…",
+    "invalidCredentials": "E-Mail oder Passwort ist falsch.",
+    "serverError": "Der Server ist gerade nicht erreichbar. Bitte versuchen Sie es in einigen Sekunden erneut.",
+    "forgotPassword": "Passwort vergessen? Wenden Sie sich an den Administrator Ihrer Firma.",
+    "footer": "© 2026 KozaPass · Bursa"
+  },
+  "nav": {
+    "label": "Hauptmenü",
+    "groups": {
+      "passport": "Produktpass",
+      "supplyChain": "Lieferkette",
+      "admin": "Verwaltung"
+    },
+    "items": {
+      "tasks": "Aufgaben",
+      "products": "Produkte",
+      "batches": "Chargen",
+      "suppliers": "Lieferanten",
+      "documents": "Dokumente",
+      "imports": "Importe",
+      "users": "Benutzer",
+      "settings": "Einstellungen"
+    },
+    "collapse": "Menü einklappen",
+    "expand": "Menü ausklappen"
+  },
+  "shell": {
+    "skipToContent": "Zum Inhalt springen",
+    "breadcrumb": "Pfad",
+    "search": "Chargen, GTINs oder Lieferanten suchen",
+    "searchUnavailable": "Suche folgt demnächst",
+    "theme": "Design",
+    "themeLight": "Hell",
+    "themeDark": "Dunkel",
+    "themeSystem": "System",
+    "logout": "Abmelden"
+  },
+  "roles": {
+    "OWNER": "Firmeninhaber",
+    "ADMIN": "Administrator",
+    "EDITOR": "Bearbeiter",
+    "SUPPLIER": "Lieferant",
+    "VIEWER": "Betrachter"
+  },
+  "page": {
+    "import": "Importieren",
+    "filter": "Filtern",
+    "status": "Status",
+    "supplier": "Lieferant",
+    "emptyIllustration": "Leere Liste"
+  },
+  "pages": {
+    "tasks": {
+      "title": "Aufgaben",
+      "sub": "Lieferkettenschritte und Dokumente, die auf Ihre Freigabe warten.",
+      "emptyTitle": "Keine Aufgaben warten auf Ihre Freigabe",
+      "emptyBody": "Hier sammeln sich die Schritte der Lieferanten und die von der KI gelesenen Dokumente. Felder mit einer Konfidenz unter 0,80 stehen oben.",
+      "cols": ["Aufgabe", "Charge", "Lieferant", "Status", "Wartezeit"]
+    },
+    "products": {
+      "title": "Produkte",
+      "sub": "Produktkarten und Faserzusammensetzungen je GTIN.",
+      "cta": "Neues Produkt",
+      "cta2": "Aus Excel importieren",
+      "emptyTitle": "Noch keine Produkte",
+      "emptyBody": "Ein Pass gehört immer zu einem Produkt. Legen Sie Ihr erstes Produkt mit GTIN, Namen und Faserzusammensetzung an.",
+      "cols": ["GTIN", "Produkt", "Faserzusammensetzung", "Chargen", "Aktualisiert"]
+    },
+    "batches": {
+      "title": "Chargen",
+      "sub": "Für jede Produktionscharge wird ein digitaler Produktpass veröffentlicht.",
+      "cta": "Neue Charge",
+      "cta2": "Aus Excel importieren",
+      "emptyTitle": "Noch keine Chargen",
+      "emptyBody": "Legen Sie Ihre erste Charge an: Produkt wählen, die Betriebe der Lieferkette zuweisen, Dokumente sammeln. Eine freigegebene Charge wird als Pass mit QR-Code veröffentlicht.",
+      "cols": ["Chargen-Nr.", "Produkt", "Lieferkette", "Status", "Aktualisiert"],
+      "guide": {
+        "label": "So starten Sie",
+        "steps": [
+          { "title": "Produkt wählen", "body": "GTIN und Faserzusammensetzung" },
+          { "title": "Lieferanten zuweisen", "body": "Garn → Konfektion" },
+          { "title": "Dokumente sammeln", "body": "KI liest, Sie geben frei" }
+        ]
+      }
+    },
+    "suppliers": {
+      "title": "Lieferanten",
+      "sub": "Spinnereien, Webereien, Färbereien und Lohnbetriebe.",
+      "cta": "Lieferant hinzufügen",
+      "cta2": "Einladungslink senden",
+      "emptyTitle": "Noch keine Lieferanten",
+      "emptyBody": "Fügen Sie Ihre Lieferanten hinzu oder laden Sie sie ein; sie können ihre Dokumente über den Link hochladen, den Sie ihnen senden.",
+      "cols": ["Firma", "Rolle", "Stadt", "Zertifikate", "Aktualisiert"]
+    },
+    "documents": {
+      "title": "Dokumente",
+      "sub": "Zertifikate, Lieferscheine und technische Datenblätter. Die KI liest, Sie geben frei.",
+      "cta": "Dokument hochladen",
+      "cta2": "Beim Lieferanten anfordern",
+      "emptyTitle": "Noch keine Dokumente",
+      "emptyBody": "Laden Sie PDF-, JPG- oder PNG-Dateien hoch (je Datei höchstens 10 MB). Die KI liest Zertifikatsnummer, Gültigkeitsdatum und Faseranteile aus und legt sie Ihnen zur Freigabe vor.",
+      "cols": ["Dokument", "Art", "Lieferant", "Status", "Gültig bis"]
+    },
+    "imports": {
+      "title": "Importe",
+      "sub": "Massendaten aus Excel-Dateien (XLSX).",
+      "cta": "Neuer Import",
+      "cta2": "Vorlage herunterladen",
+      "emptyTitle": "Noch keine Importe",
+      "emptyBody": "Laden Sie Ihre Produkt- und Chargenlisten als Excel hoch. Vorlage herunterladen und ausfüllen genügt.",
+      "cols": ["Datei", "Quelle", "Zeilen", "Status", "Datum"]
+    },
+    "users": {
+      "title": "Benutzer",
+      "sub": "Teammitglieder und ihre Rollen.",
+      "cta": "Benutzer einladen",
+      "cta2": "Rollen ansehen",
+      "emptyTitle": "Nur Sie sind hier",
+      "emptyBody": "Laden Sie Ihr Büroteam ein. Freigeben und Veröffentlichen dürfen nur Firmeninhaber und Administratoren.",
+      "cols": ["Name", "E-Mail", "Rolle", "Letzte Anmeldung", "Status"]
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "sub": "Firmendaten und Darstellung des Produktpasses.",
+      "cta": "Speichern",
+      "cta2": "Abbrechen",
+      "emptyTitle": "Firmenprofil unvollständig",
+      "emptyBody": "Ergänzen Sie Firmenname, Adresse und Logo, die im Produktpass erscheinen.",
+      "cols": ["Einstellung", "Wert", "", "", ""]
+    }
   }
 }

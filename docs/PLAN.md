@@ -104,13 +104,14 @@ Kurallar: tenant JWT'den · RFC 7807 hatalar · sayfalama `?page&size&sort` · A
 Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her biri bitince `docs/haftalik/` notu yazılır.
 **M1–M10 Arden demosu için kritik.** M11–M12 aynı zamanda tampondur.
 
-### M1 — Temel altyapı
+### M1 — Temel altyapı ✓
+_Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md`. Canlı kabul, PR #9 merge edilip `kozapass.vercel.app` alan adı yeniden bağlandıktan sonra doğrulanacak._
 - [x] Monorepo iskeleti (pnpm workspaces, `backend/` Maven, `web/`, `mobile/`, `packages/`)
 - [x] `infra/docker-compose.yml` (Postgres, MinIO), `.env.example`
 - [x] Flyway V1 + V2, `DemoDataSeeder` (**demo kullanıcılarının gerçek BCrypt hash'i**)
 - [x] ProblemDetail handler, `CurrentUser`, JWT login / refresh (rotation) / logout / me
 - [x] OpenAPI → `packages/api-client` üretim hattı
-- [ ] Next.js login ekranı + korumalı panel iskeleti (shadcn)
+- [x] Next.js login ekranı + korumalı panel iskeleti (shadcn) — Claude Design v0.2; panelin 390 px görünümü tasarım bekliyor
 - [x] CI: backend `mvn verify`, web lint/typecheck/test, OpenAPI ↔ client kontrolü
 - [x] Deploy: Render + Neon + Vercel, sağlık kontrolü + uyanık tutma cron'u
 
@@ -186,6 +187,7 @@ Sıralı. Biri bitmeden sonrakine geçilmez. Hocaya en son biteni göster. Her b
 
 ### M11 — Çok dil ve Excel
 - [ ] Yayında AI ile EN / DE çeviri (snapshot içine), dil seçici
+- [ ] Pasaport metinlerinin Almancası (ve arayüzün EN/DE çevirileri) anadili Almanca/İngilizce biri tarafından kontrol edilecek (`web/messages/README.md`)
 - [ ] Excel şablonu indir → doldur → yükle → satır bazlı hata raporu
 
 **Kabul:** Pasaport `?lang=de` ile Almanca açılır. 50 satırlık Excel'den ürünler oluşur, hatalı satırlar gösterilir.
