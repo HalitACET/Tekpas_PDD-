@@ -188,6 +188,8 @@ class BatchApiTest {
 
             assertFieldError(fixtures.post(tenant, BATCHES, with(body, "quantity", 0)), "quantity", "Positive");
             assertFieldError(fixtures.post(tenant, BATCHES, with(body, "quantity", null)), "quantity", "NotNull");
+            assertFieldError(fixtures.post(tenant, BATCHES, with(body, "quantity", 2.5)), "quantity", "Integer");
+            assertFieldError(fixtures.post(tenant, BATCHES, with(body, "quantity", 2.0)), "quantity", "Integer");
             assertFieldError(fixtures.post(tenant, BATCHES, with(body, "productId", null)), "productId", "NotNull");
             assertFieldError(fixtures.post(tenant, BATCHES, with(body, "batchNo", "l2611a")), "batchNo", "Pattern");
             assertFieldError(fixtures.post(tenant, BATCHES, with(body, "batchNo", "L 2611")), "batchNo", "Pattern");
@@ -384,6 +386,7 @@ class BatchApiTest {
                     "DateRange");
             assertFieldError(fixtures.patch(tenant, uri, Map.of("quantity", -1)), "quantity", "Positive");
             assertFieldError(fixtures.patch(tenant, uri, "{\"quantity\":null}"), "quantity", "NotNull");
+            assertFieldError(fixtures.patch(tenant, uri, "{\"quantity\":42.5}"), "quantity", "Integer");
             assertFieldError(fixtures.patch(tenant, uri, "{\"batchNo\":null}"), "batchNo", "NotNull");
             assertFieldError(fixtures.patch(tenant, uri, Map.of("batchNo", "kucuk")), "batchNo", "Pattern");
         }

@@ -195,6 +195,18 @@ class ProductApiTest {
         }
 
         @Test
+        void fractionalPercentIsAnIntegerErrorNotRounded() {
+            Tenant tenant = fixtures.tenant();
+            Map<String, Object> body = with(product(TestGtins.gtin13()), "declaredFiberComposition", List.of(
+                    Map.of("fiber", "COTTON", "percent", 95), Map.of("fiber", "ELASTANE", "percent", 5.7)));
+
+            MvcTestResult result = fixtures.post(tenant, PRODUCTS, body);
+
+            assertFieldError(result, "declaredFiberComposition[1].percent", "Integer");
+            assertThat(errors(fixtures.body(result))).hasSize(1);
+        }
+
+        @Test
         void unknownFiberCodeIsABadRequest() {
             Tenant tenant = fixtures.tenant();
             Map<String, Object> body = with(product(TestGtins.gtin13()), "declaredFiberComposition",

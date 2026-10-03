@@ -18,6 +18,8 @@ spring:
       # PATCH bodies use Optional fields: missing = null (unchanged), JSON null = Optional.empty() (clear).
       # Jackson 3's default would turn a missing field into Optional.empty() as well.
       USE_NULL_FOR_MISSING_REFERENCE_VALUES: true
+      # 99.5 for an Integer field is a validation error (code "Integer"), never silently truncated to 99.
+      ACCEPT_FLOAT_AS_INT: false
   web:
     # API messages (validation defaults included) are English; the clients translate (CLAUDE.md rule 8).
     locale: en

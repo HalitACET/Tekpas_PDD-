@@ -1,6 +1,8 @@
 package com.tekpas.common.error;
 
 import jakarta.validation.ConstraintViolation;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
@@ -24,6 +27,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 /** Every error leaves the API as an RFC 7807 ProblemDetail. */
 @RestControllerAdvice
@@ -87,6 +92,48 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                 code(error), error.getDefaultMessage())))
                 .toList();
         return handleExceptionInternal(ex, validationProblem(errors), headers, HttpStatus.BAD_REQUEST, request);
+    }
+
+    /**
+     * A fraction for an integer field (ACCEPT_FLOAT_AS_INT is off) is a field error like the constraint
+     * violations, so clients can show it under the field. Any other unreadable body stays a plain 400.
+     */
+    @Override
+    protected @Nullable ResponseEntity<Object> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        if (ex.getCause() instanceof InvalidFormatException invalid && isFractionForInteger(invalid)
+                && !invalid.getPath().isEmpty()) {
+            FieldViolation error = new FieldViolation(fieldPath(invalid.getPath()), "Integer",
+                    "must be a whole number");
+            return handleExceptionInternal(ex, validationProblem(List.of(error)), headers, HttpStatus.BAD_REQUEST,
+                    request);
+        }
+        return super.handleHttpMessageNotReadable(ex, headers, status, request);
+    }
+
+    private static boolean isFractionForInteger(InvalidFormatException ex) {
+        Class<?> target = ex.getTargetType();
+        boolean integerTarget = target == Integer.class || target == int.class || target == Long.class
+                || target == long.class || target == Short.class || target == short.class
+                || target == BigInteger.class;
+        return integerTarget && (ex.getValue() instanceof Double || ex.getValue() instanceof Float
+                || ex.getValue() instanceof BigDecimal);
+    }
+
+    /** Same notation as bean validation: {@code declaredFiberComposition[0].percent}. */
+    private static String fieldPath(List<JacksonException.Reference> path) {
+        StringBuilder field = new StringBuilder();
+        for (JacksonException.Reference ref : path) {
+            if (ref.getPropertyName() != null) {
+                if (!field.isEmpty()) {
+                    field.append('.');
+                }
+                field.append(ref.getPropertyName());
+            } else if (ref.getIndex() >= 0) {
+                field.append('[').append(ref.getIndex()).append(']');
+            }
+        }
+        return field.toString();
     }
 
     private static ProblemDetail validationProblem(List<FieldViolation> errors) {
