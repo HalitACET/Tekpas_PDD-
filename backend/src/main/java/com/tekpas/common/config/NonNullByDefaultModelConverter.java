@@ -8,8 +8,10 @@ import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
@@ -18,13 +20,15 @@ import org.springframework.stereotype.Component;
 /**
  * Nullability rule for the API contract: every component of our DTO records is required in the OpenAPI
  * schema unless it is annotated {@link Nullable}. The generated TypeScript client then has
- * {@code id: string} instead of {@code id?: string}.
+ * {@code id: string} instead of {@code id?: string}. A {@link Nullable} component may also be JSON null, so its
+ * type includes "null" ({@code sku?: string | null}); PATCH bodies send null to clear a field.
  */
 @Component
 public class NonNullByDefaultModelConverter implements ModelConverter {
 
     private static final String OWN_PACKAGE = "com.tekpas.";
-    private static final Pattern SIMPLE_TYPE = Pattern.compile("(?:\\[simple type, class )?([\\w.$]+)]?");
+    /** Also matches generic records, e.g. {@code [simple type, class com.tekpas.X<com.tekpas.Y>]}. */
+    private static final Pattern SIMPLE_TYPE = Pattern.compile("(?:\\[simple type, class )?([\\w.$]+)(?:<.*>)?]?");
 
     @Override
     @SuppressWarnings("rawtypes")
@@ -45,8 +49,29 @@ public class NonNullByDefaultModelConverter implements ModelConverter {
                     .filter(properties::containsKey)
                     .toList();
             model.setRequired(required.isEmpty() ? null : required);
+            Arrays.stream(record.getRecordComponents())
+                    .filter(NonNullByDefaultModelConverter::isNullable)
+                    .map(component -> properties.get(component.getName()))
+                    .forEach(property -> allowNull((Schema<?>) property));
         }
         return resolved;
+    }
+
+    /** OpenAPI 3.1: {@code "type": ["string", "null"]}. References ($ref) are left as they are. */
+    private static void allowNull(@Nullable Schema<?> property) {
+        if (property == null || property.get$ref() != null) {
+            return;
+        }
+        Set<String> types = new LinkedHashSet<>();
+        if (property.getTypes() != null) {
+            types.addAll(property.getTypes());
+        } else if (property.getType() != null) {
+            types.add(property.getType());
+        }
+        if (!types.isEmpty()) {
+            types.add("null");
+            property.setTypes(types);
+        }
     }
 
     private static boolean isNullable(RecordComponent component) {

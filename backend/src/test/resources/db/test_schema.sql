@@ -35,10 +35,10 @@ VALUES ('30000000-0000-0000-0000-000000000001', 2, '{"tr":{}}', 75);
 SELECT version, status FROM passport ORDER BY version;
 COMMIT;
 
-\echo '--- 6) GS1 Digital Link cozumleme: /01/08690000000017/10/L2611A'
+\echo '--- 6) GS1 Digital Link cozumleme: /01/02012345000018/10/L2611A'
 SELECT pa.version, pa.completeness
 FROM passport pa JOIN batch b ON b.id = pa.batch_id JOIN product p ON p.id = b.product_id
-WHERE p.gtin = '08690000000017' AND b.batch_no = 'L2611A' AND pa.status = 'PUBLISHED';
+WHERE p.gtin = '02012345000018' AND b.batch_no = 'L2611A' AND pa.status = 'PUBLISHED';
 
 \echo '--- BEKLENEN HATALAR (hepsi reddedilmeli):'
 \echo 'a) ayni partide ikinci PUBLISHED pasaport'

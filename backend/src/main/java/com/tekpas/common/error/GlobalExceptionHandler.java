@@ -1,10 +1,15 @@
 package com.tekpas.common.error;
 
+import jakarta.validation.ConstraintViolation;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import org.hibernate.validator.engine.HibernateConstraintViolation;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -12,10 +17,12 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /** Every error leaves the API as an RFC 7807 ProblemDetail. */
@@ -26,7 +33,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     ProblemDetail handleApiException(ApiException ex) {
-        return problem(ex.status(), ex.type(), ex.title(), ex.getMessage());
+        ProblemDetail body = problem(ex.status(), ex.type(), ex.title(), ex.getMessage());
+        if (ex instanceof ConflictException conflict) {
+            if (!conflict.errors().isEmpty()) {
+                body.setProperty("errors", conflict.errors());
+            }
+            if (conflict.reason() != null) {
+                body.setProperty("reason", conflict.reason());
+            }
+        } else if (ex instanceof InvalidFieldsException invalid) {
+            body.setProperty("errors", sorted(invalid.errors()));
+        }
+        return body;
     }
 
     // Method security failures surface in MVC, not in the security filter chain.
@@ -53,13 +71,51 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         List<FieldViolation> errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(e -> new FieldViolation(e.getField(), e.getCode(), e.getDefaultMessage()))
-                .sorted(Comparator.comparing(FieldViolation::field).thenComparing(FieldViolation::code))
+                .map(e -> new FieldViolation(e.getField(), String.valueOf(e.getCode()), e.getDefaultMessage(),
+                        params(e)))
                 .toList();
+        return handleExceptionInternal(ex, validationProblem(errors), headers, HttpStatus.BAD_REQUEST, request);
+    }
+
+    /** Invalid query or path parameters (e.g. size=500): same shape as body validation, field = parameter name. */
+    @Override
+    protected ResponseEntity<Object> handleHandlerMethodValidationException(
+            HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        List<FieldViolation> errors = ex.getParameterValidationResults().stream()
+                .flatMap(result -> result.getResolvableErrors().stream()
+                        .map(error -> new FieldViolation(String.valueOf(result.getMethodParameter().getParameterName()),
+                                code(error), error.getDefaultMessage())))
+                .toList();
+        return handleExceptionInternal(ex, validationProblem(errors), headers, HttpStatus.BAD_REQUEST, request);
+    }
+
+    private static ProblemDetail validationProblem(List<FieldViolation> errors) {
         ProblemDetail body = problem(HttpStatus.BAD_REQUEST, ProblemTypes.VALIDATION, "Validation failed",
                 "One or more fields are invalid");
-        body.setProperty("errors", errors);
-        return handleExceptionInternal(ex, body, headers, HttpStatus.BAD_REQUEST, request);
+        body.setProperty("errors", sorted(errors));
+        return body;
+    }
+
+    private static List<FieldViolation> sorted(List<FieldViolation> errors) {
+        return errors.stream()
+                .sorted(Comparator.comparing(FieldViolation::field).thenComparing(FieldViolation::code))
+                .toList();
+    }
+
+    /** The constraint name (last code, e.g. "Max"), like FieldError#getCode for body fields. */
+    private static String code(MessageSourceResolvable error) {
+        String[] codes = error.getCodes();
+        return codes == null || codes.length == 0 ? "Invalid" : codes[codes.length - 1];
+    }
+
+    /** Values a constraint attached for the translated message (Hibernate Validator dynamic payload). */
+    @SuppressWarnings("unchecked")
+    private static @Nullable Map<String, Object> params(FieldError error) {
+        if (!error.contains(ConstraintViolation.class)) {
+            return null;
+        }
+        ConstraintViolation<?> violation = error.unwrap(ConstraintViolation.class);
+        return violation instanceof HibernateConstraintViolation<?> hv ? hv.getDynamicPayload(Map.class) : null;
     }
 
     /**

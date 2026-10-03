@@ -26,7 +26,7 @@ INSERT INTO app_user (id, company_id, email, password_hash, full_name, role) VAL
 
 INSERT INTO product (id, company_id, gtin, sku, name, category) VALUES
  ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001',
-  '08690000000017', 'NG-TS-001-BLU', 'Mavi Basic Tisort', 'T_SHIRT');
+  '02012345000018', 'NG-TS-001-BLU', 'Mavi Basic Tisort', 'T_SHIRT');
 
 INSERT INTO batch (id, product_id, company_id, batch_no, production_order_no, quantity, produced_from, produced_to, status) VALUES
  ('30000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001',

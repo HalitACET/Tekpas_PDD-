@@ -118,8 +118,16 @@ _Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md
 **Kabul:** Canlı web linkinde demo kullanıcıyla giriş yapılır, yenilenince oturum korunur, başka firmanın kullanıcısı olarak `/auth/me` doğru firmayı döner.
 
 ### M2 — Ürün ve parti
-- [ ] Ürün CRUD (GTIN kontrol hanesi doğrulaması), parti CRUD
-- [ ] Web: ürün listesi/formu, parti listesi/formu/detay iskeleti
+- [x] Ürün CRUD (GTIN kontrol hanesi doğrulaması), parti CRUD — backend, V3, demo verisi (3 ürün, 5 parti), `@tekpas/shared` Zod şemaları
+- [ ] Web: ürün listesi/formu, parti listesi/formu/detay iskeleti (tasarım v0.3 bekleniyor)
+
+Backend kuralları (M2):
+- GTIN-8/12/13/14 kabul edilir, 14 haneye normalize edilir, dünya çapında tekildir. Çakışmada 409 döner ama sahibi firma açıklanmaz. Ürünün partisi varsa GTIN değişmez (409 `gtin-locked`).
+- Lif bileşimi: tam sayı, 1–100 arası, toplam tam 100, her lif bir kez. Hata alan bazındadır, toplam `params.total` olarak döner.
+- Parti no: GS1 AI(10) kuralı (en fazla 20 karakter, A–Z 0–9 -), ürün içinde tekil. Boş bırakılırsa `KP-YYYY-MMDD-A, B, …` atanır (firma ve gün bazında, Europe/Istanbul). `GET /batches/next-batch-no` numarayı sadece önerir, ayırmaz.
+- Parti `DRAFT` başlar. Durum PATCH ile değişmez. Sadece pasaportu olmayan DRAFT parti silinir.
+- Yetki: OWNER/ADMIN/EDITOR yazar, VIEWER okur, SUPPLIER ürün ve parti uçlarına erişemez (403).
+- Bilinen karar: PATCH'te bilinmeyen veya değiştirilemeyen alanlar (`status`, `productId`, `companyId`) 400 vermez, yok sayılır (Spring Boot'un global ayarı korunur); değişmedikleri testlerle doğrulanır.
 
 **Kabul:** Panelden ürün ve parti oluşturulur. Hatalı GTIN alan bazında hata gösterir. Başka firmanın ürününe erişim 404.
 
@@ -127,6 +135,9 @@ _Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md
 - [ ] Tedarikçi ağı (ekle / listele / çıkar)
 - [ ] Zincir adımı ekle / düzenle, `GET /batches/{id}/tree` (recursive CTE)
 - [ ] Web: React Flow ile zincir görünümü ve düzenleme
+- [ ] Zinciri son partiden kopyalama (tasarım v0.3)
+- [ ] Tedarikçi telefon kolonu (`company_supplier`, WhatsApp paylaşımı için)
+- [ ] `supply_step.data` alanları: enerji kaynağı, kWh, teslim miktarı, iplik numarası (tasarım 10/11 düğüm paneli referans)
 
 **Kabul:** Bir parti için İplik → Kumaş → Boya → Dikim zinciri çizilir, düğüm renkleri durumu gösterir.
 
@@ -153,6 +164,7 @@ _Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md
 - [ ] Yayınla: snapshot, sürüm, eski sürüm SUPERSEDED; geri çek
 - [ ] QR üretimi (GS1 Digital Link), PNG indirme
 - [ ] Web: `/01/[gtin]/10/[batch]` SSR pasaport sayfası (zincir, lif bileşimi, sertifikalar, bakım)
+- [ ] Yayın eşiği: uyum skoru %90 altındaysa yayınlanamaz; yayından önce "Önizle" (tasarım v0.3)
 
 **Kabul:** Telefonla QR okutulur, pasaport 2 saniyede açılır. Yeni sürüm yayınlanınca aynı QR yeni sürümü gösterir.
 
@@ -161,6 +173,7 @@ _Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md
 - [ ] AI tabanlı: sertifika kapsamı ürün kategorisini kapsıyor mu, çelişkili beyanlar
 - [ ] Günlük `CERT_EXPIRY_SCAN` işi
 - [ ] Web: parti detayında uyarı paneli, çözüldü olarak işaretleme
+- [ ] Kural kodları (`LIF-01` vb., tasarım v0.3): her kontrolün sabit bir kodu olur, uyarıda gösterilir
 
 **Kabul:** Lif toplamı %95 girilen partide kırmızı uyarı çıkar, pasaport yayınlanmadan önce gösterilir.
 
@@ -212,6 +225,9 @@ _Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md
 **Tasarım borcu** (tasarımı olmayan, şimdilik geçici çözümle duran yerler):
 - [ ] Koyu tema login tasarımı: hikâye paneli koyu temada da açık (koza kremi) kalıyor.
 - [ ] Login "sunucu uyanıyor" durumu (5 sn sonra buton metni) tasarımda yok; kullanıcı onayıyla eklendi.
+
+**Tasarım sapması** (tasarım yanlış, uygulama farklı yapacak):
+- [ ] Tasarım v0.3'te (ekran 10) link `kozapass.com/v/…` biçiminde görünüyor. Alan adı yok, domain her zaman `kozapass.vercel.app`. Linkin biçimi bağlama göre seçilir: tedarikçiden veri isteniyorsa `https://kozapass.vercel.app/r/{token}` (K14), herkese açık pasaport gösteriliyorsa GS1 yolu `https://kozapass.vercel.app/01/{gtin}/10/{batch}` (K13). `/v/` yolu kullanılmaz.
 
 
 - [x] Demo kullanıcılarının gerçek BCrypt hash'i (M1, `DemoDataSeeder`)

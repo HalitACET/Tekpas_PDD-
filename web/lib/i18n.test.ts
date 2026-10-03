@@ -1,3 +1,4 @@
+import { FIBERS, FIELD_ERROR_CODES, PRODUCT_CATEGORIES } from "@tekpas/shared";
 import { describe, expect, it } from "vitest";
 import de from "@/messages/de.json";
 import en from "@/messages/en.json";
@@ -31,5 +32,15 @@ describe("messages", () => {
       });
       expect(empty.every((path) => path.startsWith("pages.settings.cols["))).toBe(true);
     }
+  });
+
+  it("translates every API enum value and field error code", () => {
+    const keys = new Set(shape(tr));
+    const expected = [
+      ...FIBERS.map((f) => `enums.fiber.${f}`),
+      ...PRODUCT_CATEGORIES.map((c) => `enums.productCategory.${c}`),
+      ...FIELD_ERROR_CODES.map((c) => `errors.field.${c}`),
+    ];
+    expect(expected.filter((key) => !keys.has(key))).toEqual([]);
   });
 });

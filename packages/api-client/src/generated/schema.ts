@@ -81,16 +81,124 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/batches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List batches with product and supply chain progress */
+        get: operations["listBatches"];
+        put?: never;
+        /**
+         * Create a DRAFT batch of a product
+         * @description Without batchNo the next KP-YYYY-MMDD-<letter> number of the day is assigned.
+         */
+        post: operations["createBatch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/batches/next-batch-no": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Suggest the next batch number of today (not reserved) */
+        get: operations["getNextBatchNo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/batches/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A batch with its product and supply chain progress */
+        get: operations["getBatch"];
+        put?: never;
+        post?: never;
+        /** Delete a DRAFT batch without a passport */
+        delete: operations["deleteBatch"];
+        options?: never;
+        head?: never;
+        /**
+         * Change some fields of a batch
+         * @description Missing fields stay unchanged; null clears productionOrderNo and the dates. Status and product cannot be changed here (such fields are ignored).
+         */
+        patch: operations["updateBatch"];
+        trace?: never;
+    };
+    "/api/v1/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List products, with their batch count */
+        get: operations["listProducts"];
+        put?: never;
+        /**
+         * Create a product
+         * @description The GTIN is normalized to 14 digits and must be unique across all companies.
+         */
+        post: operations["createProduct"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A product with its declared fiber composition */
+        get: operations["getProduct"];
+        put?: never;
+        post?: never;
+        /** Delete a product without batches */
+        delete: operations["deleteProduct"];
+        options?: never;
+        head?: never;
+        /**
+         * Change some fields of a product
+         * @description Missing fields stay unchanged; null clears sku, description and declaredFiberComposition.
+         */
+        patch: operations["updateProduct"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /** @description RFC 7807 problem detail */
         ApiProblem: {
-            detail?: string;
-            /** @description Only for type urn:tekpas:problem:validation */
-            errors?: components["schemas"]["FieldViolation"][];
-            instance?: string;
+            detail?: string | null;
+            /** @description Field errors: type urn:tekpas:problem:validation, or conflict on a unique field (code Unique) */
+            errors?: components["schemas"]["FieldViolation"][] | null;
+            instance?: string | null;
+            /**
+             * @description Conflicts that are not about one field, e.g. PRODUCT_HAS_BATCHES, GTIN_LOCKED
+             * @example PRODUCT_HAS_BATCHES
+             */
+            reason?: string | null;
             /**
              * Format: int32
              * @example 400
@@ -101,6 +209,62 @@ export interface components {
             /** @example urn:tekpas:problem:validation */
             type: string;
         };
+        BatchCreateRequest: {
+            /** @example KP-2026-1003-A */
+            batchNo?: string | null;
+            /** Format: date */
+            producedFrom?: string | null;
+            /** Format: date */
+            producedTo?: string | null;
+            /** Format: uuid */
+            productId: string;
+            productionOrderNo?: string | null;
+            /** Format: int32 */
+            quantity: number;
+        };
+        BatchProduct: {
+            gtin: string;
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        BatchResponse: {
+            batchNo: string;
+            chain: components["schemas"]["ChainSummary"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            producedFrom?: string | null;
+            /** Format: date */
+            producedTo?: string | null;
+            product: components["schemas"]["BatchProduct"];
+            productionOrderNo?: string | null;
+            /** Format: int32 */
+            quantity: number;
+            status: components["schemas"]["BatchStatus"];
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        /** @enum {string} */
+        BatchStatus: "DRAFT" | "COLLECTING" | "READY" | "PUBLISHED";
+        BatchUpdateRequest: {
+            batchNo?: string | null;
+            /** Format: date */
+            producedFrom?: string | null;
+            /** Format: date */
+            producedTo?: string | null;
+            productionOrderNo?: string | null;
+            /** Format: int32 */
+            quantity?: number | null;
+        };
+        ChainSummary: {
+            /** Format: int32 */
+            approvedSteps: number;
+            /** Format: int32 */
+            totalSteps: number;
+        };
         CompanySummary: {
             /** Format: uuid */
             id: string;
@@ -108,11 +272,21 @@ export interface components {
             /** @enum {string} */
             type: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
         };
-        /** @description Only for type urn:tekpas:problem:validation */
+        /** @enum {string} */
+        Fiber: "COTTON" | "ORGANIC_COTTON" | "RECYCLED_COTTON" | "POLYESTER" | "RECYCLED_POLYESTER" | "ELASTANE" | "VISCOSE" | "LINEN" | "WOOL" | "SILK" | "POLYAMIDE" | "OTHER";
+        FiberShare: {
+            fiber: components["schemas"]["Fiber"];
+            /** Format: int32 */
+            percent: number;
+        };
+        /** @description Field errors: type urn:tekpas:problem:validation, or conflict on a unique field (code Unique) */
         FieldViolation: {
             code: string;
             field: string;
-            message?: string;
+            message?: string | null;
+            params?: {
+                [key: string]: Record<string, never>;
+            } | null;
         };
         LoginRequest: {
             /** @enum {string} */
@@ -120,13 +294,13 @@ export interface components {
             /** Format: email */
             email: string;
             password: string;
-            rememberMe?: boolean;
+            rememberMe?: boolean | null;
         };
         LoginResponse: {
             accessToken: string;
             /** Format: int64 */
             expiresIn: number;
-            refreshToken?: string;
+            refreshToken?: string | null;
             tokenType: string;
             user: components["schemas"]["UserSummary"];
         };
@@ -140,6 +314,81 @@ export interface components {
             /** @enum {string} */
             role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
         };
+        NextBatchNoResponse: {
+            batchNo: string;
+        };
+        PageResponseBatchResponse: {
+            content: components["schemas"]["BatchResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        PageResponseProductListItem: {
+            content: components["schemas"]["ProductListItem"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        /** @enum {string} */
+        ProductCategory: "T_SHIRT" | "SHIRT" | "TROUSERS" | "DRESS" | "KNITWEAR" | "SWEATSHIRT" | "OUTERWEAR" | "BABY" | "HOME_TEXTILE" | "FABRIC" | "OTHER";
+        ProductCreateRequest: {
+            category: components["schemas"]["ProductCategory"];
+            declaredFiberComposition?: components["schemas"]["FiberShare"][] | null;
+            description?: string | null;
+            /** @example 02012345000018 */
+            gtin: string;
+            name: string;
+            sku?: string | null;
+        };
+        ProductListItem: {
+            /** Format: int64 */
+            batchCount: number;
+            category: components["schemas"]["ProductCategory"];
+            /** Format: date-time */
+            createdAt: string;
+            declaredFiberComposition?: components["schemas"]["FiberShare"][] | null;
+            gtin: string;
+            /** Format: uuid */
+            id: string;
+            name: string;
+            sku?: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ProductResponse: {
+            /** Format: int64 */
+            batchCount: number;
+            category: components["schemas"]["ProductCategory"];
+            /** Format: date-time */
+            createdAt: string;
+            declaredFiberComposition?: components["schemas"]["FiberShare"][] | null;
+            description?: string | null;
+            gtin: string;
+            /** Format: uuid */
+            id: string;
+            name: string;
+            sku?: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ProductUpdateRequest: {
+            category?: components["schemas"]["ProductCategory"];
+            declaredFiberComposition?: components["schemas"]["FiberShare"][] | null;
+            description?: string | null;
+            gtin?: string | null;
+            name?: string | null;
+            sku?: string | null;
+        };
         RefreshRequest: {
             refreshToken: string;
         };
@@ -147,7 +396,7 @@ export interface components {
             accessToken: string;
             /** Format: int64 */
             expiresIn: number;
-            refreshToken?: string;
+            refreshToken?: string | null;
             tokenType: string;
         };
         UserSummary: {
@@ -295,6 +544,539 @@ export interface operations {
             };
             /** @description Missing, expired, reused or revoked refresh token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    listBatches: {
+        parameters: {
+            query?: {
+                /** @description Search in batch no, production order no, product name and GTIN */
+                q?: string;
+                productId?: string;
+                status?: components["schemas"]["BatchStatus"];
+                /** @description Zero-based page */
+                page?: number;
+                size?: number;
+                /** @description batchNo | productName | quantity | producedFrom | createdAt | updatedAt, optionally ,asc or ,desc (default createdAt,desc) */
+                sort?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of batches */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponseBatchResponse"];
+                };
+            };
+            /** @description Invalid paging or sort parameter */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    createBatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchResponse"];
+                };
+            };
+            /** @description Validation failed (e.g. Pattern on batchNo, DateRange) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such product in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The product already has a batch with this number */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getNextBatchNo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Suggested number, e.g. KP-2026-1003-B */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NextBatchNoResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getBatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The batch */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    deleteBatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Not DRAFT (BATCH_NOT_DRAFT) or has a passport (BATCH_HAS_PASSPORT) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    updateBatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchResponse"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Batch number taken, or changed after DRAFT */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    listProducts: {
+        parameters: {
+            query?: {
+                /** @description Search in name, SKU and GTIN */
+                q?: string;
+                category?: components["schemas"]["ProductCategory"];
+                /** @description Zero-based page */
+                page?: number;
+                size?: number;
+                /** @description name | gtin | createdAt | updatedAt, optionally ,asc or ,desc (default createdAt,desc) */
+                sort?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of products */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponseProductListItem"];
+                };
+            };
+            /** @description Invalid paging or sort parameter */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    createProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Validation failed (e.g. GtinCheckDigit, FiberTotal) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The GTIN is already taken */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The product */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such product in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    deleteProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such product in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The product has batches (reason PRODUCT_HAS_BATCHES) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    updateProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such product in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description GTIN taken, or GTIN change on a product with batches */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

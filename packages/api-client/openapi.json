@@ -5,17 +5,22 @@
         "description" : "RFC 7807 problem detail",
         "properties" : {
           "detail" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "errors" : {
-            "description" : "Only for type urn:tekpas:problem:validation",
+            "description" : "Field errors: type urn:tekpas:problem:validation, or conflict on a unique field (code Unique)",
             "items" : {
               "$ref" : "#/components/schemas/FieldViolation"
             },
-            "type" : "array"
+            "type" : [ "array", "null" ]
           },
           "instance" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
+          },
+          "reason" : {
+            "description" : "Conflicts that are not about one field, e.g. PRODUCT_HAS_BATCHES, GTIN_LOCKED",
+            "example" : "PRODUCT_HAS_BATCHES",
+            "type" : [ "string", "null" ]
           },
           "status" : {
             "example" : 400,
@@ -32,6 +37,141 @@
           }
         },
         "required" : [ "status", "title", "type" ]
+      },
+      "BatchCreateRequest" : {
+        "properties" : {
+          "batchNo" : {
+            "example" : "KP-2026-1003-A",
+            "pattern" : "^[A-Z0-9-]{0,20}$",
+            "type" : [ "string", "null" ]
+          },
+          "producedFrom" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "producedTo" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "productId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "productionOrderNo" : {
+            "maxLength" : 50,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "quantity" : {
+            "exclusiveMinimum" : 0,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "productId", "quantity" ],
+        "type" : "object"
+      },
+      "BatchProduct" : {
+        "properties" : {
+          "gtin" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "gtin", "id", "name" ],
+        "type" : "object"
+      },
+      "BatchResponse" : {
+        "properties" : {
+          "batchNo" : {
+            "type" : "string"
+          },
+          "chain" : {
+            "$ref" : "#/components/schemas/ChainSummary"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "producedFrom" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "producedTo" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "product" : {
+            "$ref" : "#/components/schemas/BatchProduct"
+          },
+          "productionOrderNo" : {
+            "type" : [ "string", "null" ]
+          },
+          "quantity" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/BatchStatus"
+          },
+          "updatedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "batchNo", "chain", "createdAt", "id", "product", "quantity", "status", "updatedAt" ],
+        "type" : "object"
+      },
+      "BatchStatus" : {
+        "enum" : [ "DRAFT", "COLLECTING", "READY", "PUBLISHED" ],
+        "type" : "string"
+      },
+      "BatchUpdateRequest" : {
+        "properties" : {
+          "batchNo" : {
+            "type" : [ "string", "null" ]
+          },
+          "producedFrom" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "producedTo" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "productionOrderNo" : {
+            "type" : [ "string", "null" ]
+          },
+          "quantity" : {
+            "format" : "int32",
+            "type" : [ "integer", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "ChainSummary" : {
+        "properties" : {
+          "approvedSteps" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "totalSteps" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "approvedSteps", "totalSteps" ],
+        "type" : "object"
       },
       "CompanySummary" : {
         "properties" : {
@@ -50,8 +190,27 @@
         "required" : [ "id", "name", "type" ],
         "type" : "object"
       },
+      "Fiber" : {
+        "enum" : [ "COTTON", "ORGANIC_COTTON", "RECYCLED_COTTON", "POLYESTER", "RECYCLED_POLYESTER", "ELASTANE", "VISCOSE", "LINEN", "WOOL", "SILK", "POLYAMIDE", "OTHER" ],
+        "type" : "string"
+      },
+      "FiberShare" : {
+        "properties" : {
+          "fiber" : {
+            "$ref" : "#/components/schemas/Fiber"
+          },
+          "percent" : {
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        },
+        "required" : [ "fiber", "percent" ],
+        "type" : "object"
+      },
       "FieldViolation" : {
-        "description" : "Only for type urn:tekpas:problem:validation",
+        "description" : "Field errors: type urn:tekpas:problem:validation, or conflict on a unique field (code Unique)",
         "properties" : {
           "code" : {
             "type" : "string"
@@ -60,7 +219,13 @@
             "type" : "string"
           },
           "message" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
+          },
+          "params" : {
+            "additionalProperties" : {
+              "type" : "object"
+            },
+            "type" : [ "object", "null" ]
           }
         },
         "required" : [ "code", "field" ]
@@ -83,7 +248,7 @@
             "type" : "string"
           },
           "rememberMe" : {
-            "type" : "boolean"
+            "type" : [ "boolean", "null" ]
           }
         },
         "required" : [ "client", "email", "password" ],
@@ -99,7 +264,7 @@
             "type" : "integer"
           },
           "refreshToken" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "tokenType" : {
             "type" : "string"
@@ -137,6 +302,218 @@
         "required" : [ "company", "email", "fullName", "id", "locale", "role" ],
         "type" : "object"
       },
+      "NextBatchNoResponse" : {
+        "properties" : {
+          "batchNo" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "batchNo" ],
+        "type" : "object"
+      },
+      "PageResponseBatchResponse" : {
+        "properties" : {
+          "content" : {
+            "items" : {
+              "$ref" : "#/components/schemas/BatchResponse"
+            },
+            "type" : "array"
+          },
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "totalElements" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "totalPages" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "content", "page", "size", "totalElements", "totalPages" ],
+        "type" : "object"
+      },
+      "PageResponseProductListItem" : {
+        "properties" : {
+          "content" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ProductListItem"
+            },
+            "type" : "array"
+          },
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "totalElements" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "totalPages" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "content", "page", "size", "totalElements", "totalPages" ],
+        "type" : "object"
+      },
+      "ProductCategory" : {
+        "enum" : [ "T_SHIRT", "SHIRT", "TROUSERS", "DRESS", "KNITWEAR", "SWEATSHIRT", "OUTERWEAR", "BABY", "HOME_TEXTILE", "FABRIC", "OTHER" ],
+        "type" : "string"
+      },
+      "ProductCreateRequest" : {
+        "properties" : {
+          "category" : {
+            "$ref" : "#/components/schemas/ProductCategory"
+          },
+          "declaredFiberComposition" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FiberShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "description" : {
+            "maxLength" : 2000,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "gtin" : {
+            "example" : "02012345000018",
+            "type" : "string"
+          },
+          "name" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "sku" : {
+            "maxLength" : 60,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "category", "gtin", "name" ],
+        "type" : "object"
+      },
+      "ProductListItem" : {
+        "properties" : {
+          "batchCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "category" : {
+            "$ref" : "#/components/schemas/ProductCategory"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "declaredFiberComposition" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FiberShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "gtin" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "sku" : {
+            "type" : [ "string", "null" ]
+          },
+          "updatedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "batchCount", "category", "createdAt", "gtin", "id", "name", "updatedAt" ],
+        "type" : "object"
+      },
+      "ProductResponse" : {
+        "properties" : {
+          "batchCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "category" : {
+            "$ref" : "#/components/schemas/ProductCategory"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "declaredFiberComposition" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FiberShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "gtin" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "sku" : {
+            "type" : [ "string", "null" ]
+          },
+          "updatedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "batchCount", "category", "createdAt", "gtin", "id", "name", "updatedAt" ],
+        "type" : "object"
+      },
+      "ProductUpdateRequest" : {
+        "properties" : {
+          "category" : {
+            "$ref" : "#/components/schemas/ProductCategory"
+          },
+          "declaredFiberComposition" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FiberShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "gtin" : {
+            "type" : [ "string", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ]
+          },
+          "sku" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
       "RefreshRequest" : {
         "properties" : {
           "refreshToken" : {
@@ -156,7 +533,7 @@
             "type" : "integer"
           },
           "refreshToken" : {
-            "type" : "string"
+            "type" : [ "string", "null" ]
           },
           "tokenType" : {
             "type" : "string"
@@ -387,6 +764,687 @@
         "summary" : "Rotate the refresh token and issue a new access token",
         "tags" : [ "auth" ]
       }
+    },
+    "/api/v1/batches" : {
+      "get" : {
+        "operationId" : "listBatches",
+        "parameters" : [ {
+          "description" : "Search in batch no, production order no, product name and GTIN",
+          "in" : "query",
+          "name" : "q",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "productId",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/components/schemas/BatchStatus"
+          }
+        }, {
+          "description" : "Zero-based page",
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        }, {
+          "description" : "batchNo | productName | quantity | producedFrom | createdAt | updatedAt, optionally ,asc or ,desc (default createdAt,desc)",
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseBatchResponse"
+                }
+              }
+            },
+            "description" : "One page of batches"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Invalid paging or sort parameter"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          }
+        },
+        "summary" : "List batches with product and supply chain progress",
+        "tags" : [ "batches" ]
+      },
+      "post" : {
+        "description" : "Without batchNo the next KP-YYYY-MMDD-<letter> number of the day is assigned.",
+        "operationId" : "createBatch",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BatchCreateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BatchResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed (e.g. Pattern on batchNo, DateRange)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such product in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The product already has a batch with this number"
+          }
+        },
+        "summary" : "Create a DRAFT batch of a product",
+        "tags" : [ "batches" ]
+      }
+    },
+    "/api/v1/batches/next-batch-no" : {
+      "get" : {
+        "operationId" : "getNextBatchNo",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NextBatchNoResponse"
+                }
+              }
+            },
+            "description" : "Suggested number, e.g. KP-2026-1003-B"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          }
+        },
+        "summary" : "Suggest the next batch number of today (not reserved)",
+        "tags" : [ "batches" ]
+      }
+    },
+    "/api/v1/batches/{id}" : {
+      "delete" : {
+        "operationId" : "deleteBatch",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Deleted"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Not DRAFT (BATCH_NOT_DRAFT) or has a passport (BATCH_HAS_PASSPORT)"
+          }
+        },
+        "summary" : "Delete a DRAFT batch without a passport",
+        "tags" : [ "batches" ]
+      },
+      "get" : {
+        "operationId" : "getBatch",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BatchResponse"
+                }
+              }
+            },
+            "description" : "The batch"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          }
+        },
+        "summary" : "A batch with its product and supply chain progress",
+        "tags" : [ "batches" ]
+      },
+      "patch" : {
+        "description" : "Missing fields stay unchanged; null clears productionOrderNo and the dates. Status and product cannot be changed here (such fields are ignored).",
+        "operationId" : "updateBatch",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BatchUpdateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BatchResponse"
+                }
+              }
+            },
+            "description" : "Updated"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Batch number taken, or changed after DRAFT"
+          }
+        },
+        "summary" : "Change some fields of a batch",
+        "tags" : [ "batches" ]
+      }
+    },
+    "/api/v1/products" : {
+      "get" : {
+        "operationId" : "listProducts",
+        "parameters" : [ {
+          "description" : "Search in name, SKU and GTIN",
+          "in" : "query",
+          "name" : "q",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "category",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/components/schemas/ProductCategory"
+          }
+        }, {
+          "description" : "Zero-based page",
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        }, {
+          "description" : "name | gtin | createdAt | updatedAt, optionally ,asc or ,desc (default createdAt,desc)",
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseProductListItem"
+                }
+              }
+            },
+            "description" : "One page of products"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Invalid paging or sort parameter"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          }
+        },
+        "summary" : "List products, with their batch count",
+        "tags" : [ "products" ]
+      },
+      "post" : {
+        "description" : "The GTIN is normalized to 14 digits and must be unique across all companies.",
+        "operationId" : "createProduct",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProductCreateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed (e.g. GtinCheckDigit, FiberTotal)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The GTIN is already taken"
+          }
+        },
+        "summary" : "Create a product",
+        "tags" : [ "products" ]
+      }
+    },
+    "/api/v1/products/{id}" : {
+      "delete" : {
+        "operationId" : "deleteProduct",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Deleted"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such product in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The product has batches (reason PRODUCT_HAS_BATCHES)"
+          }
+        },
+        "summary" : "Delete a product without batches",
+        "tags" : [ "products" ]
+      },
+      "get" : {
+        "operationId" : "getProduct",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            },
+            "description" : "The product"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such product in this company"
+          }
+        },
+        "summary" : "A product with its declared fiber composition",
+        "tags" : [ "products" ]
+      },
+      "patch" : {
+        "description" : "Missing fields stay unchanged; null clears sku, description and declaredFiberComposition.",
+        "operationId" : "updateProduct",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProductUpdateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            },
+            "description" : "Updated"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such product in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "GTIN taken, or GTIN change on a product with batches"
+          }
+        },
+        "summary" : "Change some fields of a product",
+        "tags" : [ "products" ]
+      }
     }
   },
   "security" : [ {
@@ -395,5 +1453,11 @@
   "tags" : [ {
     "description" : "Login, token refresh, logout and the current user",
     "name" : "auth"
+  }, {
+    "description" : "Production batches of the current company; a passport is published per batch",
+    "name" : "batches"
+  }, {
+    "description" : "Product models (one GTIN each) of the current company",
+    "name" : "products"
   } ]
 }

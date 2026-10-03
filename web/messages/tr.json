@@ -173,5 +173,57 @@
       "emptyBody": "Pasaportta görünecek firma adı, adres ve logo bilgilerini tamamlayın.",
       "cols": ["Ayar", "Değer", "", "", ""]
     }
+  },
+  "enums": {
+    "fiber": {
+      "COTTON": "Pamuk",
+      "ORGANIC_COTTON": "Organik pamuk",
+      "RECYCLED_COTTON": "Geri dönüştürülmüş pamuk",
+      "POLYESTER": "Polyester",
+      "RECYCLED_POLYESTER": "Geri dönüştürülmüş polyester",
+      "ELASTANE": "Elastan",
+      "VISCOSE": "Viskon",
+      "LINEN": "Keten",
+      "WOOL": "Yün",
+      "SILK": "İpek",
+      "POLYAMIDE": "Poliamid",
+      "OTHER": "Diğer"
+    },
+    "productCategory": {
+      "T_SHIRT": "Tişört",
+      "SHIRT": "Gömlek",
+      "TROUSERS": "Pantolon",
+      "DRESS": "Elbise",
+      "KNITWEAR": "Triko",
+      "SWEATSHIRT": "Sweatshirt",
+      "OUTERWEAR": "Dış giyim",
+      "BABY": "Bebek",
+      "HOME_TEXTILE": "Ev tekstili",
+      "FABRIC": "Kumaş",
+      "OTHER": "Diğer"
+    }
+  },
+  "errors": {
+    "field": {
+      "NotNull": "Bu alan zorunlu.",
+      "NotBlank": "Bu alan boş bırakılamaz.",
+      "Size": "Bu değer çok uzun.",
+      "Min": "Değer çok küçük.",
+      "Max": "Değer çok büyük.",
+      "Positive": "Sıfırdan büyük bir tam sayı girin.",
+      "Pattern": "Biçim geçersiz.",
+      "GtinFormat": "GTIN 8, 12, 13 veya 14 haneli olmalı.",
+      "GtinCheckDigit": "GTIN'in kontrol hanesi hatalı. Numarayı kontrol edin.",
+      "FiberTotal": "Lif oranlarının toplamı %100 olmalı (şu an %{total}).",
+      "FiberDuplicate": "Aynı lif birden fazla kez girilmiş.",
+      "DateRange": "Bitiş tarihi başlangıç tarihinden önce olamaz.",
+      "Unique": "Bu değer zaten kullanılıyor."
+    },
+    "conflict": {
+      "PRODUCT_HAS_BATCHES": "Bu ürünün partileri var. Ürünü silmek için önce partilerini silin.",
+      "GTIN_LOCKED": "Ürünün partisi olduğu için GTIN değiştirilemez; basılmış QR kodlar bu GTIN'i taşıyor.",
+      "BATCH_NOT_DRAFT": "Bu işlem yalnızca taslak partilerde yapılabilir.",
+      "BATCH_HAS_PASSPORT": "Pasaportu olan bir parti silinemez."
+    }
   }
 }
