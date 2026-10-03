@@ -207,6 +207,26 @@ class ProductApiTest {
         }
 
         @Test
+        void unreadableBodiesDoNotRevealInternals() {
+            Tenant tenant = fixtures.tenant();
+            Map<String, Object> fraction = with(product(TestGtins.gtin13()), "declaredFiberComposition",
+                    List.of(Map.of("fiber", "COTTON", "percent", 99.5)));
+            Map<String, Object> unknownFiber = with(product(TestGtins.gtin13()), "declaredFiberComposition",
+                    List.of(Map.of("fiber", "NYLON", "percent", 100)));
+
+            for (MvcTestResult result : List.of(
+                    fixtures.post(tenant, PRODUCTS, fraction),
+                    fixtures.post(tenant, PRODUCTS, unknownFiber),
+                    fixtures.post(tenant, PRODUCTS, "{\"gtin\": \"4006381333931\", \"name\": "),
+                    fixtures.post(tenant, "/api/v1/batches", Map.of("productId", UUID.randomUUID(), "quantity", 2.5)))) {
+                assertThat(result).hasStatus(400);
+                String text = fixtures.responseText(result);
+                assertThat(text).doesNotContain("com.tekpas", "tools.jackson", "com.fasterxml", "java.lang",
+                        "Exception", "Cannot deserialize");
+            }
+        }
+
+        @Test
         void unknownFiberCodeIsABadRequest() {
             Tenant tenant = fixtures.tenant();
             Map<String, Object> body = with(product(TestGtins.gtin13()), "declaredFiberComposition",
