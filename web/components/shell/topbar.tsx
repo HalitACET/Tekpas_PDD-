@@ -40,7 +40,13 @@ export function Topbar({ user, page }: { user: SessionUser; page?: PageKey }) {
         </ol>
       </nav>
 
-      <div className="ml-auto flex h-8 w-[260px] items-center gap-2 rounded-md border border-input px-2.5 text-[13px] text-muted-foreground">
+      {/* Design: 260 px with "⌘K". "Ctrl K" is about 22 px wider, so the box grows by that much and the
+          placeholder still fits uncut. */}
+      <div
+        className={`ml-auto flex h-8 items-center gap-2 rounded-md border border-input px-2.5 text-[13px] text-muted-foreground ${
+          shortcut && shortcut !== "⌘K" ? "w-[284px]" : "w-[260px]"
+        }`}
+      >
         <Search className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
         <input
           type="search"

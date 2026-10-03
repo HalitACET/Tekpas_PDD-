@@ -216,3 +216,19 @@ test("a list that cannot load offers a retry", async ({ page }) => {
   await expect(page.getByRole("alert").filter({ hasText: "Liste yüklenemedi" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Tekrar dene" })).toBeVisible();
 });
+
+test("the top bar search placeholder fits uncut next to the shortcut label", async ({ page }) => {
+  await openProducts(page);
+  const search = page.getByRole("searchbox", { name: "Parti, GTIN veya tedarikçi ara" });
+  const { text, room } = await search.evaluate((el) => {
+    const input = el as HTMLInputElement;
+    const style = getComputedStyle(input);
+    const context = document.createElement("canvas").getContext("2d")!;
+    context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    return {
+      text: context.measureText(input.placeholder).width,
+      room: input.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight),
+    };
+  });
+  expect(text).toBeLessThanOrEqual(room);
+});
