@@ -19,9 +19,10 @@ export const gtinSchema = z
 
 export const fiberShareSchema = z.object({
   fiber: z.enum(FIBERS, { error: "NotNull" }),
+  // Whole percent only: "90,5" or 90.5 is an Integer error, never rounded.
   percent: z
-    .number({ error: "NotNull" })
-    .int({ error: "Min" })
+    .number({ error: (issue) => (issue.input === undefined || issue.input === null ? "NotNull" : "Integer") })
+    .int({ error: "Integer" })
     .min(1, { error: "Min" })
     .max(100, { error: "Max" }),
 });

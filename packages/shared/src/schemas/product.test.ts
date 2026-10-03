@@ -65,7 +65,7 @@ describe("productCreateSchema", () => {
     const input = { ...valid, declaredFiberComposition: [{ fiber: "NYLON", percent: 100.5 }] };
 
     expect(issues(input).map((i) => `${i.path}:${i.code}`)).toEqual(
-      expect.arrayContaining(["declaredFiberComposition.0.fiber:NotNull", "declaredFiberComposition.0.percent:Min"]),
+      expect.arrayContaining(["declaredFiberComposition.0.fiber:NotNull", "declaredFiberComposition.0.percent:Integer"]),
     );
   });
 
@@ -79,6 +79,12 @@ describe("productCreateSchema", () => {
       "sku:Size",
     ]);
   });
+});
+
+it.each([[90.5], [Number.NaN]])("reports a non-whole percent %s as Integer, without rounding", (percent) => {
+  const input = { ...valid, declaredFiberComposition: [{ fiber: "COTTON", percent }] };
+
+  expect(issues(input).map((i) => `${i.path}:${i.code}`)).toContain("declaredFiberComposition.0.percent:Integer");
 });
 
 describe("fiber helpers", () => {

@@ -54,6 +54,7 @@ export const FIELD_ERROR_CODES = [
   "Min",
   "Max",
   "Positive",
+  "Integer",
   "Pattern",
   "GtinFormat",
   "GtinCheckDigit",

@@ -15,7 +15,13 @@
       "en": "English",
       "de": "Deutsch"
     },
-    "loading": "Wird geladen…"
+    "loading": "Wird geladen…",
+    "readOnly": "Für diese Aktion fehlt Ihnen die Berechtigung",
+    "listError": {
+      "title": "Die Liste konnte nicht geladen werden",
+      "body": "Der Server ist nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "retry": "Erneut versuchen"
+    }
   },
   "login": {
     "overline": "Koza Han, Bursa · 1491",
@@ -103,7 +109,7 @@
     },
     "products": {
       "title": "Produkte",
-      "sub": "Produktkarten und Faserzusammensetzungen je GTIN.",
+      "sub": "Produktkarten nach GTIN mit ihren deklarierten Faserzusammensetzungen.",
       "cta": "Neues Produkt",
       "cta2": "Aus Excel importieren",
       "emptyTitle": "Noch keine Produkte",
@@ -212,6 +218,7 @@
       "Min": "Der Wert ist zu klein.",
       "Max": "Der Wert ist zu groß.",
       "Positive": "Geben Sie eine ganze Zahl größer als null ein.",
+      "Integer": "Geben Sie eine ganze Zahl ein (z. B. 90).",
       "Pattern": "Das Format ist ungültig.",
       "GtinFormat": "Eine GTIN hat 8, 12, 13 oder 14 Stellen.",
       "GtinCheckDigit": "Die Prüfziffer der GTIN ist falsch. Bitte prüfen Sie die Nummer.",
@@ -225,6 +232,91 @@
       "GTIN_LOCKED": "Die GTIN kann nicht geändert werden, da das Produkt Chargen hat; gedruckte QR-Codes enthalten diese GTIN.",
       "BATCH_NOT_DRAFT": "Das ist nur bei Chargen im Entwurf möglich.",
       "BATCH_HAS_PASSPORT": "Eine Charge mit Pass kann nicht gelöscht werden."
+    }
+  },
+  "products": {
+    "actions": {
+      "new": "Neues Produkt",
+      "import": "Aus Excel importieren"
+    },
+    "search": "Produktname, GTIN oder SKU suchen",
+    "categoryFilter": "Kategorie:",
+    "allCategories": "Alle",
+    "count": "{shown} / {total} Produkte",
+    "cols": {
+      "gtin": "GTIN",
+      "product": "Produkt",
+      "category": "Kategorie",
+      "fibers": "Deklarierte Faserzusammensetzung",
+      "batches": "Chargen",
+      "updated": "Aktualisiert"
+    },
+    "rowMenu": {
+      "label": "Zeilenmenü",
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    },
+    "yesterday": "Gestern",
+    "empty": {
+      "title": "Noch keine Produkte",
+      "body": "Ein Pass gehört immer zu einem Produkt. Legen Sie Ihr erstes Produkt mit GTIN, Namen und deklarierter Faserzusammensetzung an oder importieren Sie Ihre Excel-Liste.",
+      "filteredTitle": "Keine passenden Produkte",
+      "filteredBody": "Ändern Sie die Suche oder den Kategoriefilter.",
+      "clearFilters": "Filter zurücksetzen"
+    },
+    "form": {
+      "newTitle": "Neues Produkt",
+      "editTitle": "Produkt bearbeiten",
+      "sub": "Die deklarierten Angaben werden im Pass mit den Lieferantendaten verglichen.",
+      "name": "Produktname",
+      "namePlaceholder": "z. B. Bio-Baumwoll-T-Shirt, ecru",
+      "gtin": "GTIN",
+      "gtinPlaceholder": "14 Stellen",
+      "sku": "SKU",
+      "skuPlaceholder": "KT-TS-0000",
+      "category": "Kategorie",
+      "fibers": "Deklarierte Faserzusammensetzung",
+      "fibersHint": "Anteile laut Etikett",
+      "fiber": "Faser {n}",
+      "percent": "Anteil Faser {n} (%)",
+      "addFiber": "Faser hinzufügen",
+      "removeFiber": "Zeile entfernen",
+      "total": "Summe {total}",
+      "missing": " · {missing} fehlen, muss 100 % sein",
+      "over": " · über 100 %",
+      "description": "Beschreibung",
+      "descriptionHint": "Optional · erscheint in der Produktgeschichte des Passes",
+      "descriptionPlaceholder": "Stoffart, Grammatur, Verwendung",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "close": "Schließen",
+      "gtinHint": {
+        "idle": "8, 12, 13 oder 14 Stellen. Die Prüfziffer wird automatisch geprüft.",
+        "digitsOnly": "Nur Ziffern eingeben",
+        "length": "Eine GTIN hat 8, 12, 13 oder 14 Stellen ({count} eingegeben)",
+        "checkDigit": "Prüfziffer ist falsch",
+        "valid": "Gültige GTIN-{length}",
+        "taken": "Ein anderes Produkt verwendet diese GTIN"
+      },
+      "saveHint": {
+        "gtin": "Geben Sie eine gültige GTIN ein",
+        "total": "Die Fasersumme muss 100 % sein",
+        "name": "Produktname ist erforderlich"
+      },
+      "saveFailed": "Das Produkt konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+    },
+    "delete": {
+      "blockedTitle": "Produkt kann nicht gelöscht werden",
+      "blockedBody": "Dieses Produkt hat {count, plural, one {# Charge} other {# Chargen}} und kann nicht gelöscht werden.",
+      "blockedNote": "Chargen sind mit veröffentlichten Pässen verknüpft, daher bleibt der Produkteintrag erhalten.",
+      "seeBatches": "Chargen anzeigen",
+      "close": "Schließen",
+      "title": "Produkt löschen",
+      "body": "Dieses Produkt wird dauerhaft gelöscht. Das kann nicht rückgängig gemacht werden.",
+      "note": "Keine Chargen oder Pässe verknüpft.",
+      "cancel": "Abbrechen",
+      "confirm": "Produkt löschen",
+      "failed": "Das Produkt konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
     }
   }
 }
