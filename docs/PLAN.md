@@ -127,6 +127,7 @@ Backend kuralları (M2):
 - Parti no: GS1 AI(10) kuralı (en fazla 20 karakter, A–Z 0–9 -), ürün içinde tekil. Boş bırakılırsa `KP-YYYY-MMDD-A, B, …` atanır (firma ve gün bazında, Europe/Istanbul). `GET /batches/next-batch-no` numarayı sadece önerir, ayırmaz.
 - Parti `DRAFT` başlar. Durum PATCH ile değişmez. Sadece pasaportu olmayan DRAFT parti silinir.
 - Yetki: OWNER/ADMIN/EDITOR yazar, VIEWER okur, SUPPLIER ürün ve parti uçlarına erişemez (403).
+- Bilinen karar: PATCH'te bilinmeyen veya değiştirilemeyen alanlar (`status`, `productId`, `companyId`) 400 vermez, yok sayılır (Spring Boot'un global ayarı korunur); değişmedikleri testlerle doğrulanır.
 
 **Kabul:** Panelden ürün ve parti oluşturulur. Hatalı GTIN alan bazında hata gösterir. Başka firmanın ürününe erişim 404.
 
@@ -226,7 +227,7 @@ Backend kuralları (M2):
 - [ ] Login "sunucu uyanıyor" durumu (5 sn sonra buton metni) tasarımda yok; kullanıcı onayıyla eklendi.
 
 **Tasarım sapması** (tasarım yanlış, uygulama farklı yapacak):
-- [ ] Tasarım v0.3'te link `kozapass.com/v/…` görünüyor. Alan adı yok; web'de link her zaman `https://kozapass.vercel.app/r/{token}` biçiminde olacak (K14). Herkese açık pasaportun adresi GS1 yolu olarak kalır: `/01/{gtin}/10/{batch}` (K13).
+- [ ] Tasarım v0.3'te (ekran 10) link `kozapass.com/v/…` biçiminde görünüyor. Alan adı yok, domain her zaman `kozapass.vercel.app`. Linkin biçimi bağlama göre seçilir: tedarikçiden veri isteniyorsa `https://kozapass.vercel.app/r/{token}` (K14), herkese açık pasaport gösteriliyorsa GS1 yolu `https://kozapass.vercel.app/01/{gtin}/10/{batch}` (K13). `/v/` yolu kullanılmaz.
 
 
 - [x] Demo kullanıcılarının gerçek BCrypt hash'i (M1, `DemoDataSeeder`)
