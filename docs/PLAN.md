@@ -119,7 +119,16 @@ _Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md
 
 ### M2 — Ürün ve parti
 - [x] Ürün CRUD (GTIN kontrol hanesi doğrulaması), parti CRUD — backend, V3, demo verisi (3 ürün, 5 parti), `@tekpas/shared` Zod şemaları
-- [ ] Web: ürün listesi/formu, parti listesi/formu/detay iskeleti (tasarım v0.3 bekleniyor)
+- [ ] Web: ürün listesi/formu, parti listesi/formu/detay iskeleti (tasarım v0.3 01–08)
+  - [x] Ürünler (01–06): liste, boş durum, düzenle/yeni sheet'i, silme onayı ve engeli
+  - [ ] Partiler (07–08): liste, parti oluştur
+
+Web kuralları (M2):
+- Ürün listesi tek sayfada en fazla 100 ürün gösterir (`size=100`); tasarımda sayfalama yok. 100'ü aşan firmada ilk 100 görünür; sayfalama tasarımı gelince eklenecek.
+- GTIN ekranda 13 hane (başında 0 olan GTIN-14), Geist Mono. Input 8/12/13/14 hane kabul eder.
+- Lif oranı tam sayı; "90,5" alan hatası verir (`Integer`), yuvarlanmaz.
+- GTIN çakışma ön kontrolü sadece kendi ürünlerde, normalize edilmiş 14 hane birebir eşleşirse; başka firmanın GTIN'i kayıtta 409 ile, ad olmadan gösterilir.
+- VIEWER yazma butonlarını devre dışı ve gerekçeli görür; SUPPLIER `/products` ve `/batches`'tan `/tasks`'a yönlenir (asıl koruma backend 403).
 
 Backend kuralları (M2):
 - GTIN-8/12/13/14 kabul edilir, 14 haneye normalize edilir, dünya çapında tekildir. Çakışmada 409 döner ama sahibi firma açıklanmaz. Ürünün partisi varsa GTIN değişmez (409 `gtin-locked`).
@@ -225,6 +234,14 @@ Backend kuralları (M2):
 **Tasarım borcu** (tasarımı olmayan, şimdilik geçici çözümle duran yerler):
 - [ ] Koyu tema login tasarımı: hikâye paneli koyu temada da açık (koza kremi) kalıyor.
 - [ ] Login "sunucu uyanıyor" durumu (5 sn sonra buton metni) tasarımda yok; kullanıcı onayıyla eklendi.
+- [ ] Ürün düzenle: GTIN kilidi (partisi olan ürün) — input devre dışı, kilit ikonu, ipucu satırında neden (`impl-v0.3/03b-locked-*`).
+- [ ] Liste yükleniyor durumu: tablo içinde iskelet satırlar.
+- [ ] Liste hata durumu: boş durum çerçevesinde hata ikonu, metin ve "Tekrar dene".
+- [ ] VIEWER: devre dışı yazma butonları ve satır menüsü, "Bu işlem için yetkiniz yok" tooltip'i (tooltip bileşeni tasarımda yok).
+- [ ] Ürün formunda GTIN dışındaki alan hataları (ad, SKU, lif oranı "Tam sayı girin", aynı lif iki kez): input altında kırmızı satır; tasarımda sadece GTIN hatası var.
+- [ ] Kaydetme/silme sunucu hatası (5xx): toast.
+- [ ] Parti durum chip'leri (Taslak, Veri toplanıyor, Yayına hazır, Yayında) — PR B.
+- [ ] Mobil web liste (md altı): masaüstü tablo yatay kaydırılır; tasarım 16 web için uyarlanmalı.
 
 **Tasarım sapması** (tasarım yanlış, uygulama farklı yapacak):
 - [ ] Tasarım v0.3 ekran 10 ("Düğüm paneli — Maraş Penye İplik, veri talep bağlantısı"): tedarikçi veri talebi linki `kozapass.com/v/…` görünüyor. Bu yazı `docs/design/v0.3/KozaPassPanel.dc.html` bileşenindeki örnek `url` sabitinden geliyor, koda taşınmaz. Uygulamada link `https://kozapass.vercel.app/r/{token}` olur (K14). Herkese açık pasaport ise GS1 yolunda kalır: `https://kozapass.vercel.app/01/{gtin}/10/{batch}` (K13).
