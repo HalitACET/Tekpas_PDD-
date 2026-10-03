@@ -39,8 +39,9 @@
     "rememberMe": "Beni hatırla",
     "submit": "Giriş yap",
     "submitting": "Giriş yapılıyor…",
+    "waking": "Sunucu uyanıyor, bu bir dakika sürebilir…",
     "invalidCredentials": "E-posta veya şifre hatalı.",
-    "serverError": "Sunucuya şu an ulaşılamıyor. Birkaç saniye sonra tekrar deneyin.",
+    "serverError": "Sunucuya ulaşılamadı. Lütfen biraz sonra tekrar deneyin.",
     "forgotPassword": "Şifrenizi mi unuttunuz? Firma yöneticinizle iletişime geçin.",
     "footer": "© 2026 KozaPass · Bursa"
   },
@@ -62,6 +63,8 @@
       "settings": "Ayarlar"
     },
     "collapse": "Menüyü daralt",
+    "open": "Menüyü aç",
+    "close": "Menüyü kapat",
     "expand": "Menüyü genişlet"
   },
   "shell": {
@@ -69,6 +72,7 @@
     "breadcrumb": "Konum",
     "search": "Parti, GTIN veya tedarikçi ara",
     "searchUnavailable": "Arama yakında",
+    "userMenu": "Kullanıcı menüsü",
     "theme": "Tema",
     "themeLight": "Açık",
     "themeDark": "Koyu",
@@ -113,6 +117,7 @@
       "cta2": "Excel'den içe aktar",
       "emptyTitle": "Henüz parti yok",
       "emptyBody": "İlk partinizi oluşturun: ürünü seçin, tedarik zincirindeki atölyeleri atayın, belgeleri toplayın. Onaylanan parti QR'lı pasaport olarak yayınlanır.",
+      "emptyBodyShort": "İlk partinizi oluşturun. Onaylanan parti QR'lı pasaport olarak yayınlanır.",
       "cols": ["Parti no", "Ürün", "Tedarik zinciri", "Durum", "Güncelleme"],
       "guide": {
         "label": "Nasıl başlanır",

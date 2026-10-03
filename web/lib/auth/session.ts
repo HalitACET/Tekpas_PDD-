@@ -106,19 +106,32 @@ async function loadUser(): Promise<SessionState> {
 
 export type LoginResult = "ok" | "invalid" | "unavailable";
 
-export async function login(email: string, password: string, rememberMe: boolean): Promise<LoginResult> {
+/**
+ * A sleeping Render instance needs about a minute to start (docs/DEPLOY.md), so the login waits well
+ * beyond that before giving up; the form tells the user after 5 s that the server is waking up.
+ */
+export const LOGIN_TIMEOUT_MS = 90_000;
+
+export async function login(
+  email: string,
+  password: string,
+  rememberMe: boolean,
+  { timeoutMs = LOGIN_TIMEOUT_MS }: { timeoutMs?: number } = {},
+): Promise<LoginResult> {
   try {
     const { data, response } = await api.POST("/api/v1/auth/login", {
       body: { email, password, client: "WEB", rememberMe },
+      signal: AbortSignal.timeout(timeoutMs),
     });
     if (!data) {
-      // 400 (malformed input) and 401 get the same single message; everything else is "unavailable".
+      // 400 (malformed input) and 401 get the same single message; 5xx and others are "unavailable".
       return response.status === 400 || response.status === 401 ? "invalid" : "unavailable";
     }
     accessToken = data.accessToken;
     setState({ status: "authenticated", user: data.user });
     return "ok";
   } catch {
+    // Network error or timeout.
     return "unavailable";
   }
 }

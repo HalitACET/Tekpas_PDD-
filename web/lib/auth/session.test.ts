@@ -45,6 +45,12 @@ function fakeBackend({ cookie = true, password = "right" } = {}) {
         const body = await input.json();
         loginBodies.push(body);
         if (body.password === "boom") return new Response("Bad Gateway", { status: 502 });
+        if (body.password === "hang") {
+          // Never answers; gives up only when the caller aborts (like a server that does not wake up).
+          return new Promise<Response>((_, reject) =>
+            input.signal.addEventListener("abort", () => reject(input.signal.reason)),
+          );
+        }
         if (body.password !== password) return problem(401, "invalid-credentials");
         hasCookie = true;
         valid = `t${++issued}`;
@@ -148,6 +154,19 @@ describe("session", () => {
     expect(await session.login("a@test.example", "wrong", true)).toBe("invalid");
     expect(await session.login("a@test.example", "boom", true)).toBe("unavailable");
     expect(session.getSessionState().status).not.toBe("authenticated");
+  });
+
+  it("gives up after the timeout and reports the server as unavailable", async () => {
+    const session = await loadSession(fakeBackend({ cookie: false }));
+
+    const started = Date.now();
+    expect(await session.login("a@test.example", "hang", true, { timeoutMs: 200 })).toBe("unavailable");
+    expect(Date.now() - started).toBeLessThan(5_000);
+  });
+
+  it("waits 90 s by default before giving up", async () => {
+    const session = await loadSession(fakeBackend());
+    expect(session.LOGIN_TIMEOUT_MS).toBe(90_000);
   });
 
   it("sends rememberMe with the login request", async () => {

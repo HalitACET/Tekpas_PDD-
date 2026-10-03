@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { type ReactNode, useCallback, useSyncExternalStore } from "react";
 import type { SessionUser } from "@/lib/auth/session";
 import { pageKeyFromPath } from "@/lib/nav";
+import { MobileTopbar } from "./mobile-topbar";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 
@@ -42,7 +43,7 @@ export function useSidebarCollapsed(): [boolean, () => void] {
   return [collapsed, toggle];
 }
 
-/** Design G: left menu + top bar + page. */
+/** Design G: left menu + top bar + page from md up; below md the mobile header with drawer. */
 export function AppShell({ user, children }: { user: SessionUser; children: ReactNode }) {
   const t = useTranslations("shell");
   const pathname = usePathname();
@@ -59,7 +60,12 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
       <Sidebar collapsed={collapsed} onToggle={toggle} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar user={user} page={pageKeyFromPath(pathname)} />
-        <main id="main" tabIndex={-1} className="flex min-h-0 flex-1 flex-col gap-5 overflow-auto px-8 py-7 outline-none">
+        <MobileTopbar user={user} page={pageKeyFromPath(pathname)} />
+        <main
+          id="main"
+          tabIndex={-1}
+          className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-4 py-5 outline-none md:gap-5 md:px-8 md:py-7"
+        >
           {children}
         </main>
       </div>

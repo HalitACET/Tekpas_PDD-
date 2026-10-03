@@ -39,8 +39,9 @@
     "rememberMe": "Remember me",
     "submit": "Sign in",
     "submitting": "Signing in…",
+    "waking": "The server is waking up, this can take a minute…",
     "invalidCredentials": "Email or password is incorrect.",
-    "serverError": "The server can't be reached right now. Please try again in a few seconds.",
+    "serverError": "The server could not be reached. Please try again in a moment.",
     "forgotPassword": "Forgot your password? Contact your company administrator.",
     "footer": "© 2026 KozaPass · Bursa"
   },
@@ -62,6 +63,8 @@
       "settings": "Settings"
     },
     "collapse": "Collapse menu",
+    "open": "Open menu",
+    "close": "Close menu",
     "expand": "Expand menu"
   },
   "shell": {
@@ -69,6 +72,7 @@
     "breadcrumb": "Breadcrumb",
     "search": "Search batches, GTINs or suppliers",
     "searchUnavailable": "Search coming soon",
+    "userMenu": "User menu",
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
@@ -113,6 +117,7 @@
       "cta2": "Import from Excel",
       "emptyTitle": "No batches yet",
       "emptyBody": "Create your first batch: choose the product, assign the workshops in the supply chain and collect the documents. An approved batch is published as a passport with a QR code.",
+      "emptyBodyShort": "Create your first batch. An approved batch is published as a passport with a QR code.",
       "cols": ["Batch no.", "Product", "Supply chain", "Status", "Updated"],
       "guide": {
         "label": "How to start",

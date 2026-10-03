@@ -31,9 +31,13 @@ async function refreshCookie() {
 const work = mkdtempSync(path.join(tmpdir(), "kozapass-lh-"));
 try {
   const results = {};
-  for (const [name, url, needsSession] of [
-    ["login", `${BASE}/login`, false],
-    ["panel-batches", `${BASE}/batches`, true],
+  const desktop = ["--form-factor=desktop", "--screenEmulation.width=1440", "--screenEmulation.height=900", "--screenEmulation.mobile=false"];
+  const mobile = ["--form-factor=mobile", "--screenEmulation.width=390", "--screenEmulation.height=800", "--screenEmulation.mobile=true"];
+  for (const [name, url, needsSession, emulation] of [
+    ["login", `${BASE}/login`, false, desktop],
+    ["login-mobile", `${BASE}/login`, false, mobile],
+    ["panel-batches", `${BASE}/batches`, true, desktop],
+    ["panel-batches-mobile", `${BASE}/batches`, true, mobile],
   ]) {
     const out = path.join(work, `${name}.json`);
     const args = [
@@ -45,11 +49,8 @@ try {
       `--output-path=${out}`,
       "--quiet",
       "--chrome-flags=--headless=new",
-      "--form-factor=desktop",
-      "--screenEmulation.width=1440",
-      "--screenEmulation.height=900",
       "--screenEmulation.deviceScaleFactor=1",
-      "--screenEmulation.mobile=false",
+      ...emulation,
     ];
     if (needsSession) {
       const headers = path.join(work, "headers.json");

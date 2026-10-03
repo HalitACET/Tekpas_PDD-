@@ -163,7 +163,9 @@ Render workspace'inde ayda **500 pipeline dakikası** var; Docker build süresi 
 - `buildFilter`: web, mobil, doküman ve test değişiklikleri Render build'i tetiklemez.
 - `checksPass`: CI kırmızıysa build de yapılmaz.
 
-**Ölçüm (25.09.2026, ilk canlı build, cache yok):** ~2 dk. Adımlar: imaj çekme ~15 sn, `dependency:go-offline` 24 sn, `package` 5 sn, CDS eğitim koşusu 10 sn, imaj ve cache push ~20 sn, klonlama/hazırlık. Render build cache'ini registry'e yazıyor; sonraki build'lerde bağımlılık katmanı cache'ten gelir, kod değişikliğinde build'in ~1–1,5 dk sürmesi beklenir (ilk backend değişikliğinde doğrulanacak).
+**Ölçüm (25.09.2026, ilk canlı build, cache yok):** ~2 dk. Adımlar: imaj çekme ~15 sn, `dependency:go-offline` 24 sn, `package` 5 sn, CDS eğitim koşusu 10 sn, imaj ve cache push ~20 sn, klonlama/hazırlık. Render build cache'ini registry'e yazıyor; sonraki build'lerde bağımlılık katmanı cache'ten gelir, kod değişikliğinde build'in ~1–1,5 dk sürmesi beklenir.
+
+**Otomatik deploy ölçümü (27.09.2026, PR #9, `checksPass`):** `main` CI'ı 21:30:40'ta yeşil bitti, yeni backend 21:33:01'de yanıt verdi → CI'dan canlıya **2 dk 21 sn**. Buna build, imaj push'u ve ~60 sn'lik açılış dahil; build'in kendisi bundan kısa (kesin build süresi Render → Events'te).
 
 | | Build başına | 500 dk ile aylık deploy |
 | --- | --- | --- |
