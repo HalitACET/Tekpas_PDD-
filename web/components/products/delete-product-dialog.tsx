@@ -78,7 +78,7 @@ export function DeleteProductDialog({
                 <AlertDialogDescription>
                   {blocked ? t("blockedBody", { count: batchCount }) : t("body")}
                 </AlertDialogDescription>
-                <span className="flex flex-col gap-0.5 rounded-md bg-muted px-2.5 py-2 text-[13px]">
+                <span className="flex flex-col gap-0.5 rounded-md bg-muted px-2.5 py-2 text-[13px] dark:bg-card">
                   <span className="font-medium">{product.name}</span>
                   <span className="font-mono text-xs text-muted-foreground">{displayGtin(product.gtin)}</span>
                 </span>

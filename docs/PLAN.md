@@ -242,6 +242,7 @@ Backend kuralları (M2):
 - [ ] Kaydetme/silme sunucu hatası (5xx): toast.
 - [ ] Parti durum chip'leri (Taslak, Veri toplanıyor, Yayına hazır, Yayında) — PR B.
 - [ ] Mobil web liste (md altı): masaüstü tablo yatay kaydırılır; tasarım 16 web için uyarlanmalı.
+- [ ] Popover üstünde muted zemin token'ı (dark'ta --muted = --popover, ikisi #1B202A): ürün silme dialogundaki ürün kutusu koyu temada geçici olarak --card kullanıyor. Mobil kullanıcı menüsündeki seçim grubunun zemini de koyu temada görünmüyor; seçili öğe zaten --card olduğu için orada --card kullanılamadı, token gelince düzelecek.
 
 **Ertelenenler** (tasarımda var, verisi sonraki kilometre taşında gelecek):
 - [ ] Menüdeki "Görevler" rozeti (bekleyen görev sayısı): M4'te, `GET /tasks` gelince. O zamana kadar gizli.
