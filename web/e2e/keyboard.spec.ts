@@ -118,8 +118,10 @@ test.describe("mobile panel (390 × 800)", () => {
 
   test("drawer and user menu work by keyboard and touch, with 44 px targets", async ({ page }) => {
     await mockAuthApi(page, { signedIn: true });
-    await page.goto("/batches");
-    await expect(page.getByRole("heading", { level: 1, name: "Partiler" }).first()).toBeVisible();
+    // A page that still uses the design G mobile page view (Partiler and Ürünler follow v0.3, whose mobile
+    // lists, design 16, are not built yet).
+    await page.goto("/documents");
+    await expect(page.getByRole("heading", { level: 1, name: "Belgeler" }).first()).toBeVisible();
 
     const header = page.locator("header:visible");
     await expectTouchTargets(page, header);

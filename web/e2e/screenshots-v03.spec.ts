@@ -33,6 +33,17 @@ async function shoot(page: Page, name: string) {
   await page.screenshot({ path: `${OUT}/${name}.png` });
 }
 
+async function openBatches(page: Page, scheme: "light" | "dark") {
+  await page.setViewportSize(DESKTOP);
+  await page.clock.install({ time: NOW });
+  await page.addInitScript((theme) => localStorage.setItem("theme", theme), scheme);
+  await mockAuthApi(page, { signedIn: true });
+  await mockCatalogApi(page);
+  await page.goto("/batches");
+  await expect(page.getByRole("heading", { level: 1, name: "Partiler" })).toBeVisible();
+  await expect(page.getByRole("row", { name: /KP-2026-0918-A/ })).toBeVisible();
+}
+
 const menu = (page: Page, product: string) => page.getByRole("button", { name: `Satır menüsü: ${product}` });
 
 for (const scheme of ["light", "dark"] as const) {
@@ -99,6 +110,26 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `05-${scheme}`);
     });
 
+    test("07 batches list", async ({ page }) => {
+      await openBatches(page, scheme);
+      await shoot(page, `07-${scheme}`);
+    });
+
+    test("08 create batch, product search open", async ({ page }) => {
+      await openBatches(page, scheme);
+      await page.getByRole("button", { name: "Yeni parti" }).click();
+      const form = page.getByRole("dialog", { name: "Yeni parti" });
+      await expect(form.getByLabel(/Parti no/)).toHaveValue("KP-2026-1003-A");
+      await form.getByLabel("Üretim emri no").fill("ÜE-2026-0452");
+      await form.getByLabel("Miktar").fill("1.800");
+      await form.getByLabel("Üretim başlangıcı").fill("2026-09-29");
+      await form.getByLabel("Üretim bitişi").fill("2026-10-17");
+      await form.getByRole("combobox", { name: "Ürün" }).click();
+      await form.getByRole("combobox", { name: "Ürün" }).fill("pamuk");
+      await expect(page.getByRole("option")).toHaveCount(2);
+      await shoot(page, `08-${scheme}`);
+    });
+
     test("06 delete confirm", async ({ page }) => {
       await openProducts(page, scheme);
       await menu(page, "Viskon elbise, desenli").click();
@@ -134,7 +165,7 @@ test.describe("design references", () => {
 
   test.afterAll(() => server.close());
 
-  test("capture 01–06", async ({ page }) => {
+  test("capture 01–08", async ({ page }) => {
     test.setTimeout(180_000);
     await page.setViewportSize({ width: 1600, height: 1000 });
     // The canvas loads React from unpkg.com; without it nothing renders, so skip rather than fail.
@@ -150,9 +181,9 @@ test.describe("design references", () => {
     const count = await page.$$eval("[data-screen-label]", (els) =>
       els.filter((e) => /^\d\d /.test(e.getAttribute("data-screen-label") ?? "")).map((e, i) => e.setAttribute("data-cap", String(i))).length,
     );
-    expect(count).toBeGreaterThanOrEqual(6);
+    expect(count).toBeGreaterThanOrEqual(8);
 
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 8; i++) {
       const n = String(i + 1).padStart(2, "0");
       const label = page.locator(`[data-cap="${i}"]`);
       for (const [j, scheme] of (["light", "dark"] as const).entries()) {
