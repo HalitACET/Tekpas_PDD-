@@ -1,4 +1,4 @@
-import { FIBERS, FIELD_ERROR_CODES, PRODUCT_CATEGORIES } from "@tekpas/shared";
+import { BATCH_STATUSES, FIBERS, FIELD_ERROR_CODES, PRODUCT_CATEGORIES } from "@tekpas/shared";
 import { describe, expect, it } from "vitest";
 import de from "@/messages/de.json";
 import en from "@/messages/en.json";
@@ -39,6 +39,7 @@ describe("messages", () => {
     const expected = [
       ...FIBERS.map((f) => `enums.fiber.${f}`),
       ...PRODUCT_CATEGORIES.map((c) => `enums.productCategory.${c}`),
+      ...BATCH_STATUSES.map((s) => `enums.batchStatus.${s}`),
       ...FIELD_ERROR_CODES.map((c) => `errors.field.${c}`),
     ];
     expect(expected.filter((key) => !keys.has(key))).toEqual([]);

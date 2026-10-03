@@ -208,6 +208,12 @@
       "HOME_TEXTILE": "Ev tekstili",
       "FABRIC": "Kumaş",
       "OTHER": "Diğer"
+    },
+    "batchStatus": {
+      "DRAFT": "Taslak",
+      "COLLECTING": "Veri toplanıyor",
+      "READY": "Yayına hazır",
+      "PUBLISHED": "Yayında"
     }
   },
   "errors": {
@@ -317,6 +323,57 @@
       "cancel": "Vazgeç",
       "confirm": "Ürünü sil",
       "failed": "Ürün silinemedi. Lütfen tekrar deneyin."
+    }
+  },
+  "batches": {
+    "actions": {
+      "new": "Yeni parti",
+      "import": "Excel'den içe aktar"
+    },
+    "search": "Parti no veya üretim emri ara",
+    "statusFilter": "Durum:",
+    "productFilter": "Ürün:",
+    "all": "Tümü",
+    "count": "{count} parti",
+    "cols": {
+      "batchNo": "Parti no",
+      "product": "Ürün",
+      "chain": "Tedarik zinciri",
+      "status": "Durum",
+      "score": "Uyum skoru",
+      "updated": "Güncelleme"
+    },
+    "quantity": "{quantity} adet",
+    "chainProgress": "{approved} / {total} adım onaylı",
+    "noChain": "Tedarik zinciri henüz kurulmadı",
+    "noScore": "Uyum skoru henüz hesaplanmadı",
+    "yesterday": "Dün",
+    "empty": {
+      "filteredTitle": "Eşleşen parti yok",
+      "filteredBody": "Arama veya filtreleri değiştirin.",
+      "clearFilters": "Filtreleri temizle"
+    },
+    "create": {
+      "title": "Yeni parti",
+      "close": "Kapat",
+      "product": "Ürün",
+      "productPlaceholder": "Ürün seçin",
+      "productSearch": "Ürün adı veya GTIN ara",
+      "productCount": "{count} ürün",
+      "productNone": "Eşleşen ürün yok.",
+      "batchNo": "Parti no",
+      "suggested": "Otomatik öneri",
+      "resetSuggestion": "Öneriyi geri yükle",
+      "productionOrderNo": "Üretim emri no",
+      "productionOrderNoPlaceholder": "ÜE-2026-0000",
+      "quantity": "Miktar",
+      "quantityUnit": "adet",
+      "producedFrom": "Üretim başlangıcı",
+      "producedTo": "Üretim bitişi",
+      "required": "Ürün ve miktar gerekli",
+      "cancel": "Vazgeç",
+      "submit": "Partiyi oluştur",
+      "failed": "Parti oluşturulamadı. Lütfen tekrar deneyin."
     }
   }
 }

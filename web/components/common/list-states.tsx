@@ -16,12 +16,15 @@ export function EmptyState({
   title,
   body,
   children,
+  footer,
   tone = "muted",
 }: {
   icon: LucideIcon;
   title: string;
   body: string;
   children?: ReactNode;
+  /** Below the actions, e.g. the "how to start" guide of the batches page. */
+  footer?: ReactNode;
   tone?: "muted" | "error";
 }) {
   return (
@@ -38,6 +41,7 @@ export function EmptyState({
       <h2 className="font-serif text-[26px] leading-[normal] font-normal tracking-[-0.015em]">{title}</h2>
       <p className="max-w-[440px] text-sm leading-[1.55] text-pretty text-muted-foreground">{body}</p>
       {children && <div className="mt-1.5 flex gap-2">{children}</div>}
+      {footer}
     </div>
   );
 }

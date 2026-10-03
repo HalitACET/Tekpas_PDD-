@@ -208,6 +208,12 @@
       "HOME_TEXTILE": "Heimtextilien",
       "FABRIC": "Stoff",
       "OTHER": "Sonstige"
+    },
+    "batchStatus": {
+      "DRAFT": "Entwurf",
+      "COLLECTING": "Daten werden erfasst",
+      "READY": "Bereit zur Veröffentlichung",
+      "PUBLISHED": "Veröffentlicht"
     }
   },
   "errors": {
@@ -317,6 +323,57 @@
       "cancel": "Abbrechen",
       "confirm": "Produkt löschen",
       "failed": "Das Produkt konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+    }
+  },
+  "batches": {
+    "actions": {
+      "new": "Neue Charge",
+      "import": "Aus Excel importieren"
+    },
+    "search": "Chargen-Nr. oder Fertigungsauftrag suchen",
+    "statusFilter": "Status:",
+    "productFilter": "Produkt:",
+    "all": "Alle",
+    "count": "{count, plural, one {# Charge} other {# Chargen}}",
+    "cols": {
+      "batchNo": "Chargen-Nr.",
+      "product": "Produkt",
+      "chain": "Lieferkette",
+      "status": "Status",
+      "score": "Konformität",
+      "updated": "Aktualisiert"
+    },
+    "quantity": "{quantity} Stk.",
+    "chainProgress": "{approved} von {total} Schritten freigegeben",
+    "noChain": "Noch keine Lieferkette",
+    "noScore": "Konformität noch nicht berechnet",
+    "yesterday": "Gestern",
+    "empty": {
+      "filteredTitle": "Keine passenden Chargen",
+      "filteredBody": "Ändern Sie die Suche oder die Filter.",
+      "clearFilters": "Filter zurücksetzen"
+    },
+    "create": {
+      "title": "Neue Charge",
+      "close": "Schließen",
+      "product": "Produkt",
+      "productPlaceholder": "Produkt auswählen",
+      "productSearch": "Produktname oder GTIN suchen",
+      "productCount": "{count, plural, one {# Produkt} other {# Produkte}}",
+      "productNone": "Keine passenden Produkte.",
+      "batchNo": "Chargen-Nr.",
+      "suggested": "Vorschlag",
+      "resetSuggestion": "Vorschlag wiederherstellen",
+      "productionOrderNo": "Fertigungsauftrag",
+      "productionOrderNoPlaceholder": "FA-2026-0000",
+      "quantity": "Menge",
+      "quantityUnit": "Stk.",
+      "producedFrom": "Produktionsbeginn",
+      "producedTo": "Produktionsende",
+      "required": "Produkt und Menge sind erforderlich",
+      "cancel": "Abbrechen",
+      "submit": "Charge anlegen",
+      "failed": "Die Charge konnte nicht angelegt werden. Bitte versuchen Sie es erneut."
     }
   }
 }

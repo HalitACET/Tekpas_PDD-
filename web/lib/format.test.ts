@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { displayGtin, fiberText, formatPercent, formatUpdated } from "./format";
+import { displayGtin, fiberText, formatPercent, formatQuantity, formatUpdated } from "./format";
 
 const names: Record<string, Record<string, string>> = {
   tr: { ORGANIC_COTTON: "Organik pamuk", ELASTANE: "Elastan", SILK: "İpek" },
@@ -12,6 +12,14 @@ describe("displayGtin", () => {
     expect(displayGtin("02012345000018")).toBe("2012345000018");
     expect(displayGtin("10012345678902")).toBe("10012345678902");
     expect(displayGtin("00000096385074")).toBe("0000096385074");
+  });
+});
+
+describe("formatQuantity", () => {
+  it("groups thousands per locale", () => {
+    expect(formatQuantity(1800, "tr")).toBe("1.800");
+    expect(formatQuantity(1800, "en")).toBe("1,800");
+    expect(formatQuantity(600, "de")).toBe("600");
   });
 });
 
