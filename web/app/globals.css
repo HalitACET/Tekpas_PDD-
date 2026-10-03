@@ -17,6 +17,7 @@
   --brand: #8C2F4B;           /* Dut */
   --brand-foreground: #FFFFFF;
   --brand-muted: #F5E8EC;
+  --brand-text: #8C2F4B;      /* Dut, metin olarak (design v0.3 frames) */
 
   /* shadcn çekirdek */
   --background: #FCFBF9;
@@ -68,6 +69,7 @@
   --brand: #D98AA3;
   --brand-foreground: #1A0C12;
   --brand-muted: #2E1A22;
+  --brand-text: #E6A5B9;
 
   --background: #0F1218;
   --foreground: #E9E7E3;
@@ -155,6 +157,7 @@
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-muted: var(--brand-muted);
+  --color-brand-text: var(--brand-text);
   --color-cocoon: var(--cocoon);
   --color-silk: var(--silk);
   --color-navy: var(--navy);
