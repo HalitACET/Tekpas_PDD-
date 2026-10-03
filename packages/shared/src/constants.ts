@@ -7,15 +7,16 @@
 export const FIBERS = [
   "COTTON",
   "ORGANIC_COTTON",
-  "RECYCLED_COTTON",
+  "ELASTANE",
   "POLYESTER",
   "RECYCLED_POLYESTER",
-  "ELASTANE",
-  "VISCOSE",
   "LINEN",
   "WOOL",
-  "SILK",
+  "VISCOSE",
   "POLYAMIDE",
+  "LYOCELL",
+  "RECYCLED_COTTON",
+  "SILK",
   "OTHER",
 ] as const;
 export type Fiber = (typeof FIBERS)[number];

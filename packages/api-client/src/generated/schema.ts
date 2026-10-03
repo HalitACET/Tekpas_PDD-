@@ -273,7 +273,7 @@ export interface components {
             type: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
         };
         /** @enum {string} */
-        Fiber: "COTTON" | "ORGANIC_COTTON" | "RECYCLED_COTTON" | "POLYESTER" | "RECYCLED_POLYESTER" | "ELASTANE" | "VISCOSE" | "LINEN" | "WOOL" | "SILK" | "POLYAMIDE" | "OTHER";
+        Fiber: "COTTON" | "ORGANIC_COTTON" | "ELASTANE" | "POLYESTER" | "RECYCLED_POLYESTER" | "LINEN" | "WOOL" | "VISCOSE" | "POLYAMIDE" | "LYOCELL" | "RECYCLED_COTTON" | "SILK" | "OTHER";
         FiberShare: {
             fiber: components["schemas"]["Fiber"];
             /** Format: int32 */
