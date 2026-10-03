@@ -15,7 +15,13 @@
       "en": "English",
       "de": "Deutsch"
     },
-    "loading": "Yükleniyor…"
+    "loading": "Yükleniyor…",
+    "readOnly": "Bu işlem için yetkiniz yok",
+    "listError": {
+      "title": "Liste yüklenemedi",
+      "body": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+      "retry": "Tekrar dene"
+    }
   },
   "login": {
     "overline": "Koza Han, Bursa · 1491",
@@ -103,7 +109,7 @@
     },
     "products": {
       "title": "Ürünler",
-      "sub": "GTIN bazında ürün kartları ve lif bileşimleri.",
+      "sub": "GTIN bazında ürün kartları ve beyan edilen lif bileşimleri.",
       "cta": "Yeni ürün",
       "cta2": "Excel'den içe aktar",
       "emptyTitle": "Henüz ürün yok",
@@ -187,6 +193,7 @@
       "WOOL": "Yün",
       "SILK": "İpek",
       "POLYAMIDE": "Poliamid",
+      "LYOCELL": "Lyocell",
       "OTHER": "Diğer"
     },
     "productCategory": {
@@ -211,6 +218,7 @@
       "Min": "Değer çok küçük.",
       "Max": "Değer çok büyük.",
       "Positive": "Sıfırdan büyük bir tam sayı girin.",
+      "Integer": "Tam sayı girin (ör. 90).",
       "Pattern": "Biçim geçersiz.",
       "GtinFormat": "GTIN 8, 12, 13 veya 14 haneli olmalı.",
       "GtinCheckDigit": "GTIN'in kontrol hanesi hatalı. Numarayı kontrol edin.",
@@ -224,6 +232,91 @@
       "GTIN_LOCKED": "Ürünün partisi olduğu için GTIN değiştirilemez; basılmış QR kodlar bu GTIN'i taşıyor.",
       "BATCH_NOT_DRAFT": "Bu işlem yalnızca taslak partilerde yapılabilir.",
       "BATCH_HAS_PASSPORT": "Pasaportu olan bir parti silinemez."
+    }
+  },
+  "products": {
+    "actions": {
+      "new": "Yeni ürün",
+      "import": "Excel'den içe aktar"
+    },
+    "search": "Ürün adı, GTIN veya SKU ara",
+    "categoryFilter": "Kategori:",
+    "allCategories": "Tümü",
+    "count": "{shown} / {total} ürün",
+    "cols": {
+      "gtin": "GTIN",
+      "product": "Ürün",
+      "category": "Kategori",
+      "fibers": "Beyan edilen lif bileşimi",
+      "batches": "Parti",
+      "updated": "Güncelleme"
+    },
+    "rowMenu": {
+      "label": "Satır menüsü",
+      "edit": "Düzenle",
+      "delete": "Sil"
+    },
+    "yesterday": "Dün",
+    "empty": {
+      "title": "Henüz ürün yok",
+      "body": "Pasaport her zaman bir ürüne bağlıdır. GTIN, ürün adı ve beyan edilen lif bileşimiyle ilk ürününüzü tanımlayın ya da Excel listenizi içe aktarın.",
+      "filteredTitle": "Eşleşen ürün yok",
+      "filteredBody": "Arama veya kategori filtresini değiştirin.",
+      "clearFilters": "Filtreleri temizle"
+    },
+    "form": {
+      "newTitle": "Yeni ürün",
+      "editTitle": "Ürünü düzenle",
+      "sub": "Beyan edilen bilgiler pasaportta tedarikçi verisiyle karşılaştırılır.",
+      "name": "Ürün adı",
+      "namePlaceholder": "örn. Organik pamuk tişört, ekru",
+      "gtin": "GTIN",
+      "gtinPlaceholder": "14 hane",
+      "sku": "SKU",
+      "skuPlaceholder": "KT-TS-0000",
+      "category": "Kategori",
+      "fibers": "Beyan edilen lif bileşimi",
+      "fibersHint": "Etikette yazan oranlar",
+      "fiber": "Lif {n}",
+      "percent": "Lif {n} oranı (%)",
+      "addFiber": "Lif ekle",
+      "removeFiber": "Satırı sil",
+      "total": "Toplam {total}",
+      "missing": " · {missing} eksik, %100 olmalı",
+      "over": " · %100'ü aşıyor",
+      "description": "Açıklama",
+      "descriptionHint": "İsteğe bağlı · pasaportta ürün hikâyesinde görünür",
+      "descriptionPlaceholder": "Kumaş tipi, gramaj, kullanım",
+      "cancel": "Vazgeç",
+      "save": "Kaydet",
+      "close": "Kapat",
+      "gtinHint": {
+        "idle": "8, 12, 13 veya 14 hane. Kontrol hanesi otomatik doğrulanır.",
+        "digitsOnly": "Yalnızca rakam girin",
+        "length": "GTIN 8, 12, 13 veya 14 haneli olmalı ({count} hane girildi)",
+        "checkDigit": "Kontrol hanesi hatalı",
+        "valid": "Geçerli GTIN-{length}",
+        "taken": "Başka bir ürün bu GTIN'i kullanıyor"
+      },
+      "saveHint": {
+        "gtin": "Geçerli bir GTIN girin",
+        "total": "Lif toplamı %100 olmalı",
+        "name": "Ürün adı gerekli"
+      },
+      "saveFailed": "Ürün kaydedilemedi. Lütfen tekrar deneyin."
+    },
+    "delete": {
+      "blockedTitle": "Ürün silinemez",
+      "blockedBody": "Bu ürünün {count} partisi var, silinemez.",
+      "blockedNote": "Partiler yayınlanmış pasaportlara bağlı olduğu için ürün kaydı korunur.",
+      "seeBatches": "Partileri gör",
+      "close": "Kapat",
+      "title": "Ürünü sil",
+      "body": "Bu ürün kalıcı olarak silinecek. Bu işlem geri alınamaz.",
+      "note": "Bağlı parti veya pasaport yok.",
+      "cancel": "Vazgeç",
+      "confirm": "Ürünü sil",
+      "failed": "Ürün silinemedi. Lütfen tekrar deneyin."
     }
   }
 }

@@ -191,7 +191,7 @@
         "type" : "object"
       },
       "Fiber" : {
-        "enum" : [ "COTTON", "ORGANIC_COTTON", "RECYCLED_COTTON", "POLYESTER", "RECYCLED_POLYESTER", "ELASTANE", "VISCOSE", "LINEN", "WOOL", "SILK", "POLYAMIDE", "OTHER" ],
+        "enum" : [ "COTTON", "ORGANIC_COTTON", "ELASTANE", "POLYESTER", "RECYCLED_POLYESTER", "LINEN", "WOOL", "VISCOSE", "POLYAMIDE", "LYOCELL", "RECYCLED_COTTON", "SILK", "OTHER" ],
         "type" : "string"
       },
       "FiberShare" : {
@@ -222,8 +222,9 @@
             "type" : [ "string", "null" ]
           },
           "params" : {
-            "additionalProperties" : {
-              "type" : "object"
+            "additionalProperties" : true,
+            "example" : {
+              "total" : 95
             },
             "type" : [ "object", "null" ]
           }

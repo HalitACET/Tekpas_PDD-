@@ -12,6 +12,8 @@ export const ProblemTypes = {
   unauthorized: "urn:tekpas:problem:unauthorized",
   forbidden: "urn:tekpas:problem:forbidden",
   notFound: "urn:tekpas:problem:not-found",
+  conflict: "urn:tekpas:problem:conflict",
+  gtinLocked: "urn:tekpas:problem:gtin-locked",
   invalidCredentials: "urn:tekpas:problem:invalid-credentials",
   invalidRefreshToken: "urn:tekpas:problem:invalid-refresh-token",
   internal: "urn:tekpas:problem:internal",

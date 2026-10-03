@@ -185,6 +185,16 @@ class ProductApiTest {
         }
 
         @Test
+        void lyocellIsAFiber() {
+            Tenant tenant = fixtures.tenant();
+            Map<String, Object> body = with(product(TestGtins.gtin13()), "declaredFiberComposition", List.of(
+                    Map.of("fiber", "LYOCELL", "percent", 70), Map.of("fiber", "COTTON", "percent", 30)));
+
+            assertThat(create(tenant, body).path("declaredFiberComposition").get(0).path("fiber").asString())
+                    .isEqualTo("LYOCELL");
+        }
+
+        @Test
         void unknownFiberCodeIsABadRequest() {
             Tenant tenant = fixtures.tenant();
             Map<String, Object> body = with(product(TestGtins.gtin13()), "declaredFiberComposition",

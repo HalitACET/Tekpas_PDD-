@@ -15,7 +15,13 @@
       "en": "English",
       "de": "Deutsch"
     },
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "readOnly": "You do not have permission for this action",
+    "listError": {
+      "title": "The list could not be loaded",
+      "body": "The server could not be reached. Check your connection and try again.",
+      "retry": "Try again"
+    }
   },
   "login": {
     "overline": "Koza Han, Bursa · 1491",
@@ -103,7 +109,7 @@
     },
     "products": {
       "title": "Products",
-      "sub": "Product cards and fibre compositions by GTIN.",
+      "sub": "Product cards by GTIN with their declared fiber compositions.",
       "cta": "New product",
       "cta2": "Import from Excel",
       "emptyTitle": "No products yet",
@@ -187,6 +193,7 @@
       "WOOL": "Wool",
       "SILK": "Silk",
       "POLYAMIDE": "Polyamide",
+      "LYOCELL": "Lyocell",
       "OTHER": "Other"
     },
     "productCategory": {
@@ -211,6 +218,7 @@
       "Min": "The value is too small.",
       "Max": "The value is too large.",
       "Positive": "Enter a whole number greater than zero.",
+      "Integer": "Enter a whole number (e.g. 90).",
       "Pattern": "The format is not valid.",
       "GtinFormat": "A GTIN has 8, 12, 13 or 14 digits.",
       "GtinCheckDigit": "The GTIN check digit is wrong. Please check the number.",
@@ -224,6 +232,91 @@
       "GTIN_LOCKED": "The GTIN cannot change because the product has batches; printed QR codes carry this GTIN.",
       "BATCH_NOT_DRAFT": "This is only possible for draft batches.",
       "BATCH_HAS_PASSPORT": "A batch with a passport cannot be deleted."
+    }
+  },
+  "products": {
+    "actions": {
+      "new": "New product",
+      "import": "Import from Excel"
+    },
+    "search": "Search product name, GTIN or SKU",
+    "categoryFilter": "Category:",
+    "allCategories": "All",
+    "count": "{shown} / {total} products",
+    "cols": {
+      "gtin": "GTIN",
+      "product": "Product",
+      "category": "Category",
+      "fibers": "Declared fiber composition",
+      "batches": "Batches",
+      "updated": "Updated"
+    },
+    "rowMenu": {
+      "label": "Row menu",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "yesterday": "Yesterday",
+    "empty": {
+      "title": "No products yet",
+      "body": "A passport always belongs to a product. Define your first product with its GTIN, name and declared fiber composition, or import your Excel list.",
+      "filteredTitle": "No matching products",
+      "filteredBody": "Change the search or the category filter.",
+      "clearFilters": "Clear filters"
+    },
+    "form": {
+      "newTitle": "New product",
+      "editTitle": "Edit product",
+      "sub": "Declared information is compared with supplier data in the passport.",
+      "name": "Product name",
+      "namePlaceholder": "e.g. Organic cotton T-shirt, ecru",
+      "gtin": "GTIN",
+      "gtinPlaceholder": "14 digits",
+      "sku": "SKU",
+      "skuPlaceholder": "KT-TS-0000",
+      "category": "Category",
+      "fibers": "Declared fiber composition",
+      "fibersHint": "Percentages as on the label",
+      "fiber": "Fiber {n}",
+      "percent": "Fiber {n} share (%)",
+      "addFiber": "Add fiber",
+      "removeFiber": "Remove line",
+      "total": "Total {total}",
+      "missing": " · {missing} missing, must be 100%",
+      "over": " · over 100%",
+      "description": "Description",
+      "descriptionHint": "Optional · shown in the product story of the passport",
+      "descriptionPlaceholder": "Fabric type, weight, use",
+      "cancel": "Cancel",
+      "save": "Save",
+      "close": "Close",
+      "gtinHint": {
+        "idle": "8, 12, 13 or 14 digits. The check digit is verified automatically.",
+        "digitsOnly": "Enter digits only",
+        "length": "A GTIN has 8, 12, 13 or 14 digits ({count} entered)",
+        "checkDigit": "Check digit is wrong",
+        "valid": "Valid GTIN-{length}",
+        "taken": "Another product uses this GTIN"
+      },
+      "saveHint": {
+        "gtin": "Enter a valid GTIN",
+        "total": "Fiber total must be 100%",
+        "name": "Product name is required"
+      },
+      "saveFailed": "The product could not be saved. Please try again."
+    },
+    "delete": {
+      "blockedTitle": "Product cannot be deleted",
+      "blockedBody": "This product has {count, plural, one {# batch} other {# batches}} and cannot be deleted.",
+      "blockedNote": "Batches are tied to published passports, so the product record is kept.",
+      "seeBatches": "View batches",
+      "close": "Close",
+      "title": "Delete product",
+      "body": "This product will be deleted permanently. This cannot be undone.",
+      "note": "No batches or passports are linked.",
+      "cancel": "Cancel",
+      "confirm": "Delete product",
+      "failed": "The product could not be deleted. Please try again."
     }
   }
 }

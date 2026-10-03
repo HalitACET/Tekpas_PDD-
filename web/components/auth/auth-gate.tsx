@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
+import { supplierRedirect } from "@/lib/auth/permissions";
 import { restoreSession, setSessionLostHandler } from "@/lib/auth/session";
 import { useSession } from "@/lib/auth/use-session";
 import { ShellSkeleton } from "@/components/shell/shell-skeleton";
@@ -29,7 +30,13 @@ export function AuthGate({ children }: { children: ReactNode }) {
     }
   }, [session.status, router, pathname]);
 
-  if (session.status !== "authenticated") {
+  // UX only: supplier users cannot use the product and batch pages (the API answers 403 anyway).
+  const redirect = session.status === "authenticated" ? supplierRedirect(session.user.role, pathname) : undefined;
+  useEffect(() => {
+    if (redirect) router.replace(redirect);
+  }, [redirect, router]);
+
+  if (session.status !== "authenticated" || redirect) {
     return <ShellSkeleton />;
   }
   return children;

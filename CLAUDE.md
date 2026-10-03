@@ -78,3 +78,4 @@ Her kilometre taşı bittiğinde (veya kullanıcı "not yaz" dediğinde) `docs/h
 - Testi geçirmek için testi zayıflatma veya atlama.
 - `packages/api-client/openapi.json` ve `packages/api-client/src/generated/` içini elle düzenleme.
 - Onaylı bir Claude Design tasarımı olmadan kullanıcı arayüzü ekranı kodlama. Tasarım yoksa dur ve sor. Tasarım geldiğinde renk, tipografi, boşluk ve bileşenleri ondan al, kendi yorumunu katma.
+- Yan görev veya ayrı oturum önerme (görev kartı açma). Kapsam dışı bir iş çıkarsa raporda öner, karar kullanıcının. Paralel çalışma gerekirse ayrı bir git worktree şart; aynı klasörde iki oturum çalışmaz.

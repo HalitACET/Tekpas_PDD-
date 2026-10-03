@@ -19,13 +19,16 @@ const problem = (type: string, title: string, status: number) => ({
 interface MockOptions {
   /** Is there a valid refresh cookie? */
   signedIn: boolean;
+  /** Role of the signed-in user (default: the design's ADMIN). */
+  role?: string;
   /** How /auth/login answers. */
   login?: "ok" | "invalid" | "hang";
 }
 
 /** Browser-side stand-in for the backend's /api/v1/auth endpoints. */
-export async function mockAuthApi(page: Page, { signedIn, login = "ok" }: MockOptions) {
+export async function mockAuthApi(page: Page, { signedIn, login = "ok", role }: MockOptions) {
   let session = signedIn;
+  const user = role ? { ...DESIGN_USER, role } : DESIGN_USER;
   const tokens = { access: "access-1" };
 
   await page.route("**/api/v1/auth/refresh", (route) =>
@@ -35,7 +38,7 @@ export async function mockAuthApi(page: Page, { signedIn, login = "ok" }: MockOp
   );
   await page.route("**/api/v1/auth/me", (route: Route) =>
     route.request().headers().authorization === `Bearer ${tokens.access}`
-      ? route.fulfill({ json: DESIGN_USER })
+      ? route.fulfill({ json: user })
       : route.fulfill(problem("unauthorized", "Unauthorized", 401)),
   );
   await page.route("**/api/v1/auth/login", async (route) => {
@@ -43,7 +46,7 @@ export async function mockAuthApi(page: Page, { signedIn, login = "ok" }: MockOp
     if (login === "invalid") return route.fulfill(problem("invalid-credentials", "Invalid credentials", 401));
     session = true;
     return route.fulfill({
-      json: { accessToken: tokens.access, tokenType: "Bearer", expiresIn: 900, user: DESIGN_USER },
+      json: { accessToken: tokens.access, tokenType: "Bearer", expiresIn: 900, user },
     });
   });
   await page.route("**/api/v1/auth/logout", (route) => {
