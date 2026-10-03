@@ -15,5 +15,8 @@ public record ApiProblem(
         @Schema(example = "400") int status,
         @Nullable String detail,
         @Nullable String instance,
-        @Schema(description = "Only for type urn:tekpas:problem:validation") @Nullable List<FieldViolation> errors) {
+        @Schema(description = "Field errors: type urn:tekpas:problem:validation, or conflict on a unique field "
+                + "(code Unique)") @Nullable List<FieldViolation> errors,
+        @Schema(description = "Conflicts that are not about one field, e.g. PRODUCT_HAS_BATCHES, GTIN_LOCKED",
+                example = "PRODUCT_HAS_BATCHES") @Nullable String reason) {
 }

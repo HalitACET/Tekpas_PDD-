@@ -10,6 +10,8 @@ public final class ProblemTypes {
     public static final URI UNAUTHORIZED = of("unauthorized");
     public static final URI FORBIDDEN = of("forbidden");
     public static final URI NOT_FOUND = of("not-found");
+    public static final URI CONFLICT = of("conflict");
+    public static final URI GTIN_LOCKED = of("gtin-locked");
     public static final URI INVALID_CREDENTIALS = of("invalid-credentials");
     public static final URI INVALID_REFRESH_TOKEN = of("invalid-refresh-token");
     public static final URI INTERNAL = of("internal");

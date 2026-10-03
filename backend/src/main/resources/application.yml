@@ -13,6 +13,11 @@ spring:
       ddl-auto: validate
   flyway:
     locations: classpath:db/migration
+  jackson:
+    deserialization:
+      # PATCH bodies use Optional fields: missing = null (unchanged), JSON null = Optional.empty() (clear).
+      # Jackson 3's default would turn a missing field into Optional.empty() as well.
+      USE_NULL_FOR_MISSING_REFERENCE_VALUES: true
   web:
     # API messages (validation defaults included) are English; the clients translate (CLAUDE.md rule 8).
     locale: en
