@@ -244,7 +244,7 @@ Backend kuralları (M2):
 - [ ] Partiler: tedarik zinciri çubuğu sadece sayılardan (onaylı yeşil, kalan gri, adım yoksa "—"); adım bazında renk M3'te zincirle gelir. Uyum skoru "—" (M6). Satır oku ve satıra tıklama gizli (parti detayı 09, M3).
 - [ ] Partiler: filtre sonucu boş durumu ("Eşleşen parti yok", "Filtreleri temizle") ürünlerdeki tasarım metninden uyarlandı. Hiç parti yokken v0.2'nin (tasarım G) boş durumu ve "Nasıl başlanır" rehberi duruyor.
 - [ ] Parti oluştur: "Zincir son partiden kopyalanır" alt başlığı ve "Tedarik zinciri: 5 adım kopyalanacak" ipucu M3'e kadar gizli. Tarih alanları tarayıcının tarih seçicisi (tasarımda düz metin "gg.aa.yyyy").
-- [ ] Tasarım çerçevelerinde tanımlı olup globals.css'te olmayan token'lar: `--brand-text` eklendi (08 "Otomatik öneri" rozeti, "Yayında" chip'i); `--primary-hover`, `--destructive-hover`, `--ring-soft` hâlâ yok (web'de bg-primary/85 ve ring/18 kullanılıyor).
+- [ ] Tasarım çerçevelerinde tanımlı olup globals.css'te olmayan token'lar: `--brand-text` eklendi (08 "Otomatik öneri" rozeti, "Yayında" chip'i); `--primary-hover`, `--destructive-hover`, `--ring-soft` hâlâ yok (web'de bg-primary/85 ve ring/18 kullanılıyor); her biri ilk kullanıldığı ekranda, tasarımdaki değeriyle (açık ve koyu) eklenecek.
 - [ ] Mobil web liste (md altı): masaüstü tablo yatay kaydırılır; tasarım 16 web için uyarlanmalı.
 - [ ] Popover üstünde muted zemin token'ı (dark'ta --muted = --popover, ikisi #1B202A): ürün silme dialogundaki ürün kutusu koyu temada geçici olarak --card kullanıyor. Mobil kullanıcı menüsündeki seçim grubunun zemini de koyu temada görünmüyor; seçili öğe zaten --card olduğu için orada --card kullanılamadı, token gelince düzelecek.
 
