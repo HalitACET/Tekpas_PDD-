@@ -6,6 +6,7 @@ import com.tekpas.auth.ClientType;
 import com.tekpas.product.Gtin;
 import com.tekpas.support.IntegrationTest;
 import com.tekpas.support.TestFixtures;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +39,7 @@ class DemoDataSeederTest {
         JsonNode user = fixtures.body(result).path("user");
         assertThat(user.path("id").asString()).isEqualTo("10000000-0000-0000-0000-000000000001");
         assertThat(user.path("role").asString()).isEqualTo("OWNER");
-        assertThat(user.path("company").path("name").asString()).isEqualTo("Nilufer Giyim A.S.");
+        assertThat(user.path("company").path("name").asString()).isEqualTo("Nilüfer Giyim A.Ş.");
     }
 
     @Test
@@ -63,6 +64,37 @@ class DemoDataSeederTest {
         assertThat(count("batch")).isEqualTo(5);
         assertThat(fixtures.loginRequest("admin@nilufergiyim.example", DEMO_PASSWORD, ClientType.MOBILE))
                 .hasStatusOk();
+    }
+
+    @Test
+    void olderSpellingsOfDemoNamesAreCorrectedAndASecondStartTouchesNothing() {
+        // Live data from before the fix: names without Turkish characters.
+        jdbc.update("UPDATE company SET name = 'Nilufer Giyim A.S.' WHERE id = ?", DemoDataSeeder.NILUFER);
+        jdbc.update("UPDATE company SET name = 'Uludag Boya Terbiye' WHERE id = '00000000-0000-0000-0000-000000000004'");
+        jdbc.update("UPDATE app_user SET full_name = 'Demo Yonetici' WHERE id = '10000000-0000-0000-0000-000000000001'");
+
+        seeder.run(null);
+
+        assertThat(jdbc.queryForList("SELECT name FROM company WHERE id::text LIKE '00000000-0000-0000-0000-00000000000_' "
+                + "ORDER BY id", String.class)).containsExactly("Nilüfer Giyim A.Ş.", "Ege İplik San. Ltd.",
+                "Demirtaş Örme Kumaş A.Ş.", "Uludağ Boya Terbiye", "İnegöl Fason Dikim");
+        assertThat(jdbc.queryForList("SELECT full_name FROM app_user WHERE id::text LIKE "
+                + "'10000000-0000-0000-0000-00000000000_' ORDER BY id", String.class))
+                .containsExactly("Demo Yönetici", "Boyahane Lab");
+
+        // Postgres gives a row a new xmin on every write: equal versions mean the second start wrote nothing.
+        List<String> companiesBefore = rowVersions("company", "00000000-0000-0000-0000-00000000000_");
+        List<String> usersBefore = rowVersions("app_user", "10000000-0000-0000-0000-00000000000_");
+
+        seeder.run(null);
+
+        assertThat(rowVersions("company", "00000000-0000-0000-0000-00000000000_")).isEqualTo(companiesBefore);
+        assertThat(rowVersions("app_user", "10000000-0000-0000-0000-00000000000_")).isEqualTo(usersBefore);
+    }
+
+    private List<String> rowVersions(String table, String idPattern) {
+        return jdbc.queryForList("SELECT xmin::text FROM " + table + " WHERE id::text LIKE ? ORDER BY id", String.class,
+                idPattern);
     }
 
     @Test

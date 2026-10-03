@@ -48,7 +48,7 @@ const me = await fetch(base + "/api/v1/auth/me", {
 const meBody = await me.json().catch(() => ({}));
 console.log(`me                ${me.status}  firma: ${meBody.company?.name} (${meBody.company?.type}), rol: ${meBody.role}`);
 
-// Demo verisi (DemoDataSeeder): Nilufer Giyim'de 3 ürün ve 5 parti.
+// Demo verisi (DemoDataSeeder): Nilüfer Giyim'de 3 ürün ve 5 parti.
 const auth = { Authorization: `Bearer ${loginBody.accessToken}`, ...origin };
 const products = await fetch(base + "/api/v1/products?sort=name", { headers: auth });
 const productsBody = await products.json().catch(() => ({}));
