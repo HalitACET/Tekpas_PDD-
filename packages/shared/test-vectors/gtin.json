@@ -1,0 +1,16 @@
+{
+  "description": "Shared GTIN cases: backend GtinTest (Java) and packages/shared gtin.test.ts read this file, so both sides apply the same rule. Every valid GTIN with one digit changed must fail the check digit; the tests derive those cases.",
+  "valid": [
+    { "input": "96385074", "normalized": "00000096385074", "note": "GTIN-8 (EAN-8)" },
+    { "input": "73513537", "normalized": "00000073513537", "note": "GTIN-8 (EAN-8)" },
+    { "input": "036000291452", "normalized": "00036000291452", "note": "GTIN-12 (UPC-A)" },
+    { "input": "4006381333931", "normalized": "04006381333931", "note": "GTIN-13 (EAN-13)" },
+    { "input": "5901234123457", "normalized": "05901234123457", "note": "GTIN-13 (GS1 example)" },
+    { "input": "9780306406157", "normalized": "09780306406157", "note": "GTIN-13 (ISBN)" },
+    { "input": "10012345678902", "normalized": "10012345678902", "note": "GTIN-14 (GS1 example)" },
+    { "input": "00012345600012", "normalized": "00012345600012", "note": "GTIN-14 with leading zeros" },
+    { "input": "02012345000018", "normalized": "02012345000018", "note": "demo seed, restricted circulation range" }
+  ],
+  "invalidCheckDigit": ["96385075", "036000291453", "4006381333932", "08690000000017", "10012345678903"],
+  "invalidFormat": ["", "1234567", "123456789", "12345678901", "123456789012345", "400638133393A", "4006-381333931", " 4006381333931"]
+}

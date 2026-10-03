@@ -1,4 +1,5 @@
-// Canlı ortam kontrolü: web origin'i üzerinden (K18) login sayfası → login → /auth/me → cookie ile refresh.
+// Canlı ortam kontrolü: web origin'i üzerinden (K18) login sayfası → login → /auth/me → ürün ve parti
+// listeleri (demo verisi) → cookie ile refresh.
 // Kullanım:  node scripts/live-check.mjs https://<vercel-production-adresi>
 // DEMO_PASSWORD ortam değişkeninden okunur, yoksa ekrana yazılmadan sorulur. Çıktıda token veya cookie değeri gösterilmez.
 // İstekler tarayıcı gibi Origin başlığı taşır: proxy bu başlığı backend'e iletir (CORS 403 hatası böyle yakalanır).
@@ -46,6 +47,17 @@ const me = await fetch(base + "/api/v1/auth/me", {
 });
 const meBody = await me.json().catch(() => ({}));
 console.log(`me                ${me.status}  firma: ${meBody.company?.name} (${meBody.company?.type}), rol: ${meBody.role}`);
+
+// Demo verisi (DemoDataSeeder): Nilufer Giyim'de 3 ürün ve 5 parti.
+const auth = { Authorization: `Bearer ${loginBody.accessToken}`, ...origin };
+const products = await fetch(base + "/api/v1/products?sort=name", { headers: auth });
+const productsBody = await products.json().catch(() => ({}));
+const productNames = (productsBody.content ?? []).map((p) => `${p.name} (${p.batchCount})`).join(", ");
+console.log(`ürünler           ${products.status}  ${productsBody.totalElements ?? "?"} adet: ${productNames}`);
+const batches = await fetch(base + "/api/v1/batches?sort=batchNo", { headers: auth });
+const batchesBody = await batches.json().catch(() => ({}));
+const batchNos = (batchesBody.content ?? []).map((b) => `${b.batchNo} ${b.status}`).join(", ");
+console.log(`partiler          ${batches.status}  ${batchesBody.totalElements ?? "?"} adet: ${batchNos}`);
 
 // Tarayıcı gibi: süresi dolmuş olabilecek access token'ı da gönder; refresh yine çalışmalı.
 const cookie = refreshCookie.split(";")[0];

@@ -173,5 +173,57 @@
       "emptyBody": "Ergänzen Sie Firmenname, Adresse und Logo, die im Produktpass erscheinen.",
       "cols": ["Einstellung", "Wert", "", "", ""]
     }
+  },
+  "enums": {
+    "fiber": {
+      "COTTON": "Baumwolle",
+      "ORGANIC_COTTON": "Bio-Baumwolle",
+      "RECYCLED_COTTON": "Recycelte Baumwolle",
+      "POLYESTER": "Polyester",
+      "RECYCLED_POLYESTER": "Recyceltes Polyester",
+      "ELASTANE": "Elasthan",
+      "VISCOSE": "Viskose",
+      "LINEN": "Leinen",
+      "WOOL": "Wolle",
+      "SILK": "Seide",
+      "POLYAMIDE": "Polyamid",
+      "OTHER": "Sonstige"
+    },
+    "productCategory": {
+      "T_SHIRT": "T-Shirt",
+      "SHIRT": "Hemd",
+      "TROUSERS": "Hose",
+      "DRESS": "Kleid",
+      "KNITWEAR": "Strickwaren",
+      "SWEATSHIRT": "Sweatshirt",
+      "OUTERWEAR": "Oberbekleidung",
+      "BABY": "Baby",
+      "HOME_TEXTILE": "Heimtextilien",
+      "FABRIC": "Stoff",
+      "OTHER": "Sonstige"
+    }
+  },
+  "errors": {
+    "field": {
+      "NotNull": "Dieses Feld ist erforderlich.",
+      "NotBlank": "Dieses Feld darf nicht leer sein.",
+      "Size": "Dieser Wert ist zu lang.",
+      "Min": "Der Wert ist zu klein.",
+      "Max": "Der Wert ist zu groß.",
+      "Positive": "Geben Sie eine ganze Zahl größer als null ein.",
+      "Pattern": "Das Format ist ungültig.",
+      "GtinFormat": "Eine GTIN hat 8, 12, 13 oder 14 Stellen.",
+      "GtinCheckDigit": "Die Prüfziffer der GTIN ist falsch. Bitte prüfen Sie die Nummer.",
+      "FiberTotal": "Die Faseranteile müssen zusammen 100 % ergeben (aktuell {total} %).",
+      "FiberDuplicate": "Dieselbe Faser wurde mehrfach eingegeben.",
+      "DateRange": "Das Enddatum darf nicht vor dem Startdatum liegen.",
+      "Unique": "Dieser Wert wird bereits verwendet."
+    },
+    "conflict": {
+      "PRODUCT_HAS_BATCHES": "Dieses Produkt hat Chargen. Löschen Sie zuerst die Chargen, um das Produkt zu löschen.",
+      "GTIN_LOCKED": "Die GTIN kann nicht geändert werden, da das Produkt Chargen hat; gedruckte QR-Codes enthalten diese GTIN.",
+      "BATCH_NOT_DRAFT": "Das ist nur bei Chargen im Entwurf möglich.",
+      "BATCH_HAS_PASSPORT": "Eine Charge mit Pass kann nicht gelöscht werden."
+    }
   }
 }

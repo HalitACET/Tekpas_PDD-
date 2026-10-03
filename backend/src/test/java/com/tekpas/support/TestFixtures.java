@@ -10,6 +10,7 @@ import com.tekpas.company.UserRole;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
@@ -67,6 +68,12 @@ public class TestFixtures {
         return new Tenant(company, user, login(user, ClientType.MOBILE).path("accessToken").asString());
     }
 
+    /** Another user of the tenant's company, logged in. */
+    public Tenant member(Tenant tenant, UserRole role) {
+        AppUser user = user(tenant.company(), role);
+        return new Tenant(tenant.company(), user, login(user, ClientType.MOBILE).path("accessToken").asString());
+    }
+
     public Company company() {
         return companies.save(new Company("Test Co " + shortId(), CompanyType.MANUFACTURER, "Bursa"));
     }
@@ -98,6 +105,33 @@ public class TestFixtures {
             throw new IllegalStateException("Login failed with " + result.getResponse().getStatus());
         }
         return body(result);
+    }
+
+    public MvcTestResult get(Tenant tenant, String uri) {
+        return mvc.get().uri(uri).header(HttpHeaders.AUTHORIZATION, tenant.bearer()).exchange();
+    }
+
+    /** {@code body} is sent as is when it is a String (raw JSON, e.g. with explicit nulls), else serialized. */
+    public MvcTestResult post(Tenant tenant, String uri, Object body) {
+        return mvc.post().uri(uri).header(HttpHeaders.AUTHORIZATION, tenant.bearer())
+                .contentType(MediaType.APPLICATION_JSON).content(toJson(body)).exchange();
+    }
+
+    public MvcTestResult patch(Tenant tenant, String uri, Object body) {
+        return mvc.patch().uri(uri).header(HttpHeaders.AUTHORIZATION, tenant.bearer())
+                .contentType(MediaType.APPLICATION_JSON).content(toJson(body)).exchange();
+    }
+
+    public MvcTestResult delete(Tenant tenant, String uri) {
+        return mvc.delete().uri(uri).header(HttpHeaders.AUTHORIZATION, tenant.bearer()).exchange();
+    }
+
+    private String toJson(Object body) {
+        return body instanceof String raw ? raw : json.writeValueAsString(body);
+    }
+
+    public String responseText(MvcTestResult result) {
+        return new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
     }
 
     public MockMvcTester mvc() {

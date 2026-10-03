@@ -173,5 +173,57 @@
       "emptyBody": "Complete the company name, address and logo that appear on the passport.",
       "cols": ["Setting", "Value", "", "", ""]
     }
+  },
+  "enums": {
+    "fiber": {
+      "COTTON": "Cotton",
+      "ORGANIC_COTTON": "Organic cotton",
+      "RECYCLED_COTTON": "Recycled cotton",
+      "POLYESTER": "Polyester",
+      "RECYCLED_POLYESTER": "Recycled polyester",
+      "ELASTANE": "Elastane",
+      "VISCOSE": "Viscose",
+      "LINEN": "Linen",
+      "WOOL": "Wool",
+      "SILK": "Silk",
+      "POLYAMIDE": "Polyamide",
+      "OTHER": "Other"
+    },
+    "productCategory": {
+      "T_SHIRT": "T-shirt",
+      "SHIRT": "Shirt",
+      "TROUSERS": "Trousers",
+      "DRESS": "Dress",
+      "KNITWEAR": "Knitwear",
+      "SWEATSHIRT": "Sweatshirt",
+      "OUTERWEAR": "Outerwear",
+      "BABY": "Baby",
+      "HOME_TEXTILE": "Home textiles",
+      "FABRIC": "Fabric",
+      "OTHER": "Other"
+    }
+  },
+  "errors": {
+    "field": {
+      "NotNull": "This field is required.",
+      "NotBlank": "This field cannot be empty.",
+      "Size": "This value is too long.",
+      "Min": "The value is too small.",
+      "Max": "The value is too large.",
+      "Positive": "Enter a whole number greater than zero.",
+      "Pattern": "The format is not valid.",
+      "GtinFormat": "A GTIN has 8, 12, 13 or 14 digits.",
+      "GtinCheckDigit": "The GTIN check digit is wrong. Please check the number.",
+      "FiberTotal": "Fiber percentages must add up to 100% (now {total}%).",
+      "FiberDuplicate": "The same fiber is entered more than once.",
+      "DateRange": "The end date cannot be before the start date.",
+      "Unique": "This value is already in use."
+    },
+    "conflict": {
+      "PRODUCT_HAS_BATCHES": "This product has batches. Delete its batches first to delete the product.",
+      "GTIN_LOCKED": "The GTIN cannot change because the product has batches; printed QR codes carry this GTIN.",
+      "BATCH_NOT_DRAFT": "This is only possible for draft batches.",
+      "BATCH_HAS_PASSPORT": "A batch with a passport cannot be deleted."
+    }
   }
 }
