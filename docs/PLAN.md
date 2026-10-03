@@ -243,6 +243,9 @@ Backend kuralları (M2):
 - [ ] Parti durum chip'leri (Taslak, Veri toplanıyor, Yayına hazır, Yayında) — PR B.
 - [ ] Mobil web liste (md altı): masaüstü tablo yatay kaydırılır; tasarım 16 web için uyarlanmalı.
 
+**Ertelenenler** (tasarımda var, verisi sonraki kilometre taşında gelecek):
+- [ ] Menüdeki "Görevler" rozeti (bekleyen görev sayısı): M4'te, `GET /tasks` gelince. O zamana kadar gizli.
+
 **Tasarım sapması** (tasarım yanlış, uygulama farklı yapacak):
 - [ ] Tasarım v0.3 ekran 10 ("Düğüm paneli — Maraş Penye İplik, veri talep bağlantısı"): tedarikçi veri talebi linki `kozapass.com/v/…` görünüyor. Bu yazı `docs/design/v0.3/KozaPassPanel.dc.html` bileşenindeki örnek `url` sabitinden geliyor, koda taşınmaz. Uygulamada link `https://kozapass.vercel.app/r/{token}` olur (K14). Herkese açık pasaport ise GS1 yolunda kalır: `https://kozapass.vercel.app/01/{gtin}/10/{batch}` (K13).
 
