@@ -1,0 +1,189 @@
+/* KozaPass — shadcn/ui + Tailwind v4 tema token'ları
+   next/font: Geist (--font-geist-sans), Geist Mono (--font-geist-mono), Newsreader (--font-newsreader) */
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.5rem;
+
+  /* Marka */
+  --cocoon: #FAF6EE;          /* Koza kremi — pasaport zemini */
+  --silk: #EFE6D8;            /* İpek beji */
+  --navy: #1B2436;            /* Gece laciverti */
+  --brand: #8C2F4B;           /* Dut */
+  --brand-foreground: #FFFFFF;
+  --brand-muted: #F5E8EC;
+
+  /* shadcn çekirdek */
+  --background: #FCFBF9;
+  --foreground: #1C1B19;
+  --card: #FFFFFF;
+  --card-foreground: #1C1B19;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1B19;
+  --primary: #1F1E1C;
+  --primary-foreground: #FAF8F4;
+  --secondary: #F2F0EC;
+  --secondary-foreground: #1C1B19;
+  --muted: #F2F0EC;
+  --muted-foreground: #6B665E;
+  --accent: #EEEBE6;
+  --accent-foreground: #1C1B19;
+  --destructive: #B42318;
+  --destructive-foreground: #FFFFFF;
+  --border: #E6E3DD;
+  --input: #D2CEC6;
+  --ring: #8C2F4B;
+
+  --sidebar: #F6F4F0;
+  --sidebar-foreground: #1C1B19;
+  --sidebar-primary: #1F1E1C;
+  --sidebar-primary-foreground: #FAF8F4;
+  --sidebar-accent: #EAE7E1;
+  --sidebar-accent-foreground: #1C1B19;
+  --sidebar-border: #E6E3DD;
+  --sidebar-ring: #8C2F4B;
+
+  --skeleton: #ECE9E4;
+
+  /* Durum: nokta / metin / zemin */
+  --status-pending: #8A857C;          --status-pending-foreground: #57534C;          --status-pending-muted: #F1EFEB;
+  --status-submitted: #2F6FDB;        --status-submitted-foreground: #1F5BB8;        --status-submitted-muted: #E8F0FB;
+  --status-approved: #22945A;         --status-approved-foreground: #1E7042;         --status-approved-muted: #E6F4EC;
+  --status-rejected: #D92D20;         --status-rejected-foreground: #B42318;         --status-rejected-muted: #FDECEA;
+  --status-low-confidence: #D99A06;   --status-low-confidence-foreground: #8A5A00;   --status-low-confidence-muted: #FDF3DC;
+  --status-expiring: #E8680C;         --status-expiring-foreground: #B54708;         --status-expiring-muted: #FEEFE3;
+
+  --shadow-xs: 0 1px 2px rgba(28,27,25,.05);
+  --shadow-sm: 0 1px 3px rgba(28,27,25,.08), 0 1px 2px rgba(28,27,25,.04);
+  --shadow-md: 0 6px 16px -4px rgba(28,27,25,.12), 0 2px 4px -2px rgba(28,27,25,.06);
+  --shadow-lg: 0 20px 40px -12px rgba(28,27,25,.22), 0 4px 8px -4px rgba(28,27,25,.08);
+}
+
+.dark {
+  --brand: #D98AA3;
+  --brand-foreground: #1A0C12;
+  --brand-muted: #2E1A22;
+
+  --background: #0F1218;
+  --foreground: #E9E7E3;
+  --card: #151922;
+  --card-foreground: #E9E7E3;
+  --popover: #1B202A;
+  --popover-foreground: #E9E7E3;
+  --primary: #E9E7E3;
+  --primary-foreground: #151922;
+  --secondary: #1B202A;
+  --secondary-foreground: #E9E7E3;
+  --muted: #1B202A;
+  --muted-foreground: #9AA1AE;
+  --accent: #1F2531;
+  --accent-foreground: #E9E7E3;
+  --destructive: #C23B2F;
+  --destructive-foreground: #FFFFFF;
+  --border: #262C38;
+  --input: #303746;
+  --ring: #D98AA3;
+
+  --sidebar: #0C0F14;
+  --sidebar-foreground: #E9E7E3;
+  --sidebar-primary: #E9E7E3;
+  --sidebar-primary-foreground: #151922;
+  --sidebar-accent: #1B202A;
+  --sidebar-accent-foreground: #E9E7E3;
+  --sidebar-border: #262C38;
+  --sidebar-ring: #D98AA3;
+
+  --skeleton: #1F2531;
+
+  --status-pending: #8A93A3;          --status-pending-foreground: #BDB8AF;          --status-pending-muted: #232833;
+  --status-submitted: #5B8FE8;        --status-submitted-foreground: #93B8F6;        --status-submitted-muted: #16233A;
+  --status-approved: #3DB374;         --status-approved-foreground: #86D3A5;         --status-approved-muted: #13291D;
+  --status-rejected: #EF5B4F;         --status-rejected-foreground: #F4A097;         --status-rejected-muted: #34181A;
+  --status-low-confidence: #E3AE2F;   --status-low-confidence-foreground: #F0C666;   --status-low-confidence-muted: #2F2610;
+  --status-expiring: #F0853A;         --status-expiring-foreground: #F6A86F;         --status-expiring-muted: #35220F;
+
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: 0 8px 24px -6px rgba(0,0,0,.5);
+  --shadow-lg: 0 20px 40px -12px rgba(0,0,0,.6);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+
+  --radius-sm: calc(var(--radius) - 4px);  /* 4 */
+  --radius-md: calc(var(--radius) - 2px);  /* 6 */
+  --radius-lg: var(--radius);              /* 8 */
+  --radius-xl: calc(var(--radius) + 4px);  /* 12 */
+  --radius-2xl: calc(var(--radius) + 12px);/* 20 — pasaport kartı */
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-muted: var(--brand-muted);
+  --color-cocoon: var(--cocoon);
+  --color-silk: var(--silk);
+  --color-navy: var(--navy);
+  --color-skeleton: var(--skeleton);
+
+  --color-status-pending: var(--status-pending);
+  --color-status-pending-foreground: var(--status-pending-foreground);
+  --color-status-pending-muted: var(--status-pending-muted);
+  --color-status-submitted: var(--status-submitted);
+  --color-status-submitted-foreground: var(--status-submitted-foreground);
+  --color-status-submitted-muted: var(--status-submitted-muted);
+  --color-status-approved: var(--status-approved);
+  --color-status-approved-foreground: var(--status-approved-foreground);
+  --color-status-approved-muted: var(--status-approved-muted);
+  --color-status-rejected: var(--status-rejected);
+  --color-status-rejected-foreground: var(--status-rejected-foreground);
+  --color-status-rejected-muted: var(--status-rejected-muted);
+  --color-status-low-confidence: var(--status-low-confidence);
+  --color-status-low-confidence-foreground: var(--status-low-confidence-foreground);
+  --color-status-low-confidence-muted: var(--status-low-confidence-muted);
+  --color-status-expiring: var(--status-expiring);
+  --color-status-expiring-foreground: var(--status-expiring-foreground);
+  --color-status-expiring-muted: var(--status-expiring-muted);
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground font-sans text-sm antialiased; }
+  .font-mono, code { font-variant-numeric: tabular-nums; }
+}

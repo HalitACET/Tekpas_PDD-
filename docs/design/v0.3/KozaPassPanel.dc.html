@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box}input,select,textarea,button{font:inherit}</style>
+</helmet>
+<sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+<div lang="tr" style="width:1440px;height:900px;display:grid;grid-template-columns:240px minmax(0,1fr);background:var(--background);color:var(--foreground);font-family:'Geist',system-ui,sans-serif;font-size:14px;border-radius:10px;overflow:hidden;position:relative;box-shadow:0 20px 50px -20px rgba(28,27,25,.35)">
+  <aside style="background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px">
+    <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 8px;margin-bottom:12px">
+      <svg width="22" height="22" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--brand)"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:var(--sidebar);stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:var(--brand);stroke-width:2.6;stroke-linecap:round"></path></svg>
+      <span style="font-weight:600;font-size:15px;letter-spacing:-0.03em">KozaPass</span>
+    </div>
+    <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="4">
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px">
+        <sc-if value="{{ g.hasTitle }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:500;color:var(--muted-foreground);padding:0 8px 6px">{{ g.title }}</span></sc-if>
+        <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="2">
+          <div onClick="{{ n.go }}" style="height:32px;padding:0 8px;border-radius:6px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:{{ n.w }};color:{{ n.fg }};background:{{ n.bg }};cursor:pointer" style-hover="background:var(--sidebar-accent);color:var(--foreground)">
+            <svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="{{ n.d }}"></path></svg>{{ n.label }}<sc-if value="{{ n.hasCount }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;min-width:20px;height:18px;padding:0 6px;border-radius:999px;background:var(--brand);color:var(--brand-foreground);font:600 11px 'Geist Mono',monospace;display:flex;align-items:center;justify-content:center">{{ n.count }}</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </aside>
+  <div style="display:flex;flex-direction:column;min-width:0;min-height:0">
+    <header style="height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 16px 0 24px;flex:none">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="width:24px;height:24px;border-radius:6px;background:var(--muted);color:var(--muted-foreground);display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.building }}"></path></svg></span>Karaca Tekstil A.Ş.</div>
+      <sc-for list="{{ crumbs }}" as="c" hint-placeholder-count="1">
+        <span style="color:var(--input)">/</span><span onClick="{{ c.go }}" style="font-size:13px;color:{{ c.fg }};font-family:{{ c.font }};cursor:{{ c.cursor }}">{{ c.t }}</span>
+      </sc-for>
+      <div style="margin-left:auto;height:32px;width:260px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg>Parti, GTIN veya tedarikçi ara<span style="margin-left:auto;font:11px 'Geist Mono',monospace;border:1px solid var(--border);border-radius:4px;padding:0 4px">⌘K</span></div>
+      <div style="display:flex;background:var(--muted);border-radius:6px;padding:2px;gap:2px;font:500 11px 'Geist Mono',monospace"><span style="padding:5px 8px;border-radius:4px;background:var(--card);color:var(--foreground);box-shadow:var(--shadow-xs)">TR</span><span style="padding:5px 8px;color:var(--muted-foreground)">EN</span><span style="padding:5px 8px;color:var(--muted-foreground)">DE</span></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px"><span style="width:28px;height:28px;border-radius:50%;background:#EFE6D8;color:#3D3A35;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">EY</span><span style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:12px;font-weight:500">Elif Yılmaz</span><span style="font-size:11px;color:var(--muted-foreground)">Yönetici</span></span></div>
+    </header>
+    <main style="flex:1;min-height:0;overflow:auto;padding:28px 32px 40px">
+
+      <sc-if value="{{ isUrunler }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;align-items:flex-end;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:4px"><h1 style="margin:0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.015em">Ürünler</h1><span style="font-size:13px;color:var(--muted-foreground)">GTIN bazında ürün kartları ve beyan edilen lif bileşimleri.</span></div>
+            <button style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:var(--shadow-xs);display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--accent)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>Excel'den içe aktar</button>
+            <button onClick="{{ openNewProduct }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--primary-hover)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>Yeni ürün</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="height:32px;width:300px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);background:var(--card)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;flex:none"><path d="{{ ic.search }}"></path></svg><input value="{{ q }}" onChange="{{ onQ }}" placeholder="Ürün adı, GTIN veya SKU ara" style="flex:1;min-width:0;border:none;outline:none;background:transparent;color:var(--foreground);font-size:13px"></label>
+            <label style="position:relative;display:flex;align-items:center"><span style="position:absolute;left:10px;font-size:13px;color:var(--muted-foreground);pointer-events:none">Kategori:</span><select value="{{ cat }}" onChange="{{ onCat }}" style="height:32px;padding:0 30px 0 74px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:500;appearance:none;outline:none;cursor:pointer"><sc-for list="{{ cats }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select><svg width="14" height="14" viewBox="0 0 24 24" style="position:absolute;right:10px;pointer-events:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></label>
+            <span style="margin-left:auto;font-size:12px;color:var(--muted-foreground)">{{ prodCountTxt }}</span>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:8px;background:var(--card)">
+            <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 130px 250px 80px 110px 48px;align-items:center;height:36px;padding:0 4px 0 16px;background:var(--muted);color:var(--muted-foreground);font-size:12px;font-weight:500;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0">
+              <span>GTIN</span><span>Ürün</span><span>Kategori</span><span>Beyan edilen lif bileşimi</span><span style="text-align:right;padding-right:16px">Parti</span><span>Güncelleme</span><span></span>
+            </div>
+            <sc-for list="{{ prodRows }}" as="p" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 130px 250px 80px 110px 48px;align-items:center;height:48px;padding:0 4px 0 16px;border-bottom:1px solid var(--border);font-size:13px;background:{{ p.bg }}" style-hover="background:var(--accent)">
+                <span style="font:12px 'Geist Mono',monospace;font-variant-numeric:tabular-nums">{{ p.gtin }}</span>
+                <span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span><span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ p.sku }}</span></span>
+                <span><span style="font:500 11px 'Geist',sans-serif;border:1px solid var(--border);padding:2px 7px;border-radius:4px">{{ p.cat }}</span></span>
+                <span style="color:var(--foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.fiberTxt }}</span>
+                <span style="text-align:right;padding-right:16px;font-variant-numeric:tabular-nums;color:{{ p.batchFg }}">{{ p.batches }}</span>
+                <span style="font-size:12px;color:var(--muted-foreground)">{{ p.upd }}</span>
+                <span style="position:relative;display:flex;justify-content:center">
+                  <button onClick="{{ p.toggleMenu }}" aria-label="Satır menüsü" style="width:32px;height:32px;border-radius:6px;border:1px solid {{ p.menuBd }};background:{{ p.menuBg }};color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--accent)"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.more }}"></path></svg></button>
+                  <sc-if value="{{ p.menuOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;top:38px;right:6px;width:180px;z-index:5;background:var(--popover);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-md);padding:4px;display:flex;flex-direction:column">
+                      <div onClick="{{ p.edit }}" style="height:32px;padding:0 8px;border-radius:4px;display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer" style-hover="background:var(--accent)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.pencil }}"></path></svg>Düzenle</div>
+                      <div style="height:1px;background:var(--border);margin:4px 0"></div>
+                      <div onClick="{{ p.del }}" style="height:32px;padding:0 8px;border-radius:4px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--status-rejected-foreground);cursor:pointer" style-hover="background:var(--status-rejected-muted)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.trash }}"></path></svg>Sil</div>
+                    </div>
+                  </sc-if>
+                </span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ prodNoRows }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:72px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px">
+                <span style="width:56px;height:56px;border-radius:14px;background:var(--muted);color:var(--muted-foreground);display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.package }}"></path></svg></span>
+                <strong style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:400;letter-spacing:-0.015em">{{ prodEmptyTitle }}</strong>
+                <span style="font-size:14px;line-height:1.55;color:var(--muted-foreground);max-width:440px;text-wrap:pretty">{{ prodEmptyBody }}</span>
+                <sc-if value="{{ prodEmptyAll }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:8px;margin-top:6px">
+                    <button onClick="{{ openNewProduct }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;cursor:pointer">Yeni ürün</button>
+                    <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Excel'den içe aktar</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ prodEmptyFilter }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ clearProdFilters }}" style="margin-top:6px;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Filtreleri temizle</button>
+                </sc-if>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPartiler }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;align-items:flex-end;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:4px"><h1 style="margin:0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.015em">Partiler</h1><span style="font-size:13px;color:var(--muted-foreground)">Her üretim partisi için bir dijital ürün pasaportu yayınlanır.</span></div>
+            <button style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:var(--shadow-xs);display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--accent)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.upload }}"></path></svg>Excel'den içe aktar</button>
+            <button onClick="{{ openCreateBatch }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--primary-hover)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>Yeni parti</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="height:32px;width:280px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);background:var(--card)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;flex:none"><path d="{{ ic.search }}"></path></svg><input value="{{ bq }}" onChange="{{ onBq }}" placeholder="Parti no veya üretim emri ara" style="flex:1;min-width:0;border:none;outline:none;background:transparent;color:var(--foreground);font-size:13px"></label>
+            <label style="position:relative;display:flex;align-items:center"><span style="position:absolute;left:10px;font-size:13px;color:var(--muted-foreground);pointer-events:none">Durum:</span><select value="{{ bStatus }}" onChange="{{ onBStatus }}" style="height:32px;padding:0 30px 0 62px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:500;appearance:none;outline:none;cursor:pointer"><sc-for list="{{ statusOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></select><svg width="14" height="14" viewBox="0 0 24 24" style="position:absolute;right:10px;pointer-events:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></label>
+            <label style="position:relative;display:flex;align-items:center"><span style="position:absolute;left:10px;font-size:13px;color:var(--muted-foreground);pointer-events:none">Ürün:</span><select value="{{ bProd }}" onChange="{{ onBProd }}" style="height:32px;max-width:300px;padding:0 30px 0 52px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:500;appearance:none;outline:none;cursor:pointer"><sc-for list="{{ prodOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></select><svg width="14" height="14" viewBox="0 0 24 24" style="position:absolute;right:10px;pointer-events:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></label>
+            <span style="margin-left:auto;font-size:12px;color:var(--muted-foreground)">{{ batchCountTxt }}</span>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:8px;background:var(--card);overflow:hidden">
+            <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 180px 170px 140px 100px 40px;align-items:center;height:36px;padding:0 4px 0 16px;background:var(--muted);color:var(--muted-foreground);font-size:12px;font-weight:500;border-bottom:1px solid var(--border)">
+              <span>Parti no</span><span>Ürün</span><span>Tedarik zinciri</span><span>Durum</span><span>Uyum skoru</span><span>Güncelleme</span><span></span>
+            </div>
+            <sc-for list="{{ batchRows }}" as="r" hint-placeholder-count="6">
+              <div onClick="{{ r.open }}" style="display:grid;grid-template-columns:170px minmax(0,1fr) 180px 170px 140px 100px 40px;align-items:center;height:52px;padding:0 4px 0 16px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer" style-hover="background:var(--accent)">
+                <span style="font:12px 'Geist Mono',monospace">{{ r.id }}</span>
+                <span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.product }}</span><span style="font-size:12px;color:var(--muted-foreground);font-variant-numeric:tabular-nums">{{ r.qty }} adet · {{ r.ue }}</span></span>
+                <span style="display:flex;align-items:center;gap:3px"><sc-for list="{{ r.steps }}" as="st" hint-placeholder-count="5"><span style="width:20px;height:6px;border-radius:2px;background:{{ st }}"></span></sc-for><span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground);margin-left:6px">{{ r.stepTxt }}</span></span>
+                <span><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ r.s }}-muted);color:var(--status-{{ r.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ r.s }})"></span>{{ r.sl }}</span></span>
+                <span style="display:flex;align-items:center;gap:8px"><span style="font:500 12px 'Geist Mono',monospace;width:36px">%{{ r.score }}</span><span style="width:56px;height:4px;border-radius:2px;background:var(--muted);display:flex;overflow:hidden"><span style="width:{{ r.scorePct }};background:{{ r.scoreC }}"></span></span></span>
+                <span style="font-size:12px;color:var(--muted-foreground)">{{ r.upd }}</span>
+                <span style="display:flex;color:var(--muted-foreground)"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chevR }}"></path></svg></span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isParti }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;align-items:flex-start;gap:24px">
+            <div style="display:flex;flex-direction:column;gap:8px;min-width:0;flex:1">
+              <div style="display:flex;align-items:center;gap:12px">
+                <h1 style="margin:0;font:500 28px/34px 'Geist Mono',monospace;letter-spacing:-0.03em">{{ b.id }}</h1>
+                <span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ b.s }}-muted);color:var(--status-{{ b.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ b.s }})"></span>{{ b.sl }}</span>
+              </div>
+              <span style="font-size:16px;font-weight:500;letter-spacing:-0.01em">{{ b.product }} <span style="color:var(--muted-foreground);font-weight:400">· {{ b.qty }} adet</span></span>
+              <div style="display:flex;flex-wrap:wrap;gap:6px 24px;font-size:12px;color:var(--muted-foreground);margin-top:4px">
+                <span>GTIN <span style="font-family:'Geist Mono',monospace;color:var(--foreground)">{{ b.gtin }}</span></span>
+                <span>Üretim emri <span style="font-family:'Geist Mono',monospace;color:var(--foreground)">{{ b.ue }}</span></span>
+                <span>Üretim <span style="color:var(--foreground);font-variant-numeric:tabular-nums">02.09 – 20.09.2026</span></span>
+                <span>Etiket beyanı <span style="color:var(--foreground)">{{ b.label }}</span></span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card)">
+              <span style="position:relative;width:56px;height:56px;display:flex;align-items:center;justify-content:center">
+                <svg width="56" height="56" viewBox="0 0 56 56" style="position:absolute;inset:0;transform:rotate(-90deg)"><circle cx="28" cy="28" r="22" style="fill:none;stroke:var(--muted);stroke-width:5"></circle><circle cx="28" cy="28" r="22" style="fill:none;stroke:{{ scoreC }};stroke-width:5;stroke-linecap:round;stroke-dasharray:{{ ringDash }}"></circle><line x1="28" y1="1" x2="28" y2="9" transform="rotate(324 28 28)" style="stroke:var(--foreground);stroke-width:1.5"></line></svg>
+                <span style="font:600 14px 'Geist Mono',monospace;letter-spacing:-0.03em">%{{ score }}</span>
+              </span>
+              <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:600">Uyum skoru</span><span style="font-size:12px;color:var(--muted-foreground)">Yayın eşiği %90</span></span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;width:300px">
+              <div style="display:flex;gap:8px">
+                <button style="height:36px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer" style-hover="background:var(--accent)">Önizle</button>
+                <button disabled="{{ publishBlocked }}" style="flex:1;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--brand);color:var(--brand-foreground);border:1px solid transparent;opacity:{{ publishOp }};cursor:{{ publishCursor }};display:flex;align-items:center;justify-content:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ publishIcon }}"></path></svg>Pasaportu yayınla</button>
+              </div>
+              <sc-if value="{{ publishBlocked }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:3px;font-size:12px;line-height:1.4;color:var(--muted-foreground)">
+                  <sc-for list="{{ reasons }}" as="rs" hint-placeholder-count="3"><span style="display:flex;gap:6px"><span style="width:4px;height:4px;border-radius:50%;background:var(--status-{{ rs.s }});margin-top:7px;flex:none"></span>{{ rs.t }}</span></sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:4px;border-bottom:1px solid var(--border)">
+            <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+              <button onClick="{{ t.go }}" style="height:40px;padding:0 12px;border:none;background:transparent;font:{{ t.font }};color:{{ t.fg }};box-shadow:{{ t.line }};display:flex;align-items:center;gap:8px;cursor:pointer" style-hover="color:var(--foreground)">{{ t.label }}<span style="font:500 11px 'Geist Mono',monospace;padding:1px 6px;border-radius:4px;background:{{ t.cBg }};color:{{ t.cFg }}">{{ t.count }}</span></button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ isChain }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--muted-foreground)">
+                <sc-for list="{{ legend }}" as="l" hint-placeholder-count="5"><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--status-{{ l.s }})"></span>{{ l.t }}</span></sc-for>
+                <span style="margin-left:auto">Ayrıntı için bir adıma tıklayın</span>
+              </div>
+              <div style="border:1px solid var(--border);border-radius:12px;background:var(--card);padding:24px">
+                <div style="position:relative;width:1088px;height:316px">
+                  <sc-for list="{{ cols }}" as="c" hint-placeholder-count="5">
+                    <span style="position:absolute;left:{{ c.x }}px;top:0;display:flex;gap:8px;align-items:baseline;font-size:12px;font-weight:600"><span style="font:500 11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ c.n }}</span>{{ c.t }}</span>
+                  </sc-for>
+                  <svg width="1088" height="316" style="position:absolute;inset:0;overflow:visible">
+                    <sc-for list="{{ edges }}" as="e" hint-placeholder-count="6"><path d="{{ e.d }}" style="fill:none;stroke:{{ e.c }};stroke-width:1.5;stroke-dasharray:{{ e.dash }}"></path><circle cx="{{ e.x2 }}" cy="{{ e.y2 }}" r="3" style="fill:{{ e.c }}"></circle></sc-for>
+                  </svg>
+                  <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="6">
+                    <sc-if value="{{ n.filled }}" hint-placeholder-val="{{ true }}">
+                      <div onClick="{{ n.open }}" style="position:absolute;left:{{ n.x }}px;top:{{ n.y }}px;width:176px;height:132px;border-radius:10px;border:1px solid {{ n.bd }};background:var(--card);box-shadow:{{ n.sh }};padding:12px;display:flex;flex-direction:column;gap:4px;cursor:pointer" style-hover="border-color:var(--ring)">
+                        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">{{ n.step }}</span><span style="display:flex;align-items:center;gap:3px;font:11px 'Geist Mono',monospace;color:var(--muted-foreground)"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.file }}"></path></svg>{{ n.docs }}</span></div>
+                        <strong style="font-size:14px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px">{{ n.name }}</strong>
+                        <span style="font-size:12px;color:var(--muted-foreground)">{{ n.city }}</span>
+                        <span style="margin-top:auto"><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ n.s }}-muted);color:var(--status-{{ n.s }}-foreground);font-size:11px;font-weight:500;padding:2px 8px 2px 7px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ n.s }})"></span>{{ n.sl }}</span></span>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ n.empty }}" hint-placeholder-val="{{ false }}">
+                      <div onClick="{{ n.open }}" style="position:absolute;left:{{ n.x }}px;top:{{ n.y }}px;width:176px;height:132px;border-radius:10px;border:1px dashed var(--input);background:transparent;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--muted-foreground)" style-hover="border-color:var(--ring);color:var(--foreground)">
+                        <span style="width:32px;height:32px;border-radius:50%;border:1px solid var(--input);display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg></span>
+                        <span style="font-size:13px;font-weight:500;color:var(--foreground)">Tedarikçi ata</span>
+                        <span style="font-size:11px">{{ n.step }} adımı boş</span>
+                      </div>
+                    </sc-if>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) auto;gap:24px;align-items:center;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:14px 16px">
+                <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Etiket beyanı</span><span style="font-size:14px;font-weight:500">%95 pamuk · %5 elastan</span></span>
+                <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">İplikçi beyanları</span><span style="font-size:14px">Bursa İplik %100 pamuk · <span style="color:var(--status-rejected-foreground);font-weight:500">Maraş Penye %80 pamuk · %20 polyester</span></span></span>
+                <button onClick="{{ goAlerts }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--status-rejected-muted);color:var(--status-rejected-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.triangle }}"></path></svg>1 uyuşmazlık · Uyarılar</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isAlerts }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px;max-width:960px">
+              <sc-for list="{{ alerts }}" as="a" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:14px;align-items:start;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:16px">
+                  <span style="width:36px;height:36px;border-radius:8px;background:var(--status-{{ a.s }}-muted);color:var(--status-{{ a.s }}-foreground);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.icon }}"></path></svg></span>
+                  <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+                    <div style="display:flex;align-items:center;gap:8px"><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ a.s }}-muted);color:var(--status-{{ a.s }}-foreground);font-size:11px;font-weight:500;padding:2px 8px 2px 7px;border-radius:999px"><span style="width:5px;height:5px;border-radius:50%;background:var(--status-{{ a.s }})"></span>{{ a.sev }}</span><span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ a.code }}</span></div>
+                    <strong style="font-size:15px;font-weight:500;letter-spacing:-0.01em">{{ a.title }}</strong>
+                    <span style="font-size:12px;color:var(--muted-foreground)">{{ a.meta }}</span>
+                    <sc-if value="{{ a.hasCompare }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;gap:8px;margin-top:4px">
+                        <sc-for list="{{ a.compare }}" as="cp" hint-placeholder-count="2"><span style="display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:6px;background:var(--muted);min-width:200px"><span style="font-size:11px;color:var(--muted-foreground)">{{ cp.k }}</span><span style="font-size:13px;font-weight:500;color:{{ cp.c }}">{{ cp.v }}</span></span></sc-for>
+                      </div>
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;gap:8px">
+                    <button onClick="{{ a.secondary }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer" style-hover="background:var(--accent)">{{ a.secondaryT }}</button>
+                    <button onClick="{{ a.primary }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;cursor:pointer">{{ a.primaryT }}</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isDocs }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px solid var(--border);border-radius:8px;background:var(--card);overflow:hidden">
+              <div style="display:grid;grid-template-columns:minmax(0,1.4fr) 180px 170px 100px 160px 110px;align-items:center;height:36px;padding:0 16px;background:var(--muted);color:var(--muted-foreground);font-size:12px;font-weight:500;border-bottom:1px solid var(--border)"><span>Belge</span><span>Tür</span><span>Tedarikçi</span><span>AI güveni</span><span>Durum</span><span>Geçerlilik</span></div>
+              <sc-for list="{{ docs }}" as="d" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:minmax(0,1.4fr) 180px 170px 100px 160px 110px;align-items:center;height:44px;padding:0 16px;border-bottom:1px solid var(--border);font-size:13px" style-hover="background:var(--accent)">
+                  <span style="display:flex;align-items:center;gap:8px;min-width:0"><svg width="15" height="15" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.file }}"></path></svg><span style="font:12px 'Geist Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.f }}</span></span>
+                  <span>{{ d.t }}</span><span style="color:var(--muted-foreground)">{{ d.w }}</span>
+                  <span style="font:500 12px 'Geist Mono',monospace;color:var(--status-{{ d.cs }}-foreground)">{{ d.c }}</span>
+                  <span><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ d.s }}-muted);color:var(--status-{{ d.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ d.s }})"></span>{{ d.sl }}</span></span>
+                  <span style="font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ d.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isVersions }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px dashed var(--input);border-radius:10px;padding:56px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px">
+              <strong style="font-family:'Newsreader',Georgia,serif;font-size:24px;font-weight:400;letter-spacing:-0.015em">Henüz yayınlanmış sürüm yok</strong>
+              <span style="font-size:14px;line-height:1.55;color:var(--muted-foreground);max-width:440px">Her yayında değiştirilemez bir pasaport sürümü oluşur. QR kod her zaman en son sürümü açar; önceki sürümler burada listelenir.</span>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isTed }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;align-items:flex-end;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:4px"><h1 style="margin:0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.015em">Tedarikçiler</h1><span style="font-size:13px;color:var(--muted-foreground)">İplikçi, kumaşçı, boyahane, fason atölye ve aksesuar tedarikçileri.</span></div>
+            <button onClick="{{ openSup }}" style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--primary-hover)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>Tedarikçi ekle</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="height:32px;width:280px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);background:var(--card)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;flex:none"><path d="{{ ic.search }}"></path></svg><input value="{{ sq }}" onChange="{{ onSq }}" placeholder="Firma veya şehir ara" style="flex:1;min-width:0;border:none;outline:none;background:transparent;color:var(--foreground);font-size:13px"></label>
+            <label style="position:relative;display:flex;align-items:center"><span style="position:absolute;left:10px;font-size:13px;color:var(--muted-foreground);pointer-events:none">Tip:</span><select value="{{ sTip }}" onChange="{{ onSTip }}" style="height:32px;padding:0 30px 0 40px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:500;appearance:none;outline:none;cursor:pointer"><sc-for list="{{ tipOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select><svg width="14" height="14" viewBox="0 0 24 24" style="position:absolute;right:10px;pointer-events:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></label>
+            <span style="margin-left:auto;font-size:12px;color:var(--muted-foreground)">{{ supCountTxt }}</span>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:8px;background:var(--card);overflow:hidden">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 120px 140px 170px 180px 90px 150px;align-items:center;height:36px;padding:0 16px;background:var(--muted);color:var(--muted-foreground);font-size:12px;font-weight:500;border-bottom:1px solid var(--border)"><span>Firma</span><span>Tip</span><span>Şehir</span><span>İletişim</span><span>Sertifikalar</span><span style="text-align:right;padding-right:20px">Parti</span><span>Durum</span></div>
+            <sc-for list="{{ supRows }}" as="s" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 120px 140px 170px 180px 90px 150px;align-items:center;height:48px;padding:0 16px;border-bottom:1px solid var(--border);font-size:13px" style-hover="background:var(--accent)">
+                <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</span>
+                <span><span style="font:500 11px 'Geist',sans-serif;border:1px solid var(--border);padding:2px 7px;border-radius:4px">{{ s.tip }}</span></span>
+                <span style="color:var(--muted-foreground)">{{ s.city }}</span>
+                <span style="font:12px 'Geist Mono',monospace">{{ s.phone }}</span>
+                <span style="display:flex;gap:4px;flex-wrap:wrap"><sc-for list="{{ s.certs }}" as="ct" hint-placeholder-count="1"><span style="font:500 11px 'Geist',sans-serif;background:var(--muted);padding:2px 6px;border-radius:4px">{{ ct }}</span></sc-for></span>
+                <span style="text-align:right;padding-right:20px;font-variant-numeric:tabular-nums">{{ s.batches }}</span>
+                <span><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ s.s }}-muted);color:var(--status-{{ s.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ s.s }})"></span>{{ s.sl }}</span></span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{ ovAny }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeOv }}" style="position:absolute;inset:0;background:var(--scrim);z-index:20"></div>
+  </sc-if>
+
+  <sc-if value="{{ ovSheet }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;top:0;right:0;bottom:0;width:500px;z-index:21;background:var(--card);border-left:1px solid var(--border);box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+      <div style="padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1"><h2 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.015em">{{ sheetTitle }}</h2><span style="font-size:13px;color:var(--muted-foreground)">Beyan edilen bilgiler pasaportta tedarikçi verisiyle karşılaştırılır.</span></div>
+        <button onClick="{{ closeOv }}" aria-label="Kapat" style="width:32px;height:32px;border-radius:6px;border:none;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+      </div>
+      <div style="flex:1;overflow:auto;padding:20px 24px;display:flex;flex-direction:column;gap:18px">
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Ürün adı
+          <input value="{{ form.name }}" onChange="{{ onFName }}" placeholder="örn. Organik pamuk tişört, ekru" style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:400;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)">
+        </label>
+        <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">GTIN
+            <input value="{{ form.gtin }}" onChange="{{ onFGtin }}" inputmode="numeric" placeholder="14 hane" style="height:36px;padding:0 10px;border-radius:6px;border:1px solid {{ gt.bd }};box-shadow:{{ gt.sh }};background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;outline:none">
+            <span style="font-size:12px;font-weight:400;color:{{ gt.fg }};display:flex;align-items:flex-start;gap:5px;line-height:1.4"><sc-if value="{{ gt.err }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;margin-top:1px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="{{ ic.alert }}"></path></svg></sc-if><sc-if value="{{ gt.ok }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;margin-top:1px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></sc-if><span style="display:flex;flex-direction:column"><span>{{ gt.msg }}</span><span style="color:var(--muted-foreground)">{{ gt.sub }}</span></span></span>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">SKU
+            <input value="{{ form.sku }}" onChange="{{ onFSku }}" placeholder="KT-TS-0000" style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)">
+          </label>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Kategori
+          <span style="position:relative;display:flex;align-items:center"><select value="{{ form.cat }}" onChange="{{ onFCat }}" style="flex:1;height:36px;padding:0 30px 0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:400;appearance:none;outline:none;box-shadow:var(--shadow-xs)"><sc-for list="{{ catOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select><svg width="16" height="16" viewBox="0 0 24 24" style="position:absolute;right:10px;pointer-events:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></span>
+        </label>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:13px;font-weight:500">Beyan edilen lif bileşimi</span><span style="font-size:12px;color:var(--muted-foreground)">Etikette yazan oranlar</span></div>
+          <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+            <sc-for list="{{ fiberRows }}" as="r" hint-placeholder-count="2">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 110px 36px;gap:8px;align-items:center;padding:8px;border-bottom:1px solid var(--border)">
+                <span style="position:relative;display:flex;align-items:center"><select value="{{ r.f }}" onChange="{{ r.onF }}" style="flex:1;height:34px;padding:0 30px 0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;appearance:none;outline:none"><sc-for list="{{ fiberOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select><svg width="16" height="16" viewBox="0 0 24 24" style="position:absolute;right:8px;pointer-events:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></span>
+                <span style="position:relative;display:flex;align-items:center"><span style="position:absolute;left:10px;font:13px 'Geist Mono',monospace;color:var(--muted-foreground)">%</span><input value="{{ r.p }}" onChange="{{ r.onP }}" inputmode="decimal" style="width:100%;height:34px;padding:0 10px 0 26px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;text-align:right;outline:none" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"></span>
+                <button onClick="{{ r.del }}" aria-label="Satırı sil" style="width:34px;height:34px;border-radius:6px;border:none;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:{{ r.delOp }}" style-hover="background:var(--accent);color:var(--status-rejected-foreground)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.trash }}"></path></svg></button>
+              </div>
+            </sc-for>
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 8px 8px 4px;background:var(--muted)">
+              <button onClick="{{ addFiber }}" style="height:30px;padding:0 10px;border-radius:6px;border:none;background:transparent;color:var(--foreground);font:500 12px 'Geist',sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--accent)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>Lif ekle</button>
+              <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ tot.s }}-muted);color:var(--status-{{ tot.s }}-foreground);font-size:12px;font-weight:500;padding:4px 10px 4px 8px;border-radius:999px"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ tot.s }})"></span><span style="font-family:'Geist Mono',monospace">Toplam %{{ tot.v }}</span>{{ tot.note }}</span>
+            </div>
+          </div>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Açıklama <span style="font-weight:400;color:var(--muted-foreground);font-size:12px;margin-top:-4px">İsteğe bağlı · pasaportta ürün hikâyesinde görünür</span>
+          <textarea value="{{ form.desc }}" onChange="{{ onFDesc }}" rows="3" placeholder="Kumaş tipi, gramaj, kullanım" style="padding:8px 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:400;line-height:1.5;outline:none;resize:vertical;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"></textarea>
+        </label>
+      </div>
+      <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;color:var(--muted-foreground)">{{ saveHint }}</span>
+        <button onClick="{{ closeOv }}" style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer" style-hover="background:var(--accent)">Vazgeç</button>
+        <button onClick="{{ saveProduct }}" disabled="{{ saveDisabled }}" style="height:36px;padding:0 16px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;opacity:{{ saveOp }};cursor:{{ saveCursor }}">Kaydet</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ovDelete }}" hint-placeholder-val="{{ false }}">
+    <div role="alertdialog" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:21;width:440px;background:var(--popover);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+      <div style="padding:24px 24px 20px;display:flex;gap:14px">
+        <span style="width:40px;height:40px;border-radius:50%;flex:none;background:var(--status-{{ del.s }}-muted);color:var(--status-{{ del.s }}-foreground);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ del.icon }}"></path></svg></span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h2 style="margin:0;font-size:17px;font-weight:600;letter-spacing:-0.01em">{{ del.title }}</h2>
+          <span style="font-size:14px;line-height:1.5">{{ del.body }}</span>
+          <span style="display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:6px;background:var(--muted);font-size:13px"><span style="font-weight:500">{{ del.name }}</span><span style="font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ del.gtin }}</span></span>
+          <span style="font-size:13px;line-height:1.5;color:var(--muted-foreground)">{{ del.note }}</span>
+        </div>
+      </div>
+      <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
+        <sc-if value="{{ del.blocked }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ del.seeBatches }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Partileri gör</button>
+          <button onClick="{{ closeOv }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;cursor:pointer">Kapat</button>
+        </sc-if>
+        <sc-if value="{{ del.allowed }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ closeOv }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Vazgeç</button>
+          <button onClick="{{ del.confirm }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--destructive);color:var(--destructive-foreground);border:1px solid transparent;cursor:pointer" style-hover="background:var(--destructive-hover)">Ürünü sil</button>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ovBatch }}" hint-placeholder-val="{{ false }}">
+    <div role="dialog" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:21;width:580px;background:var(--popover);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+      <div style="padding:20px 24px 4px;display:flex;align-items:flex-start;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1"><h2 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.015em">Yeni parti</h2><span style="font-size:13px;color:var(--muted-foreground)">Tedarik zinciri adımları ürünün son partisinden kopyalanır.</span></div>
+        <button onClick="{{ closeOv }}" aria-label="Kapat" style="width:32px;height:32px;border-radius:6px;border:none;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+      </div>
+      <div style="padding:16px 24px 20px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;position:relative">Ürün
+          <div onClick="{{ toggleCombo }}" style="height:40px;padding:0 10px;border-radius:6px;border:1px solid {{ combo.bd }};box-shadow:{{ combo.sh }};background:var(--card);display:flex;align-items:center;gap:8px;cursor:pointer">
+            <sc-if value="{{ combo.open }}" hint-placeholder-val="{{ false }}"><svg width="15" height="15" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg><input value="{{ combo.q }}" onChange="{{ onComboQ }}" onClick="{{ stop }}" placeholder="Ürün adı veya GTIN ara" style="flex:1;min-width:0;border:none;outline:none;background:transparent;color:var(--foreground);font-size:13px;font-weight:400"></sc-if>
+            <sc-if value="{{ combo.closed }}" hint-placeholder-val="{{ true }}"><span style="flex:1;font-weight:400;font-size:13px;color:{{ combo.selFg }}">{{ combo.selTxt }}</span><span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ combo.selGtin }}</span></sc-if>
+            <svg width="16" height="16" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg>
+          </div>
+          <sc-if value="{{ combo.open }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:66px;left:0;right:0;z-index:3;background:var(--popover);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-md);padding:4px;display:flex;flex-direction:column;font-weight:400">
+              <span style="font-size:11px;color:var(--muted-foreground);padding:6px 8px">{{ combo.countTxt }}</span>
+              <sc-for list="{{ combo.items }}" as="o" hint-placeholder-count="3">
+                <div onClick="{{ o.pick }}" style="padding:8px;border-radius:6px;display:flex;align-items:center;gap:10px;cursor:pointer;background:{{ o.bg }}" style-hover="background:var(--accent)">
+                  <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:500">{{ o.name }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ o.fiberTxt }}</span></span>
+                  <span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ o.gtin }}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ combo.none }}" hint-placeholder-val="{{ false }}"><span style="padding:12px 8px;font-size:13px;color:var(--muted-foreground)">Eşleşen ürün yok.</span></sc-if>
+            </div>
+          </sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500"><span style="display:flex;align-items:center;gap:6px">Parti no<span style="font:500 10px 'Geist',sans-serif;background:var(--brand-muted);color:var(--brand-text);padding:1px 6px;border-radius:4px">Otomatik öneri</span></span>
+            <span style="position:relative;display:flex;align-items:center"><input value="{{ bf.no }}" onChange="{{ onBfNo }}" style="flex:1;height:36px;padding:0 38px 0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"><button onClick="{{ resetBfNo }}" aria-label="Öneriyi geri yükle" style="position:absolute;right:4px;width:28px;height:28px;border-radius:4px;border:none;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.refresh }}"></path></svg></button></span>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Üretim emri no
+            <input value="{{ bf.ue }}" onChange="{{ onBfUe }}" placeholder="ÜE-2026-0000" style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)">
+          </label>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Miktar
+            <span style="position:relative;display:flex;align-items:center"><input value="{{ bf.qty }}" onChange="{{ onBfQty }}" inputmode="numeric" placeholder="0" style="flex:1;width:100%;height:36px;padding:0 44px 0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-variant-numeric:tabular-nums;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"><span style="position:absolute;right:10px;font-size:12px;font-weight:400;color:var(--muted-foreground)">adet</span></span>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Üretim başlangıcı
+            <span style="position:relative;display:flex;align-items:center"><input value="{{ bf.start }}" onChange="{{ onBfStart }}" placeholder="gg.aa.yyyy" style="flex:1;width:100%;height:36px;padding:0 10px 0 34px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-variant-numeric:tabular-nums;outline:none;box-shadow:var(--shadow-xs)"><svg width="15" height="15" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.calendar }}"></path></svg></span>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Üretim bitişi
+            <span style="position:relative;display:flex;align-items:center"><input value="{{ bf.end }}" onChange="{{ onBfEnd }}" placeholder="gg.aa.yyyy" style="flex:1;width:100%;height:36px;padding:0 10px 0 34px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-variant-numeric:tabular-nums;outline:none;box-shadow:var(--shadow-xs)"><svg width="15" height="15" viewBox="0 0 24 24" style="position:absolute;left:10px;pointer-events:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.calendar }}"></path></svg></span>
+          </label>
+        </div>
+      </div>
+      <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;color:var(--muted-foreground)">{{ bfHint }}</span>
+        <button onClick="{{ closeOv }}" style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer" style-hover="background:var(--accent)">Vazgeç</button>
+        <button onClick="{{ createBatch }}" disabled="{{ bfDisabled }}" style="height:36px;padding:0 16px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;opacity:{{ bfOp }};cursor:pointer">Partiyi oluştur</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ovSup }}" hint-placeholder-val="{{ false }}">
+    <div role="dialog" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:21;width:500px;background:var(--popover);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+      <div style="padding:20px 24px 4px;display:flex;align-items:flex-start;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1"><h2 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.015em">Tedarikçi ekle</h2><span style="font-size:13px;color:var(--muted-foreground)">Tedarikçi, veri ve belgelerini kendisine gönderilen bağlantıdan yükler.</span></div>
+        <button onClick="{{ closeOv }}" aria-label="Kapat" style="width:32px;height:32px;border-radius:6px;border:none;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+      </div>
+      <div style="padding:16px 24px 20px;display:flex;flex-direction:column;gap:16px">
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Firma adı
+          <input value="{{ sf.name }}" onChange="{{ onSfName }}" placeholder="örn. Aras Örme Konfeksiyon" style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:400;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)">
+        </label>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Tip
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <sc-for list="{{ sfTips }}" as="t" hint-placeholder-count="5">
+              <button onClick="{{ t.pick }}" style="height:34px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ t.bg }};color:{{ t.fg }};border:1px solid {{ t.bd }};cursor:pointer;display:flex;align-items:center;gap:6px">{{ t.t }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:12px">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Şehir
+            <span style="position:relative;display:flex;align-items:center"><select value="{{ sf.city }}" onChange="{{ onSfCity }}" style="flex:1;height:36px;padding:0 30px 0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:400;appearance:none;outline:none;box-shadow:var(--shadow-xs)"><sc-for list="{{ cityOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select><svg width="16" height="16" viewBox="0 0 24 24" style="position:absolute;right:10px;pointer-events:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></span>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">İletişim telefonu
+            <span style="display:flex"><span style="height:36px;padding:0 10px;border:1px solid var(--input);border-right:none;border-radius:6px 0 0 6px;background:var(--muted);display:flex;align-items:center;font:13px 'Geist Mono',monospace;color:var(--muted-foreground)">+90</span><input value="{{ sf.phone }}" onChange="{{ onSfPhone }}" inputmode="tel" placeholder="5xx xxx xx xx" style="flex:1;min-width:0;height:36px;padding:0 10px;border-radius:0 6px 6px 0;border:1px solid var(--input);background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;outline:none" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"></span>
+          </label>
+        </div>
+        <span style="font-size:12px;color:var(--muted-foreground);display:flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.msg }}"></path></svg>Veri talep bağlantıları bu numaraya WhatsApp ile paylaşılabilir.</span>
+      </div>
+      <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
+        <button onClick="{{ closeOv }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer" style-hover="background:var(--accent)">Vazgeç</button>
+        <button onClick="{{ addSup }}" disabled="{{ sfDisabled }}" style="height:36px;padding:0 16px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;opacity:{{ sfOp }};cursor:pointer">Tedarikçi ekle</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ovNode }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;top:0;right:0;bottom:0;width:480px;z-index:21;background:var(--card);border-left:1px solid var(--border);box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+      <div style="padding:18px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
+          <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">{{ nd.stepLine }}</span>
+          <h2 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.015em">{{ nd.name }}</h2>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted-foreground)">{{ nd.city }}<span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ nd.s }}-muted);color:var(--status-{{ nd.s }}-foreground);font-size:12px;font-weight:500;padding:2px 9px 2px 8px;border-radius:999px"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ nd.s }})"></span>{{ nd.sl }}</span></div>
+        </div>
+        <button onClick="{{ closeOv }}" aria-label="Kapat" style="width:32px;height:32px;border-radius:6px;border:none;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+      </div>
+      <div style="flex:1;overflow:auto;padding:20px 24px;display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:13px;font-weight:600">Tedarikçinin girdiği veriler</span><span style="font-size:11px;color:var(--muted-foreground)">{{ nd.who }}</span></div>
+          <div style="border:1px solid var(--border);border-radius:8px">
+            <sc-for list="{{ nd.data }}" as="r" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:140px minmax(0,1fr);gap:12px;padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px">
+                <span style="color:var(--muted-foreground)">{{ r.k }}</span>
+                <span style="display:flex;flex-direction:column;gap:4px"><span style="font-weight:500">{{ r.v }}</span><sc-if value="{{ r.hasFlag }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-self:flex-start;align-items:center;gap:5px;font-size:12px;color:var(--status-{{ r.tone }}-foreground);background:var(--status-{{ r.tone }}-muted);padding:2px 8px;border-radius:4px"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.triangle }}"></path></svg>{{ r.flag }}</span></sc-if></span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:13px;font-weight:600">Belgelerden okunan alanlar</span><span style="font-size:11px;color:var(--muted-foreground)">Güven eşiği 0,80</span></div>
+          <sc-for list="{{ nd.ai }}" as="f" hint-placeholder-count="2">
+            <div style="border:1px solid {{ f.border }};border-radius:8px;background:var(--card);display:flex;flex-direction:column;box-shadow:var(--shadow-xs)">
+              <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 0">
+                <span style="font-size:12px;font-weight:600">{{ f.label }}</span>
+                <span style="display:inline-flex;align-items:center;gap:4px;font:500 11px 'Geist',sans-serif;background:var(--brand-muted);color:var(--brand-text);padding:1px 6px;border-radius:4px"><svg width="11" height="11" viewBox="0 0 24 24" style="fill:currentColor"><path d="{{ ic.sparkle }}"></path></svg>AI önerisi</span>
+                <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ f.sKey }}-muted);color:var(--status-{{ f.sKey }}-foreground);font-size:11px;font-weight:500;padding:2px 8px 2px 7px;border-radius:999px;white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:var(--status-{{ f.sKey }})"></span>{{ f.sLabel }}</span>
+              </div>
+              <div style="padding:8px 12px 10px;display:flex;flex-direction:column;gap:8px">
+                <sc-if value="{{ f.editing }}" hint-placeholder-val="{{ false }}"><input value="{{ f.draft }}" onChange="{{ f.onInput }}" style="height:34px;padding:0 10px;border-radius:6px;border:1px solid var(--ring);box-shadow:0 0 0 3px var(--ring-soft);background:var(--card);color:var(--foreground);font:{{ f.font }};outline:none"></sc-if>
+                <sc-if value="{{ f.viewing }}" hint-placeholder-val="{{ true }}"><span style="font:{{ f.font }};min-height:28px;display:flex;align-items:center">{{ f.value }}</span></sc-if>
+                <div style="display:flex;align-items:center;gap:8px"><span style="flex:1;height:4px;border-radius:2px;background:var(--muted);overflow:hidden;display:flex"><span style="width:{{ f.pct }};background:var(--status-{{ f.confKey }})"></span></span><span style="font:500 11px 'Geist Mono',monospace;color:var(--status-{{ f.confKey }}-foreground)">Güven {{ f.confTxt }}</span></div>
+                <span style="font-size:11px;color:var(--muted-foreground);display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.file }}"></path></svg><span style="font-family:'Geist Mono',monospace">{{ f.src }}</span></span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--border);min-height:45px">
+                <sc-if value="{{ f.suggesting }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ f.onApprove }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:5px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>Onayla</button>
+                  <button onClick="{{ f.onEdit }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Düzenle</button>
+                  <span style="margin-left:auto;font-size:11px;color:var(--muted-foreground)">{{ f.hint }}</span>
+                </sc-if>
+                <sc-if value="{{ f.editing }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ f.onSave }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;cursor:pointer">Kaydet ve onayla</button>
+                  <button onClick="{{ f.onCancel }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer">Vazgeç</button>
+                </sc-if>
+                <sc-if value="{{ f.approved }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:12px;color:var(--muted-foreground)">{{ f.approvedBy }}</span>
+                  <button onClick="{{ f.onReset }}" style="margin-left:auto;height:28px;padding:0 8px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--muted-foreground);border:1px solid transparent;cursor:pointer">Geri al</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ act.link }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid var(--border);border-radius:10px;background:var(--muted);padding:14px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:13px;font-weight:600">Veri talep bağlantısı</span><span style="font-size:11px;color:var(--muted-foreground)">7 gün geçerli · yalnızca bu adım</span></div>
+            <div style="display:flex;gap:8px">
+              <span style="flex:1;min-width:0;height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);display:flex;align-items:center;gap:8px;font:12px 'Geist Mono',monospace;overflow:hidden;white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.link }}"></path></svg>{{ act.url }}</span>
+              <button onClick="{{ act.copy }}" style="height:36px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ act.copyIcon }}"></path></svg>{{ act.copyT }}</button>
+            </div>
+            <button style="height:36px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.msg }}"></path></svg>WhatsApp'ta paylaş</button>
+            <span style="font-size:12px;line-height:1.5;color:var(--muted-foreground)">{{ act.preview }}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ act.fix }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid var(--border);border-radius:10px;background:var(--muted);padding:14px;display:flex;flex-direction:column;gap:10px">
+            <span style="font-size:13px;font-weight:600">Düzeltme iste</span>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <sc-for list="{{ act.chips }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.pick }}" style="height:28px;padding:0 10px;border-radius:999px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer" style-hover="background:var(--accent)">{{ c.t }}</button></sc-for>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:500">Gerekçe
+              <textarea value="{{ act.text }}" onChange="{{ act.onText }}" rows="4" placeholder="Tedarikçiye neyi düzeltmesi gerektiğini yazın" style="padding:8px 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:400;line-height:1.5;outline:none;resize:vertical" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"></textarea>
+            </label>
+            <span style="font-size:12px;color:var(--muted-foreground)">Gerekçe tedarikçiye iletilir ve parti geçmişine kaydedilir.</span>
+            <div style="display:flex;justify-content:flex-end;gap:8px">
+              <button onClick="{{ act.cancel }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer">Vazgeç</button>
+              <button onClick="{{ act.send }}" disabled="{{ act.sendDisabled }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;opacity:{{ act.sendOp }};cursor:pointer">Düzeltme talebini gönder</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ act.sent }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:10px;padding:12px;border-radius:8px;background:var(--status-submitted-muted);color:var(--status-submitted-foreground);font-size:13px;line-height:1.45"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.checkCircle }}"></path></svg><span>Düzeltme talebi gönderildi. {{ nd.name }} bilgilendirildi; adım "Reddedildi" olarak işaretlendi.</span></div>
+        </sc-if>
+      </div>
+      <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px">
+        <button onClick="{{ act.openLink }}" style="height:36px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ act.linkBg }};color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--accent)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.link }}"></path></svg>Veri talep et</button>
+        <button onClick="{{ act.openFix }}" style="height:36px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ act.fixBg }};color:var(--foreground);border:1px solid var(--input);cursor:pointer" style-hover="background:var(--accent)">Düzeltme iste</button>
+        <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+          <button onClick="{{ act.approve }}" disabled="{{ act.approveDisabled }}" style="height:36px;padding:0 16px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;opacity:{{ act.approveOp }};cursor:pointer;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>{{ act.approveT }}</button>
+        </div>
+      </div>
+      <sc-if value="{{ act.hasApproveHint }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:24px;bottom:58px;font-size:11px;color:var(--muted-foreground);background:var(--card);padding:2px 0">{{ act.approveHint }}</span></sc-if>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+<div lang="tr" style="width:390px;height:844px;border-radius:36px;overflow:hidden;box-shadow:0 20px 50px -20px rgba(28,27,25,.3),0 0 0 8px #1F1E1C;background:var(--background);color:var(--foreground);font-family:'Geist',system-ui,sans-serif;display:flex;flex-direction:column">
+  <div style="height:44px;flex:none;display:flex;align-items:flex-end;padding:0 32px 6px;font:600 15px 'Geist',sans-serif">9:41</div>
+  <header style="height:56px;flex:none;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--border);position:relative">
+    <button aria-label="Menüyü aç" style="width:44px;height:44px;border-radius:8px;border:none;background:transparent;color:var(--foreground);display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.menu }}"></path></svg></button>
+    <svg width="22" height="22" viewBox="0 0 32 32" style="margin-left:2px"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--brand)"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:var(--background);stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:var(--brand);stroke-width:2.6;stroke-linecap:round"></path></svg>
+    <span style="position:absolute;left:50%;transform:translateX(-50%);font-size:16px;font-weight:600;letter-spacing:-0.01em">{{ m.title }}</span>
+    <button aria-label="Kullanıcı menüsü" style="margin-left:auto;width:44px;height:44px;border-radius:50%;border:none;background:transparent;display:flex;align-items:center;justify-content:center"><span style="width:32px;height:32px;border-radius:50%;background:#EFE6D8;color:#3D3A35;font:600 12px 'Geist',sans-serif;display:flex;align-items:center;justify-content:center">EY</span></button>
+  </header>
+  <main style="flex:1;min-height:0;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:8px">
+      <label style="flex:1;height:44px;border:1px solid var(--input);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--muted-foreground);background:var(--card)"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg><input value="{{ m.q }}" onChange="{{ m.onQ }}" placeholder="{{ m.ph }}" style="flex:1;min-width:0;border:none;outline:none;background:transparent;color:var(--foreground);font-size:16px"></label>
+      <button aria-label="Filtrele" style="width:44px;height:44px;border-radius:8px;border:1px solid var(--input);background:var(--card);color:var(--foreground);display:flex;align-items:center;justify-content:center;position:relative"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.filter }}"></path></svg></button>
+    </div>
+    <button style="height:44px;border-radius:8px;border:1px solid transparent;background:var(--primary);color:var(--primary-foreground);font:500 15px 'Geist',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>{{ m.cta }}</button>
+    <span style="font-size:12px;color:var(--muted-foreground);padding:4px 2px 0">{{ m.count }}</span>
+    <div style="border:1px solid var(--border);border-radius:12px;background:var(--card);display:flex;flex-direction:column;overflow:hidden">
+      <sc-if value="{{ m.isP }}" hint-placeholder-val="{{ false }}">
+        <sc-for list="{{ prodRows }}" as="p" hint-placeholder-count="5">
+          <div style="min-height:76px;padding:12px 8px 12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+              <span style="font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
+              <span style="font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ p.gtin }}</span>
+              <span style="font-size:13px;color:var(--muted-foreground)">{{ p.fiberTxt }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font:500 11px 'Geist',sans-serif;border:1px solid var(--border);padding:2px 7px;border-radius:4px">{{ p.cat }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ p.batches }} parti</span></div>
+            <span style="width:28px;display:flex;justify-content:center;color:var(--muted-foreground)"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chevR }}"></path></svg></span>
+          </div>
+        </sc-for>
+      </sc-if>
+      <sc-if value="{{ m.isB }}" hint-placeholder-val="{{ false }}">
+        <sc-for list="{{ batchRows }}" as="r" hint-placeholder-count="5">
+          <div style="min-height:88px;padding:12px 16px;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font:500 13px 'Geist Mono',monospace">{{ r.id }}</span><span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ r.s }}-muted);color:var(--status-{{ r.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ r.s }})"></span>{{ r.sl }}</span></div>
+            <span style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.product }} <span style="color:var(--muted-foreground)">· {{ r.qty }} adet</span></span>
+            <div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ r.steps }}" as="st" hint-placeholder-count="5"><span style="width:20px;height:6px;border-radius:2px;background:{{ st }}"></span></sc-for><span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground);margin-left:6px">{{ r.stepTxt }}</span><span style="margin-left:auto;font:500 12px 'Geist Mono',monospace">Uyum %{{ r.score }}</span></div>
+          </div>
+        </sc-for>
+      </sc-if>
+      <sc-if value="{{ m.isS }}" hint-placeholder-val="{{ false }}">
+        <sc-for list="{{ supRows }}" as="s" hint-placeholder-count="5">
+          <div style="min-height:76px;padding:12px 8px 12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+              <span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</span><span style="font:500 11px 'Geist',sans-serif;border:1px solid var(--border);padding:1px 6px;border-radius:4px;flex:none">{{ s.tip }}</span></span>
+              <span style="font-size:13px;color:var(--muted-foreground)">{{ s.city }} · {{ s.batches }} parti</span>
+              <span><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ s.s }}-muted);color:var(--status-{{ s.s }}-foreground);font-size:12px;font-weight:500;padding:2px 9px 2px 8px;border-radius:999px"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ s.s }})"></span>{{ s.sl }}</span></span>
+            </div>
+            <button aria-label="Ara" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--input);background:var(--card);color:var(--foreground);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.phone }}"></path></svg></button>
+          </div>
+        </sc-for>
+      </sc-if>
+    </div>
+  </main>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;urunler&quot;,&quot;partiler&quot;,&quot;parti&quot;,&quot;tedarikciler&quot;],&quot;default&quot;:&quot;partiler&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;overlay&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;urun-sheet&quot;,&quot;urun-sil&quot;,&quot;parti-olustur&quot;,&quot;node&quot;,&quot;tedarikci-ekle&quot;],&quot;default&quot;:&quot;none&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;chain&quot;,&quot;docs&quot;,&quot;alerts&quot;,&quot;versions&quot;],&quot;default&quot;:&quot;chain&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;mobile&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;empty&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = {};
+  g(k, d) { const s = this.state[k]; if (s !== undefined) return s; const p = this.props[k]; return p !== undefined && p !== null && p !== '' ? p : d; }
+  b(k) { const v = this.g(k, false); return v === true || v === 'true'; }
+  cd(body) { let s = 0, w = 3; for (let i = body.length - 1; i >= 0; i--) { s += +body[i] * w; w = w === 3 ? 1 : 3; } return (10 - s % 10) % 10; }
+  gt(body) { return body + this.cd(body); }
+  fiberTxt(f) { return f.map(([n, p]) => '%' + p + ' ' + n.toLocaleLowerCase('tr')).join(' · '); }
+  baseProducts() {
+    const P = (id, body, name, cat, sku, fibers, batches, upd) => ({ id, gtin: this.gt(body), name, cat, sku, fibers, batches, upd, desc: '' });
+    return [
+      P(1, '0869012345678', 'Organik pamuk tişört, ekru', 'Tişört', 'KT-TS-0142', [['Organik pamuk', 95], ['Elastan', 5]], 4, '14:32'),
+      P(2, '0869012345679', 'Keten gömlek, lacivert', 'Gömlek', 'KT-GM-0087', [['Keten', 100]], 2, 'Dün'),
+      P(3, '0869012345680', 'Denim pantolon, taşlanmış', 'Pantolon', 'KT-PN-0213', [['Pamuk', 98], ['Elastan', 2]], 3, '12 Eyl'),
+      P(4, '0869012345681', 'Merino triko kazak', 'Triko', 'KT-TR-0031', [['Yün', 80], ['Poliamid', 20]], 1, '9 Eyl'),
+      P(5, '0869012345682', 'Viskon elbise, desenli', 'Elbise', 'KT-EL-0055', [['Viskon', 100]], 0, '3 Eyl'),
+      P(6, '0869012345683', 'Pamuklu sweatshirt, gri melanj', 'Sweatshirt', 'KT-SW-0120', [['Pamuk', 80], ['Geri dönüştürülmüş polyester', 20]], 2, '28 Ağu'),
+      P(7, '0869012345684', 'Bebek body, organik', 'Bebek', 'KT-BB-0009', [['Organik pamuk', 100]], 0, '21 Ağu'),
+    ];
+  }
+  products() { if (this.state.products) return this.state.products; if (this.b('empty')) return []; return this._bp || (this._bp = this.baseProducts()); }
+  emptyForm() { return { id: null, name: '', gtin: '', sku: '', cat: 'Tişört', fibers: [{ f: 'Pamuk', p: '' }], desc: '' }; }
+  formFrom(p) { return { id: p.id, name: p.name, gtin: p.gtin, sku: p.sku, cat: p.cat, fibers: p.fibers.map(([f, v]) => ({ f, p: String(v) })), desc: p.desc || '' }; }
+  form() {
+    if (this.state.form) return this.state.form;
+    const ps = this.products(), sc = this.props.sheetCase;
+    if (!ps.length) return this.emptyForm();
+    if (sc === 'dup') return { id: null, name: 'Organik pamuk polo yaka', gtin: ps[2].gtin, sku: 'KT-PL-0011', cat: 'Tişört', fibers: [{ f: 'Organik pamuk', p: '95' }, { f: 'Elastan', p: '5' }], desc: '' };
+    const p = ps[0];
+    return { ...this.formFrom(p), gtin: p.gtin.slice(0, 13) + ((+p.gtin[13] + 5) % 10), fibers: [{ f: 'Organik pamuk', p: '90' }, { f: 'Elastan', p: '5' }], desc: 'Yuvarlak yaka, 180 g/m² süprem.' };
+  }
+  setForm(patch) { this.setState({ form: { ...this.form(), ...patch } }); }
+  nodeBase() {
+    return [
+      { id: 'lif', col: 0, yo: 78, step: 'Lif', name: 'Organik pamuk', city: 'Harran, Şanlıurfa', s: 'approved', docs: 1 },
+      { id: 'ip1', col: 1, yo: 0, step: 'İplik', name: 'Bursa İplik San.', city: 'Bursa', s: 'approved', docs: 2 },
+      { id: 'ip2', col: 1, yo: 156, step: 'İplik', name: 'Maraş Penye İplik', city: 'Kahramanmaraş', s: 'low-confidence', docs: 2 },
+      { id: 'kum', col: 2, yo: 78, step: 'Kumaş', name: 'Denizli Örme Tekstil', city: 'Denizli', s: 'submitted', docs: 1 },
+      { id: 'boy', col: 3, yo: 78, step: 'Boya', name: 'Çınar Boya Apre', city: 'Denizli', s: 'expiring', docs: 2 },
+      { id: 'kon', col: 4, yo: 78, step: 'Konfeksiyon', empty: true },
+    ];
+  }
+  det() {
+    return {
+      lif: { idx: 1, who: 'Bursa İplik beyanı · 14 Eyl 2026', data: [['Lif türü', 'Organik pamuk (GOTS)'], ['Menşe', 'Türkiye · Harran, Şanlıurfa'], ['Hasat yılı', '2025'], ['Miktar', '1.210 kg balya']], ai: [{ label: 'GOTS işlem sertifikası no', value: 'TC-GOTS-2026-118204', conf: 97, src: 'gots_tc_harran_2026.pdf · s.1', mono: true }] },
+      ip1: { idx: 2, who: 'Murat D. · 14 Eyl 2026 09:12', data: [['Lif bileşimi', '%100 organik pamuk'], ['Menşe ülke', 'Türkiye'], ['Enerji kaynağı', 'Şebeke %70 · GES %30'], ['Enerji tüketimi', '2,9 kWh/kg'], ['Teslim edilen', '1.180 kg · Ne 30/1 penye']], ai: [{ label: 'Lif bileşimi', value: '%100 Organik pamuk', conf: 95, src: 'iplik_teknik_foy_BI-1180.pdf · s.1' }] },
+      ip2: { idx: 2, who: 'Ahmet K. · 16 Eyl 2026 11:04', data: [['Lif bileşimi', '%80 pamuk · %20 polyester', 'Etiket beyanı %95 pamuk ile uyuşmuyor', 'rejected'], ['Menşe ülke', 'Türkiye'], ['Enerji kaynağı', 'Şebeke %60 · GES %40'], ['Enerji tüketimi', '3,4 kWh/kg'], ['Teslim edilen', '640 kg · Ne 30/1 karde']], ai: [{ label: 'Lif bileşimi', value: '%80 Pamuk, %20 Polyester', conf: 92, src: 'iplik_teknik_foy_ME-2291.pdf · s.1' }, { label: 'GOTS sertifika no', value: 'CU-1O43927', conf: 61, src: 'gots_sertifika_2026.pdf · s.1', mono: true, hint: '"O" harfi mi, "0" rakamı mı?' }] },
+      kum: { idx: 3, who: 'Selin A. · 17 Eyl 2026 15:40', data: [['Kumaş', 'Süprem, 180 g/m²'], ['Lif bileşimi', '%95 pamuk · %5 elastan'], ['Menşe ülke', 'Türkiye'], ['Enerji kaynağı', 'Şebeke %100'], ['Enerji tüketimi', '1,8 kWh/kg']], ai: [{ label: 'Gramaj', value: '180 g/m²', conf: 94, src: 'kumas_teknik_foy_0918.pdf · s.1' }] },
+      boy: { idx: 4, who: 'Kerem Ç. · 19 Eyl 2026 10:22', data: [['İşlem', 'Reaktif boya, ekru'], ['Kimyasal uyumu', 'ZDHC MRSL 3.1'], ['OEKO-TEX 100', '23.HTR.71245 · 15.10.2026', '12 gün içinde doluyor', 'expiring'], ['Enerji kaynağı', 'Doğalgaz %80 · GES %20'], ['Su tüketimi', '62 L/kg']], ai: [{ label: 'OEKO-TEX geçerlilik tarihi', value: '15.10.2026', conf: 96, src: 'oekotex_100_cinar.pdf · s.1', mono: true }] },
+    };
+  }
+  aiFor(id) {
+    const st = (this.state.ai || {})[id];
+    if (st) return st;
+    const base = this.nodeBase().find(n => n.id === id);
+    return (this.det()[id]?.ai || []).map(a => ({ ...a, mode: base && base.s === 'approved' ? 'approved' : 'suggest' }));
+  }
+  setAi(id, i, patch) { const arr = this.aiFor(id).map((a, j) => j === i ? { ...a, ...patch } : a); this.setState(s => ({ ai: { ...(s.ai || {}), [id]: arr } })); }
+  nodeStatus(n) { return (this.state.nodeS || {})[n.id] || n.s; }
+  renderVals() {
+    const ic = {
+      check: 'M20 6 9 17l-5-5', chev: 'm6 9 6 6 6-6', chevR: 'm9 18 6-6-6-6', plus: 'M12 5v14M5 12h14', x: 'M18 6 6 18M6 6l12 12', menu: 'M4 6h16M4 12h16M4 18h16',
+      search: 'M3 11a8 8 0 1 0 16 0a8 8 0 1 0-16 0M21 21l-4.3-4.3',
+      sparkle: 'M12 2l2.2 6.3L20.5 10.5l-6.3 2.2L12 19l-2.2-6.3L3.5 10.5l6.3-2.2Z',
+      file: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7ZM14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8',
+      alert: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 8v4M12 16h.01',
+      checkCircle: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M9 12l2 2 4-4',
+      more: 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0-2 0M18 12a1 1 0 1 0 2 0a1 1 0 1 0-2 0M4 12a1 1 0 1 0 2 0a1 1 0 1 0-2 0',
+      building: 'M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18ZM6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4',
+      upload: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12',
+      package: 'M7.5 4.27l9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16ZM3.3 7l8.7 5 8.7-5M12 22V12',
+      pencil: 'M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5Z',
+      trash: 'M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2',
+      link: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
+      copy: 'M8 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2ZM4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2',
+      msg: 'M7.9 20A9 9 0 1 0 4 16.1L2 22Z',
+      calendar: 'M8 2v4M16 2v4M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2ZM3 10h18',
+      refresh: 'M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5',
+      triangle: 'm21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4M12 17h.01',
+      clock: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 6v6l4 2',
+      filter: 'M22 3H2l8 9.46V19l4 2v-8.54Z',
+      lock: 'M5 11h14v11H5ZM7 11V7a5 5 0 0 1 10 0v4',
+      globe: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z',
+      phone: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z',
+    };
+    const SL = { pending: 'Beklemede', submitted: 'Gönderildi', approved: 'Onaylandı', rejected: 'Reddedildi', 'low-confidence': 'AI güveni düşük', expiring: 'Süresi doluyor' };
+    const mobile = this.b('mobile'), view = this.g('view', 'partiler'), overlay = this.g('overlay', 'none');
+    const go = v => () => this.setState({ view: v, overlay: 'none', menuRow: null });
+    const NAV = { inbox: 'M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11Z', layers: 'M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83ZM22 17.65l-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65M22 12.65l-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65', factory: 'M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2ZM17 18h1M12 18h1M7 18h1', users: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M5 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', sliders: 'M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4' };
+    const active = view === 'parti' ? 'partiler' : view;
+    const navGroups = [
+      { title: '', items: [['gorevler', 'Görevler', NAV.inbox, 7]] },
+      { title: 'Pasaport', items: [['urunler', 'Ürünler', ic.package], ['partiler', 'Partiler', NAV.layers]] },
+      { title: 'Tedarik zinciri', items: [['tedarikciler', 'Tedarikçiler', NAV.factory], ['belgeler', 'Belgeler', ic.file], ['iceaktarma', 'İçe aktarma', ic.upload]] },
+      { title: 'Yönetim', items: [['kullanicilar', 'Kullanıcılar', NAV.users], ['ayarlar', 'Ayarlar', NAV.sliders]] },
+    ].map(gr => ({ title: gr.title, hasTitle: !!gr.title, items: gr.items.map(([key, label, d, count]) => { const on = key === active; const ok = ['urunler', 'partiler', 'tedarikciler'].includes(key); return { label, d, count: count || '', hasCount: !!count, go: ok ? go(key) : () => {}, bg: on ? 'var(--sidebar-accent)' : 'transparent', fg: on ? 'var(--foreground)' : 'var(--muted-foreground)', w: on ? 600 : 500 }; }) }));
+
+    // Ürünler
+    const ps = this.products();
+    const q = this.g('q', ''), cat = this.g('cat', 'Tümü'), menuRow = Number(this.g('menuRow', 0));
+    const ql = q.toLocaleLowerCase('tr');
+    const prodFiltered = ps.filter(p => (cat === 'Tümü' || p.cat === cat) && (!ql || (p.name + p.gtin + p.sku).toLocaleLowerCase('tr').includes(ql)));
+    const catOpts = ['Tişört', 'Gömlek', 'Pantolon', 'Triko', 'Elbise', 'Sweatshirt', 'Bebek', 'Ev tekstili'];
+    const prodRows = prodFiltered.map(p => ({ ...p, fiberTxt: this.fiberTxt(p.fibers), menuOpen: menuRow === p.id, bg: menuRow === p.id ? 'var(--accent)' : 'transparent', menuBg: menuRow === p.id ? 'var(--accent)' : 'transparent', menuBd: menuRow === p.id ? 'var(--input)' : 'transparent', batchFg: p.batches ? 'var(--foreground)' : 'var(--muted-foreground)',
+      toggleMenu: e => { e && e.stopPropagation && e.stopPropagation(); this.setState({ menuRow: menuRow === p.id ? 0 : p.id }); },
+      edit: () => this.setState({ overlay: 'urun-sheet', form: this.formFrom(p), menuRow: 0 }),
+      del: () => this.setState({ overlay: 'urun-sil', deleteId: p.id, menuRow: 0 }) }));
+    const prodEmptyAll = ps.length === 0, prodEmptyFilter = !prodEmptyAll && prodFiltered.length === 0;
+
+    // Form
+    const f = this.form();
+    const d = (f.gtin || '').trim();
+    let gt = { msg: '8, 12, 13 veya 14 hane. Kontrol hanesi otomatik doğrulanır.', sub: '', tone: 'muted' };
+    if (d) {
+      if (!/^\d+$/.test(d)) gt = { msg: 'Yalnızca rakam girin', tone: 'err' };
+      else if (![8, 12, 13, 14].includes(d.length)) gt = { msg: 'GTIN 8, 12, 13 veya 14 haneli olmalı (' + d.length + ' hane girildi)', tone: 'err' };
+      else if (this.cd(d.slice(0, -1)) !== +d.slice(-1)) gt = { msg: 'Kontrol hanesi hatalı', tone: 'err' };
+      else { const other = ps.find(p => p.gtin.padStart(14, '0') === d.padStart(14, '0') && p.id !== f.id); gt = other ? { msg: "Başka bir ürün bu GTIN'i kullanıyor", sub: other.name, tone: 'err' } : { msg: 'Geçerli GTIN-' + d.length, tone: 'ok' }; }
+    }
+    gt = { sub: '', ...gt, err: gt.tone === 'err', ok: gt.tone === 'ok', bd: gt.tone === 'err' ? 'var(--status-rejected)' : 'var(--input)', sh: gt.tone === 'err' ? '0 0 0 3px var(--status-rejected-muted)' : 'var(--shadow-xs)', fg: gt.tone === 'err' ? 'var(--status-rejected-foreground)' : gt.tone === 'ok' ? 'var(--status-approved-foreground)' : 'var(--muted-foreground)' };
+    const total = Math.round(f.fibers.reduce((a, r) => a + (parseFloat(String(r.p).replace(',', '.')) || 0), 0) * 10) / 10;
+    const totOk = total === 100;
+    const tot = { v: String(total).replace('.', ','), s: totOk ? 'approved' : 'low-confidence', note: totOk ? '' : (total < 100 ? ' · ' + String(Math.round((100 - total) * 10) / 10).replace('.', ',') + ' eksik, %100 olmalı' : ' · %100\'ü aşıyor') };
+    const fiberOpts = ['Pamuk', 'Organik pamuk', 'Elastan', 'Polyester', 'Geri dönüştürülmüş polyester', 'Keten', 'Yün', 'Viskon', 'Poliamid', 'Lyocell'];
+    const fiberRows = f.fibers.map((r, i) => ({ ...r, delOp: f.fibers.length > 1 ? 1 : 0.35,
+      onF: e => this.setForm({ fibers: f.fibers.map((x, j) => j === i ? { ...x, f: e.target.value } : x) }),
+      onP: e => this.setForm({ fibers: f.fibers.map((x, j) => j === i ? { ...x, p: e.target.value } : x) }),
+      del: () => f.fibers.length > 1 && this.setForm({ fibers: f.fibers.filter((_, j) => j !== i) }) }));
+    const canSave = !!f.name.trim() && gt.ok && totOk;
+    const saveHint = canSave ? '' : !gt.ok ? 'Geçerli bir GTIN girin' : !totOk ? 'Lif toplamı %100 olmalı' : 'Ürün adı gerekli';
+    const saveProduct = () => {
+      if (!canSave) return;
+      const fibers = f.fibers.map(r => [r.f, parseFloat(String(r.p).replace(',', '.')) || 0]);
+      const list = f.id ? ps.map(p => p.id === f.id ? { ...p, name: f.name, gtin: d, sku: f.sku, cat: f.cat, fibers, desc: f.desc, upd: 'Şimdi' } : p)
+        : [{ id: Date.now(), name: f.name, gtin: d, sku: f.sku, cat: f.cat, fibers, desc: f.desc, batches: 0, upd: 'Şimdi' }, ...ps];
+      this.setState({ products: list, overlay: 'none', form: null });
+    };
+
+    // Silme
+    const delP = ps.find(p => p.id === Number(this.g('deleteId', 0))) || ps[0] || { name: '', gtin: '', batches: 0 };
+    const blocked = delP.batches > 0;
+    const del = { blocked, allowed: !blocked, name: delP.name, gtin: delP.gtin, s: blocked ? 'expiring' : 'rejected', icon: blocked ? ic.lock : ic.trash,
+      title: blocked ? 'Ürün silinemez' : 'Ürünü sil',
+      body: blocked ? 'Bu ürünün ' + delP.batches + ' partisi var, silinemez.' : 'Bu ürün kalıcı olarak silinecek. Bu işlem geri alınamaz.',
+      note: blocked ? 'Partiler yayınlanmış pasaportlara bağlı olduğu için ürün kaydı korunur.' : 'Bağlı parti veya pasaport yok.',
+      seeBatches: () => this.setState({ view: 'partiler', overlay: 'none', bProd: String(delP.id) }),
+      confirm: () => this.setState({ products: ps.filter(p => p.id !== delP.id), overlay: 'none' }) };
+
+    // Partiler
+    const prodById = id => (this.products().find(p => p.id === id) || this.baseProducts().find(p => p.id === id));
+    const S = s => s === 'empty' ? 'var(--muted)' : 'var(--status-' + s + ')';
+    const batchesBase = [
+      { id: 'KP-2026-0927-A', pid: 1, qty: '1.800', ue: 'ÜE-2026-0452', st: ['approved', 'pending', 'pending', 'pending', 'empty'], s: 'pending', score: 18, upd: '10:05' },
+      { id: 'KP-2026-0918-A', pid: 1, qty: '2.400', ue: 'ÜE-2026-0441', st: ['approved', 'low-confidence', 'submitted', 'expiring', 'empty'], s: 'low-confidence', score: 72, upd: '14:32' },
+      { id: 'KP-2026-0917-C', pid: 2, qty: '1.150', ue: 'ÜE-2026-0437', st: ['approved', 'approved', 'approved', 'submitted', 'pending'], s: 'submitted', score: 81, upd: 'Dün' },
+      { id: 'KP-2026-0912-B', pid: 3, qty: '3.800', ue: 'ÜE-2026-0429', st: ['approved', 'approved', 'approved', 'approved', 'approved'], s: 'approved', score: 100, upd: '12 Eyl' },
+      { id: 'KP-2026-0909-A', pid: 6, qty: '2.000', ue: 'ÜE-2026-0421', st: ['approved', 'approved', 'rejected', 'pending', 'pending'], s: 'rejected', score: 46, upd: '9 Eyl' },
+      { id: 'KP-2026-0904-B', pid: 4, qty: '600', ue: 'ÜE-2026-0415', st: ['approved', 'approved', 'approved', 'expiring', 'approved'], s: 'expiring', score: 94, upd: '4 Eyl' },
+      { id: 'KP-2026-0828-A', pid: 3, qty: '4.200', ue: 'ÜE-2026-0398', st: ['approved', 'approved', 'approved', 'approved', 'approved'], s: 'approved', score: 100, upd: '28 Ağu' },
+    ];
+    const extraB = this.state.extraBatches || [];
+    const bq = this.g('bq', ''), bStatus = this.g('bStatus', 'all'), bProd = String(this.g('bProd', 'all'));
+    const batchAll = [...extraB, ...batchesBase].map(r => { const p = prodById(r.pid) || { name: '—', gtin: '', fibers: [] }; return { ...r, product: p.name, gtin: p.gtin, label: this.fiberTxt(p.fibers), sl: SL[r.s], steps: r.st.map(S), stepTxt: r.st.filter(x => x === 'approved').length + '/5', scorePct: r.score + '%', scoreC: r.score >= 90 ? 'var(--status-approved)' : 'var(--foreground)', open: () => this.setState({ view: 'parti', batchId: r.id, tab: 'chain' }) }; });
+    const batchRows = batchAll.filter(r => (bStatus === 'all' || r.s === bStatus) && (bProd === 'all' || String(r.pid) === bProd) && (!bq || (r.id + r.ue).toLowerCase().includes(bq.toLowerCase())));
+    const statusOpts = [{ v: 'all', t: 'Tümü' }, ...Object.keys(SL).map(k => ({ v: k, t: SL[k] }))];
+    const prodOpts = [{ v: 'all', t: 'Tümü' }, ...this.baseProducts().map(p => ({ v: String(p.id), t: p.name }))];
+
+    // Parti detayı
+    const bid = this.g('batchId', 'KP-2026-0918-A');
+    const bRow = batchAll.find(r => r.id === bid) || batchAll[1];
+    const DET = this.det();
+    const SC = { approved: 100, submitted: 70, 'low-confidence': 50, expiring: 80, pending: 30, rejected: 20 };
+    const nb = this.nodeBase();
+    const nodesS = nb.map(n => ({ ...n, cur: n.empty ? 'empty' : this.nodeStatus(n) }));
+    const score = Math.round(nodesS.reduce((a, n) => a + (n.empty ? 30 : SC[n.cur]), 0) / nodesS.length);
+    const selNode = this.g('node', null), nodeAction = this.g('nodeAction', null);
+    const nodes = nodesS.map(n => { const sel = selNode === n.id && overlay === 'node'; return { ...n, filled: !n.empty, empty: !!n.empty, x: n.col * 228, y: 28 + n.yo, s: n.cur, sl: SL[n.cur] || '', bd: sel ? 'var(--ring)' : n.cur === 'low-confidence' ? 'var(--status-low-confidence)' : n.cur === 'rejected' ? 'var(--status-rejected)' : 'var(--border)', sh: sel ? '0 0 0 3px var(--ring-soft)' : 'var(--shadow-xs)',
+      open: n.empty ? () => this.setState({ overlay: 'tedarikci-ekle', sf: { name: '', tip: 'Konfeksiyon', city: 'İzmir', phone: '' } }) : () => this.setState({ overlay: 'node', node: n.id, nodeAction: null, copied: false, fixSent: false }) }; });
+    const pos = Object.fromEntries(nodes.map(n => [n.id, n]));
+    const edges = [['lif', 'ip1'], ['lif', 'ip2'], ['ip1', 'kum'], ['ip2', 'kum'], ['kum', 'boy'], ['boy', 'kon']].map(([a, z]) => { const A = pos[a], Z = pos[z]; const x1 = A.x + 176, y1 = A.y + 66, x2 = Z.x - 4, y2 = Z.y + 66, m = (x1 + x2) / 2; return { d: `M${x1} ${y1}C${m} ${y1} ${m} ${y2} ${x2} ${y2}`, x2, y2, c: Z.empty ? 'var(--input)' : 'var(--muted-foreground)', dash: Z.empty ? '4 4' : 'none' }; });
+    const cols = ['Lif', 'İplik', 'Kumaş', 'Boya', 'Konfeksiyon'].map((t, i) => ({ t, n: '0' + (i + 1), x: i * 228 }));
+    const openCount = nodesS.filter(n => !n.empty && n.cur !== 'approved').length;
+    const reasons = [];
+    if (score < 90) reasons.push({ t: 'Uyum skoru %' + score + ', yayın için en az %90 gerekli', s: 'pending' });
+    reasons.push({ t: 'Konfeksiyon adımına tedarikçi atanmadı', s: 'pending' });
+    reasons.push({ t: '1 engelleyici uyarı: lif bileşimi uyuşmazlığı', s: 'rejected' });
+    if (openCount) reasons.push({ t: openCount + ' adım onay bekliyor', s: 'low-confidence' });
+    const publishBlocked = true;
+    const C = 2 * Math.PI * 22;
+    const tab = this.g('tab', 'chain');
+    const tabs = [['chain', 'Tedarik zinciri', '5'], ['docs', 'Belgeler', '7'], ['alerts', 'Uyarılar', '3'], ['versions', 'Pasaport sürümleri', '0']].map(([k, label, count]) => { const on = tab === k; return { label, count, go: () => this.setState({ tab: k }), font: (on ? '600' : '500') + " 13px 'Geist',sans-serif", fg: on ? 'var(--foreground)' : 'var(--muted-foreground)', line: on ? 'inset 0 -2px 0 var(--foreground)' : 'none', cBg: k === 'alerts' ? 'var(--status-rejected-muted)' : 'var(--muted)', cFg: k === 'alerts' ? 'var(--status-rejected-foreground)' : 'var(--muted-foreground)' }; });
+    const legend = ['approved', 'submitted', 'low-confidence', 'expiring', 'pending'].map(s => ({ s, t: SL[s] }));
+    const openNode = id => () => this.setState({ tab: 'chain', overlay: 'node', node: id, nodeAction: null });
+    const alerts = [
+      { s: 'rejected', icon: ic.triangle, sev: 'Engelleyici', code: 'KURAL · LIF-01 Lif bileşimi tutarlılığı', title: 'Etikette %95 pamuk beyan edilmiş, iplikçi %80 beyan etmiş.', meta: 'Maraş Penye İplik · İplik adımı · 16 Eyl 2026 11:04', hasCompare: true, compare: [{ k: 'Etiket beyanı', v: '%95 pamuk · %5 elastan', c: 'var(--foreground)' }, { k: 'Maraş Penye İplik beyanı', v: '%80 pamuk · %20 polyester', c: 'var(--status-rejected-foreground)' }], secondaryT: 'Adıma git', secondary: openNode('ip2'), primaryT: 'Düzeltme iste', primary: () => this.setState({ tab: 'chain', overlay: 'node', node: 'ip2', nodeAction: 'fix' }) },
+      { s: 'expiring', icon: ic.clock, sev: 'Uyarı', code: 'SERTİFİKA · OEKO-TEX Standard 100', title: 'OEKO-TEX sertifikası 12 gün içinde doluyor.', meta: 'Çınar Boya Apre · Boya adımı · bitiş 15.10.2026', hasCompare: false, compare: [], secondaryT: 'Adıma git', secondary: openNode('boy'), primaryT: 'Yenisini talep et', primary: () => this.setState({ tab: 'chain', overlay: 'node', node: 'boy', nodeAction: 'link' }) },
+      { s: 'low-confidence', icon: ic.sparkle, sev: 'Kontrol', code: 'AI · güven 0,61 < 0,80', title: 'GOTS sertifika numarası düşük güvenle okundu.', meta: 'Maraş Penye İplik · gots_sertifika_2026.pdf', hasCompare: false, compare: [], secondaryT: 'Belgeyi aç', secondary: () => this.setState({ tab: 'docs' }), primaryT: 'İncele', primary: openNode('ip2') },
+    ];
+    const docs = [
+      ['gots_tc_harran_2026.pdf', 'GOTS işlem sertifikası', 'Bursa İplik San.', 97, 'approved', '31.03.2027'],
+      ['iplik_teknik_foy_BI-1180.pdf', 'Teknik föy', 'Bursa İplik San.', 95, 'approved', '—'],
+      ['iplik_teknik_foy_ME-2291.pdf', 'Teknik föy', 'Maraş Penye İplik', 92, 'submitted', '—'],
+      ['gots_sertifika_2026.pdf', 'GOTS sertifikası', 'Maraş Penye İplik', 61, 'low-confidence', '30.06.2027'],
+      ['kumas_teknik_foy_0918.pdf', 'Teknik föy', 'Denizli Örme Tekstil', 94, 'submitted', '—'],
+      ['oekotex_100_cinar.pdf', 'OEKO-TEX Standard 100', 'Çınar Boya Apre', 96, 'expiring', '15.10.2026'],
+      ['irsaliye_44871.pdf', 'İrsaliye', 'Çınar Boya Apre', 88, 'approved', '—'],
+    ].map(([f_, t, w, c, s, v]) => ({ f: f_, t, w, c: '0,' + c, cs: c < 80 ? 'low-confidence' : 'approved', s, sl: SL[s], v }));
+
+    // Düğüm paneli
+    const nBase = nb.find(n => n.id === selNode) || nb[2];
+    const nDet = DET[nBase.id] || DET.ip2;
+    const nCur = this.nodeStatus(nBase);
+    const aiArr = this.aiFor(nBase.id);
+    const drafts = this.state.drafts || {};
+    const ndAi = aiArr.map((a, i) => { const low = a.conf < 80, ap = a.mode === 'approved', key = nBase.id + i; return { ...a, draft: drafts[key] ?? a.value, font: a.mono ? "14px 'Geist Mono',monospace" : "500 14px 'Geist',sans-serif", pct: a.conf + '%', confTxt: '0,' + a.conf, confKey: low ? 'low-confidence' : 'approved', sKey: ap ? 'approved' : low ? 'low-confidence' : 'pending', sLabel: ap ? 'Onaylandı' : low ? 'AI güveni düşük' : 'Onay bekliyor', border: !ap && low ? 'var(--status-low-confidence)' : 'var(--border)', suggesting: a.mode === 'suggest', editing: a.mode === 'edit', viewing: a.mode !== 'edit', approved: ap, hint: a.hint || '', approvedBy: a.edited ? 'Düzenlendi · Elif Y. · şimdi' : 'Elif Y. · onaylandı',
+      onApprove: () => this.setAi(nBase.id, i, { mode: 'approved' }), onEdit: () => this.setAi(nBase.id, i, { mode: 'edit' }), onCancel: () => this.setAi(nBase.id, i, { mode: 'suggest' }), onReset: () => this.setAi(nBase.id, i, { mode: 'suggest', edited: false }),
+      onSave: () => this.setAi(nBase.id, i, { mode: 'approved', value: drafts[key] ?? a.value, edited: true }), onInput: e => { const v = e.target.value; this.setState(s => ({ drafts: { ...(s.drafts || {}), [key]: v } })); } }; });
+    const nd = { stepLine: nBase.step + ' · adım ' + nDet.idx + '/5', name: nBase.name, city: nBase.city, s: nCur, sl: SL[nCur], who: nDet.who, ai: ndAi, data: nDet.data.map(([k, v, flag, tone]) => ({ k, v, flag: flag || '', tone: tone || 'pending', hasFlag: !!flag })) };
+    const DEF_FIX = 'Teknik föyde lif oranı %80 pamuk · %20 polyester görünüyor; etiket beyanımız %95 pamuk · %5 elastan. Doğru teknik föyü ve GOTS sertifikasının okunaklı bir kopyasını yükler misiniz?';
+    const fixText = this.state.fixText !== undefined ? this.state.fixText : (this.props.nodeAction === 'fix' ? DEF_FIX : '');
+    const lowPending = ndAi.filter(a => a.conf < 80 && !a.approved).length;
+    const fixSent = !!this.state.fixSent;
+    const act = { link: nodeAction === 'link', fix: nodeAction === 'fix' && !fixSent, sent: fixSent,
+      url: 'kozapass.com/v/' + bRow.id.slice(8).toLowerCase() + '-' + nBase.id + '-7hq2',
+      copyT: this.state.copied ? 'Kopyalandı' : 'Kopyala', copyIcon: this.state.copied ? ic.check : ic.copy, copy: () => this.setState({ copied: true }),
+      preview: 'Mesaj önizlemesi: “Merhaba, ' + bRow.id + ' partisi için ' + nBase.step.toLocaleLowerCase('tr') + ' verilerinizi ve belgelerinizi bu bağlantıdan yükleyebilirsiniz. — Karaca Tekstil”',
+      chips: ['Lif oranı uyuşmuyor', 'Belge okunaksız', 'Sertifika süresi dolmuş'].map(t => ({ t, pick: () => this.setState({ fixText: (fixText ? fixText.trim() + ' ' : '') + t + '.' }) })),
+      text: fixText, onText: e => this.setState({ fixText: e.target.value }),
+      cancel: () => this.setState({ nodeAction: null }), sendDisabled: !fixText.trim(), sendOp: fixText.trim() ? 1 : 0.45,
+      send: () => fixText.trim() && this.setState(s => ({ fixSent: true, nodeAction: null, nodeS: { ...(s.nodeS || {}), [nBase.id]: 'rejected' } })),
+      openLink: () => this.setState({ nodeAction: nodeAction === 'link' ? null : 'link', fixSent: false }), openFix: () => this.setState({ nodeAction: nodeAction === 'fix' ? null : 'fix', fixSent: false }),
+      linkBg: nodeAction === 'link' ? 'var(--accent)' : 'var(--card)', fixBg: nodeAction === 'fix' ? 'var(--accent)' : 'var(--card)',
+      approveDisabled: nCur === 'approved' || lowPending > 0, approveOp: nCur === 'approved' || lowPending > 0 ? 0.45 : 1,
+      approveT: nCur === 'approved' ? 'Onaylandı' : 'Adımı onayla',
+      approve: () => { if (nCur !== 'approved' && !lowPending) this.setState(s => ({ nodeS: { ...(s.nodeS || {}), [nBase.id]: 'approved' }, nodeAction: null })); },
+      hasApproveHint: lowPending > 0 && nCur !== 'approved', approveHint: 'Önce düşük güvenli ' + lowPending + ' alanı onaylayın' };
+
+    // Parti oluştur
+    const comboOpen = this.b('comboOpen');
+    const bfBase = this.props.overlay === 'parti-olustur' && this.props.comboOpen ? { pid: null, q: 'pamuk', no: 'KP-2026-0927-A', ue: 'ÜE-2026-0452', qty: '1.800', start: '29.09.2026', end: '17.10.2026' } : { pid: null, q: '', no: 'KP-2026-0927-A', ue: '', qty: '', start: '', end: '' };
+    const bf = { ...bfBase, ...(this.state.bf || {}) };
+    const setBf = patch => this.setState({ bf: { ...bf, ...patch } });
+    const cq = bf.q.toLocaleLowerCase('tr');
+    const comboItems = ps.filter(p => !cq || (p.name + p.gtin).toLocaleLowerCase('tr').includes(cq)).map(p => ({ ...p, fiberTxt: this.fiberTxt(p.fibers), bg: bf.pid === p.id ? 'var(--accent)' : 'transparent', pick: () => this.setState({ bf: { ...bf, pid: p.id }, comboOpen: false }) }));
+    const selP = ps.find(p => p.id === bf.pid);
+    const combo = { open: comboOpen, closed: !comboOpen, q: bf.q, items: comboItems, none: comboItems.length === 0, countTxt: comboItems.length + ' ürün', selTxt: selP ? selP.name : 'Ürün seçin', selFg: selP ? 'var(--foreground)' : 'var(--muted-foreground)', selGtin: selP ? selP.gtin : '', bd: comboOpen ? 'var(--ring)' : 'var(--input)', sh: comboOpen ? '0 0 0 3px var(--ring-soft)' : 'var(--shadow-xs)' };
+    const bfOk = !!selP && !!bf.qty && !!bf.no;
+    const createBatch = () => { if (!bfOk) return; this.setState(s => ({ extraBatches: [{ id: bf.no, pid: selP.id, qty: bf.qty, ue: bf.ue || '—', st: ['pending', 'pending', 'pending', 'pending', 'empty'], s: 'pending', score: 0, upd: 'Şimdi' }, ...(s.extraBatches || [])], overlay: 'none', bf: null, comboOpen: false })); };
+
+    // Tedarikçiler
+    const supBase = [
+      ['Bursa İplik San.', 'İplik', 'Bursa', '+90 224 441 20 10', ['GOTS', 'OEKO-TEX'], 9, 'approved'],
+      ['Maraş Penye İplik', 'İplik', 'Kahramanmaraş', '+90 344 221 88 03', ['GOTS'], 3, 'low-confidence'],
+      ['Denizli Örme Tekstil', 'Kumaş', 'Denizli', '+90 258 371 54 20', ['GOTS', 'OEKO-TEX'], 7, 'submitted'],
+      ['Çınar Boya Apre', 'Boyahane', 'Denizli', '+90 258 295 13 47', ['OEKO-TEX', 'bluesign'], 5, 'expiring'],
+      ['Gökçe Konfeksiyon', 'Konfeksiyon', 'İzmir', '+90 232 876 40 12', ['SMETA'], 4, 'pending'],
+      ['Ekin Aksesuar', 'Aksesuar', 'İstanbul', '+90 212 549 66 31', ['OEKO-TEX'], 2, 'rejected'],
+      ['Uşak Kumaş Dokuma', 'Kumaş', 'Uşak', '+90 276 227 90 05', ['GRS'], 1, 'approved'],
+    ].map(([name, tip, city, phone, certs, batches, s]) => ({ name, tip, city, phone, certs, batches, s }));
+    const sups = [...(this.state.extraSups || []), ...supBase];
+    const sq = this.g('sq', ''), sTip = this.g('sTip', 'Tümü');
+    const supRows = sups.filter(s => (sTip === 'Tümü' || s.tip === sTip) && (!sq || (s.name + s.city).toLocaleLowerCase('tr').includes(sq.toLocaleLowerCase('tr')))).map(s => ({ ...s, sl: SL[s.s] }));
+    const TIPS = ['İplik', 'Kumaş', 'Boyahane', 'Konfeksiyon', 'Aksesuar'];
+    const sfBase = overlay === 'tedarikci-ekle' && this.props.overlay === 'tedarikci-ekle' ? { name: 'Aras Örme Konfeksiyon', tip: 'Konfeksiyon', city: 'İzmir', phone: '532 418 77 90' } : { name: '', tip: '', city: 'Bursa', phone: '' };
+    const sf = this.state.sf || sfBase;
+    const setSf = patch => this.setState({ sf: { ...sf, ...patch } });
+    const sfOk = !!sf.name.trim() && !!sf.tip && sf.phone.replace(/\D/g, '').length >= 10;
+    const sfTips = TIPS.map(t => { const on = sf.tip === t; return { t, pick: () => setSf({ tip: t }), bg: on ? 'var(--primary)' : 'var(--card)', fg: on ? 'var(--primary-foreground)' : 'var(--foreground)', bd: on ? 'transparent' : 'var(--input)' }; });
+    const addSup = () => { if (!sfOk) return; this.setState(s => ({ extraSups: [{ name: sf.name, tip: sf.tip, city: sf.city, phone: '+90 ' + sf.phone, certs: [], batches: 0, s: 'pending' }, ...(s.extraSups || [])], overlay: 'none', sf: null, view: 'tedarikciler' })); };
+
+    // Kırıntılar
+    const T = { urunler: 'Ürünler', partiler: 'Partiler', tedarikciler: 'Tedarikçiler' };
+    const crumbs = view === 'parti' ? [{ t: 'Partiler', go: go('partiler'), fg: 'var(--muted-foreground)', font: "'Geist',sans-serif", cursor: 'pointer' }, { t: bRow.id, go: () => {}, fg: 'var(--foreground)', font: "'Geist Mono',monospace", cursor: 'default' }] : [{ t: T[view] || '', go: () => {}, fg: 'var(--muted-foreground)', font: "'Geist',sans-serif", cursor: 'default' }];
+
+    const ovMap = { 'urun-sheet': 'ovSheet', 'urun-sil': 'ovDelete', 'parti-olustur': 'ovBatch', 'tedarikci-ekle': 'ovSup', node: 'ovNode' };
+    const ov = { ovSheet: false, ovDelete: false, ovBatch: false, ovSup: false, ovNode: false };
+    if (ovMap[overlay]) ov[ovMap[overlay]] = true;
+
+    const mv = { urunler: { title: 'Ürünler', cta: 'Yeni ürün', ph: 'Ürün veya GTIN ara', count: prodRows.length + ' ürün' }, partiler: { title: 'Partiler', cta: 'Yeni parti', ph: 'Parti no ara', count: batchRows.length + ' parti' }, tedarikciler: { title: 'Tedarikçiler', cta: 'Tedarikçi ekle', ph: 'Firma veya şehir ara', count: supRows.length + ' tedarikçi' } }[view] || {};
+    const m = { ...mv, isP: view === 'urunler', isB: view === 'partiler', isS: view === 'tedarikciler', q: view === 'urunler' ? q : view === 'partiler' ? bq : sq, onQ: e => this.setState({ [view === 'urunler' ? 'q' : view === 'partiler' ? 'bq' : 'sq']: e.target.value }) };
+
+    return {
+      ic, desktop: !mobile, mobile, navGroups, crumbs, m,
+      isUrunler: view === 'urunler', isPartiler: view === 'partiler', isParti: view === 'parti', isTed: view === 'tedarikciler',
+      q, onQ: e => this.setState({ q: e.target.value }), cat, onCat: e => this.setState({ cat: e.target.value }), cats: ['Tümü', ...catOpts], catOpts,
+      prodRows, prodNoRows: prodRows.length === 0, prodEmptyAll, prodEmptyFilter, prodCountTxt: prodRows.length + ' / ' + ps.length + ' ürün',
+      prodEmptyTitle: prodEmptyAll ? 'Henüz ürün yok' : 'Eşleşen ürün yok', prodEmptyBody: prodEmptyAll ? 'Pasaport her zaman bir ürüne bağlıdır. GTIN, ürün adı ve beyan edilen lif bileşimiyle ilk ürününüzü tanımlayın ya da Excel listenizi içe aktarın.' : 'Arama veya kategori filtresini değiştirin.',
+      openNewProduct: () => this.setState({ overlay: 'urun-sheet', form: this.emptyForm(), menuRow: 0 }), clearProdFilters: () => this.setState({ q: '', cat: 'Tümü' }),
+      sheetTitle: f.id ? 'Ürünü düzenle' : 'Yeni ürün', form: f, gt, tot, fiberRows, fiberOpts,
+      onFName: e => this.setForm({ name: e.target.value }), onFGtin: e => this.setForm({ gtin: e.target.value.replace(/\s/g, '') }), onFSku: e => this.setForm({ sku: e.target.value }), onFCat: e => this.setForm({ cat: e.target.value }), onFDesc: e => this.setForm({ desc: e.target.value }),
+      addFiber: () => this.setForm({ fibers: [...f.fibers, { f: 'Elastan', p: '' }] }),
+      saveProduct, saveDisabled: !canSave, saveOp: canSave ? 1 : 0.45, saveCursor: canSave ? 'pointer' : 'not-allowed', saveHint,
+      del,
+      batchRows, bq, onBq: e => this.setState({ bq: e.target.value }), bStatus, onBStatus: e => this.setState({ bStatus: e.target.value }), bProd, onBProd: e => this.setState({ bProd: e.target.value }), statusOpts, prodOpts,
+      batchCountTxt: batchRows.length + ' parti', openCreateBatch: () => this.setState({ overlay: 'parti-olustur', comboOpen: false }),
+      b: bRow, score, scoreC: score >= 90 ? 'var(--status-approved)' : 'var(--foreground)', ringDash: (C * score / 100).toFixed(1) + ' ' + C.toFixed(1),
+      publishBlocked, publishOp: publishBlocked ? 0.5 : 1, publishCursor: publishBlocked ? 'not-allowed' : 'pointer', publishIcon: publishBlocked ? ic.lock : ic.upload, reasons,
+      tabs, isChain: tab === 'chain', isDocs: tab === 'docs', isAlerts: tab === 'alerts', isVersions: tab === 'versions', legend, cols, nodes, edges, alerts, docs, goAlerts: () => this.setState({ tab: 'alerts' }),
+      nd, act,
+      combo, bf, toggleCombo: () => this.setState({ comboOpen: !comboOpen }), stop: e => e.stopPropagation(), onComboQ: e => setBf({ q: e.target.value }),
+      onBfNo: e => setBf({ no: e.target.value }), resetBfNo: () => setBf({ no: 'KP-2026-0927-A' }), onBfUe: e => setBf({ ue: e.target.value }), onBfQty: e => setBf({ qty: e.target.value }), onBfStart: e => setBf({ start: e.target.value }), onBfEnd: e => setBf({ end: e.target.value }),
+      bfHint: bfOk ? 'Tedarik zinciri: 5 adım kopyalanacak' : 'Ürün ve miktar gerekli', bfDisabled: !bfOk, bfOp: bfOk ? 1 : 0.45, createBatch,
+      supRows, sq, onSq: e => this.setState({ sq: e.target.value }), sTip, onSTip: e => this.setState({ sTip: e.target.value }), tipOpts: ['Tümü', ...TIPS], supCountTxt: supRows.length + ' tedarikçi',
+      openSup: () => this.setState({ overlay: 'tedarikci-ekle', sf: { name: '', tip: '', city: 'Bursa', phone: '' } }),
+      sf, sfTips, cityOpts: ['Adana', 'Bursa', 'Denizli', 'Gaziantep', 'İstanbul', 'İzmir', 'Kahramanmaraş', 'Kayseri', 'Tekirdağ', 'Uşak'], onSfName: e => setSf({ name: e.target.value }), onSfCity: e => setSf({ city: e.target.value }), onSfPhone: e => setSf({ phone: e.target.value }),
+      sfDisabled: !sfOk, sfOp: sfOk ? 1 : 0.45, addSup,
+      ...ov, ovAny: overlay !== 'none' && !!ovMap[overlay], closeOv: () => this.setState({ overlay: 'none', comboOpen: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>
