@@ -121,7 +121,7 @@ _Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md
 - [x] Ürün CRUD (GTIN kontrol hanesi doğrulaması), parti CRUD — backend, V3, demo verisi (3 ürün, 5 parti), `@tekpas/shared` Zod şemaları
 - [ ] Web: ürün listesi/formu, parti listesi/formu/detay iskeleti (tasarım v0.3 01–08)
   - [x] Ürünler (01–06): liste, boş durum, düzenle/yeni sheet'i, silme onayı ve engeli
-  - [ ] Partiler (07–08): liste, parti oluştur
+  - [x] Partiler (07–08): liste, parti oluştur
 
 Web kuralları (M2):
 - Ürün listesi tek sayfada en fazla 100 ürün gösterir (`size=100`); tasarımda sayfalama yok. 100'ü aşan firmada ilk 100 görünür; sayfalama tasarımı gelince eklenecek.
@@ -240,7 +240,11 @@ Backend kuralları (M2):
 - [ ] VIEWER: devre dışı yazma butonları ve satır menüsü, "Bu işlem için yetkiniz yok" tooltip'i (tooltip bileşeni tasarımda yok).
 - [ ] Ürün formunda GTIN dışındaki alan hataları (ad, SKU, lif oranı "Tam sayı girin", aynı lif iki kez): input altında kırmızı satır; tasarımda sadece GTIN hatası var.
 - [ ] Kaydetme/silme sunucu hatası (5xx): toast.
-- [ ] Parti durum chip'leri (Taslak, Veri toplanıyor, Yayına hazır, Yayında) — PR B.
+- [ ] Parti durum chip'leri (Taslak=pending, Veri toplanıyor=submitted, Yayına hazır=approved, Yayında=brand): tasarımdaki chip'ler adım durumlarını gösteriyor (Beklemede, Gönderildi…).
+- [ ] Partiler: tedarik zinciri çubuğu sadece sayılardan (onaylı yeşil, kalan gri, adım yoksa "—"); adım bazında renk M3'te zincirle gelir. Uyum skoru "—" (M6). Satır oku ve satıra tıklama gizli (parti detayı 09, M3).
+- [ ] Partiler: filtre sonucu boş durumu ("Eşleşen parti yok", "Filtreleri temizle") ürünlerdeki tasarım metninden uyarlandı. Hiç parti yokken v0.2'nin (tasarım G) boş durumu ve "Nasıl başlanır" rehberi duruyor.
+- [ ] Parti oluştur: "Zincir son partiden kopyalanır" alt başlığı ve "Tedarik zinciri: 5 adım kopyalanacak" ipucu M3'e kadar gizli. Tarih alanları tarayıcının tarih seçicisi (tasarımda düz metin "gg.aa.yyyy").
+- [ ] Tasarım çerçevelerinde tanımlı olup globals.css'te olmayan token'lar: `--brand-text` eklendi (08 "Otomatik öneri" rozeti, "Yayında" chip'i); `--primary-hover`, `--destructive-hover`, `--ring-soft` hâlâ yok (web'de bg-primary/85 ve ring/18 kullanılıyor).
 - [ ] Mobil web liste (md altı): masaüstü tablo yatay kaydırılır; tasarım 16 web için uyarlanmalı.
 - [ ] Popover üstünde muted zemin token'ı (dark'ta --muted = --popover, ikisi #1B202A): ürün silme dialogundaki ürün kutusu koyu temada geçici olarak --card kullanıyor. Mobil kullanıcı menüsündeki seçim grubunun zemini de koyu temada görünmüyor; seçili öğe zaten --card olduğu için orada --card kullanılamadı, token gelince düzelecek.
 
