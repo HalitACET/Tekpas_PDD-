@@ -1,5 +1,6 @@
 package com.tekpas.common.error;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
@@ -9,6 +10,7 @@ import org.jspecify.annotations.Nullable;
  * the translated message shows (e.g. {@code total} for FiberTotal).
  */
 public record FieldViolation(String field, String code, @Nullable String message,
+        @Schema(additionalProperties = Schema.AdditionalPropertiesValue.TRUE, example = "{\"total\": 95}")
         @Nullable Map<String, Object> params) {
 
     public FieldViolation(String field, String code, @Nullable String message) {

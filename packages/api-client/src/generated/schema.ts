@@ -284,8 +284,13 @@ export interface components {
             code: string;
             field: string;
             message?: string | null;
+            /**
+             * @example {
+             *       "total": 95
+             *     }
+             */
             params?: {
-                [key: string]: Record<string, never>;
+                [key: string]: unknown;
             } | null;
         };
         LoginRequest: {

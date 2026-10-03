@@ -222,8 +222,9 @@
             "type" : [ "string", "null" ]
           },
           "params" : {
-            "additionalProperties" : {
-              "type" : "object"
+            "additionalProperties" : true,
+            "example" : {
+              "total" : 95
             },
             "type" : [ "object", "null" ]
           }
