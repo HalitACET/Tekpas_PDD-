@@ -227,7 +227,7 @@ Backend kuralları (M2):
 - [ ] Login "sunucu uyanıyor" durumu (5 sn sonra buton metni) tasarımda yok; kullanıcı onayıyla eklendi.
 
 **Tasarım sapması** (tasarım yanlış, uygulama farklı yapacak):
-- [ ] Tasarım v0.3'te (ekran 10) link `kozapass.com/v/…` biçiminde görünüyor. Alan adı yok, domain her zaman `kozapass.vercel.app`. Linkin biçimi bağlama göre seçilir: tedarikçiden veri isteniyorsa `https://kozapass.vercel.app/r/{token}` (K14), herkese açık pasaport gösteriliyorsa GS1 yolu `https://kozapass.vercel.app/01/{gtin}/10/{batch}` (K13). `/v/` yolu kullanılmaz.
+- [ ] Tasarım v0.3 ekran 10 ("Düğüm paneli — Maraş Penye İplik, veri talep bağlantısı"): tedarikçi veri talebi linki `kozapass.com/v/…` görünüyor. Bu yazı `docs/design/v0.3/KozaPassPanel.dc.html` bileşenindeki örnek `url` sabitinden geliyor, koda taşınmaz. Uygulamada link `https://kozapass.vercel.app/r/{token}` olur (K14). Herkese açık pasaport ise GS1 yolunda kalır: `https://kozapass.vercel.app/01/{gtin}/10/{batch}` (K13).
 
 
 - [x] Demo kullanıcılarının gerçek BCrypt hash'i (M1, `DemoDataSeeder`)
