@@ -125,3 +125,36 @@ test("without any batch the design G empty state with its guide shows", async ({
   await expect(page.getByRole("heading", { name: "Henüz parti yok" })).toBeVisible();
   await expect(page.getByRole("list", { name: "Nasıl başlanır" })).toBeVisible();
 });
+
+for (const scheme of ["light", "dark"] as const) {
+  test(`the published chip is filled and readable (AA) in the ${scheme} theme`, async ({ page }) => {
+    await page.addInitScript((theme) => localStorage.setItem("theme", theme), scheme);
+    await openBatches(page);
+    const chip = page.getByRole("row", { name: /KP-2026-0828-A/ }).getByText("Yayında");
+
+    const ratio = await chip.evaluate((el) => {
+      const rgb = (color: string) => color.match(/\d+(\.\d+)?/g)!.slice(0, 3).map(Number);
+      const luminance = (color: string) => {
+        const [r, g, b] = rgb(color).map((v) => {
+          const c = v / 255;
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const style = getComputedStyle(el);
+      const [a, b] = [luminance(style.color), luminance(style.backgroundColor)].sort((x, y) => y - x);
+      return (a + 0.05) / (b + 0.05);
+    });
+    expect(ratio).toBeGreaterThanOrEqual(4.5);
+    // Filled: the chip itself carries the brand colour, not a muted tint.
+    const brand = await page.evaluate(() => {
+      const probe = document.createElement("span");
+      probe.style.color = "var(--brand)";
+      document.body.append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    });
+    expect(await chip.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(brand);
+  });
+}

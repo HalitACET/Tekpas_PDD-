@@ -1,17 +1,20 @@
 "use client";
 
 import type { BatchStatus } from "@tekpas/shared";
+import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 /**
  * Batch status as the design's status chip (07). The design shows supply chain step states there; batches
  * have their own four states, mapped to the same chip style (design debt, PLAN.md).
  */
-const TONES: Record<BatchStatus, { chip: string; dot: string }> = {
+const TONES: Record<BatchStatus, { chip: string; dot?: string }> = {
   DRAFT: { chip: "bg-status-pending-muted text-status-pending-foreground", dot: "bg-status-pending" },
   COLLECTING: { chip: "bg-status-submitted-muted text-status-submitted-foreground", dot: "bg-status-submitted" },
   READY: { chip: "bg-status-approved-muted text-status-approved-foreground", dot: "bg-status-approved" },
-  PUBLISHED: { chip: "bg-brand-muted text-brand-text", dot: "bg-brand" },
+  // Published is the end state: a filled brand chip with a check, so it never reads like "rejected" (muted red).
+  // Text --primary-foreground: cream on light brand (7.5:1), dark on dark brand (6.8:1).
+  PUBLISHED: { chip: "bg-brand text-primary-foreground" },
 };
 
 export function BatchStatusChip({ status }: { status: BatchStatus }) {
@@ -21,7 +24,11 @@ export function BatchStatusChip({ status }: { status: BatchStatus }) {
     <span
       className={`inline-flex items-center gap-1.5 rounded-full py-[3px] pr-[9px] pl-2 text-xs font-medium whitespace-nowrap ${tone.chip}`}
     >
-      <span className={`size-1.5 rounded-full ${tone.dot}`} aria-hidden />
+      {tone.dot ? (
+        <span className={`size-1.5 rounded-full ${tone.dot}`} aria-hidden />
+      ) : (
+        <Check className="-mx-px size-3" strokeWidth={2.5} aria-hidden />
+      )}
       {t(status)}
     </span>
   );

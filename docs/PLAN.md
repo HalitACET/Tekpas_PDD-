@@ -241,6 +241,7 @@ Backend kuralları (M2):
 - [ ] Ürün formunda GTIN dışındaki alan hataları (ad, SKU, lif oranı "Tam sayı girin", aynı lif iki kez): input altında kırmızı satır; tasarımda sadece GTIN hatası var.
 - [ ] Kaydetme/silme sunucu hatası (5xx): toast.
 - [ ] Parti durum chip'leri (Taslak=pending, Veri toplanıyor=submitted, Yayına hazır=approved, Yayında=brand): tasarımdaki chip'ler adım durumlarını gösteriyor (Beklemede, Gönderildi…).
+- [ ] Yayında chip'i: dolu brand varyantı (zemin --brand, yazı --primary-foreground, nokta yerine onay ikonu); muted dut zemin "Reddedildi"ye çok benziyordu. Kontrast açıkta 7,5:1, koyuda 6,8:1.
 - [ ] Partiler: tedarik zinciri çubuğu sadece sayılardan (onaylı yeşil, kalan gri, adım yoksa "—"); adım bazında renk M3'te zincirle gelir. Uyum skoru "—" (M6). Satır oku ve satıra tıklama gizli (parti detayı 09, M3).
 - [ ] Partiler: filtre sonucu boş durumu ("Eşleşen parti yok", "Filtreleri temizle") ürünlerdeki tasarım metninden uyarlandı. Hiç parti yokken v0.2'nin (tasarım G) boş durumu ve "Nasıl başlanır" rehberi duruyor.
 - [ ] Parti oluştur: "Zincir son partiden kopyalanır" alt başlığı ve "Tedarik zinciri: 5 adım kopyalanacak" ipucu M3'e kadar gizli. Tarih alanları tarayıcının tarih seçicisi (tasarımda düz metin "gg.aa.yyyy").
