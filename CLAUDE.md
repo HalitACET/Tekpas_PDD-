@@ -57,7 +57,7 @@ Not: 5432 makinedeki başka bir Postgres'e ait, local Docker DB 5433'te.
 5. Testleri yaz ve çalıştır. Kırmızı testle iş bitmiş sayılmaz.
 6. Lint, typecheck ve test'in hepsi yeşil olunca PR aç. PR açıklamasında şunlar olsun: ne değişti, nasıl test edildi, varsa ekran görüntüsü.
 7. Merge: Sadece kullanıcı açıkça "merge et" dediğinde. Önce CI kontrollerinin yeşil olduğunu doğrula (`gh pr checks`). Kırmızıysa merge etme, sebebini raporla. Merge: `gh pr merge --squash --delete-branch`. Squash commit mesajı PR başlığıdır, Conventional Commits biçiminde olmalı. Merge sonrası `main`'e geç ve pull et.
-8. Bir kilometre taşı bittiğinde haftalık notu yaz (aşağıya bak) ve `docs/PLAN.md`'deki kutuyu işaretle.
+8. Bir kilometre taşı bittiğinde haftalık notu yaz (aşağıya bak) ve `docs/PLAN.md`'deki kutuyu işaretle. Aynı PR'da `README.md`'yi de güncelle: kilometre taşı tablosu (PLAN.md ile tutarlı), ekran görüntüsü galerisi ve "Ne yapar" özellik listesi.
 
 **Bitti tanımı:** Kabul kriterleri sağlandı, testler yeşil, API client güncel, çeviri anahtarları eklendi, `main`'e merge edildiğinde canlıda çalışıyor.
 
