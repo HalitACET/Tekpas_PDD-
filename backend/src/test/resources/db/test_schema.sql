@@ -1,16 +1,19 @@
 -- Semanin davranis testleri. Beklenen hatalar SAVEPOINT ile yakalanir.
 \set ON_ERROR_STOP 0
-\echo '--- 1) Tedarik zinciri agaci (recursive CTE, kokten yapraga)'
+\echo '--- 1) Tedarik zinciri (DAG, recursive CTE): girdisi olmayan adimlardan dikime'
 WITH RECURSIVE chain AS (
     SELECT s.id, s.step_type, s.supplier_company_id, s.status, 0 AS depth
     FROM supply_step s
-    WHERE s.batch_id = '30000000-0000-0000-0000-000000000001' AND s.parent_step_id IS NULL
+    WHERE s.batch_id = '30000000-0000-0000-0000-000000000001'
+      AND NOT EXISTS (SELECT 1 FROM supply_step_input i WHERE i.step_id = s.id)
   UNION ALL
     SELECT c.id, c.step_type, c.supplier_company_id, c.status, p.depth + 1
-    FROM supply_step c JOIN chain p ON c.parent_step_id = p.id
+    FROM supply_step_input i
+    JOIN chain p ON i.input_step_id = p.id
+    JOIN supply_step c ON c.id = i.step_id
 )
 SELECT repeat('  ', depth) || step_type AS adim, co.name AS tedarikci, ch.status
-FROM chain ch JOIN company co ON co.id = ch.supplier_company_id
+FROM chain ch LEFT JOIN company co ON co.id = ch.supplier_company_id
 ORDER BY depth;
 
 \echo '--- 2) Uyum skoru (onayli adim orani)'
@@ -20,6 +23,11 @@ FROM supply_step WHERE batch_id = '30000000-0000-0000-0000-000000000001';
 \echo '--- 3) Lif toplami %100 mu? (kural kontrolu, JSONB)'
 SELECT step_type, sum((f->>'percent')::numeric) AS toplam
 FROM supply_step, jsonb_array_elements(data->'fiberComposition') f
+GROUP BY step_type;
+
+\echo '--- 3b) Enerji kaynaklari toplami %100 mu?'
+SELECT step_type, sum((e->>'percent')::int) AS toplam
+FROM supply_step, jsonb_array_elements(data->'energySources') e
 GROUP BY step_type;
 
 \echo '--- 4) 200 gun icinde suresi dolacak belgeler'
@@ -55,3 +63,7 @@ UPDATE batch SET quantity = -5;
 INSERT INTO company_supplier VALUES ('00000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000001');
 \echo 'f) uyum skoru 100 ustu'
 UPDATE passport SET completeness = 120;
+\echo 'g) adim kendi kendinin girdisi'
+INSERT INTO supply_step_input VALUES ('40000000-0000-0000-0000-000000000012','40000000-0000-0000-0000-000000000012');
+\echo 'h) E.164 olmayan telefon'
+UPDATE company_supplier SET phone = '0224 000 00 00';
