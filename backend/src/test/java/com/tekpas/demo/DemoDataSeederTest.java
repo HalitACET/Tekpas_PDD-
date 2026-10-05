@@ -117,6 +117,35 @@ class DemoDataSeederTest {
     }
 
     @Test
+    void demoOwnerSeesTheSupplierNetworkAndTheShowcaseChain() {
+        String token = fixtures.body(fixtures.loginRequest("admin@nilufergiyim.example", DEMO_PASSWORD,
+                ClientType.MOBILE)).path("accessToken").asString();
+        seeder.run(null);
+
+        JsonNode suppliers = fixtures.body(fixtures.mvc().get().uri("/api/v1/suppliers?sort=name")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token).exchange());
+        JsonNode chain = fixtures.body(fixtures.mvc().get()
+                .uri("/api/v1/batches/" + DemoDataSeeder.BATCHES.get(0).id() + "/chain")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token).exchange());
+
+        assertThat(suppliers.path("content").valueStream().map(s -> s.path("name").asString()))
+                .containsExactlyInAnyOrder("Demirtaş Örme Kumaş A.Ş.", "Ege İplik San. Ltd.", "İnegöl Fason Dikim",
+                        "Uludağ Boya Terbiye");
+        assertThat(suppliers.path("content").valueStream().mapToLong(s -> s.path("batchCount").asLong()))
+                .containsOnly(5L);
+        assertThat(chain.path("steps").valueStream().map(s -> s.path("stepType") + ":" + s.path("status")))
+                .containsExactly("\"FIBER\":\"APPROVED\"", "\"YARN\":\"APPROVED\"", "\"FABRIC\":\"SUBMITTED\"",
+                        "\"DYEING\":\"PENDING\"", "\"SEWING\":\"PENDING\"");
+        assertThat(chain.path("steps").get(1).path("data").path("energyKwhPerKg").decimalValue())
+                .isEqualByComparingTo("2.9");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM supply_step s JOIN batch b ON b.id = s.batch_id "
+                + "WHERE b.company_id = ?", Integer.class, DemoDataSeeder.NILUFER)).isEqualTo(25);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM supply_step_input i JOIN supply_step s ON s.id = i.step_id "
+                + "JOIN batch b ON b.id = s.batch_id WHERE b.company_id = ?", Integer.class, DemoDataSeeder.NILUFER))
+                .isEqualTo(20);
+    }
+
+    @Test
     void demoGtinsHaveValidCheckDigitsInTheRestrictedRange() {
         assertThat(DemoDataSeeder.PRODUCTS).allSatisfy(p -> {
             assertThat(Gtin.hasValidCheckDigit(p.gtin())).as(p.gtin()).isTrue();
