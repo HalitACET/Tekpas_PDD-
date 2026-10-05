@@ -117,9 +117,10 @@ _Tamamlandı: 27.09.2026 (PR #1–#9). Özet: `docs/haftalik/01-temel-altyapi.md
 
 **Kabul:** Canlı web linkinde demo kullanıcıyla giriş yapılır, yenilenince oturum korunur, başka firmanın kullanıcısı olarak `/auth/me` doğru firmayı döner.
 
-### M2 — Ürün ve parti
+### M2 — Ürün ve parti ✓
+_Tamamlandı: 06.10.2026 (PR #11–#15). Özet: `docs/haftalik/02-urun-ve-parti.md`. Canlı kabul 06.10.2026'da `https://kozapass.vercel.app` üzerinde doğrulandı: live-check yeşil (Nilüfer Giyim A.Ş., 3 ürün, 5 parti), Ürünler ve Partiler ekranları v0.3 tasarımıyla açılıyor._
 - [x] Ürün CRUD (GTIN kontrol hanesi doğrulaması), parti CRUD — backend, V3, demo verisi (3 ürün, 5 parti), `@tekpas/shared` Zod şemaları
-- [ ] Web: ürün listesi/formu, parti listesi/formu/detay iskeleti (tasarım v0.3 01–08)
+- [x] Web: ürün listesi/formu, parti listesi/formu (tasarım v0.3 01–08); parti detay iskeleti M3'e taşındı
   - [x] Ürünler (01–06): liste, boş durum, düzenle/yeni sheet'i, silme onayı ve engeli
   - [x] Partiler (07–08): liste, parti oluştur
 
@@ -141,6 +142,7 @@ Backend kuralları (M2):
 **Kabul:** Panelden ürün ve parti oluşturulur. Hatalı GTIN alan bazında hata gösterir. Başka firmanın ürününe erişim 404.
 
 ### M3 — Tedarik zinciri
+- [ ] Parti detay ekranı (M2'den taşındı): 09 Parti detayı + zincir ekranıyla birlikte yapılacak, ayrı iskelet yazılmayacak.
 - [ ] Tedarikçi ağı (ekle / listele / çıkar)
 - [ ] Zincir adımı ekle / düzenle, `GET /batches/{id}/tree` (recursive CTE)
 - [ ] Web: React Flow ile zincir görünümü ve düzenleme
