@@ -231,13 +231,25 @@
       "FiberTotal": "Fiber percentages must add up to 100% (now {total}%).",
       "FiberDuplicate": "The same fiber is entered more than once.",
       "DateRange": "The end date cannot be before the start date.",
-      "Unique": "This value is already in use."
+      "Unique": "This value is already in use.",
+      "Digits": "Too many digits; shorten the value.",
+      "SupplierType": "This company type does not fit here.",
+      "NotApplicable": "This field is not used for this step.",
+      "SameBatch": "Only steps of the same batch can be linked.",
+      "Cycle": "This link would create a loop in the chain.",
+      "EnergyTotal": "Energy sources must add up to 100% (now {total}%).",
+      "EnergyDuplicate": "The same energy source is entered more than once."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "This product has batches. Delete its batches first to delete the product.",
       "GTIN_LOCKED": "The GTIN cannot change because the product has batches; printed QR codes carry this GTIN.",
       "BATCH_NOT_DRAFT": "This is only possible for draft batches.",
-      "BATCH_HAS_PASSPORT": "A batch with a passport cannot be deleted."
+      "BATCH_HAS_PASSPORT": "A batch with a passport cannot be deleted.",
+      "CHAIN_EXISTS": "This batch already has a supply chain.",
+      "STEP_APPROVED": "An approved step cannot be changed.",
+      "STEP_NOT_PENDING": "Only steps still waiting for data can be removed.",
+      "SUPPLIER_NOT_EDITABLE": "The name, type and city of this company cannot be changed; only the contact details can.",
+      "SUPPLIER_IN_USE": "This supplier is used in a batch’s chain."
     }
   },
   "products": {
