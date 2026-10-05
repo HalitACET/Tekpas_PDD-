@@ -8,6 +8,11 @@ export function displayGtin(gtin14: string): string {
   return gtin14.length === 14 && gtin14.startsWith("0") ? gtin14.slice(1) : gtin14;
 }
 
+/** A count in the locale's form: tr/de "1.800", en "1,800". */
+export function formatQuantity(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale).format(value);
+}
+
 /** Whole percent in the locale's form: tr "%95", en "95%", de "95 %". */
 export function formatPercent(value: number, locale: string): string {
   return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 }).format(value / 100);

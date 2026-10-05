@@ -32,7 +32,7 @@ describe("initials", () => {
   it("takes first and last name, Turkish upper case", () => {
     expect(initials("Elif Yılmaz")).toBe("EY");
     expect(initials("ilker su")).toBe("İS");
-    expect(initials("Demo Yonetici")).toBe("DY");
+    expect(initials("Demo Yönetici")).toBe("DY");
     expect(initials("Ayşe Nur Kaya")).toBe("AK");
     expect(initials("Mehmet")).toBe("M");
   });

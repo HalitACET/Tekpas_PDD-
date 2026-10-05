@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { PageView } from "@/components/shell/page-view";
+import { Suspense } from "react";
+import { BatchesPage } from "@/components/batches/batches-page";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("pages.batches");
@@ -8,5 +9,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <PageView page="batches" />;
+  // The product filter lives in the URL (?productId=, from "Partileri gör"); useSearchParams needs a boundary.
+  return (
+    <Suspense>
+      <BatchesPage />
+    </Suspense>
+  );
 }

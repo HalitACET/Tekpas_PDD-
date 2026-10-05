@@ -68,8 +68,62 @@ function listItem(product: MockProduct) {
   return item;
 }
 
+export interface MockBatch {
+  id: string;
+  batchNo: string;
+  productId: string;
+  productionOrderNo: string | null;
+  status: "DRAFT" | "COLLECTING" | "READY" | "PUBLISHED";
+  quantity: number;
+  producedFrom: string | null;
+  producedTo: string | null;
+  chain: { totalSteps: number; approvedSteps: number };
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** The design's sample batches (v0.3 07), with batch states instead of the design's step states. */
+export function designBatches(): MockBatch[] {
+  const b = (
+    n: number,
+    batchNo: string,
+    product: number,
+    quantity: number,
+    order: string,
+    status: MockBatch["status"],
+    total: number,
+    approved: number,
+    updatedAt: string,
+  ): MockBatch => ({
+    id: `30000000-0000-4000-8000-00000000000${n}`,
+    batchNo,
+    productId: `20000000-0000-4000-8000-00000000000${product}`,
+    productionOrderNo: order,
+    status,
+    quantity,
+    producedFrom: null,
+    producedTo: null,
+    chain: { totalSteps: total, approvedSteps: approved },
+    createdAt: at(7, 1),
+    updatedAt,
+  });
+  return [
+    b(1, "KP-2026-0927-A", 1, 1800, "ÜE-2026-0452", "DRAFT", 0, 0, at(9, 3, 10, 5)),
+    b(2, "KP-2026-0918-A", 1, 2400, "ÜE-2026-0441", "COLLECTING", 5, 1, at(9, 3, 9, 32)),
+    b(3, "KP-2026-0917-C", 2, 1150, "ÜE-2026-0437", "COLLECTING", 5, 3, at(9, 2, 16, 0)),
+    b(4, "KP-2026-0912-B", 3, 3800, "ÜE-2026-0429", "READY", 5, 5, at(8, 12)),
+    b(5, "KP-2026-0909-A", 6, 2000, "ÜE-2026-0421", "COLLECTING", 5, 2, at(8, 9)),
+    b(6, "KP-2026-0904-B", 4, 600, "ÜE-2026-0415", "COLLECTING", 5, 4, at(8, 4)),
+    b(7, "KP-2026-0828-A", 3, 4200, "ÜE-2026-0398", "PUBLISHED", 5, 5, at(7, 28)),
+  ];
+}
+
+/** GET /batches/next-batch-no at NOW. */
+export const NEXT_BATCH_NO = "KP-2026-1003-A";
+
 interface CatalogOptions {
   products?: MockProduct[];
+  batches?: MockBatch[];
   /** GTINs (14 digits) that belong to another company: a save answers 409 without naming it. */
   foreignGtins?: string[];
   /** Answer every list request with a 500. */
@@ -77,7 +131,10 @@ interface CatalogOptions {
 }
 
 /** Installs the mock; returns the live product array so tests can inspect what was saved. */
-export async function mockCatalogApi(page: Page, { products = designProducts(), foreignGtins = [], failLists = false }: CatalogOptions = {}) {
+export async function mockCatalogApi(
+  page: Page,
+  { products = designProducts(), batches = designBatches(), foreignGtins = [], failLists = false }: CatalogOptions = {},
+) {
   const store = products;
   const pad = (gtin: string) => gtin.padStart(14, "0");
   const gtinTaken = (gtin: string, exceptId?: string) =>
@@ -157,6 +214,69 @@ export async function mockCatalogApi(page: Page, { products = designProducts(), 
       }
       store.splice(store.indexOf(product), 1);
       return route.fulfill({ status: 204 });
+    }
+    return route.fallback();
+  });
+
+  const batchResponse = (batch: MockBatch) => {
+    const product = store.find((p) => p.id === batch.productId)!;
+    const response: Partial<MockBatch> & { product: unknown } = {
+      ...batch,
+      product: { id: product.id, name: product.name, gtin: product.gtin },
+    };
+    delete response.productId;
+    return response;
+  };
+
+  await page.route(/\/api\/v1\/batches\/next-batch-no$/, (route) => route.fulfill({ json: { batchNo: NEXT_BATCH_NO } }));
+
+  await page.route(/\/api\/v1\/batches(\?.*)?$/, async (route) => {
+    const request = route.request();
+    if (request.method() === "GET") {
+      if (failLists) return problem(route, 500, { type: "urn:tekpas:problem:internal", title: "Internal server error" });
+      const url = new URL(request.url());
+      const q = (url.searchParams.get("q") ?? "").toLocaleLowerCase("tr");
+      const status = url.searchParams.get("status");
+      const productId = url.searchParams.get("productId");
+      const matches = batches
+        .filter((b) => !status || b.status === status)
+        .filter((b) => !productId || b.productId === productId)
+        .filter((b) => !q || [b.batchNo, b.productionOrderNo ?? ""].some((v) => v.toLocaleLowerCase("tr").includes(q)))
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+      return route.fulfill({
+        json: { content: matches.map(batchResponse), page: 0, size: 100, totalElements: matches.length, totalPages: 1 },
+      });
+    }
+    if (request.method() === "POST") {
+      const body = request.postDataJSON();
+      if (!store.some((p) => p.id === body.productId)) {
+        return problem(route, 404, { type: "urn:tekpas:problem:not-found", title: "Not found" });
+      }
+      const batchNo = body.batchNo || NEXT_BATCH_NO;
+      if (batches.some((b) => b.productId === body.productId && b.batchNo === batchNo)) {
+        return problem(route, 409, {
+          type: "urn:tekpas:problem:conflict",
+          title: "Conflict",
+          errors: [{ field: "batchNo", code: "Unique", message: "This product already has a batch with this number" }],
+        });
+      }
+      const now = new Date().toISOString();
+      const created: MockBatch = {
+        id: `30000000-0000-4000-8000-${String(batches.length + 100).padStart(12, "0")}`,
+        batchNo,
+        productId: body.productId,
+        productionOrderNo: body.productionOrderNo ?? null,
+        status: "DRAFT",
+        quantity: body.quantity,
+        producedFrom: body.producedFrom ?? null,
+        producedTo: body.producedTo ?? null,
+        chain: { totalSteps: 0, approvedSteps: 0 },
+        createdAt: now,
+        updatedAt: now,
+      };
+      batches.unshift(created);
+      store.find((p) => p.id === body.productId)!.batchCount += 1;
+      return route.fulfill({ status: 201, json: batchResponse(created) });
     }
     return route.fallback();
   });

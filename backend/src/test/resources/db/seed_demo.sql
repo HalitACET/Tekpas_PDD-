@@ -5,11 +5,11 @@
 -- =====================================================================
 
 INSERT INTO company (id, name, type, city) VALUES
- ('00000000-0000-0000-0000-000000000001', 'Nilufer Giyim A.S.',       'MANUFACTURER', 'Bursa'),
- ('00000000-0000-0000-0000-000000000002', 'Ege Iplik San. Ltd.',      'YARN',         'Denizli'),
- ('00000000-0000-0000-0000-000000000003', 'Demirtas Orme Kumas A.S.', 'FABRIC',       'Bursa'),
- ('00000000-0000-0000-0000-000000000004', 'Uludag Boya Terbiye',      'DYEHOUSE',     'Bursa'),
- ('00000000-0000-0000-0000-000000000005', 'Inegol Fason Dikim',       'SEWING',       'Bursa');
+ ('00000000-0000-0000-0000-000000000001', 'Nilüfer Giyim A.Ş.',       'MANUFACTURER', 'Bursa'),
+ ('00000000-0000-0000-0000-000000000002', 'Ege İplik San. Ltd.',      'YARN',         'Denizli'),
+ ('00000000-0000-0000-0000-000000000003', 'Demirtaş Örme Kumaş A.Ş.', 'FABRIC',       'Bursa'),
+ ('00000000-0000-0000-0000-000000000004', 'Uludağ Boya Terbiye',      'DYEHOUSE',     'Bursa'),
+ ('00000000-0000-0000-0000-000000000005', 'İnegöl Fason Dikim',       'SEWING',       'Bursa');
 
 INSERT INTO company_supplier (manufacturer_id, supplier_id, contact_email) VALUES
  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'kalite@egeiplik.example'),
@@ -20,7 +20,7 @@ INSERT INTO company_supplier (manufacturer_id, supplier_id, contact_email) VALUE
 -- password_hash yer tutucudur: gercek hash DemoDataSeeder'da DEMO_PASSWORD'dan uretilir.
 INSERT INTO app_user (id, company_id, email, password_hash, full_name, role) VALUES
  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001',
-  'admin@nilufergiyim.example', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5BWX4Z6ZlF6yF6oGqI0Kc1s9u8Z9e', 'Demo Yonetici', 'OWNER'),
+  'admin@nilufergiyim.example', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5BWX4Z6ZlF6yF6oGqI0Kc1s9u8Z9e', 'Demo Yönetici', 'OWNER'),
  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000004',
   'lab@uludagboya.example',     '$2a$10$7EqJtq98hPqEX7fNZaFWoOhi5BWX4Z6ZlF6yF6oGqI0Kc1s9u8Z9e', 'Boyahane Lab',  'SUPPLIER');
 
@@ -51,6 +51,6 @@ INSERT INTO document (company_id, step_id, doc_type, file_key, original_name, mi
   'docs/ege-iplik/oeko-tex-2026.pdf', 'OEKO-TEX_Standard100_2026.pdf', 'application/pdf', 284113,
   repeat('a', 64), 'DONE',
   '{"certNo":{"value":"SH025 123456","confidence":0.98},
-    "holderName":{"value":"Ege Iplik San. Ltd.","confidence":0.95},
+    "holderName":{"value":"Ege İplik San. Ltd.","confidence":0.95},
     "validUntil":{"value":"2027-03-31","confidence":0.97}}',
   'claude-sonnet-5', now(), '2027-03-31');

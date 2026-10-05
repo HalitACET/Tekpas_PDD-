@@ -132,7 +132,7 @@ node scripts/live-check.mjs https://kozapass.vercel.app
 
 (`DEMO_PASSWORD` ortam değişkeni zaten tanımlıysa betik sormadan onu kullanır; bunun için ayrıca değişken tanımlamak gerekmez.)
 
-Beklenen çıktı: login sayfası `200` (başlık `Giriş yap · KozaPass`), login `200` ve cookie bayrakları `HttpOnly ✓ Secure ✓ SameSite=Strict ✓ Path=/api/v1/auth ✓`, `/me` → `Nilufer Giyim A.S. (MANUFACTURER)`, ürünler `200` ve 3 demo ürünü (parti sayılarıyla), partiler `200` ve 5 demo partisi (`DRAFT`), refresh `200` ve cookie döndürüldü. Elle eklenmiş ürün veya parti varsa sayılar daha yüksek olur. Betik istekleri tarayıcı gibi `Origin` başlığıyla gönderir; login `403` dönerse backend proxy'nin ilettiği Origin'i CORS olarak reddediyordur.
+Beklenen çıktı: login sayfası `200` (başlık `Giriş yap · KozaPass`), login `200` ve cookie bayrakları `HttpOnly ✓ Secure ✓ SameSite=Strict ✓ Path=/api/v1/auth ✓`, `/me` → `Nilüfer Giyim A.Ş. (MANUFACTURER)`, ürünler `200` ve 3 demo ürünü (parti sayılarıyla), partiler `200` ve 5 demo partisi (`DRAFT`), refresh `200` ve cookie döndürüldü. Elle eklenmiş ürün veya parti varsa sayılar daha yüksek olur. Betik istekleri tarayıcı gibi `Origin` başlığıyla gönderir; login `403` dönerse backend proxy'nin ilettiği Origin'i CORS olarak reddediyordur.
 
 `DEPLOYMENT_NOT_FOUND` (404) görürsen alan adı bir deploy'a bağlı değildir: Vercel → proje → **Settings → Domains**'te `kozapass.vercel.app`'in listelendiğini ve **Deployments**'ta en son `main` deploy'unun **Production** olduğunu kontrol et.
 

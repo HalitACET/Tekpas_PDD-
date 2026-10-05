@@ -208,6 +208,12 @@
       "HOME_TEXTILE": "Home textiles",
       "FABRIC": "Fabric",
       "OTHER": "Other"
+    },
+    "batchStatus": {
+      "DRAFT": "Draft",
+      "COLLECTING": "Collecting data",
+      "READY": "Ready to publish",
+      "PUBLISHED": "Published"
     }
   },
   "errors": {
@@ -317,6 +323,57 @@
       "cancel": "Cancel",
       "confirm": "Delete product",
       "failed": "The product could not be deleted. Please try again."
+    }
+  },
+  "batches": {
+    "actions": {
+      "new": "New batch",
+      "import": "Import from Excel"
+    },
+    "search": "Search batch no or production order",
+    "statusFilter": "Status:",
+    "productFilter": "Product:",
+    "all": "All",
+    "count": "{count, plural, one {# batch} other {# batches}}",
+    "cols": {
+      "batchNo": "Batch no",
+      "product": "Product",
+      "chain": "Supply chain",
+      "status": "Status",
+      "score": "Compliance score",
+      "updated": "Updated"
+    },
+    "quantity": "{quantity} pcs",
+    "chainProgress": "{approved} of {total} steps approved",
+    "noChain": "No supply chain yet",
+    "noScore": "Compliance score not calculated yet",
+    "yesterday": "Yesterday",
+    "empty": {
+      "filteredTitle": "No matching batches",
+      "filteredBody": "Change the search or the filters.",
+      "clearFilters": "Clear filters"
+    },
+    "create": {
+      "title": "New batch",
+      "close": "Close",
+      "product": "Product",
+      "productPlaceholder": "Select a product",
+      "productSearch": "Search product name or GTIN",
+      "productCount": "{count, plural, one {# product} other {# products}}",
+      "productNone": "No matching products.",
+      "batchNo": "Batch no",
+      "suggested": "Suggested",
+      "resetSuggestion": "Restore the suggestion",
+      "productionOrderNo": "Production order no",
+      "productionOrderNoPlaceholder": "PO-2026-0000",
+      "quantity": "Quantity",
+      "quantityUnit": "pcs",
+      "producedFrom": "Production start",
+      "producedTo": "Production end",
+      "required": "Product and quantity are required",
+      "cancel": "Cancel",
+      "submit": "Create batch",
+      "failed": "The batch could not be created. Please try again."
     }
   }
 }

@@ -23,7 +23,11 @@ export const batchCreateSchema = z
       .max(50, { error: "Size" })
       .nullish()
       .transform((v) => (v == null || v.trim() === "" ? null : v.trim())),
-    quantity: z.number({ error: "NotNull" }).int({ error: "Positive" }).positive({ error: "Positive" }),
+    // Whole pieces only: 2.5 is an Integer error (as the API answers), never rounded.
+    quantity: z
+      .number({ error: (issue) => (issue.input === undefined || issue.input === null ? "NotNull" : "Integer") })
+      .int({ error: "Integer" })
+      .positive({ error: "Positive" }),
     producedFrom: isoDate,
     producedTo: isoDate,
   })

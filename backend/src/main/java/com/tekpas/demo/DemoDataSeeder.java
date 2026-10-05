@@ -17,7 +17,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 /**
  * Demo companies and users with the same UUIDs as {@code src/test/resources/db/seed_demo.sql}. Only in
  * the {@code demo} profile, idempotent, and the password hash is produced here from {@code DEMO_PASSWORD}
- * instead of being committed. Nilufer Giyim gets three products and five DRAFT batches; their GTINs are in the
+ * instead of being committed. Nilüfer Giyim gets three products and five DRAFT batches; their GTINs are in the
  * GS1 restricted circulation range (020–029), which is never assigned to a brand, so a demo passport cannot
  * point at a real product. Supply chains follow in M3.
  */
@@ -34,15 +34,15 @@ public class DemoDataSeeder implements ApplicationRunner {
     }
 
     static final List<DemoCompany> COMPANIES = List.of(
-            new DemoCompany(uuid("00000000-0000-0000-0000-000000000001"), "Nilufer Giyim A.S.", "MANUFACTURER", "Bursa"),
-            new DemoCompany(uuid("00000000-0000-0000-0000-000000000002"), "Ege Iplik San. Ltd.", "YARN", "Denizli"),
-            new DemoCompany(uuid("00000000-0000-0000-0000-000000000003"), "Demirtas Orme Kumas A.S.", "FABRIC", "Bursa"),
-            new DemoCompany(uuid("00000000-0000-0000-0000-000000000004"), "Uludag Boya Terbiye", "DYEHOUSE", "Bursa"),
-            new DemoCompany(uuid("00000000-0000-0000-0000-000000000005"), "Inegol Fason Dikim", "SEWING", "Bursa"));
+            new DemoCompany(uuid("00000000-0000-0000-0000-000000000001"), "Nilüfer Giyim A.Ş.", "MANUFACTURER", "Bursa"),
+            new DemoCompany(uuid("00000000-0000-0000-0000-000000000002"), "Ege İplik San. Ltd.", "YARN", "Denizli"),
+            new DemoCompany(uuid("00000000-0000-0000-0000-000000000003"), "Demirtaş Örme Kumaş A.Ş.", "FABRIC", "Bursa"),
+            new DemoCompany(uuid("00000000-0000-0000-0000-000000000004"), "Uludağ Boya Terbiye", "DYEHOUSE", "Bursa"),
+            new DemoCompany(uuid("00000000-0000-0000-0000-000000000005"), "İnegöl Fason Dikim", "SEWING", "Bursa"));
 
     static final List<DemoUser> USERS = List.of(
             new DemoUser(uuid("10000000-0000-0000-0000-000000000001"), uuid("00000000-0000-0000-0000-000000000001"),
-                    "admin@nilufergiyim.example", "Demo Yonetici", "OWNER"),
+                    "admin@nilufergiyim.example", "Demo Yönetici", "OWNER"),
             new DemoUser(uuid("10000000-0000-0000-0000-000000000002"), uuid("00000000-0000-0000-0000-000000000004"),
                     "lab@uludagboya.example", "Boyahane Lab", "SUPPLIER"));
 
@@ -104,6 +104,9 @@ public class DemoDataSeeder implements ApplicationRunner {
                     INSERT INTO company (id, name, type, city) VALUES (?, ?, ?, ?)
                     ON CONFLICT (id) DO NOTHING
                     """, c.id(), c.name(), c.type(), c.city());
+            // Rows from an earlier start keep their id but may carry an older spelling (e.g. "Nilufer Giyim
+            // A.S."): bring the name up to date, and touch the row only when it differs.
+            jdbc.update("UPDATE company SET name = ? WHERE id = ? AND name <> ?", c.name(), c.id(), c.name());
         }
         for (DemoUser u : USERS) {
             seedUser(u);
@@ -143,10 +146,15 @@ public class DemoDataSeeder implements ApplicationRunner {
             if (inserted == 0) {
                 log.warn("Demo user {} not created: the e-mail is taken by another user", u.email());
             }
-        } else if (!passwordEncoder.matches(properties.password(), existing.getFirst())) {
-            // DEMO_PASSWORD changed since the last start: the new one wins.
-            jdbc.update("UPDATE app_user SET password_hash = ? WHERE id = ?",
-                    passwordEncoder.encode(properties.password()), u.id());
+        } else {
+            if (!passwordEncoder.matches(properties.password(), existing.getFirst())) {
+                // DEMO_PASSWORD changed since the last start: the new one wins.
+                jdbc.update("UPDATE app_user SET password_hash = ? WHERE id = ?",
+                        passwordEncoder.encode(properties.password()), u.id());
+            }
+            // Same as companies: an older spelling of the name is corrected, an up-to-date row is not touched.
+            jdbc.update("UPDATE app_user SET full_name = ? WHERE id = ? AND full_name <> ?", u.fullName(), u.id(),
+                    u.fullName());
         }
     }
 

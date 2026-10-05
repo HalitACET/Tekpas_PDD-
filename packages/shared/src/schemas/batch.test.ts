@@ -34,7 +34,8 @@ describe("batchCreateSchema", () => {
 
   it("requires a positive whole quantity", () => {
     expect(codes({ ...valid, quantity: 0 })).toEqual(["quantity:Positive"]);
-    expect(codes({ ...valid, quantity: 2.5 })).toEqual(["quantity:Positive"]);
+    expect(codes({ ...valid, quantity: 2.5 })).toEqual(["quantity:Integer"]);
+    expect(codes({ ...valid, quantity: Number.NaN })).toEqual(["quantity:Integer"]);
     expect(codes({ ...valid, quantity: undefined })).toEqual(["quantity:NotNull"]);
   });
 
