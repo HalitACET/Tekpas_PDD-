@@ -116,7 +116,8 @@ class BatchApiTest {
             assertThat(body.path("producedFrom").asString()).isEqualTo("2026-11-02");
             assertThat(body.path("product").path("name").asString()).isEqualTo("Mavi Basic Tişört");
             assertThat(body.path("product").path("gtin").asString()).isEqualTo(product.path("gtin").asString());
-            assertThat(body.path("chain").path("totalSteps").asInt()).isZero();
+            // The product's first batch starts with the default five-step chain (M3).
+            assertThat(body.path("chain").path("totalSteps").asInt()).isEqualTo(5);
             assertThat(body.path("chain").path("approvedSteps").asInt()).isZero();
             assertThat(jdbc.queryForObject("SELECT company_id FROM batch WHERE id = ?::uuid", UUID.class,
                     body.path("id").asString())).isEqualTo(tenant.company().getId());
@@ -255,16 +256,14 @@ class BatchApiTest {
         void getReturnsTheBatchWithChainProgress() {
             Tenant tenant = fixtures.tenant();
             String id = createBatch(tenant);
-            jdbc.update("INSERT INTO supply_step (batch_id, step_type, status) VALUES (?::uuid, 'SEWING', 'APPROVED')",
-                    id);
-            jdbc.update("INSERT INTO supply_step (batch_id, step_type, status) VALUES (?::uuid, 'DYEING', 'PENDING')",
+            jdbc.update("UPDATE supply_step SET status = 'APPROVED' WHERE batch_id = ?::uuid AND step_type = 'FIBER'",
                     id);
 
             MvcTestResult result = fixtures.get(tenant, BATCHES + "/" + id);
 
             assertThat(result).hasStatusOk();
             JsonNode chain = fixtures.body(result).path("chain");
-            assertThat(chain.path("totalSteps").asInt()).isEqualTo(2);
+            assertThat(chain.path("totalSteps").asInt()).isEqualTo(5);
             assertThat(chain.path("approvedSteps").asInt()).isEqualTo(1);
         }
 
@@ -292,7 +291,7 @@ class BatchApiTest {
             assertThat(row.path("product").path("name").asString()).isEqualTo("Keten Gömlek");
             assertThat(row.path("product").path("gtin").asString()).isEqualTo(product.path("gtin").asString());
             assertThat(row.path("status").asString()).isEqualTo("DRAFT");
-            assertThat(row.path("chain").path("totalSteps").asInt()).isZero();
+            assertThat(row.path("chain").path("totalSteps").asInt()).isEqualTo(5);
         }
 
         @Test

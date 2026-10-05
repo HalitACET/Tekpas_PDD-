@@ -35,6 +35,9 @@ public class Company {
     @Column(length = 100)
     private String city;
 
+    /** The manufacturer that created this company as a supplier; null for self-registered companies. */
+    private UUID createdByCompanyId;
+
     @Column(insertable = false, updatable = false)
     private Instant createdAt;
 
@@ -47,6 +50,29 @@ public class Company {
         this.type = type;
         this.country = "TR";
         this.city = city;
+    }
+
+    /** A supplier company created by a manufacturer (M3 "Tedarikçi ekle"). */
+    public static Company supplier(String name, CompanyType type, String city, UUID createdByCompanyId) {
+        Company company = new Company(name, type, city);
+        company.createdByCompanyId = createdByCompanyId;
+        return company;
+    }
+
+    public void rename(String name) {
+        this.name = name;
+    }
+
+    public void changeType(CompanyType type) {
+        this.type = type;
+    }
+
+    public void moveTo(String city) {
+        this.city = city;
+    }
+
+    public UUID getCreatedByCompanyId() {
+        return createdByCompanyId;
     }
 
     public UUID getId() {
