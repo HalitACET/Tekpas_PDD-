@@ -11,7 +11,7 @@ com.tekpas
 ├── company/       firma, kullanıcı, tedarikçi ağı
 ├── product/
 ├── batch/         parti + uyum skoru
-├── supplychain/   supply_step, ağaç sorgusu (recursive CTE)
+├── supplychain/   supply_step, supply_step_input (DAG), döngü kontrolü (recursive CTE)
 ├── request/       veri talebi linki + girişsiz /public/requests/{token}
 ├── document/      yükleme, AI çıkarım sonucu, onay
 ├── ai/            AiClient arayüzü, GeminiAiClient, prompt'lar, JSON şemaları

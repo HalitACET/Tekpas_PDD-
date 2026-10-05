@@ -81,10 +81,10 @@ SUPPLIER sadece `supplier_company_id`'si kendi firması olan adımları görür.
 | --- | --- |
 | Auth | `POST /auth/login` · `POST /auth/refresh` · `POST /auth/logout` · `GET /auth/me` |
 | Kullanıcı | `GET/POST /users` · `PATCH /users/{id}` |
-| Tedarikçi ağı | `GET/POST /suppliers` · `DELETE /suppliers/{id}` |
-| Ürün | `GET/POST /products` · `GET/PATCH/DELETE /products/{id}` |
-| Parti | `GET/POST /batches` · `GET/PATCH /batches/{id}` · `GET /batches/{id}/tree` · `GET /batches/{id}/score` |
-| Zincir adımı | `POST /batches/{id}/steps` · `PATCH /steps/{id}` · `POST /steps/{id}/approve` · `POST /steps/{id}/reject` |
+| Tedarikçi ağı | `GET/POST /suppliers` · `GET/PATCH/DELETE /suppliers/{id}` |
+| Ürün | `GET/POST /products` · `GET/PATCH/DELETE /products/{id}` · `GET /products/{id}/chain-preview` |
+| Parti | `GET/POST /batches` · `GET/PATCH /batches/{id}` · `GET/POST /batches/{id}/chain` · `GET /batches/{id}/score` |
+| Zincir adımı | `POST /batches/{id}/steps` · `PATCH/DELETE /steps/{id}` · `POST /steps/{id}/approve` · `POST /steps/{id}/reject` |
 | Görevler | `GET /tasks` (rolüne göre bekleyenler; mobil ana ekran) |
 | Veri talebi | `POST /steps/{id}/requests` (ham link sadece bir kez döner) · `POST /requests/{id}/revoke` |
 | Tedarikçi (girişsiz) | `GET /public/requests/{token}` · `PUT /public/requests/{token}/data` · `POST /public/requests/{token}/documents` · `POST /public/requests/{token}/submit` |
@@ -143,12 +143,13 @@ Backend kuralları (M2):
 
 ### M3 — Tedarik zinciri
 - [ ] Parti detay ekranı (M2'den taşındı): 09 Parti detayı + zincir ekranıyla birlikte yapılacak, ayrı iskelet yazılmayacak.
-- [ ] Tedarikçi ağı (ekle / listele / çıkar)
-- [ ] Zincir adımı ekle / düzenle, `GET /batches/{id}/tree` (recursive CTE)
-- [ ] Web: React Flow ile zincir görünümü ve düzenleme
-- [ ] Zinciri son partiden kopyalama (tasarım v0.3)
-- [ ] Tedarikçi telefon kolonu (`company_supplier`, WhatsApp paylaşımı için)
-- [ ] `supply_step.data` alanları: enerji kaynağı, kWh, teslim miktarı, iplik numarası (tasarım 10/11 düğüm paneli referans)
+- [x] API: tedarikçi ağı (ekle / listele / düzenle / çıkar). Tedarikçi = `company` + `created_by_company_id`; ad, tip ve şehri yalnızca onu oluşturan ve kullanıcısı olmayan firmanın üreticisi değiştirir, diğer durumda sadece bağlantı alanları (telefon)
+- [x] API: zincir adımı ekle / düzenle / çıkar, `GET /batches/{id}/chain`. Zincir ağaç değil **DAG**: `supply_step_input(step_id, input_step_id)`; bağlantı yalnızca aynı partinin adımları arasında, kendine bağlantı ve döngü yasak (recursive CTE kontrolü). `parent_step_id` V4'te kaldırıldı
+- [x] API: zinciri son partiden kopyalama (yapı + ağda kalan tedarikçiler; durum PENDING, veri boş), yoksa varsayılan Lif → İplik → Kumaş → Boya → Dikim; `GET /products/{id}/chain-preview`
+- [x] Tedarikçi telefon kolonu (`company_supplier.phone`, E.164, WhatsApp paylaşımı için)
+- [x] `supply_step.data` alanları (tipli `StepData`): ölçüler BigDecimal (kWh/kg, L/kg, g/m², kg), yüzdeler tam sayı, enerji kaynakları toplamı 100; adım tipine ait olmayan alan `NotApplicable`
+- [ ] Web: Tedarikçiler ekranı (tasarım v0.3 14/15)
+- [ ] Web: React Flow ile zincir görünümü ve düzenleme (09–11; boş düğüm paneli, "Varsayılan zinciri oluştur" ve tedarikçi çıkarma tasarımı v0.3.1 bekleniyor)
 
 **Kabul:** Bir parti için İplik → Kumaş → Boya → Dikim zinciri çizilir, düğüm renkleri durumu gösterir.
 
