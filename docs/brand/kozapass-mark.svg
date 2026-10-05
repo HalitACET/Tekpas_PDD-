@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 32 32" role="img" aria-label="KozaPass">
+  <!-- Design A1 v0.2 "Koza ipliği" (full mark), same paths as web/components/brand/logo.tsx. Brand colour Dut #8C2F4B. -->
+  <g transform="translate(13 18.5) rotate(35)">
+    <ellipse rx="8" ry="11" fill="#8C2F4B"/>
+    <path d="M-7.1 -4.5Q0 -2 7.1 -4.5M-7.8 0.6Q0 3.1 7.8 0.6M-6.8 5.6Q0 8 6.8 5.6" fill="none" stroke="#FCFBF9" stroke-width="1.1" stroke-linecap="round"/>
+  </g>
+  <path d="M19.3 9.5C20 6 24 5.5 24.5 8C25 10.5 21.5 10.5 22.5 7.5C23.5 4.5 27 4 30 2.5" fill="none" stroke="#8C2F4B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
