@@ -32,6 +32,19 @@
       "summary": "{days, plural, one {# day} other {# days}} · {from} – {to}",
       "pickStart": "Pick the start date",
       "pickEnd": "Pick the end date"
+    },
+    "serverWake": {
+      "title": "The server is starting; this can take a minute.",
+      "body": "The list fills in by itself once it is ready.",
+      "elapsed": "{elapsed} · usually 60–90 s"
+    },
+    "errorToast": {
+      "network": "The server could not be reached.",
+      "server": "The server returned an error.",
+      "other": "An unexpected error occurred.",
+      "keepsForm": "Your changes are still in the form.",
+      "retry": "Try again",
+      "close": "Close"
     }
   },
   "login": {
@@ -56,11 +69,17 @@
     "rememberMe": "Remember me",
     "submit": "Sign in",
     "submitting": "Signing in…",
-    "waking": "The server is waking up, this can take a minute…",
     "invalidCredentials": "Email or password is incorrect.",
     "serverError": "The server could not be reached. Please try again in a moment.",
     "forgotPassword": "Forgot your password? Contact your company administrator.",
-    "footer": "© 2026 KozaPass · Bursa"
+    "footer": "© 2026 KozaPass · Bursa",
+    "wakingTitle": "The server is starting; this can take a minute.",
+    "wakingBody": "A server that has been idle starts on the first request. Stay on the page; you are signed in as soon as it is ready.",
+    "wakingProgress": "Server start",
+    "wakingUsually": "Usually 60–90 seconds",
+    "gaveUpTitle": "The server was not ready within 90 seconds.",
+    "gaveUpBody": "Your details are kept. The server may still be starting; it will most likely be ready when you try again.",
+    "retry": "Try again"
   },
   "nav": {
     "label": "Main menu",
@@ -350,7 +369,9 @@
         "total": "Fiber total must be 100%",
         "name": "Product name is required"
       },
-      "saveFailed": "The product could not be saved. Please try again."
+      "saveFailed": "The product could not be saved",
+      "nameRequired": "Product name is required",
+      "errorCount": "{count, plural, one {# field has an error} other {# fields have errors}}"
     },
     "delete": {
       "blockedTitle": "Product cannot be deleted",
@@ -363,7 +384,7 @@
       "note": "No batches or passports are linked.",
       "cancel": "Cancel",
       "confirm": "Delete product",
-      "failed": "The product could not be deleted. Please try again."
+      "failed": "The product could not be deleted"
     },
     "listError": "Products could not be loaded"
   },
@@ -392,8 +413,12 @@
     "yesterday": "Yesterday",
     "empty": {
       "filteredTitle": "No matching batches",
-      "filteredBody": "Change the search or the filters.",
-      "clearFilters": "Clear filters"
+      "filteredBody": "No batch matches the search and filters.",
+      "clearFilters": "Clear filters",
+      "search": "search \"{q}\"",
+      "status": "Status: {status}",
+      "product": "Product: {name}",
+      "supplier": "Supplier: {name}"
     },
     "create": {
       "title": "New batch",
@@ -415,7 +440,7 @@
       "required": "Product and quantity are required",
       "cancel": "Cancel",
       "submit": "Create batch",
-      "failed": "The batch could not be created. Please try again."
+      "failed": "The batch could not be created"
     },
     "listError": "Batches could not be loaded",
     "supplierFilter": "Supplier:",
@@ -449,8 +474,10 @@
     },
     "empty": {
       "filteredTitle": "No matching supplier",
-      "filteredBody": "Change your search or the type filter.",
-      "clearFilters": "Clear filters"
+      "filteredBody": "No supplier matches the search and filters.",
+      "clearFilters": "Clear filters",
+      "search": "search \"{q}\"",
+      "type": "Type: {type}"
     },
     "form": {
       "addTitle": "Add supplier",
@@ -473,8 +500,11 @@
       "cancel": "Cancel",
       "close": "Close",
       "submitAdd": "Add supplier",
-      "submitEdit": "Save",
-      "failed": "The supplier could not be saved. Please try again."
+      "submitEdit": "Save changes",
+      "failed": "The supplier could not be saved",
+      "editSub": "{type} · {count, plural, =0 {not used in any batch yet} one {used in # batch} other {used in # batches}}",
+      "lockedOwnAccountBody": "Name, type and city come from the company's KozaPass account. You can change the contact phone.",
+      "cityCount": "{count, plural, one {# province matches} other {# provinces match}}"
     },
     "remove": {
       "title": "Remove supplier link",
@@ -487,7 +517,7 @@
       "close": "Close",
       "cancel": "Cancel",
       "confirm": "Remove link",
-      "failed": "The link could not be removed. Please try again."
+      "failed": "The link could not be removed"
     }
   }
 }

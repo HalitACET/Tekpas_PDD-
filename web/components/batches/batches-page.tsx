@@ -7,13 +7,15 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { GuardedButton } from "@/components/common/guarded-button";
-import { EmptyState, ListError, TableSkeleton } from "@/components/common/list-states";
-import { Button } from "@/components/ui/button";
+import { EmptyState, FilteredEmpty, ListError, TableSkeleton } from "@/components/common/list-states";
+import { ServerWakeStrip, useListWake } from "@/components/common/server-wake";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { type BatchStatusCounts, useBatches, useBatchStatusCounts } from "@/lib/api/batches";
 import { useProducts } from "@/lib/api/products";
 import { useSupplier } from "@/lib/api/suppliers";
 import { canWriteCatalog } from "@/lib/auth/permissions";
+import { queryKeys } from "@/lib/query-keys";
 import { useSession } from "@/lib/auth/use-session";
 import { BatchesTableHeader, BatchRow } from "./batches-table";
 import { CreateBatchDialog } from "./create-batch-dialog";
@@ -41,6 +43,7 @@ export function BatchesPage() {
   const t = useTranslations("batches");
   const tPage = useTranslations("pages.batches");
   const tCommon = useTranslations("common");
+  const tStatus = useTranslations("enums.batchStatus");
   const session = useSession();
   const canWrite = session.status === "authenticated" && canWriteCatalog(session.user.role);
   const router = useRouter();
@@ -63,6 +66,8 @@ export function BatchesPage() {
   const search = useDebounced(q, 250);
 
   const batches = useBatches({ q: search, status, productId, supplierId });
+  // A sleeping server (design v0.3.2 32): poll, then fetch the list again once it answers.
+  const { wake, retry: retryWake } = useListWake(batches, queryKeys.batches.list({ q: search, status, productId, supplierId }));
   const supplier = useSupplier(supplierId || undefined);
   const counts = useBatchStatusCounts();
   const products = useProducts({ q: "", category: "" });
@@ -95,7 +100,13 @@ export function BatchesPage() {
           </div>
         </div>
 
-        <StageTabs label={t("statusFilter")} value={status} onChange={setStatus} counts={counts.data} />
+        <StageTabs
+          label={t("statusFilter")}
+          value={status}
+          onChange={setStatus}
+          // While the server starts the counts are a skeleton, never a stale number (v0.3.2 32).
+          counts={wake.phase === "waking" ? undefined : counts.data}
+        />
 
         <div className="flex flex-wrap items-center gap-2">
           <label className="flex h-8 w-[280px] max-w-full items-center gap-2 rounded-md border border-input bg-card px-2.5 text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring-soft">
@@ -109,17 +120,9 @@ export function BatchesPage() {
               className="min-w-0 flex-1 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
             />
           </label>
-          <FilterSelect label={t("productFilter")} value={productId} onChange={setProductId}>
-            <option value="">{t("all")}</option>
-            {productOptions.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </FilterSelect>
           {supplierId && (
-            // Design debt: the chip is not in the design yet (v0.3.2).
-            <span className="flex h-8 items-center gap-1.5 rounded-md border border-input bg-card pr-1 pl-2.5 text-[13px]">
+            // Design v0.3.2 35: right after the search, on --muted.
+            <span className="flex h-8 items-center gap-1.5 rounded-md border border-input bg-muted pr-1 pl-2.5 text-[13px]">
               <span className="text-muted-foreground">
                 {t("supplierFilter")}
               </span>
@@ -134,6 +137,14 @@ export function BatchesPage() {
               </button>
             </span>
           )}
+          <FilterSelect label={t("productFilter")} value={productId} onChange={setProductId}>
+            <option value="">{t("all")}</option>
+            {productOptions.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </FilterSelect>
           <span className="ml-auto text-xs text-muted-foreground" aria-live="polite">
             {batches.isPending
               ? tCommon("loading")
@@ -143,11 +154,19 @@ export function BatchesPage() {
           </span>
         </div>
 
+        {wake.phase === "waking" && <ServerWakeStrip startedAt={wake.startedAt} />}
+
         {/* Below md the design has no list yet (16, mobile): the desktop table scrolls sideways. */}
         <div className="overflow-x-auto rounded-lg border bg-card">
           <div role="table" aria-label={tPage("title")} aria-busy={batches.isFetching} className="min-w-[1000px]">
             <BatchesTableHeader />
-            {batches.isPending ? (
+            {wake.phase === "gaveUp" ? (
+              <ListError
+                title={t("listError")}
+                error={undefined}
+                onRetry={retryWake}
+              />
+            ) : batches.isPending ? (
               <TableSkeleton label={tCommon("loading")} />
             ) : batches.isError && !batches.data ? (
               <ListError
@@ -159,18 +178,22 @@ export function BatchesPage() {
             ) : rows.length === 0 ? (
               <div className="sticky left-0 w-[min(100vw-2rem,100%)]">
                 {filtered ? (
-                  <EmptyState icon={Layers} title={t("empty.filteredTitle")} body={t("empty.filteredBody")}>
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setQ("");
-                        setStatus("");
-                        router.replace(pathname);
-                      }}
-                    >
-                      {t("empty.clearFilters")}
-                    </Button>
-                  </EmptyState>
+                  <FilteredEmpty
+                    title={t("empty.filteredTitle")}
+                    body={t("empty.filteredBody")}
+                    filters={[
+                      q.trim() && t("empty.search", { q: q.trim() }),
+                      status && t("empty.status", { status: tStatus(status) }),
+                      productId && t("empty.product", { name: productOptions.find((p) => p.id === productId)?.name ?? "…" }),
+                      supplierId && t("empty.supplier", { name: supplier.data?.name ?? "…" }),
+                    ].filter((part): part is string => !!part)}
+                    clearLabel={t("empty.clearFilters")}
+                    onClear={() => {
+                      setQ("");
+                      setStatus("");
+                      router.replace(pathname);
+                    }}
+                  />
                 ) : (
                   <EmptyState
                     icon={Layers}
@@ -239,8 +262,10 @@ function StageTabs({
             }`}
           >
             {tab.label}
-            {tab.count !== undefined && (
+            {tab.count !== undefined ? (
               <span className="font-mono text-[11px] font-medium text-muted-foreground">{tab.count}</span>
+            ) : (
+              <Skeleton className="h-2.5 w-3 rounded-[3px]" aria-hidden />
             )}
           </button>
         );

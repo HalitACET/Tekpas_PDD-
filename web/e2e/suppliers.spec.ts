@@ -55,6 +55,9 @@ test("adds a supplier: type buttons, a searchable province list and a +90 phone"
   await form.getByRole("combobox", { name: "Şehir" }).click();
   await form.getByRole("combobox", { name: "Şehir" }).fill("bur");
   await expect(page.getByRole("option")).toHaveText(["Bayburt", "Burdur", "Bursa"]);
+  // Design v0.3.2 37: a count and the matching letters marked.
+  await expect(page.getByText("3 il eşleşti")).toBeVisible();
+  await expect(page.getByRole("option", { name: "Bayburt" }).locator("mark")).toHaveText("bur");
   await page.getByRole("option", { name: "Bursa" }).click();
   await form.getByLabel("İletişim telefonu").fill("123");
   await expect(form.getByText("Biçim geçersiz.")).toBeVisible();
@@ -97,6 +100,8 @@ test("a supplier used in batches keeps its type; name, city and phone still chan
   await page.getByRole("menuitem", { name: "Düzenle" }).click();
   const form = dialog(page, "Tedarikçiyi düzenle");
 
+  // Design v0.3.2 36b.
+  await expect(form).toContainText("İplik · 9 partide kullanılıyor");
   await expect(form.getByLabel("Firma adı")).toHaveValue("Bursa İplik San.");
   await expect(form.getByLabel("İletişim telefonu")).toHaveValue("224 000 00 01");
   await expect(form.getByRole("radio", { name: "İplik" })).toBeDisabled();
@@ -105,7 +110,7 @@ test("a supplier used in batches keeps its type; name, city and phone still chan
 
   await form.getByLabel("Firma adı").fill("Bursa İplik A.Ş.");
   const sent = page.waitForRequest((r) => r.method() === "PATCH");
-  await form.getByRole("button", { name: "Kaydet" }).click();
+  await form.getByRole("button", { name: "Değişiklikleri kaydet" }).click();
   expect((await sent).postDataJSON()).toEqual({ name: "Bursa İplik A.Ş." });
   await expect(row(page, "Bursa İplik A.Ş.")).toBeVisible();
 });
@@ -116,14 +121,18 @@ test("a company with its own account: only the phone changes", async ({ page }) 
   await page.getByRole("menuitem", { name: "Düzenle" }).click();
   const form = dialog(page, "Tedarikçiyi düzenle");
 
+  // Design v0.3.2 36a; the WhatsApp hint waits for data request links (M4).
+  await expect(form).toContainText("Aksesuar · 2 partide kullanılıyor");
   await expect(form.getByText("Bu firmanın kendi hesabı var; bilgilerini firma yönetir.")).toBeVisible();
+  await expect(form.getByText("Ad, tip ve şehir firmanın KozaPass hesabından gelir.")).toBeVisible();
+  await expect(form.getByText(/WhatsApp/)).toHaveCount(0);
   await expect(form.getByLabel("Firma adı")).toBeDisabled();
   await expect(form.getByRole("combobox", { name: "Şehir" })).toBeDisabled();
   await expect(form.getByRole("radio", { name: "Aksesuar" })).toBeDisabled();
 
   await form.getByLabel("İletişim telefonu").fill("");
   const sent = page.waitForRequest((r) => r.method() === "PATCH");
-  await form.getByRole("button", { name: "Kaydet" }).click();
+  await form.getByRole("button", { name: "Değişiklikleri kaydet" }).click();
   expect((await sent).postDataJSON()).toEqual({ phone: null });
   await expect(row(page, "Ekin Aksesuar").getByRole("cell").nth(3)).toHaveText("—Telefon yok");
 });

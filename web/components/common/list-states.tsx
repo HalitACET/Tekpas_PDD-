@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { CircleAlert, RefreshCw } from "lucide-react";
+import { CircleAlert, RefreshCw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,15 @@ export function EmptyState({
   title,
   body,
   children,
+  meta,
   footer,
 }: {
   icon: LucideIcon;
   title: string;
   body: string;
   children?: ReactNode;
+  /** Below the body in mono, e.g. the active filters (design v0.3.2 34). */
+  meta?: string;
   /** Below the actions, e.g. the "how to start" guide of the batches page. */
   footer?: ReactNode;
 }) {
@@ -30,9 +33,37 @@ export function EmptyState({
       </span>
       <h2 className="font-serif text-[26px] leading-[normal] font-normal tracking-[-0.015em]">{title}</h2>
       <p className="max-w-[440px] text-sm leading-[1.55] text-pretty text-muted-foreground">{body}</p>
+      {meta && <p className="max-w-[560px] font-mono text-xs text-muted-foreground">{meta}</p>}
       {children && <div className="mt-1.5 flex gap-2">{children}</div>}
       {footer}
     </div>
+  );
+}
+
+/**
+ * Design v0.3.2 34: the search and filters left nothing. Search icon tile, title, body, the active filters
+ * in one mono line, and "Filtreleri temizle".
+ */
+export function FilteredEmpty({
+  title,
+  body,
+  filters,
+  clearLabel,
+  onClear,
+}: {
+  title: string;
+  body: string;
+  /** Already translated, e.g. ['"KP-2025" araması', "Tedarikçi: Bursa İplik San."]. */
+  filters: string[];
+  clearLabel: string;
+  onClear: () => void;
+}) {
+  return (
+    <EmptyState icon={Search} title={title} body={body} meta={filters.join(" · ") || undefined}>
+      <Button variant="secondary" onClick={onClear}>
+        {clearLabel}
+      </Button>
+    </EmptyState>
   );
 }
 

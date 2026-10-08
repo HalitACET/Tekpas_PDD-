@@ -5,8 +5,8 @@ import { CircleAlert, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useEffect, useId } from "react";
 import { Controller, type FieldPath, useForm, useWatch } from "react-hook-form";
-import { toast } from "sonner";
 import { DateRangeFields } from "@/components/common/date-range-fields";
+import { showErrorToast } from "@/components/common/error-toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -79,10 +79,9 @@ function CreateBatchForm({ products, onDone }: { products: ProductListItem[]; on
       await create.mutateAsync(batchCreateBody(output));
       onDone();
     } catch (error) {
-      if (!(error instanceof ApiError)) throw error;
-      const fieldErrors = fieldErrorsFrom(error.problem?.errors);
+      const fieldErrors = error instanceof ApiError ? fieldErrorsFrom(error.problem?.errors) : [];
       if (fieldErrors.length === 0) {
-        toast.error(t("failed"));
+        showErrorToast({ title: t("failed"), error, keepsForm: true, onRetry: () => void onSubmit() });
         return;
       }
       for (const e of fieldErrors) {

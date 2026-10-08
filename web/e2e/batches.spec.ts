@@ -212,3 +212,29 @@ for (const scheme of ["light", "dark"] as const) {
     expect(await chip.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(brand);
   });
 }
+
+test("34–35: the supplier chip sits after the search; no result names the search and filters", async ({ page }) => {
+  await openBatches(page, { path: "/batches?supplierId=00000000-0000-4000-8000-000000000101" });
+
+  const chip = page.getByText("Tedarikçi:").locator("..");
+  await expect(chip).toContainText("Bursa İplik San.");
+  await expect(page.getByText("3 parti")).toBeVisible();
+  // Design 35: right after the search, before the product filter.
+  const order = await page.evaluate(() => {
+    const search = document.querySelector('input[type="search"][aria-label="Parti no veya üretim emri ara"]');
+    const chipEl = [...document.querySelectorAll("span")].find((el) => el.textContent === "Tedarikçi:");
+    const product = document.querySelector('select[aria-label="Ürün:"]');
+    const pos = (a: Element | null | undefined, b: Element | null | undefined) =>
+      !!a && !!b && !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    return { searchBeforeChip: pos(search, chipEl), chipBeforeProduct: pos(chipEl, product) };
+  });
+  expect(order).toEqual({ searchBeforeChip: true, chipBeforeProduct: true });
+
+  await page.getByRole("searchbox", { name: "Parti no veya üretim emri ara" }).fill("KP-2025");
+  await expect(page.getByRole("heading", { name: "Eşleşen parti yok" })).toBeVisible();
+  await expect(page.getByText("Arama ve filtrelerle eşleşen parti bulunamadı.")).toBeVisible();
+  await expect(page.getByText('"KP-2025" araması · Tedarikçi: Bursa İplik San.')).toBeVisible();
+  await page.getByRole("button", { name: "Filtreleri temizle" }).click();
+  await expect(page).toHaveURL(/\/batches$/);
+  await expect(page.getByText("7 parti")).toBeVisible();
+});

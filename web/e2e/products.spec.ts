@@ -65,6 +65,23 @@ test("creates a product", async ({ page }) => {
   });
 });
 
+/**
+ * Design v0.3.2 38: "Kaydet" stays enabled; a save with errors sends nothing, counts the invalid fields in
+ * the footer and moves the focus to the first of them.
+ */
+async function expectSaveRefused(page: Page, form: ReturnType<typeof sheet>, firstInvalid: string) {
+  let sent = 0;
+  const count = (request: { method: () => string; url: () => string }) => {
+    if (/\/api\/v1\/products(\/|$)/.test(request.url()) && ["POST", "PATCH"].includes(request.method())) sent++;
+  };
+  page.on("request", count);
+  await form.getByRole("button", { name: "Kaydet" }).click();
+  await expect(form.getByRole("alert").filter({ hasText: /\d+ alanda hata var/ })).toBeVisible();
+  await expect(form.getByLabel(firstInvalid, { exact: true })).toBeFocused();
+  page.off("request", count);
+  expect(sent).toBe(0);
+}
+
 test("a wrong check digit is shown on the GTIN field and blocks saving", async ({ page }) => {
   await openProducts(page);
 
@@ -76,7 +93,9 @@ test("a wrong check digit is shown on the GTIN field and blocks saving", async (
   await expect(gtin).toHaveAttribute("aria-invalid", "true");
   await expect(form.getByText("Kontrol hanesi hatalı")).toBeVisible();
   await expect(form.getByText("Geçerli bir GTIN girin")).toBeVisible();
-  await expect(form.getByRole("button", { name: "Kaydet" })).toBeDisabled();
+  await form.getByLabel("Ürün adı").fill("Test");
+  await form.getByLabel("Lif 1 oranı (%)").fill("100");
+  await expectSaveRefused(page, form, "GTIN");
   // Design 03: red border and ring, also while focused.
   await gtin.focus();
   const rejected = await page.evaluate(() => {
@@ -105,7 +124,7 @@ test("the fiber total must be 100 and whole numbers only", async ({ page }) => {
 
   await expect(form.getByText("Toplam %95 · 5 eksik, %100 olmalı")).toBeVisible();
   await expect(form.getByText("Lif toplamı %100 olmalı")).toBeVisible();
-  await expect(form.getByRole("button", { name: "Kaydet" })).toBeDisabled();
+  await expectSaveRefused(page, form, "Lif 1 oranı (%)");
 
   await form.getByLabel("Lif 2 oranı (%)").fill("15");
   await expect(form.getByText("Toplam %105 · %100'ü aşıyor")).toBeVisible();
@@ -115,7 +134,31 @@ test("the fiber total must be 100 and whole numbers only", async ({ page }) => {
   await form.getByLabel("Lif 2 oranı (%)").fill("14,5");
   await expect(form.getByLabel("Lif 1 oranı (%)")).toHaveAttribute("aria-invalid", "true");
   await expect(form.getByText("Tam sayı girin (ör. 90).").first()).toBeVisible();
-  await expect(form.getByRole("button", { name: "Kaydet" })).toBeDisabled();
+  await expectSaveRefused(page, form, "Lif 1 oranı (%)");
+});
+
+test("38: the errors of a save attempt are counted and the first invalid field gets focus; SKU is free text", async ({
+  page,
+}) => {
+  await openProducts(page);
+
+  await page.getByRole("button", { name: "Yeni ürün" }).click();
+  const form = sheet(page);
+  await form.getByLabel("GTIN").fill("4006381333932");
+  await form.getByLabel("SKU").fill("kt ts 01!");
+  await form.getByLabel("Lif 1 oranı (%)").fill("100");
+
+  await expectSaveRefused(page, form, "Ürün adı");
+  await expect(form.getByText("Ürün adı gerekli")).toBeVisible();
+  await expect(form.getByRole("alert").filter({ hasText: "2 alanda hata var" })).toBeVisible();
+  // No format rule for the SKU (lower case, spaces and "!" are fine).
+  await expect(form.getByLabel("SKU")).not.toHaveAttribute("aria-invalid", "true");
+
+  await form.getByLabel("Ürün adı").fill("Organik pamuk polo");
+  await form.getByLabel("GTIN").fill("4006381333931");
+  const sent = page.waitForRequest((r) => r.url().endsWith("/api/v1/products") && r.method() === "POST");
+  await form.getByRole("button", { name: "Kaydet" }).click();
+  expect((await sent).postDataJSON()).toMatchObject({ name: "Organik pamuk polo", sku: "kt ts 01!" });
 });
 
 test("a GTIN of another own product is named; another company's is not", async ({ page }) => {
@@ -130,14 +173,14 @@ test("a GTIN of another own product is named; another company's is not", async (
   await form.getByLabel("GTIN").fill("2012345000032");
   await expect(form.getByText("Başka bir ürün bu GTIN'i kullanıyor")).toBeVisible();
   await expect(form.getByText("Denim pantolon, taşlanmış")).toBeVisible();
-  await expect(form.getByRole("button", { name: "Kaydet" })).toBeDisabled();
+  await form.getByLabel("Lif 1 oranı (%)").fill("100");
+  await expectSaveRefused(page, form, "GTIN");
 
   // Only an exact match counts: a GTIN that merely contains the digits is fine.
   await form.getByLabel("GTIN").fill("96385074");
   await expect(form.getByText("Geçerli GTIN-8")).toBeVisible();
 
   await form.getByLabel("GTIN").fill("4006381333931");
-  await form.getByLabel("Lif 1 oranı (%)").fill("100");
   await form.getByRole("button", { name: "Kaydet" }).click();
   await expect(form.getByText("Başka bir ürün bu GTIN'i kullanıyor")).toBeVisible();
   await expect(form.getByLabel("GTIN")).toHaveAttribute("aria-invalid", "true");
@@ -270,4 +313,39 @@ test("the top bar search placeholder fits uncut next to the shortcut label", asy
     };
   });
   expect(text).toBeLessThanOrEqual(room);
+});
+
+test("33: a save the server fails shows the error toast; 'Tekrar dene' saves the same form", async ({ page }) => {
+  await openProducts(page);
+  let posts = 0;
+  await page.route(/\/api\/v1\/products$/, (route) => {
+    if (route.request().method() !== "POST") return route.fallback();
+    posts++;
+    if (posts > 1) return route.fallback();
+    return route.fulfill({
+      status: 503,
+      contentType: "application/problem+json",
+      headers: { "X-Request-Id": "ab12-cd34" },
+      body: JSON.stringify({ type: "urn:tekpas:problem:internal", title: "Service unavailable", status: 503, requestId: "ab12-cd34" }),
+    });
+  });
+
+  await page.getByRole("button", { name: "Yeni ürün" }).click();
+  const form = sheet(page);
+  await form.getByLabel("Ürün adı").fill("Organik pamuk polo");
+  await form.getByLabel("GTIN").fill("4006381333931");
+  await form.getByLabel("Lif 1 oranı (%)").fill("100");
+  await form.getByRole("button", { name: "Kaydet" }).click();
+
+  const toast = page.getByRole("alert").filter({ hasText: "Ürün kaydedilemedi" });
+  await expect(toast).toContainText("Sunucu hata döndürdü.");
+  await expect(toast).toContainText("Değişiklikleriniz formda duruyor.");
+  await expect(toast).toContainText("HTTP 503 · istek ab12-cd34");
+  await expect(form.getByLabel("Ürün adı")).toHaveValue("Organik pamuk polo");
+
+  await toast.getByRole("button", { name: "Tekrar dene" }).click();
+  await expect(form).toBeHidden();
+  await expect(toast).toBeHidden();
+  expect(posts).toBe(2);
+  await expect(page.getByRole("row", { name: /Organik pamuk polo/ })).toBeVisible();
 });

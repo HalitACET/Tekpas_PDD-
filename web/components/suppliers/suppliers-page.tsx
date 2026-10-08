@@ -5,11 +5,12 @@ import { ChevronDown, Factory, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { GuardedButton } from "@/components/common/guarded-button";
-import { EmptyState, ListError, TableSkeleton } from "@/components/common/list-states";
-import { Button } from "@/components/ui/button";
+import { EmptyState, FilteredEmpty, ListError, TableSkeleton } from "@/components/common/list-states";
+import { ServerWakeStrip, useListWake } from "@/components/common/server-wake";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { type SupplierResponse, useSuppliers } from "@/lib/api/suppliers";
 import { canWriteCatalog } from "@/lib/auth/permissions";
+import { queryKeys } from "@/lib/query-keys";
 import { useSession } from "@/lib/auth/use-session";
 import { RemoveSupplierDialog } from "./remove-supplier-dialog";
 import { SupplierDialog, type SupplierDialogState } from "./supplier-dialog";
@@ -40,6 +41,8 @@ export function SuppliersPage() {
   const [type, setType] = useState<SupplierType | "">("");
   const search = useDebounced(q, 250);
   const suppliers = useSuppliers({ q: search, type });
+  // A sleeping server (design v0.3.2 32): poll, then fetch the list again once it answers.
+  const { wake, retry: retryWake } = useListWake(suppliers, queryKeys.suppliers.list({ q: search, type }));
   const rows = suppliers.data?.content ?? [];
   const filtered = q.trim() !== "" || type !== "";
 
@@ -100,11 +103,19 @@ export function SuppliersPage() {
           </span>
         </div>
 
+        {wake.phase === "waking" && <ServerWakeStrip startedAt={wake.startedAt} />}
+
         {/* Below md the design has no list yet (16, mobile): the desktop table scrolls sideways. */}
         <div className="overflow-x-auto rounded-lg border bg-card">
           <div role="table" aria-label={tPage("title")} aria-busy={suppliers.isFetching} className="min-w-[1080px]">
             <SuppliersTableHeader />
-            {suppliers.isPending ? (
+            {wake.phase === "gaveUp" ? (
+              <ListError
+                title={t("listError")}
+                error={undefined}
+                onRetry={retryWake}
+              />
+            ) : suppliers.isPending ? (
               <TableSkeleton label={tCommon("loading")} />
             ) : suppliers.isError && !suppliers.data ? (
               <ListError
@@ -116,17 +127,19 @@ export function SuppliersPage() {
             ) : rows.length === 0 ? (
               <div className="sticky left-0 w-[min(100vw-2rem,100%)]">
                 {filtered ? (
-                  <EmptyState icon={Factory} title={t("empty.filteredTitle")} body={t("empty.filteredBody")}>
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setQ("");
-                        setType("");
-                      }}
-                    >
-                      {t("empty.clearFilters")}
-                    </Button>
-                  </EmptyState>
+                  <FilteredEmpty
+                    title={t("empty.filteredTitle")}
+                    body={t("empty.filteredBody")}
+                    filters={[
+                      q.trim() && t("empty.search", { q: q.trim() }),
+                      type && t("empty.type", { type: tType(type) }),
+                    ].filter((part): part is string => !!part)}
+                    clearLabel={t("empty.clearFilters")}
+                    onClear={() => {
+                      setQ("");
+                      setType("");
+                    }}
+                  />
                 ) : (
                   <EmptyState icon={Factory} title={tPage("emptyTitle")} body={tPage("emptyBody")}>
                     <GuardedButton allowed={canWrite} tooltipAlign="center" onClick={() => setDialog({ kind: "new" })}>

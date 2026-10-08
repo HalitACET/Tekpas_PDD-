@@ -28,7 +28,8 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         {children}
-        <Toaster position="bottom-right" />
+        {/* Above a sheet or dialog footer (design v0.3.2 33), so "Kaydet" stays reachable. */}
+        <Toaster position="bottom-right" offset={{ bottom: 84, right: 24 }} />
       </ThemeProvider>
     </QueryClientProvider>
   );
