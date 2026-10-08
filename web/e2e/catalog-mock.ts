@@ -61,6 +61,21 @@ export function designProducts(): MockProduct[] {
 const problem = (route: Route, status: number, body: Record<string, unknown>) =>
   route.fulfill({ status, contentType: "application/problem+json", body: JSON.stringify({ status, ...body }) });
 
+/** The design's list error (v0.3.1 20): the server answered 503 with this request id. */
+export const FAILED_REQUEST_ID = "7f3a-91c2";
+const unavailable = (route: Route) =>
+  route.fulfill({
+    status: 503,
+    contentType: "application/problem+json",
+    headers: { "X-Request-Id": FAILED_REQUEST_ID },
+    body: JSON.stringify({
+      type: "urn:tekpas:problem:internal",
+      title: "Service unavailable",
+      status: 503,
+      requestId: FAILED_REQUEST_ID,
+    }),
+  });
+
 /** List rows carry everything but the description (ProductListItem). */
 function listItem(product: MockProduct) {
   const item: Partial<MockProduct> = { ...product };
@@ -82,7 +97,7 @@ export interface MockBatch {
   updatedAt: string;
 }
 
-/** The design's sample batches (v0.3 07), with batch states instead of the design's step states. */
+/** The design's sample batches (v0.3.1 22: stages and chain progress as there). */
 export function designBatches(): MockBatch[] {
   const b = (
     n: number,
@@ -108,12 +123,12 @@ export function designBatches(): MockBatch[] {
     updatedAt,
   });
   return [
-    b(1, "KP-2026-0927-A", 1, 1800, "ÜE-2026-0452", "DRAFT", 0, 0, at(9, 3, 10, 5)),
+    b(1, "KP-2026-0927-A", 1, 1800, "ÜE-2026-0452", "DRAFT", 5, 0, at(9, 3, 10, 5)),
     b(2, "KP-2026-0918-A", 1, 2400, "ÜE-2026-0441", "COLLECTING", 5, 1, at(9, 3, 9, 32)),
     b(3, "KP-2026-0917-C", 2, 1150, "ÜE-2026-0437", "COLLECTING", 5, 3, at(9, 2, 16, 0)),
-    b(4, "KP-2026-0912-B", 3, 3800, "ÜE-2026-0429", "READY", 5, 5, at(8, 12)),
+    b(4, "KP-2026-0912-B", 3, 3800, "ÜE-2026-0429", "PUBLISHED", 5, 5, at(8, 12)),
     b(5, "KP-2026-0909-A", 6, 2000, "ÜE-2026-0421", "COLLECTING", 5, 2, at(8, 9)),
-    b(6, "KP-2026-0904-B", 4, 600, "ÜE-2026-0415", "COLLECTING", 5, 4, at(8, 4)),
+    b(6, "KP-2026-0904-B", 4, 600, "ÜE-2026-0415", "READY", 5, 4, at(8, 4)),
     b(7, "KP-2026-0828-A", 3, 4200, "ÜE-2026-0398", "PUBLISHED", 5, 5, at(7, 28)),
   ];
 }
@@ -126,7 +141,7 @@ interface CatalogOptions {
   batches?: MockBatch[];
   /** GTINs (14 digits) that belong to another company: a save answers 409 without naming it. */
   foreignGtins?: string[];
-  /** Answer every list request with a 500. */
+  /** Answer every list request with a 503 (and its request id). */
   failLists?: boolean;
 }
 
@@ -150,7 +165,7 @@ export async function mockCatalogApi(
   await page.route(/\/api\/v1\/products(\?.*)?$/, async (route) => {
     const request = route.request();
     if (request.method() === "GET") {
-      if (failLists) return problem(route, 500, { type: "urn:tekpas:problem:internal", title: "Internal server error" });
+      if (failLists) return unavailable(route);
       const url = new URL(request.url());
       const q = (url.searchParams.get("q") ?? "").toLocaleLowerCase("tr");
       const category = url.searchParams.get("category");
@@ -230,10 +245,24 @@ export async function mockCatalogApi(
 
   await page.route(/\/api\/v1\/batches\/next-batch-no$/, (route) => route.fulfill({ json: { batchNo: NEXT_BATCH_NO } }));
 
+  await page.route(/\/api\/v1\/batches\/status-counts$/, (route) => {
+    if (failLists) return unavailable(route);
+    const count = (status: MockBatch["status"]) => batches.filter((b) => b.status === status).length;
+    return route.fulfill({
+      json: {
+        all: batches.length,
+        DRAFT: count("DRAFT"),
+        COLLECTING: count("COLLECTING"),
+        READY: count("READY"),
+        PUBLISHED: count("PUBLISHED"),
+      },
+    });
+  });
+
   await page.route(/\/api\/v1\/batches(\?.*)?$/, async (route) => {
     const request = route.request();
     if (request.method() === "GET") {
-      if (failLists) return problem(route, 500, { type: "urn:tekpas:problem:internal", title: "Internal server error" });
+      if (failLists) return unavailable(route);
       const url = new URL(request.url());
       const q = (url.searchParams.get("q") ?? "").toLocaleLowerCase("tr");
       const status = url.searchParams.get("status");

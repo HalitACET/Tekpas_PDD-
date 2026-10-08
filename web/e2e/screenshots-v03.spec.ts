@@ -1,14 +1,13 @@
 import { expect, type Page, test } from "@playwright/test";
-import { readFile } from "node:fs/promises";
-import { createServer, type Server } from "node:http";
 import path from "node:path";
 import { mockAuthApi } from "./api-mock";
 import { designProducts, mockCatalogApi, NOW } from "./catalog-mock";
+import { captureDesignFrames, serveDesign } from "./design-capture";
 
 /*
  * Screenshots for the side-by-side review with Claude Design v0.3 (docs/design/impl-v0.3/).
  * NN-<theme>.png come from the app, design-NN-<theme>.png from the approved design file; NN is the design's
- * frame number. Extra states the design does not have yet carry a suffix (03b-locked).
+ * frame number. States added in v0.3.1 (GTIN lock, loading, errors, …) are in docs/design/impl-v0.3.1/.
  * Run: pnpm --filter web e2e screenshots-v03
  */
 const OUT = path.resolve(__dirname, "../../docs/design/impl-v0.3");
@@ -78,14 +77,6 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `03-${scheme}`);
     });
 
-    test("03b edit, GTIN locked (not in the design yet)", async ({ page }) => {
-      await openProducts(page, scheme);
-      await menu(page, "Organik pamuk tişört, ekru").click();
-      await page.getByRole("menuitem", { name: "Düzenle" }).click();
-      await expect(page.getByRole("dialog", { name: "Ürünü düzenle" }).getByLabel("GTIN")).toBeDisabled();
-      await shoot(page, `03b-locked-${scheme}`);
-    });
-
     test("04 new, GTIN used by another product, fiber total 100", async ({ page }) => {
       await openProducts(page, scheme);
       await page.getByRole("button", { name: "Yeni ürün" }).click();
@@ -122,8 +113,13 @@ for (const scheme of ["light", "dark"] as const) {
       await expect(form.getByLabel(/Parti no/)).toHaveValue("KP-2026-1003-A");
       await form.getByLabel("Üretim emri no").fill("ÜE-2026-0452");
       await form.getByLabel("Miktar").fill("1.800");
-      await form.getByLabel("Üretim başlangıcı").fill("2026-09-29");
-      await form.getByLabel("Üretim bitişi").fill("2026-10-17");
+      const calendar = page.getByRole("dialog", { name: "Tarih seç" });
+      await form.getByRole("button", { name: "Üretim başlangıcı" }).click();
+      await calendar.getByRole("button", { name: "Önceki aya git" }).click();
+      await calendar.getByRole("button", { name: /(^|, )29 Eylül 2026/ }).click();
+      await calendar.getByRole("button", { name: "Sonraki aya git" }).click();
+      await calendar.getByRole("button", { name: /(^|, )17 Ekim 2026/ }).click();
+      await expect(calendar).toBeHidden();
       await form.getByRole("combobox", { name: "Ürün" }).click();
       await form.getByRole("combobox", { name: "Ürün" }).fill("pamuk");
       await expect(page.getByRole("option")).toHaveCount(2);
@@ -143,61 +139,10 @@ for (const scheme of ["light", "dark"] as const) {
 test.describe("design references", () => {
   // The design canvas (third-party support.js) sometimes never lays out a frame; a fresh page fixes it.
   test.describe.configure({ retries: 2 });
-  let server: Server;
-  let designUrl: string;
-
-  test.beforeAll(async () => {
-    server = createServer(async (req, res) => {
-      try {
-        const file = path.join(DESIGN_DIR, decodeURIComponent(new URL(req.url ?? "/", "http://x").pathname));
-        if (!file.startsWith(DESIGN_DIR)) throw new Error("outside design dir");
-        const type = file.endsWith(".js") ? "text/javascript" : file.endsWith(".css") ? "text/css" : "text/html";
-        const body = await readFile(file);
-        res.writeHead(200, { "Content-Type": `${type}; charset=utf-8` }).end(body);
-      } catch {
-        res.writeHead(404).end();
-      }
-    });
-    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
-    const { port } = server.address() as { port: number };
-    designUrl = `http://127.0.0.1:${port}/KozaPass%20v0.3.dc.html`;
-  });
-
-  test.afterAll(() => server.close());
+  const design = serveDesign(DESIGN_DIR);
 
   test("capture 01–08", async ({ page }) => {
     test.setTimeout(180_000);
-    await page.setViewportSize({ width: 1600, height: 1000 });
-    // The canvas loads React from unpkg.com; without it nothing renders, so skip rather than fail.
-    let offline = false;
-    page.on("pageerror", (error) => {
-      if (error.message.includes("unpkg.com")) offline = true;
-    });
-    await page.goto(designUrl);
-    await page.locator("[data-screen-label]").first().waitFor({ state: "attached", timeout: 60_000 });
-    await page.waitForTimeout(5_000); // the canvas lays itself out after load
-    test.skip(offline, "design canvas needs unpkg.com (React), which is not reachable");
-    // Top-level frames only ("01 …" to "16 …"); the panels inside carry labels of their own.
-    const count = await page.$$eval("[data-screen-label]", (els) =>
-      els.filter((e) => /^\d\d /.test(e.getAttribute("data-screen-label") ?? "")).map((e, i) => e.setAttribute("data-cap", String(i))).length,
-    );
-    expect(count).toBeGreaterThanOrEqual(8);
-
-    for (let i = 0; i < 8; i++) {
-      const n = String(i + 1).padStart(2, "0");
-      const label = page.locator(`[data-cap="${i}"]`);
-      for (const [j, scheme] of (["light", "dark"] as const).entries()) {
-        // The canvas renders a frame once its label is scrolled into view.
-        await label.evaluate((el) => el.scrollIntoView({ block: "start" }));
-        const frame = label.locator(":scope > div").nth(1).locator(":scope > div").nth(j);
-        await expect.poll(() => frame.evaluate((el) => el.getBoundingClientRect().width), { timeout: 30_000 }).toBeGreaterThan(100);
-        await page.waitForTimeout(500);
-        const box = await frame.evaluate((el) => {
-          const r = el.getBoundingClientRect();
-          return { x: r.left + window.scrollX, y: r.top + window.scrollY, width: r.width, height: r.height };
-        });
-        await page.screenshot({ path: `${OUT}/design-${n}-${scheme}.png`, fullPage: true, clip: box });
-      }
-    }
+    await captureDesignFrames(page, design.url("KozaPass v0.3.dc.html"), OUT, [1, 2, 3, 4, 5, 6, 7, 8]);
   });
 });

@@ -2,7 +2,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { mockAuthApi } from "./api-mock";
 import { designBatches, mockCatalogApi, NEXT_BATCH_NO, NOW } from "./catalog-mock";
 
-/** Batches (design v0.3 07–08) against the mocked API. */
+/** Batches (design v0.3 07–08, v0.3.1 22 and 24) against the mocked API. */
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -16,6 +16,10 @@ async function openBatches(page: Page, { role, path = "/batches" }: { role?: str
 }
 
 const dialog = (page: Page) => page.getByRole("dialog", { name: "Yeni parti" });
+const calendar = (page: Page) => page.getByRole("dialog", { name: "Tarih seç" });
+/** A day of October 2026 in the open calendar (labels like "5 Ekim 2026 Pazartesi", "Bugün, 3 Ekim …"). */
+const day = (page: Page, n: number) =>
+  calendar(page).getByRole("button", { name: new RegExp(`(^|, )${n} Ekim 2026`) });
 
 test("lists the batches with product, quantity, chain and status", async ({ page }) => {
   await openBatches(page);
@@ -30,11 +34,31 @@ test("lists the batches with product, quantity, chain and status", async ({ page
   await expect(page.getByRole("row", { name: /KP-2026-0828-A/ })).toContainText("Yayında");
   await expect(page.getByText("7 parti")).toBeVisible();
 
-  await page.getByLabel("Durum:").selectOption("COLLECTING");
-  await expect(page.getByText("4 parti")).toBeVisible();
-  await page.getByLabel("Durum:").selectOption("");
+  // Stage tabs with the company's counts (v0.3.1 22).
+  const tabs = page.getByRole("group", { name: "Durum" });
+  await expect(tabs.getByRole("button")).toHaveText(["Tümü7", "Taslak1", "Veri toplanıyor3", "Yayına hazır1", "Yayında2"]);
+  await expect(tabs.getByRole("button", { name: /Tümü/ })).toHaveAttribute("aria-pressed", "true");
+  await tabs.getByRole("button", { name: /Veri toplanıyor/ }).click();
+  await expect(tabs.getByRole("button", { name: /Veri toplanıyor/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText("3 parti")).toBeVisible();
+  await tabs.getByRole("button", { name: /Tümü/ }).click();
   await page.getByRole("searchbox", { name: "Parti no veya üretim emri ara" }).fill("0441");
   await expect(page.getByText("1 parti")).toBeVisible();
+  // The counts are the company's, not the search result's.
+  await expect(tabs.getByRole("button", { name: /Tümü/ })).toHaveText("Tümü7");
+});
+
+test("stage chips are square with an icon; only Yayında is filled", async ({ page }) => {
+  await openBatches(page);
+
+  const chip = (batchNo: string) =>
+    page.getByRole("row", { name: new RegExp(batchNo) }).getByText(/^(Taslak|Veri toplanıyor|Yayına hazır|Yayında)$/);
+  await expect(chip("KP-2026-0927-A")).toHaveCSS("border-top-style", "dashed");
+  await expect(chip("KP-2026-0927-A")).toHaveCSS("border-top-left-radius", "4px");
+  await expect(chip("KP-2026-0904-B")).toHaveText("Yayına hazır");
+  const filled = await chip("KP-2026-0828-A").evaluate((el) => getComputedStyle(el).backgroundColor);
+  const ready = await chip("KP-2026-0904-B").evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(filled).not.toBe(ready);
 });
 
 test("the product filter comes from the link on a product (?productId=)", async ({ page }) => {
@@ -74,10 +98,16 @@ test("creates a batch", async ({ page }) => {
   await page.getByRole("option", { name: /Keten gömlek, lacivert/ }).click();
   await form.getByLabel("Üretim emri no").fill("ÜE-2026-0460");
   await form.getByLabel("Miktar").fill("1.800");
-  await form.getByLabel("Üretim başlangıcı").fill("2026-10-05");
-  await form.getByLabel("Üretim bitişi").fill("2026-10-20");
+  await form.getByRole("button", { name: "Üretim başlangıcı" }).click();
+  await day(page, 5).click();
+  await day(page, 20).click();
+  await expect(calendar(page)).toBeHidden();
+  await expect(form.getByRole("button", { name: "Üretim başlangıcı" })).toHaveText("05.10.2026");
+  await expect(form.getByRole("button", { name: "Üretim bitişi" })).toHaveText("20.10.2026");
   await expect(form.getByText("Ürün ve miktar gerekli")).toBeHidden();
+  const sent = page.waitForRequest((r) => r.url().endsWith("/api/v1/batches") && r.method() === "POST");
   await create.click();
+  expect((await sent).postDataJSON()).toMatchObject({ producedFrom: "2026-10-05", producedTo: "2026-10-20" });
 
   await expect(form).toBeHidden();
   const row = page.getByRole("row", { name: new RegExp(NEXT_BATCH_NO) });
@@ -87,7 +117,7 @@ test("creates a batch", async ({ page }) => {
   await expect(page.getByText(`${designBatches().length + 1} parti`)).toBeVisible();
 });
 
-test("quantity and dates are validated like the API", async ({ page }) => {
+test("the quantity is validated like the API", async ({ page }) => {
   await openBatches(page);
   await page.getByRole("button", { name: "Yeni parti" }).click();
   const form = dialog(page);
@@ -96,13 +126,37 @@ test("quantity and dates are validated like the API", async ({ page }) => {
   await expect(form.getByText("Tam sayı girin (ör. 90).")).toBeVisible();
   await expect(form.getByLabel("Miktar")).toHaveAttribute("aria-invalid", "true");
   await form.getByLabel("Miktar").fill("10");
-  // The date order is checked once the rest of the batch is valid (as the API does).
-  await form.getByRole("combobox", { name: "Ürün" }).click();
-  await page.getByRole("option", { name: /Keten gömlek, lacivert/ }).click();
-  await form.getByLabel("Üretim başlangıcı").fill("2026-10-20");
-  await form.getByLabel("Üretim bitişi").fill("2026-10-05");
-  await expect(form.getByText("Bitiş tarihi başlangıç tarihinden önce olamaz.")).toBeVisible();
-  await expect(form.getByRole("button", { name: "Partiyi oluştur" })).toBeDisabled();
+  await expect(form.getByText("Tam sayı girin (ör. 90).")).toBeHidden();
+});
+
+test("the date range is picked, never typed: start, then end; an earlier end becomes the start", async ({ page }) => {
+  await openBatches(page);
+  await page.getByRole("button", { name: "Yeni parti" }).click();
+  const form = dialog(page);
+  const from = form.getByRole("button", { name: "Üretim başlangıcı" });
+  const to = form.getByRole("button", { name: "Üretim bitişi" });
+
+  await expect(from).toHaveText("gg.aa.yyyy");
+  await from.click();
+  await expect(calendar(page)).toContainText("Ekim 2026");
+  // Weeks start on Monday (tr).
+  await expect(calendar(page).locator("thead th").first()).toHaveText("Pzt");
+  await expect(calendar(page)).toContainText("Başlangıç tarihini seçin");
+  await day(page, 20).click();
+  await expect(calendar(page)).toContainText("Bitiş tarihini seçin");
+  await day(page, 5).click(); // before the start: becomes the new start
+  await expect(from).toHaveText("05.10.2026");
+  await expect(to).toHaveText("gg.aa.yyyy");
+  await day(page, 20).click();
+  await expect(to).toHaveText("20.10.2026");
+
+  await to.click();
+  await expect(calendar(page)).toContainText("16 gün · 05.10.2026 – 20.10.2026");
+  await calendar(page).getByRole("button", { name: "Sonraki aya git" }).click();
+  await expect(calendar(page)).toContainText("Kasım 2026");
+  await page.keyboard.press("Escape");
+  await expect(calendar(page)).toBeHidden();
+  await expect(form).toBeVisible();
 });
 
 test("viewers cannot create batches", async ({ page }) => {
