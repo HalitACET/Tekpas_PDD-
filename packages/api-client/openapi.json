@@ -560,7 +560,7 @@
             "type" : "string"
           },
           "sku" : {
-            "maxLength" : 60,
+            "maxLength" : 64,
             "minLength" : 0,
             "type" : [ "string", "null" ]
           }
