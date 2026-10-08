@@ -1,7 +1,7 @@
 "use client";
 
 import { BATCH_STATUSES, type BatchStatus } from "@tekpas/shared";
-import { ChevronDown, Layers, Plus, Search, Upload } from "lucide-react";
+import { ChevronDown, Layers, Plus, Search, Upload, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useEffect, useState } from "react";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { type BatchStatusCounts, useBatches, useBatchStatusCounts } from "@/lib/api/batches";
 import { useProducts } from "@/lib/api/products";
+import { useSupplier } from "@/lib/api/suppliers";
 import { canWriteCatalog } from "@/lib/auth/permissions";
 import { useSession } from "@/lib/auth/use-session";
 import { BatchesTableHeader, BatchRow } from "./batches-table";
@@ -48,11 +49,21 @@ export function BatchesPage() {
 
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<BatchStatus | "">("");
+  // The product and supplier filters live in the URL ("Partileri gör" on a product or a supplier links here).
   const productId = searchParams.get("productId") ?? "";
-  const setProductId = (id: string) => router.replace(id ? `${pathname}?productId=${id}` : pathname);
+  const supplierId = searchParams.get("supplierId") ?? "";
+  const setParam = (key: "productId" | "supplierId", value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set(key, value);
+    else params.delete(key);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  };
+  const setProductId = (id: string) => setParam("productId", id);
   const search = useDebounced(q, 250);
 
-  const batches = useBatches({ q: search, status, productId });
+  const batches = useBatches({ q: search, status, productId, supplierId });
+  const supplier = useSupplier(supplierId || undefined);
   const counts = useBatchStatusCounts();
   const products = useProducts({ q: "", category: "" });
   const productOptions = products.data?.content ?? [];
@@ -60,7 +71,7 @@ export function BatchesPage() {
   const [creating, setCreating] = useState(false);
   const [now] = useState(() => new Date());
   const comingSoon = () => toast(tCommon("comingSoon.title"), { description: tCommon("comingSoon.description") });
-  const filtered = q.trim() !== "" || status !== "" || productId !== "";
+  const filtered = q.trim() !== "" || status !== "" || productId !== "" || supplierId !== "";
   const rows = batches.data?.content ?? [];
   const guide = tPage.raw("guide.steps") as GuideStep[];
 
@@ -106,6 +117,23 @@ export function BatchesPage() {
               </option>
             ))}
           </FilterSelect>
+          {supplierId && (
+            // Design debt: the chip is not in the design yet (v0.3.2).
+            <span className="flex h-8 items-center gap-1.5 rounded-md border border-input bg-card pr-1 pl-2.5 text-[13px]">
+              <span className="text-muted-foreground">
+                {t("supplierFilter")}
+              </span>
+              <span className="max-w-[220px] truncate font-medium">{supplier.data?.name ?? "…"}</span>
+              <button
+                type="button"
+                onClick={() => setParam("supplierId", "")}
+                aria-label={t("clearSupplier")}
+                className="flex size-6 cursor-pointer items-center justify-center rounded-[4px] text-muted-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
+              >
+                <X className="size-3.5" strokeWidth={1.75} aria-hidden />
+              </button>
+            </span>
+          )}
           <span className="ml-auto text-xs text-muted-foreground" aria-live="polite">
             {batches.isPending
               ? tCommon("loading")
@@ -137,7 +165,7 @@ export function BatchesPage() {
                       onClick={() => {
                         setQ("");
                         setStatus("");
-                        setProductId("");
+                        router.replace(pathname);
                       }}
                     >
                       {t("empty.clearFilters")}
