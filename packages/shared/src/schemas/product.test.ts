@@ -70,7 +70,7 @@ describe("productCreateSchema", () => {
   });
 
   it("reports the same codes as the API for required fields and lengths", () => {
-    const input = { ...valid, gtin: "2012345000019", name: "  ", category: "SOCKS", sku: "x".repeat(61) };
+    const input = { ...valid, gtin: "2012345000019", name: "  ", category: "SOCKS", sku: "x".repeat(65) };
 
     expect(issues(input).map((i) => `${i.path}:${i.code}`).sort()).toEqual([
       "category:NotNull",
@@ -78,6 +78,13 @@ describe("productCreateSchema", () => {
       "name:NotBlank",
       "sku:Size",
     ]);
+  });
+
+  it("takes the SKU as free text: trimmed, then at most 64 characters", () => {
+    expect(productCreateSchema.parse({ ...valid, sku: "  kt ts 01! " }).sku).toBe("kt ts 01!");
+    expect(productCreateSchema.parse({ ...valid, sku: ` ${"x".repeat(64)} ` }).sku).toHaveLength(64);
+    expect(productCreateSchema.parse({ ...valid, sku: "   " }).sku).toBeNull();
+    expect(issues({ ...valid, sku: "x".repeat(65) }).map((i) => `${i.path}:${i.code}`)).toEqual(["sku:Size"]);
   });
 });
 

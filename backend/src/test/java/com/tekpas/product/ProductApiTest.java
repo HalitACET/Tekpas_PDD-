@@ -140,11 +140,25 @@ class ProductApiTest {
             Tenant tenant = fixtures.tenant();
             Map<String, Object> body = with(with(product(TestGtins.gtin13()), "name", " "), "category", null);
 
-            MvcTestResult result = fixtures.post(tenant, PRODUCTS, with(body, "sku", "x".repeat(61)));
+            MvcTestResult result = fixtures.post(tenant, PRODUCTS, with(body, "sku", "x".repeat(65)));
 
             assertFieldError(result, "name", "NotBlank");
             assertFieldError(result, "category", "NotNull");
             assertFieldError(result, "sku", "Size");
+        }
+
+        @Test
+        void theSkuIsFreeTextUpTo64CharactersAndTrimmed() {
+            Tenant tenant = fixtures.tenant();
+            String sku = "kt ts 01! / Ürün-Ç " + "x".repeat(45);
+
+            MvcTestResult longest = fixtures.post(tenant, PRODUCTS, with(product(TestGtins.gtin13()), "sku", sku));
+            MvcTestResult padded = fixtures.post(tenant, PRODUCTS, with(product(TestGtins.gtin13()), "sku", "  kt ts 01! "));
+
+            assertThat(sku).hasSize(64);
+            assertThat(longest).hasStatus(201);
+            assertThat(fixtures.body(longest).path("sku").asString()).isEqualTo(sku);
+            assertThat(fixtures.body(padded).path("sku").asString()).isEqualTo("kt ts 01!");
         }
 
         @Test

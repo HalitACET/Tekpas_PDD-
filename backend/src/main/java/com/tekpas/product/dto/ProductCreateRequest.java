@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
  */
 public record ProductCreateRequest(
         @Schema(example = "02012345000018") @NotNull @GtinFormat @GtinCheckDigit String gtin,
-        @Nullable @Size(max = 60) String sku,
+        @Nullable @Size(max = 64) String sku,
         @NotBlank @Size(max = 200) String name,
         @NotNull ProductCategory category,
         @Nullable @Size(max = 2000) String description,
