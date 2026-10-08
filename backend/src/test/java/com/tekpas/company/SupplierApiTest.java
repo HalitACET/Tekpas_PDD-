@@ -98,6 +98,24 @@ class SupplierApiTest {
             noPhone.put("phone", null);
             assertThat(fixtures.post(tenant, SUPPLIERS, noPhone)).hasStatus(201);
         }
+
+        @Test
+        void theCityIsOneOfTheEightyOneProvinces() {
+            Tenant tenant = fixtures.tenant();
+            Map<String, Object> body = supplier("Şehirli", "YARN");
+
+            for (String city : new String[] {"Paris", "bursa", "Bursa Merkez", "Istanbul"}) {
+                body.put("city", city);
+                assertFieldError(fixtures.post(tenant, SUPPLIERS, body), "city", "City");
+            }
+            body.put("city", " Kahramanmaraş ");
+            MvcTestResult created = fixtures.post(tenant, SUPPLIERS, body);
+            assertThat(created).hasStatus(201);
+            assertThat(fixtures.body(created).path("city").asString()).isEqualTo("Kahramanmaraş");
+
+            String id = fixtures.body(created).path("id").asString();
+            assertFieldError(fixtures.patch(tenant, SUPPLIERS + "/" + id, Map.of("city", "Atlantis")), "city", "City");
+        }
     }
 
     @Nested
@@ -210,7 +228,13 @@ class SupplierApiTest {
             MvcTestResult result = fixtures.patch(tenant, SUPPLIERS + "/" + id, Map.of("type", "FABRIC"));
 
             assertThat(result).hasStatus(409);
-            assertThat(fixtures.body(result).path("reason").asString()).isEqualTo("SUPPLIER_IN_USE");
+            assertThat(fixtures.body(result).path("reason").asString()).isEqualTo("SUPPLIER_TYPE_IN_USE");
+            assertThat(fixtures.body(fixtures.get(tenant, SUPPLIERS + "/" + id)).path("type").asString()).isEqualTo("YARN");
+            // Name, city and phone still change: only the type is tied to the steps.
+            MvcTestResult other = fixtures.patch(tenant, SUPPLIERS + "/" + id,
+                    Map.of("name", "Bursa İplik A.Ş.", "city", "Denizli", "phone", "+902240000009"));
+            assertThat(other).hasStatusOk();
+            assertThat(fixtures.body(other).path("phone").asString()).isEqualTo("+902240000009");
         }
 
         private void link(Tenant tenant, UUID supplierId) {

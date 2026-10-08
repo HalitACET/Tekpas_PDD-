@@ -126,7 +126,8 @@ public class SupplierService {
             requireSupplierType(request.type().orElseThrow());
             if (current.batchCount() > 0) {
                 // Steps were assigned by type; a yarn spinner cannot become a dyehouse under them.
-                throw ConflictException.state("SUPPLIER_IN_USE", "The supplier is used in a supply chain");
+                throw ConflictException.state("SUPPLIER_TYPE_IN_USE",
+                        "The supplier is used in a supply chain, so its type cannot change");
             }
             company.changeType(request.type().orElseThrow());
         }

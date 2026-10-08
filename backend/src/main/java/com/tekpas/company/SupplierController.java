@@ -90,7 +90,7 @@ public class SupplierController {
     @ApiResponse(responseCode = "400", description = "Validation failed")
     @ApiResponse(responseCode = "403", description = "Read-only or supplier user")
     @ApiResponse(responseCode = "404", description = "Not in this company's network")
-    @ApiResponse(responseCode = "409", description = "SUPPLIER_NOT_EDITABLE, or SUPPLIER_IN_USE for a type change")
+    @ApiResponse(responseCode = "409", description = "SUPPLIER_NOT_EDITABLE, or SUPPLIER_TYPE_IN_USE for a type change")
     public SupplierResponse updateSupplier(@PathVariable UUID id, @Valid @RequestBody SupplierUpdateRequest request) {
         return service.update(currentUser.companyId(), id, request);
     }
