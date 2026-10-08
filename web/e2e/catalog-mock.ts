@@ -133,6 +133,60 @@ export function designBatches(): MockBatch[] {
   ];
 }
 
+export interface MockSupplier {
+  id: string;
+  name: string;
+  type: "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY";
+  city: string;
+  phone: string | null;
+  batchCount: number;
+  latestStepStatus: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED" | null;
+  editable: boolean;
+  linkedAt: string;
+  /** Mock only: the design batches (by number) whose chain uses this supplier. */
+  batchNos: string[];
+}
+
+/**
+ * The design's suppliers (v0.3.1 27/28). Phone numbers are from the unassigned 0224 000 exchange, never the
+ * design's sample numbers. "Ekin Aksesuar" has its own account (not editable).
+ */
+export function designSuppliers(): MockSupplier[] {
+  const s = (
+    n: number,
+    name: string,
+    type: MockSupplier["type"],
+    city: string,
+    batchCount: number,
+    latestStepStatus: MockSupplier["latestStepStatus"],
+    batchNos: string[] = [],
+    editable = true,
+  ): MockSupplier => ({
+    id: `00000000-0000-4000-8000-0000000001${String(n).padStart(2, "0")}`,
+    name,
+    type,
+    city,
+    phone: `+90224000${String(n).padStart(4, "0")}`,
+    batchCount,
+    latestStepStatus,
+    editable,
+    linkedAt: at(6, n),
+    batchNos,
+  });
+  return [
+    s(1, "Bursa İplik San.", "YARN", "Bursa", 9, "APPROVED", ["KP-2026-0918-A", "KP-2026-0917-C", "KP-2026-0912-B"]),
+    s(2, "Maraş Penye İplik", "YARN", "Kahramanmaraş", 3, "SUBMITTED"),
+    s(3, "Denizli Örme Tekstil", "FABRIC", "Denizli", 7, "SUBMITTED"),
+    s(4, "Çınar Boya Apre", "DYEHOUSE", "Denizli", 5, "APPROVED"),
+    s(5, "Gökçe Konfeksiyon", "SEWING", "İzmir", 4, "PENDING"),
+    s(6, "Lale Konfeksiyon", "SEWING", "Bursa", 6, "APPROVED"),
+    s(7, "Yıldız Fason Dikim", "SEWING", "Tekirdağ", 2, "SUBMITTED"),
+    s(8, "Ege Fason Dikim", "SEWING", "Manisa", 0, null),
+    s(9, "Ekin Aksesuar", "ACCESSORY", "İstanbul", 2, "REJECTED", [], false),
+    s(10, "Uşak Kumaş Dokuma", "FABRIC", "Uşak", 1, "APPROVED"),
+  ];
+}
+
 /** GET /batches/next-batch-no at NOW. */
 export const NEXT_BATCH_NO = "KP-2026-1003-A";
 
@@ -143,12 +197,19 @@ interface CatalogOptions {
   foreignGtins?: string[];
   /** Answer every list request with a 503 (and its request id). */
   failLists?: boolean;
+  suppliers?: MockSupplier[];
 }
 
 /** Installs the mock; returns the live product array so tests can inspect what was saved. */
 export async function mockCatalogApi(
   page: Page,
-  { products = designProducts(), batches = designBatches(), foreignGtins = [], failLists = false }: CatalogOptions = {},
+  {
+    products = designProducts(),
+    batches = designBatches(),
+    foreignGtins = [],
+    failLists = false,
+    suppliers = designSuppliers(),
+  }: CatalogOptions = {},
 ) {
   const store = products;
   const pad = (gtin: string) => gtin.padStart(14, "0");
@@ -267,7 +328,11 @@ export async function mockCatalogApi(
       const q = (url.searchParams.get("q") ?? "").toLocaleLowerCase("tr");
       const status = url.searchParams.get("status");
       const productId = url.searchParams.get("productId");
+      const supplierId = url.searchParams.get("supplierId");
+      const supplier = supplierId ? suppliers.find((x) => x.id === supplierId) : undefined;
+      if (supplierId && !supplier) return problem(route, 404, { type: "urn:tekpas:problem:not-found", title: "Not found" });
       const matches = batches
+        .filter((b) => !supplier || supplier.batchNos.includes(b.batchNo))
         .filter((b) => !status || b.status === status)
         .filter((b) => !productId || b.productId === productId)
         .filter((b) => !q || [b.batchNo, b.productionOrderNo ?? ""].some((v) => v.toLocaleLowerCase("tr").includes(q)))
@@ -306,6 +371,76 @@ export async function mockCatalogApi(
       batches.unshift(created);
       store.find((p) => p.id === body.productId)!.batchCount += 1;
       return route.fulfill({ status: 201, json: batchResponse(created) });
+    }
+    return route.fallback();
+  });
+
+  /** The API's shape: the mock-only batchNos stay out. */
+  const supplierResponse = (supplier: MockSupplier) => {
+    const response: Partial<MockSupplier> = { ...supplier };
+    delete response.batchNos;
+    return response;
+  };
+
+  await page.route(/\/api\/v1\/suppliers(\?.*)?$/, async (route) => {
+    const request = route.request();
+    if (request.method() === "GET") {
+      if (failLists) return unavailable(route);
+      const url = new URL(request.url());
+      const q = (url.searchParams.get("q") ?? "").toLocaleLowerCase("tr");
+      const type = url.searchParams.get("type");
+      const matches = suppliers
+        .filter((x) => !type || x.type === type)
+        .filter((x) => !q || [x.name, x.city].some((v) => v.toLocaleLowerCase("tr").includes(q)))
+        .sort((a, b) => a.name.localeCompare(b.name, "tr"));
+      return route.fulfill({
+        json: { content: matches.map(supplierResponse), page: 0, size: 100, totalElements: matches.length, totalPages: 1 },
+      });
+    }
+    if (request.method() === "POST") {
+      const body = request.postDataJSON();
+      const created: MockSupplier = {
+        id: `00000000-0000-4000-8000-0000000002${String(suppliers.length).padStart(2, "0")}`,
+        name: body.name,
+        type: body.type,
+        city: body.city,
+        phone: body.phone ?? null,
+        batchCount: 0,
+        latestStepStatus: null,
+        editable: true,
+        linkedAt: new Date().toISOString(),
+        batchNos: [],
+      };
+      suppliers.push(created);
+      return route.fulfill({ status: 201, json: supplierResponse(created) });
+    }
+    return route.fallback();
+  });
+
+  await page.route(/\/api\/v1\/suppliers\/[0-9a-f-]+$/, async (route) => {
+    const request = route.request();
+    const id = new URL(request.url()).pathname.split("/").pop();
+    const supplier = suppliers.find((x) => x.id === id);
+    if (!supplier) return problem(route, 404, { type: "urn:tekpas:problem:not-found", title: "Not found" });
+    if (request.method() === "GET") return route.fulfill({ json: supplierResponse(supplier) });
+    if (request.method() === "PATCH") {
+      const body = request.postDataJSON();
+      const details = ["name", "type", "city"].some((k) => body[k] !== undefined);
+      if (details && !supplier.editable) {
+        return problem(route, 409, { type: "urn:tekpas:problem:conflict", title: "Conflict", reason: "SUPPLIER_NOT_EDITABLE" });
+      }
+      if (body.type !== undefined && body.type !== supplier.type && supplier.batchCount > 0) {
+        return problem(route, 409, { type: "urn:tekpas:problem:conflict", title: "Conflict", reason: "SUPPLIER_TYPE_IN_USE" });
+      }
+      Object.assign(supplier, body);
+      return route.fulfill({ json: supplierResponse(supplier) });
+    }
+    if (request.method() === "DELETE") {
+      if (supplier.batchCount > 0) {
+        return problem(route, 409, { type: "urn:tekpas:problem:conflict", title: "Conflict", reason: "SUPPLIER_IN_USE" });
+      }
+      suppliers.splice(suppliers.indexOf(supplier), 1);
+      return route.fulfill({ status: 204 });
     }
     return route.fallback();
   });

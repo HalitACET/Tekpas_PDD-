@@ -106,6 +106,30 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `22-${scheme}`);
     });
 
+    test("27 supplier in use cannot be removed", async ({ page }) => {
+      await prepare(page, scheme);
+      await mockAuthApi(page, { signedIn: true });
+      await mockCatalogApi(page);
+      await page.goto("/suppliers");
+      await page.getByRole("button", { name: "Satır menüsü: Bursa İplik San." }).click();
+      await page.getByRole("menuitem", { name: "Bağı kaldır" }).click();
+      await expect(page.getByRole("alertdialog", { name: "Tedarikçi kaldırılamaz" })).toBeVisible();
+      await page.mouse.move(0, 0);
+      await shoot(page, `27-${scheme}`);
+    });
+
+    test("28 remove supplier link", async ({ page }) => {
+      await prepare(page, scheme);
+      await mockAuthApi(page, { signedIn: true });
+      await mockCatalogApi(page);
+      await page.goto("/suppliers");
+      await page.getByRole("button", { name: "Satır menüsü: Ege Fason Dikim" }).click();
+      await page.getByRole("menuitem", { name: "Bağı kaldır" }).click();
+      await expect(page.getByRole("alertdialog", { name: "Tedarikçi bağını kaldır" })).toBeVisible();
+      await page.mouse.move(0, 0);
+      await shoot(page, `28-${scheme}`);
+    });
+
     test("24 create batch, calendar picking the end", async ({ page }) => {
       await prepare(page, scheme);
       await mockAuthApi(page, { signedIn: true });
