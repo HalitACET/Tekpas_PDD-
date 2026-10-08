@@ -1,11 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarDays, CircleAlert, RotateCcw } from "lucide-react";
+import { CircleAlert, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useEffect, useId } from "react";
 import { Controller, type FieldPath, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
+import { DateRangeFields } from "@/components/common/date-range-fields";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -49,7 +50,7 @@ export function CreateBatchDialog({
 function CreateBatchForm({ products, onDone }: { products: ProductListItem[]; onDone: () => void }) {
   const t = useTranslations("batches.create");
   const tField = useTranslations("errors.field");
-  const ids = { product: useId(), batchNo: useId(), order: useId(), quantity: useId(), from: useId(), to: useId() };
+  const ids = { product: useId(), batchNo: useId(), order: useId(), quantity: useId() };
 
   const form = useForm<BatchFormValues, unknown, BatchFormOutput>({
     // The schema converts the typed quantity first (preprocess), which the resolver typings cannot follow.
@@ -147,7 +148,7 @@ function CreateBatchForm({ products, onDone }: { products: ProductListItem[]; on
                 disabled={!suggestion.data}
                 aria-label={t("resetSuggestion")}
                 title={t("resetSuggestion")}
-                className="absolute right-1 flex size-7 cursor-pointer items-center justify-center rounded-[4px] text-muted-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/18 disabled:cursor-not-allowed disabled:opacity-50"
+                className="absolute right-1 flex size-7 cursor-pointer items-center justify-center rounded-[4px] text-muted-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <RotateCcw className="size-3.5" strokeWidth={1.75} aria-hidden />
               </button>
@@ -186,17 +187,18 @@ function CreateBatchForm({ products, onDone }: { products: ProductListItem[]; on
               </span>
             </span>
           </Field>
-          <DateField
-            id={ids.from}
-            label={t("producedFrom")}
-            error={message(formState.errors.producedFrom?.message)}
-            {...register("producedFrom")}
-          />
-          <DateField
-            id={ids.to}
-            label={t("producedTo")}
-            error={message(formState.errors.producedTo?.message)}
-            {...register("producedTo")}
+          <DateRangeFields
+            from={values.producedFrom ?? ""}
+            to={values.producedTo ?? ""}
+            onChange={(range) => {
+              setValue("producedFrom", range.from, { shouldValidate: true, shouldDirty: true });
+              setValue("producedTo", range.to, { shouldValidate: true, shouldDirty: true });
+            }}
+            labels={{ from: t("producedFrom"), to: t("producedTo") }}
+            errors={{
+              from: message(formState.errors.producedFrom?.message),
+              to: message(formState.errors.producedTo?.message),
+            }}
           />
         </div>
       </div>
@@ -244,30 +246,5 @@ function Field({
         </p>
       )}
     </div>
-  );
-}
-
-/**
- * The design's date field: calendar icon on the left. A native date input, so the browser shows the
- * locale's format (gg.aa.yyyy) and its own picker, which opens from anywhere in the field.
- */
-function DateField({ id, label, error, ...props }: React.ComponentProps<"input"> & { label: string; error?: string }) {
-  return (
-    <Field label={label} htmlFor={id ?? ""} error={error}>
-      <span className="relative flex items-center">
-        <CalendarDays
-          className="pointer-events-none absolute left-2.5 size-[15px] text-muted-foreground"
-          strokeWidth={1.75}
-          aria-hidden
-        />
-        <Input
-          id={id}
-          type="date"
-          aria-invalid={error ? true : undefined}
-          className={`${INPUT} relative pl-[34px] tabular-nums [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0`}
-          {...props}
-        />
-      </span>
-    </Field>
   );
 }
