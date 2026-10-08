@@ -143,7 +143,9 @@ class LoginTest {
         assertThat(fixtures.body(result).path("type").asString()).isEqualTo("urn:tekpas:problem:bad-request");
     }
 
+    /** The response body without its request id, which differs between any two requests. */
     private static String body(MvcTestResult result) {
-        return new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
+        return new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8)
+                .replaceFirst(",?\"requestId\":\"[^\"]*\"", "");
     }
 }

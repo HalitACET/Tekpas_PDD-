@@ -18,5 +18,7 @@ public record ApiProblem(
         @Schema(description = "Field errors: type urn:tekpas:problem:validation, or conflict on a unique field "
                 + "(code Unique)") @Nullable List<FieldViolation> errors,
         @Schema(description = "Conflicts that are not about one field, e.g. PRODUCT_HAS_BATCHES, GTIN_LOCKED",
-                example = "PRODUCT_HAS_BATCHES") @Nullable String reason) {
+                example = "PRODUCT_HAS_BATCHES") @Nullable String reason,
+        @Schema(description = "Id of the request, also in the X-Request-Id header and the server log",
+                example = "ab12-cd34") @Nullable String requestId) {
 }

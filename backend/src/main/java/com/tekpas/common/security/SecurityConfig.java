@@ -1,5 +1,6 @@
 package com.tekpas.common.security;
 
+import com.tekpas.common.web.RequestId;
 import java.util.List;
 import java.util.Set;
 import org.springframework.context.annotation.Bean;
@@ -79,6 +80,7 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE,
                 HttpHeaders.ACCEPT_LANGUAGE));
+        config.setExposedHeaders(List.of(RequestId.HEADER));
         config.setAllowCredentials(true);
         source.registerCorsConfiguration("/api/**", config);
         return source;
