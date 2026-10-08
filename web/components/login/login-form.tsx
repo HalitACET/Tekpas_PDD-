@@ -1,20 +1,19 @@
 "use client";
 
-import { CircleAlert, Eye, EyeOff } from "lucide-react";
+import { CircleAlert, Clock, Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { login, type LoginResult, restoreSession } from "@/lib/auth/session";
 import { safeNextPath } from "@/lib/auth/use-session";
+import { formatElapsed, WAKE_DETECT_MS, WAKE_LIMIT_MS, waitUntilAwake } from "@/lib/server-wake";
 import { cn } from "@/lib/utils";
 
-type Status = "idle" | "submitting" | Exclude<LoginResult, "ok">;
-
-/** After this, a still-running login most likely waits for a sleeping server to start. */
-export const WAKING_HINT_AFTER_MS = 5_000;
+/** waking: the server is starting (31a); gaveUp: it did not start within 90 s (31b). */
+type Status = "idle" | "submitting" | "waking" | "gaveUp" | "invalid" | "unavailable";
 
 /**
  * Design F form. Sizes follow the design per breakpoint: 40 px controls on desktop, 48 px (and 16 px
@@ -32,17 +31,19 @@ export function LoginForm() {
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
-  const [waking, setWaking] = useState(false);
+  const [startedAt, setStartedAt] = useState(0);
+  const [now, setNow] = useState(0);
+  const abort = useRef<AbortController | null>(null);
 
-  // Slow login: keep the spinner, change the button text (not an error until the request really fails).
+  // The elapsed time of 31a, once a second.
   useEffect(() => {
-    if (status !== "submitting") return;
-    const timer = setTimeout(() => setWaking(true), WAKING_HINT_AFTER_MS);
-    return () => {
-      clearTimeout(timer);
-      setWaking(false);
-    };
+    if (status !== "waking") return;
+    const timer = setInterval(() => setNow(Date.now()), 1_000);
+    return () => clearInterval(timer);
   }, [status]);
+
+  // Leaving the page stops the polling.
+  useEffect(() => () => abort.current?.abort(), []);
 
   // Already signed in (refresh cookie still valid): skip the form.
   useEffect(() => {
@@ -55,11 +56,35 @@ export function LoginForm() {
     };
   }, [router, next]);
 
+  /**
+   * Design v0.3.2 31: a login that does not answer within 3 s is given up; the liveness check is polled with
+   * short timeouts until the server answers, then the login is sent once more. The password stays in this
+   * component's state only.
+   */
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (status === "submitting") return;
+    if (status === "submitting" || status === "waking") return;
+    const started = Date.now();
+    abort.current?.abort();
+    const controller = new AbortController();
+    abort.current = controller;
     setStatus("submitting");
-    const result = await login(email.trim(), password, remember);
+
+    let result: LoginResult = await login(email.trim(), password, remember, { timeoutMs: WAKE_DETECT_MS });
+    if (result === "unreachable") {
+      setStartedAt(started);
+      setNow(Date.now());
+      setStatus("waking");
+      const awake = await waitUntilAwake(started, controller.signal);
+      if (controller.signal.aborted) return;
+      if (!awake) {
+        setStatus("gaveUp");
+        return;
+      }
+      result = await login(email.trim(), password, remember);
+      if (result === "unreachable") result = "unavailable";
+    }
+    if (controller.signal.aborted) return;
     if (result === "ok") {
       router.replace(next);
     } else {
@@ -67,7 +92,8 @@ export function LoginForm() {
     }
   }
 
-  const submitting = status === "submitting";
+  const submitting = status === "submitting" || status === "waking";
+  const elapsed = Math.min(Math.max(0, now - startedAt), WAKE_LIMIT_MS);
   const error = status === "invalid" ? t("invalidCredentials") : status === "unavailable" ? t("serverError") : null;
 
   return (
@@ -175,11 +201,47 @@ export function LoginForm() {
             aria-hidden
           />
         )}
-        {submitting ? (waking ? t("waking") : t("submitting")) : t("submit")}
+        {submitting ? t("submitting") : status === "gaveUp" ? t("retry") : t("submit")}
       </Button>
-      <span className="sr-only" role="status" aria-live="polite">
-        {waking ? t("waking") : ""}
-      </span>
+
+      {status === "waking" && (
+        <div role="status" aria-live="polite" className="flex flex-col gap-2.5 rounded-lg bg-muted p-3.5">
+          <div className="flex items-start gap-2.5">
+            <Clock className="mt-px size-[18px] shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden />
+            <span className="flex flex-col gap-[3px]">
+              <span className="text-[13px] font-medium">{t("wakingTitle")}</span>
+              <span className="text-xs leading-normal text-muted-foreground">{t("wakingBody")}</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <span
+              className="flex h-1 flex-1 overflow-hidden rounded-[2px] bg-border"
+              role="progressbar"
+              aria-label={t("wakingProgress")}
+              aria-valuemin={0}
+              aria-valuemax={WAKE_LIMIT_MS / 1000}
+              aria-valuenow={Math.floor(elapsed / 1000)}
+            >
+              <span
+                className="rounded-[2px] bg-primary transition-[width] duration-1000 ease-linear"
+                style={{ width: `${(elapsed / WAKE_LIMIT_MS) * 100}%` }}
+              />
+            </span>
+            <span className="font-mono text-xs font-medium tabular-nums">{formatElapsed(elapsed)}</span>
+          </div>
+          <span className="text-[11px] text-muted-foreground">{t("wakingUsually")}</span>
+        </div>
+      )}
+
+      {status === "gaveUp" && (
+        <div role="alert" className="flex items-start gap-2.5 rounded-lg bg-muted px-3.5 py-3 text-[13px] leading-[1.45]">
+          <Clock className="mt-px size-[18px] shrink-0 text-status-expiring" strokeWidth={1.75} aria-hidden />
+          <span className="flex flex-col gap-0.5">
+            <span className="font-medium">{t("gaveUpTitle")}</span>
+            <span className="text-xs text-muted-foreground">{t("gaveUpBody")}</span>
+          </span>
+        </div>
+      )}
 
       <p className="text-center text-xs leading-[1.5] text-muted-foreground">{t("forgotPassword")}</p>
     </form>

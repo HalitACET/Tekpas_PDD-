@@ -18,6 +18,12 @@ vi.mock("@/lib/auth/session", () => ({
   restoreSession: () => restoreSession(),
 }));
 
+const waitUntilAwake = vi.fn();
+vi.mock("@/lib/server-wake", async (original) => ({
+  ...(await original<typeof import("@/lib/server-wake")>()),
+  waitUntilAwake: (...args: unknown[]) => waitUntilAwake(...args),
+}));
+
 beforeEach(() => {
   vi.clearAllMocks();
   search = new URLSearchParams();
@@ -77,31 +83,55 @@ describe("LoginForm", () => {
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/batches"));
   });
 
-  it("says the server is waking up after 5 s, keeps the spinner and shows no error", async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
-    try {
-      let finish: (value: string) => void = () => {};
-      login.mockReturnValue(new Promise((resolve) => (finish = resolve)));
-      renderWithIntl(<LoginForm />);
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      await user.type(screen.getByLabelText("E-posta"), "elif@karacatekstil.com.tr");
-      await user.type(screen.getByLabelText("Şifre"), "sifre");
-      await user.click(screen.getByRole("button", { name: "Giriş yap" }));
-      expect(screen.getByRole("button", { name: "Giriş yapılıyor…" })).toBeDisabled();
+  it("gives a login 3 s; when it does not answer, waits for the server and sends it once more", async () => {
+    let awake: (value: boolean) => void = () => {};
+    waitUntilAwake.mockReturnValue(new Promise((resolve) => (awake = resolve)));
+    login.mockResolvedValueOnce("unreachable").mockResolvedValueOnce("ok");
+    renderWithIntl(<LoginForm />);
 
-      await act(() => vi.advanceTimersByTimeAsync(5_000));
+    await fillAndSubmit();
 
-      const waking = screen.getByRole("button", { name: "Sunucu uyanıyor, bu bir dakika sürebilir…" });
-      expect(waking).toBeDisabled();
-      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-      expect(screen.getByRole("status")).toHaveTextContent("Sunucu uyanıyor");
+    // 31a: still "signing in", with the server-start note and its progress; no error.
+    expect(await screen.findByRole("status")).toHaveTextContent("Sunucu hazırlanıyor, bu bir dakika sürebilir.");
+    expect(screen.getByRole("progressbar", { name: "Sunucunun açılması" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Giriş yapılıyor…" })).toBeDisabled();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(login).toHaveBeenNthCalledWith(1, "elif@karacatekstil.com.tr", "sifre", true, { timeoutMs: 3_000 });
 
-      await act(async () => finish("unavailable"));
-      expect(await screen.findByRole("alert")).toHaveTextContent("Sunucuya ulaşılamadı.");
-      expect(screen.getByRole("button", { name: "Giriş yap" })).toBeEnabled();
-    } finally {
-      vi.useRealTimers();
-    }
+    await act(async () => awake(true));
+
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/batches"));
+    expect(login).toHaveBeenCalledTimes(2);
+    expect(login).toHaveBeenNthCalledWith(2, "elif@karacatekstil.com.tr", "sifre", true);
+  });
+
+  it("after 90 s without the server it offers to try again, keeping what was typed", async () => {
+    waitUntilAwake.mockResolvedValue(false);
+    login.mockResolvedValue("unreachable");
+    renderWithIntl(<LoginForm />);
+
+    const user = await fillAndSubmit();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Sunucu 90 saniyede hazır olmadı.");
+    expect(screen.getByLabelText("Şifre")).toHaveValue("sifre");
+    expect(login).toHaveBeenCalledTimes(1);
+
+    login.mockReset().mockResolvedValue("ok");
+    await user.click(screen.getByRole("button", { name: "Tekrar dene" }));
+    await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/batches"));
+  });
+
+  it("never writes the password anywhere", async () => {
+    waitUntilAwake.mockResolvedValue(true);
+    login.mockResolvedValueOnce("unreachable").mockResolvedValueOnce("invalid");
+    renderWithIntl(<LoginForm />);
+
+    await fillAndSubmit("elif@karacatekstil.com.tr", "cok-gizli-sifre");
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("E-posta veya şifre hatalı.");
+    const stored = [localStorage, sessionStorage].flatMap((s) => Object.keys(s).map((k) => s.getItem(k) ?? ""));
+    expect(stored.join(" ")).not.toContain("cok-gizli-sifre");
+    expect(document.cookie).not.toContain("cok-gizli-sifre");
   });
 
   it("sends the trimmed e-mail and the remember-me choice, then goes to ?next", async () => {
@@ -113,7 +143,7 @@ describe("LoginForm", () => {
     await user.click(screen.getByRole("checkbox", { name: "Beni hatırla" }));
     await fillAndSubmit("  elif@karacatekstil.com.tr ", "sifre");
 
-    expect(login).toHaveBeenCalledWith("elif@karacatekstil.com.tr", "sifre", false);
+    expect(login).toHaveBeenCalledWith("elif@karacatekstil.com.tr", "sifre", false, { timeoutMs: 3_000 });
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/products"));
   });
 

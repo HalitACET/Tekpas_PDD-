@@ -104,14 +104,16 @@ async function loadUser(): Promise<SessionState> {
   return state;
 }
 
-export type LoginResult = "ok" | "invalid" | "unavailable";
-
 /**
- * A sleeping Render instance needs about a minute to start (docs/DEPLOY.md), so the login waits well
- * beyond that before giving up; the form tells the user after 5 s that the server is waking up.
+ * "unreachable": no answer in time, no connection, or the proxy could not reach the backend (502/503/504):
+ * most likely a sleeping server (lib/server-wake.ts). "unavailable": the server answered with an error.
  */
-export const LOGIN_TIMEOUT_MS = 90_000;
+export type LoginResult = "ok" | "invalid" | "unavailable" | "unreachable";
 
+/** One login attempt once the server is known to be awake. */
+export const LOGIN_TIMEOUT_MS = 20_000;
+
+/** The password only travels in this request; it is never stored. */
 export async function login(
   email: string,
   password: string,
@@ -124,15 +126,16 @@ export async function login(
       signal: AbortSignal.timeout(timeoutMs),
     });
     if (!data) {
-      // 400 (malformed input) and 401 get the same single message; 5xx and others are "unavailable".
-      return response.status === 400 || response.status === 401 ? "invalid" : "unavailable";
+      // 400 (malformed input) and 401 get the same single message.
+      if (response.status === 400 || response.status === 401) return "invalid";
+      return [502, 503, 504].includes(response.status) ? "unreachable" : "unavailable";
     }
     accessToken = data.accessToken;
     setState({ status: "authenticated", user: data.user });
     return "ok";
   } catch {
     // Network error or timeout.
-    return "unavailable";
+    return "unreachable";
   }
 }
 

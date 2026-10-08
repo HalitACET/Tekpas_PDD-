@@ -9,6 +9,8 @@ Tarayıcı ──► Vercel (web, Next.js) ──/api/v1/* rewrite (K18)──�
 cron-job.org ──► Render /actuator/health/liveness (09:00–22:00, 10 dk'da bir; DB'ye dokunmaz)
 ```
 
+Tarayıcının `/api/health` isteği de Vercel'de `/actuator/health/liveness`'a rewrite edilir. Uyuyan sunucuda giriş ve listeler bunu 3 sn arayla, kısa timeout'larla yoklar ve sunucu cevap verince asıl isteği bir kez tekrarlar (tasarım v0.3.2 31–32, `web/lib/server-wake.ts`).
+
 Sıra önemli: **1 → 2 → 3 → 4 → 5 → 6**. Vercel, Render'ın adresine ihtiyaç duyar.
 
 ---
