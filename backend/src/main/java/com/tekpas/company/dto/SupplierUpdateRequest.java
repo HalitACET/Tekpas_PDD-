@@ -1,6 +1,7 @@
 package com.tekpas.company.dto;
 
 import com.tekpas.company.CompanyType;
+import com.tekpas.company.validation.City;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -16,6 +17,6 @@ import org.jspecify.annotations.Nullable;
 public record SupplierUpdateRequest(
         @Nullable Optional<@NotBlank @Size(max = 200) String> name,
         @Nullable Optional<@NotNull CompanyType> type,
-        @Nullable Optional<@NotBlank @Size(max = 100) String> city,
+        @Nullable Optional<@NotBlank @Size(max = 100) @City String> city,
         @Nullable Optional<@Pattern(regexp = SupplierCreateRequest.E164) String> phone) {
 }
