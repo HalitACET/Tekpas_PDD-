@@ -26,7 +26,7 @@ export function MobileTopbar({ user, page }: { user: SessionUser; page?: PageKey
         aria-label={tNav("open")}
         aria-expanded={menuOpen}
         aria-haspopup="dialog"
-        className="flex size-11 cursor-pointer items-center justify-center rounded-lg text-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/18"
+        className="flex size-11 cursor-pointer items-center justify-center rounded-lg text-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
       >
         <Menu className="size-[22px]" strokeWidth={1.75} aria-hidden />
       </button>
@@ -43,7 +43,7 @@ export function MobileTopbar({ user, page }: { user: SessionUser; page?: PageKey
         onClick={() => setUserOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={userOpen}
-        className="ml-auto flex size-11 cursor-pointer items-center justify-center rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/18"
+        className="ml-auto flex size-11 cursor-pointer items-center justify-center rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft"
       >
         <span
           className="flex size-8 items-center justify-center rounded-full bg-silk text-xs font-semibold text-[#3D3A35]"

@@ -2,6 +2,7 @@ package com.tekpas.batch;
 
 import com.tekpas.batch.dto.BatchCreateRequest;
 import com.tekpas.batch.dto.BatchResponse;
+import com.tekpas.batch.dto.BatchStatusCounts;
 import com.tekpas.batch.dto.BatchUpdateRequest;
 import com.tekpas.batch.dto.NextBatchNoResponse;
 import com.tekpas.common.security.CurrentUser;
@@ -69,6 +70,15 @@ public class BatchController {
             @RequestParam(required = false) @Nullable String sort) {
         return service.list(currentUser.companyId(), productId, status, PageQuery.containsPattern(q),
                 PageQuery.of(page, size, sort, SORT_FIELDS, DEFAULT_SORT));
+    }
+
+    @GetMapping("/status-counts")
+    @Operation(operationId = "getBatchStatusCounts", summary = "Count batches per status",
+            description = "All batches of the company, independent of the list's search and filters")
+    @ApiResponse(responseCode = "200", description = "Count per status, zero included")
+    @ApiResponse(responseCode = "403", description = "Supplier users have no access")
+    public BatchStatusCounts getBatchStatusCounts() {
+        return service.statusCounts(currentUser.companyId());
     }
 
     @GetMapping("/next-batch-no")

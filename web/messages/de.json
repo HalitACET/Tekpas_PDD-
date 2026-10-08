@@ -18,9 +18,20 @@
     "loading": "Wird geladen…",
     "readOnly": "Für diese Aktion fehlt Ihnen die Berechtigung",
     "listError": {
-      "title": "Die Liste konnte nicht geladen werden",
-      "body": "Der Server ist nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
-      "retry": "Erneut versuchen"
+      "retry": "Erneut versuchen",
+      "meta": "HTTP {status}",
+      "metaWithId": "HTTP {status} · Anfrage {id}",
+      "network": "Der Server war nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "server": "Der Server antwortet gerade nicht. Versuchen Sie es gleich noch einmal.",
+      "other": "Ein unerwarteter Fehler ist aufgetreten.",
+      "kept": "Ihre Filter bleiben erhalten."
+    },
+    "dateRange": {
+      "dialog": "Datum wählen",
+      "format": "TT.MM.JJJJ",
+      "summary": "{days, plural, one {# Tag} other {# Tage}} · {from} – {to}",
+      "pickStart": "Startdatum wählen",
+      "pickEnd": "Enddatum wählen"
     }
   },
   "login": {
@@ -83,7 +94,8 @@
     "themeLight": "Hell",
     "themeDark": "Dunkel",
     "themeSystem": "System",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "readOnly": "Nur Lesezugriff"
   },
   "roles": {
     "OWNER": "Firmeninhaber",
@@ -223,7 +235,7 @@
       "Size": "Dieser Wert ist zu lang.",
       "Min": "Der Wert ist zu klein.",
       "Max": "Der Wert ist zu groß.",
-      "Positive": "Geben Sie eine ganze Zahl größer als null ein.",
+      "Positive": "Geben Sie einen Wert größer als null ein.",
       "Integer": "Geben Sie eine ganze Zahl ein (z. B. 90).",
       "Pattern": "Das Format ist ungültig.",
       "GtinFormat": "Eine GTIN hat 8, 12, 13 oder 14 Stellen.",
@@ -335,7 +347,8 @@
       "cancel": "Abbrechen",
       "confirm": "Produkt löschen",
       "failed": "Das Produkt konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
-    }
+    },
+    "listError": "Produkte konnten nicht geladen werden"
   },
   "batches": {
     "actions": {
@@ -386,6 +399,7 @@
       "cancel": "Abbrechen",
       "submit": "Charge anlegen",
       "failed": "Die Charge konnte nicht angelegt werden. Bitte versuchen Sie es erneut."
-    }
+    },
+    "listError": "Chargen konnten nicht geladen werden"
   }
 }

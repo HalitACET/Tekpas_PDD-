@@ -250,6 +250,59 @@ class BatchApiTest {
     }
 
     @Nested
+    class StatusCounts {
+
+        @Test
+        void countsEveryStatusIncludingZeros() {
+            Tenant tenant = fixtures.tenant();
+            String product = productId(tenant);
+            List<String> ids = List.of(createBatch(tenant), createBatch(tenant), createBatch(tenant),
+                    create(tenant, with(batch(product), "batchNo", "B-1")).path("id").asString());
+            setStatus(ids.get(1), BatchStatus.COLLECTING);
+            setStatus(ids.get(2), BatchStatus.COLLECTING);
+            setStatus(ids.get(3), BatchStatus.PUBLISHED);
+
+            MvcTestResult result = fixtures.get(tenant, BATCHES + "/status-counts");
+
+            assertThat(result).hasStatusOk();
+            assertThat(fixtures.responseText(result)).isEqualToIgnoringWhitespace(
+                    "{\"all\":4,\"DRAFT\":1,\"COLLECTING\":2,\"READY\":0,\"PUBLISHED\":1}");
+        }
+
+        @Test
+        void aCompanyWithoutBatchesGetsZeros() {
+            MvcTestResult result = fixtures.get(fixtures.tenant(), BATCHES + "/status-counts");
+
+            assertThat(fixtures.responseText(result)).isEqualToIgnoringWhitespace(
+                    "{\"all\":0,\"DRAFT\":0,\"COLLECTING\":0,\"READY\":0,\"PUBLISHED\":0}");
+        }
+
+        @Test
+        void otherCompaniesBatchesAreNotCounted() {
+            TenantPair tenants = fixtures.twoTenants();
+            createBatch(tenants.a());
+            createBatch(tenants.b());
+            createBatch(tenants.b());
+
+            JsonNode counts = fixtures.body(fixtures.get(tenants.a(), BATCHES + "/status-counts"));
+
+            assertThat(counts.path("all").asLong()).isEqualTo(1);
+            assertThat(counts.path("DRAFT").asLong()).isEqualTo(1);
+        }
+
+        @Test
+        void searchAndFiltersOfTheListDoNotApply() {
+            Tenant tenant = fixtures.tenant();
+            createBatch(tenant);
+            createBatch(tenant);
+
+            JsonNode counts = fixtures.body(fixtures.get(tenant, BATCHES + "/status-counts?q=nothing&status=READY"));
+
+            assertThat(counts.path("all").asLong()).isEqualTo(2);
+        }
+    }
+
+    @Nested
     class Read {
 
         @Test
@@ -483,6 +536,7 @@ class BatchApiTest {
             for (MvcTestResult result : List.of(
                     fixtures.get(supplier, BATCHES),
                     fixtures.get(supplier, BATCHES + "/next-batch-no"),
+                    fixtures.get(supplier, BATCHES + "/status-counts"),
                     fixtures.get(supplier, uri),
                     fixtures.post(supplier, BATCHES, batch(product)),
                     fixtures.patch(supplier, uri, Map.of("quantity", 1)),
@@ -502,6 +556,7 @@ class BatchApiTest {
 
             assertThat(fixtures.get(viewer, BATCHES)).hasStatusOk();
             assertThat(fixtures.get(viewer, BATCHES + "/next-batch-no")).hasStatusOk();
+            assertThat(fixtures.get(viewer, BATCHES + "/status-counts")).hasStatusOk();
             assertThat(fixtures.get(viewer, uri)).hasStatusOk();
             assertThat(fixtures.post(viewer, BATCHES, batch(product))).hasStatus(403);
             assertThat(fixtures.patch(viewer, uri, Map.of("quantity", 1))).hasStatus(403);

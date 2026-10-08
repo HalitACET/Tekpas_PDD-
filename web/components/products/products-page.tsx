@@ -14,7 +14,7 @@ import { canWriteCatalog } from "@/lib/auth/permissions";
 import { useSession } from "@/lib/auth/use-session";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { ProductSheet, type ProductSheetTarget } from "./product-sheet";
-import { PRODUCT_COLUMNS, ProductRow, ProductsTableHeader } from "./products-table";
+import { ProductRow, ProductsTableHeader } from "./products-table";
 
 /** Waits until the user pauses typing before searching. */
 function useDebounced<T>(value: T, ms: number): T {
@@ -71,7 +71,7 @@ export function ProductsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <label className="flex h-8 w-[300px] max-w-full items-center gap-2 rounded-md border border-input bg-card px-2.5 text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/18">
+          <label className="flex h-8 w-[300px] max-w-full items-center gap-2 rounded-md border border-input bg-card px-2.5 text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring-soft">
             <Search className="size-3.5 flex-none" strokeWidth={1.75} aria-hidden />
             <input
               type="search"
@@ -90,7 +90,7 @@ export function ProductsPage() {
               value={category}
               onChange={(e) => setCategory(e.target.value as ProductCategory | "")}
               aria-label={t("categoryFilter")}
-              className="h-8 cursor-pointer appearance-none rounded-md border border-input bg-card pr-[30px] pl-[74px] text-[13px] font-medium text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/18"
+              className="h-8 cursor-pointer appearance-none rounded-md border border-input bg-card pr-[30px] pl-[74px] text-[13px] font-medium text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring-soft"
             >
               <option value="">{t("allCategories")}</option>
               {PRODUCT_CATEGORIES.map((c) => (
@@ -101,11 +101,13 @@ export function ProductsPage() {
             </select>
             <ChevronDown className="pointer-events-none absolute right-2.5 size-3.5 text-muted-foreground" strokeWidth={1.75} aria-hidden />
           </label>
-          {products.data && total.data !== undefined && (
-            <span className="ml-auto text-xs text-muted-foreground" aria-live="polite">
-              {t("count", { shown: products.data.totalElements, total: total.data })}
-            </span>
-          )}
+          <span className="ml-auto text-xs text-muted-foreground" aria-live="polite">
+            {products.isPending
+              ? tCommon("loading")
+              : products.data && total.data !== undefined
+                ? t("count", { shown: products.data.totalElements, total: total.data })
+                : null}
+          </span>
         </div>
 
         {/* Below md the design has no list yet (16, mobile): the desktop table scrolls sideways. */}
@@ -113,9 +115,14 @@ export function ProductsPage() {
           <div role="table" aria-label={tPage("title")} aria-busy={products.isFetching} className="min-w-[1000px]">
             <ProductsTableHeader />
             {products.isPending ? (
-              <TableSkeleton columns={PRODUCT_COLUMNS} label={tCommon("loading")} />
+              <TableSkeleton label={tCommon("loading")} />
             ) : products.isError && !products.data ? (
-              <ListError onRetry={() => void products.refetch()} retrying={products.isFetching} />
+              <ListError
+                title={t("listError")}
+                error={products.error}
+                onRetry={() => void products.refetch()}
+                retrying={products.isFetching}
+              />
             ) : rows.length === 0 ? (
               <div className="sticky left-0 w-[min(100vw-2rem,100%)]">
                 {filtered ? (
@@ -132,10 +139,10 @@ export function ProductsPage() {
                   </EmptyState>
                 ) : (
                   <EmptyState icon={Package} title={t("empty.title")} body={t("empty.body")}>
-                    <GuardedButton allowed={canWrite} onClick={() => setSheet({ kind: "new" })}>
+                    <GuardedButton allowed={canWrite} tooltipAlign="center" onClick={() => setSheet({ kind: "new" })}>
                       {t("actions.new")}
                     </GuardedButton>
-                    <GuardedButton allowed={canWrite} variant="secondary" onClick={comingSoon}>
+                    <GuardedButton allowed={canWrite} tooltipAlign="center" variant="secondary" onClick={comingSoon}>
                       {t("actions.import")}
                     </GuardedButton>
                   </EmptyState>

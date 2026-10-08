@@ -20,7 +20,7 @@ import { displayGtin, fiberText, formatUpdated } from "@/lib/format";
 export const PRODUCT_COLUMNS = "grid-cols-[170px_minmax(0,1fr)_130px_250px_80px_110px_48px]";
 
 const MENU_BUTTON =
-  "flex size-8 cursor-pointer items-center justify-center rounded-md border border-transparent text-muted-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/18 data-popup-open:border-input data-popup-open:bg-accent";
+  "flex size-8 cursor-pointer items-center justify-center rounded-md border border-transparent text-muted-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft data-popup-open:border-input data-popup-open:bg-accent";
 
 export function ProductsTableHeader() {
   const t = useTranslations("products.cols");

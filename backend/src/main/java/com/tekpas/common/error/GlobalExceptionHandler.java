@@ -1,6 +1,7 @@
 package com.tekpas.common.error;
 
 import jakarta.validation.ConstraintViolation;
+import com.tekpas.common.web.RequestId;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -173,13 +174,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> createResponseEntity(
             Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
         // Spring 7 leaves the type null (older versions used about:blank).
-        if (body instanceof ProblemDetail pd
-                && (pd.getType() == null || "about:blank".equals(pd.getType().toString()))) {
-            if (statusCode.value() == 400) {
-                pd.setType(ProblemTypes.BAD_REQUEST);
-            } else if (statusCode.value() == 404) {
-                pd.setType(ProblemTypes.NOT_FOUND);
+        if (body instanceof ProblemDetail pd) {
+            if (pd.getType() == null || "about:blank".equals(pd.getType().toString())) {
+                if (statusCode.value() == 400) {
+                    pd.setType(ProblemTypes.BAD_REQUEST);
+                } else if (statusCode.value() == 404) {
+                    pd.setType(ProblemTypes.NOT_FOUND);
+                }
             }
+            withRequestId(pd);
         }
         return super.createResponseEntity(body, headers, statusCode, request);
     }
@@ -188,6 +191,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(status, detail);
         pd.setType(type);
         pd.setTitle(title);
+        return withRequestId(pd);
+    }
+
+    /** The X-Request-Id of this response, so a reported error can be found in the log. */
+    private static ProblemDetail withRequestId(ProblemDetail pd) {
+        String requestId = RequestId.current();
+        if (requestId != null) {
+            pd.setProperty("requestId", requestId);
+        }
         return pd;
     }
 }

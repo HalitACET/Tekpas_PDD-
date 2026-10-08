@@ -270,11 +270,13 @@ class ProductApiTest {
             assertThat(text).doesNotContain(tenants.b().company().getName(), tenants.b().company().getId().toString(),
                     theirs.path("id").asString(), secretName);
             // Exactly the answer a GTIN of the own company gets: nothing tells the two apart.
-            assertThat(withoutInstance(fixtures.body(foreign))).isEqualTo(withoutInstance(fixtures.body(own)));
+            assertThat(perRequestFieldsRemoved(fixtures.body(foreign)))
+                    .isEqualTo(perRequestFieldsRemoved(fixtures.body(own)));
         }
 
-        private JsonNode withoutInstance(JsonNode problem) {
-            return ((ObjectNode) problem.deepCopy()).without(List.of("instance"));
+        /** The path and the request id differ between any two requests; everything else must not. */
+        private JsonNode perRequestFieldsRemoved(JsonNode problem) {
+            return ((ObjectNode) problem.deepCopy()).without(List.of("instance", "requestId"));
         }
     }
 

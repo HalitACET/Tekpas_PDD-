@@ -36,7 +36,7 @@ function Segmented<T extends string>({
   onChange: (value: T) => void;
 }) {
   return (
-    <div role="group" aria-label={label} className="flex gap-0.5 rounded-lg bg-muted p-0.5">
+    <div role="group" aria-label={label} className="flex gap-0.5 rounded-lg bg-popover-muted p-0.5">
       {options.map((option) => {
         const active = option.value === value;
         return (
@@ -47,7 +47,7 @@ function Segmented<T extends string>({
             aria-pressed={active}
             onClick={() => !active && onChange(option.value)}
             className={cn(
-              "flex h-11 flex-1 cursor-pointer items-center justify-center rounded-md text-sm font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/18",
+              "flex h-11 flex-1 cursor-pointer items-center justify-center rounded-md text-sm font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft",
               active ? "bg-card text-foreground shadow-[0_1px_2px_rgba(0,0,0,.08)]" : "text-muted-foreground",
             )}
           >
@@ -131,7 +131,7 @@ export function MobileUserSheet({ open, onOpenChange, user }: MobileUserSheetPro
             <button
               type="button"
               onClick={onLogout}
-              className="flex h-12 w-full cursor-pointer items-center gap-3 rounded-lg px-3 text-[15px] font-medium outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/18"
+              className="flex h-12 w-full cursor-pointer items-center gap-3 rounded-lg px-3 text-[15px] font-medium outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
             >
               <LogOut className="size-[18px]" strokeWidth={1.75} aria-hidden />
               {t("logout")}

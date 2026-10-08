@@ -3,12 +3,7 @@ import { LanguageMenu } from "@/components/common/language-switcher";
 import { Logo } from "@/components/brand/logo";
 import { ThreadIllustration, ThreadIllustrationCompact } from "./thread-illustration";
 
-/*
- * Design F story side. The cocoon-cream panel keeps its light palette in dark mode too (design colours
- * are literal here); only the form side follows the theme.
- */
-const BRAND = "#8C2F4B";
-const COCOON = "#FAF6EE";
+/* Design F story side; v0.3.1 17: --story surface (cocoon cream in light, navy in dark). */
 
 function Headline({ className }: { className: string }) {
   const t = useTranslations("login");
@@ -21,14 +16,14 @@ function Headline({ className }: { className: string }) {
 export function StoryPanel() {
   const t = useTranslations("login");
   return (
-    <section className="hidden flex-col gap-10 border-r border-[#EFE6D8] bg-cocoon px-16 py-12 text-[#1F1E1C] md:flex">
-      <Logo size={30} color={BRAND} cutout={COCOON} />
+    <section className="hidden flex-col gap-10 border-r border-story-border bg-story px-16 py-12 text-foreground md:flex">
+      <Logo size={30} cutout="var(--story)" />
       <div className="mt-10 flex max-w-[560px] flex-col gap-5">
-        <span className="text-xs font-medium tracking-[0.08em] uppercase" style={{ color: BRAND }}>
+        <span className="text-xs font-medium tracking-[0.08em] text-brand-text uppercase">
           {t("overline")}
         </span>
         <Headline className="font-serif text-[56px] leading-[1.02] font-normal tracking-[-0.025em]" />
-        <p className="text-[17px] leading-[1.6] text-pretty text-[#57534C]">{t("story")}</p>
+        <p className="text-[17px] leading-[1.6] text-pretty text-muted-foreground">{t("story")}</p>
       </div>
       <div className="flex min-h-0 flex-1 items-center">
         <ThreadIllustration />
@@ -41,13 +36,13 @@ export function StoryPanel() {
 export function StoryPanelCompact() {
   const t = useTranslations("login");
   return (
-    <section className="flex flex-col gap-[18px] border-b border-[#EFE6D8] bg-cocoon px-6 pt-14 pb-7 text-[#1F1E1C] md:hidden">
+    <section className="flex flex-col gap-[18px] border-b border-story-border bg-story px-6 pt-14 pb-7 text-foreground md:hidden">
       <div className="flex items-center">
-        <Logo size={24} color={BRAND} cutout={COCOON} />
+        <Logo size={24} cutout="var(--story)" />
         <LanguageMenu className="ml-auto" />
       </div>
       <Headline className="mt-2 font-serif text-[34px] leading-[1.05] font-normal tracking-[-0.02em]" />
-      <p className="text-sm leading-[1.55] text-[#57534C]">{t("storyShort")}</p>
+      <p className="text-sm leading-[1.55] text-muted-foreground">{t("storyShort")}</p>
       <ThreadIllustrationCompact />
     </section>
   );

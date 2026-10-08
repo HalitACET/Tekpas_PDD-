@@ -18,9 +18,20 @@
     "loading": "Yükleniyor…",
     "readOnly": "Bu işlem için yetkiniz yok",
     "listError": {
-      "title": "Liste yüklenemedi",
-      "body": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
-      "retry": "Tekrar dene"
+      "retry": "Tekrar dene",
+      "meta": "HTTP {status}",
+      "metaWithId": "HTTP {status} · istek {id}",
+      "network": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+      "server": "Sunucu şu an yanıt vermiyor. Birazdan tekrar deneyin.",
+      "other": "Beklenmeyen bir hata oluştu.",
+      "kept": "Filtreleriniz korunur."
+    },
+    "dateRange": {
+      "dialog": "Tarih seç",
+      "format": "gg.aa.yyyy",
+      "summary": "{days} gün · {from} – {to}",
+      "pickStart": "Başlangıç tarihini seçin",
+      "pickEnd": "Bitiş tarihini seçin"
     }
   },
   "login": {
@@ -83,7 +94,8 @@
     "themeLight": "Açık",
     "themeDark": "Koyu",
     "themeSystem": "Sistem",
-    "logout": "Çıkış yap"
+    "logout": "Çıkış yap",
+    "readOnly": "Salt okunur"
   },
   "roles": {
     "OWNER": "Firma sahibi",
@@ -223,7 +235,7 @@
       "Size": "Bu değer çok uzun.",
       "Min": "Değer çok küçük.",
       "Max": "Değer çok büyük.",
-      "Positive": "Sıfırdan büyük bir tam sayı girin.",
+      "Positive": "Sıfırdan büyük bir değer girin.",
       "Integer": "Tam sayı girin (ör. 90).",
       "Pattern": "Biçim geçersiz.",
       "GtinFormat": "GTIN 8, 12, 13 veya 14 haneli olmalı.",
@@ -335,7 +347,8 @@
       "cancel": "Vazgeç",
       "confirm": "Ürünü sil",
       "failed": "Ürün silinemedi. Lütfen tekrar deneyin."
-    }
+    },
+    "listError": "Ürünler yüklenemedi"
   },
   "batches": {
     "actions": {
@@ -386,6 +399,7 @@
       "cancel": "Vazgeç",
       "submit": "Partiyi oluştur",
       "failed": "Parti oluşturulamadı. Lütfen tekrar deneyin."
-    }
+    },
+    "listError": "Partiler yüklenemedi"
   }
 }

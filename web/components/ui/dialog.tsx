@@ -38,7 +38,7 @@ function DialogContent({
         {children}
         <DialogPrimitive.Close
           aria-label={closeLabel}
-          className="absolute top-5 right-6 flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/18"
+          className="absolute top-5 right-6 flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
         >
           <XIcon className="size-[18px]" strokeWidth={1.75} aria-hidden />
         </DialogPrimitive.Close>

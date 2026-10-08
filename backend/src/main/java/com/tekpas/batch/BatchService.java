@@ -3,6 +3,7 @@ package com.tekpas.batch;
 import com.tekpas.batch.dto.BatchCreateRequest;
 import com.tekpas.batch.dto.BatchProduct;
 import com.tekpas.batch.dto.BatchResponse;
+import com.tekpas.batch.dto.BatchStatusCounts;
 import com.tekpas.batch.dto.BatchUpdateRequest;
 import com.tekpas.batch.dto.ChainSummary;
 import com.tekpas.batch.dto.NextBatchNoResponse;
@@ -17,6 +18,7 @@ import com.tekpas.product.ProductRepository;
 import com.tekpas.supplychain.ChainService;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
@@ -64,6 +66,19 @@ public class BatchService {
     public BatchResponse get(UUID companyId, UUID id) {
         BatchRow row = batches.findRow(id, companyId).orElseThrow(BatchService::notFound);
         return toResponse(row, chainCounts.of(id));
+    }
+
+    @Transactional(readOnly = true)
+    public BatchStatusCounts statusCounts(UUID companyId) {
+        Map<BatchStatus, Long> counts = new EnumMap<>(BatchStatus.class);
+        jdbc.query("SELECT status, count(*) FROM batch WHERE company_id = ? GROUP BY status",
+                rs -> {
+                    counts.put(BatchStatus.valueOf(rs.getString(1)), rs.getLong(2));
+                }, companyId);
+        long all = counts.values().stream().mapToLong(Long::longValue).sum();
+        return new BatchStatusCounts(all, counts.getOrDefault(BatchStatus.DRAFT, 0L),
+                counts.getOrDefault(BatchStatus.COLLECTING, 0L), counts.getOrDefault(BatchStatus.READY, 0L),
+                counts.getOrDefault(BatchStatus.PUBLISHED, 0L));
     }
 
     @Transactional(readOnly = true)

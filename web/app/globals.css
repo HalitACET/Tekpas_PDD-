@@ -17,7 +17,6 @@
   --brand: #8C2F4B;           /* Dut */
   --brand-foreground: #FFFFFF;
   --brand-muted: #F5E8EC;
-  --brand-text: #8C2F4B;      /* Dut, metin olarak (design v0.3 frames) */
 
   /* shadcn çekirdek */
   --background: #FCFBF9;
@@ -51,6 +50,19 @@
 
   --skeleton: #ECE9E4;
 
+  /* v0.3.1 */
+  --primary-hover: #3D3A35;
+  --destructive-hover: #951C13;
+  --ring-soft: rgba(140, 47, 75, 0.18);
+  --popover-muted: #F2F0EC;
+  --brand-text: #8C2F4B;
+  --tooltip: #1F1E1C;
+  --tooltip-foreground: #FAF8F4;
+  --scrim: rgba(28, 27, 25, 0.42);
+  --story: #FAF6EE;
+  --story-border: #EFE6D8;
+  --story-line: #D9CDB8;
+
   /* Durum: nokta / metin / zemin */
   --status-pending: #8A857C;          --status-pending-foreground: #57534C;          --status-pending-muted: #F1EFEB;
   --status-submitted: #2F6FDB;        --status-submitted-foreground: #1F5BB8;        --status-submitted-muted: #E8F0FB;
@@ -69,7 +81,6 @@
   --brand: #D98AA3;
   --brand-foreground: #1A0C12;
   --brand-muted: #2E1A22;
-  --brand-text: #E6A5B9;
 
   --background: #0F1218;
   --foreground: #E9E7E3;
@@ -101,6 +112,19 @@
   --sidebar-ring: #D98AA3;
 
   --skeleton: #1F2531;
+
+  /* v0.3.1 */
+  --primary-hover: #C9D0DC;
+  --destructive-hover: #A93226;
+  --ring-soft: rgba(217, 138, 163, 0.22);
+  --popover-muted: #262C38;   /* --popover (#1B202A) ile --muted aynıydı */
+  --brand-text: #E6A5B9;
+  --tooltip: #E9E7E3;
+  --tooltip-foreground: #151922;
+  --scrim: rgba(4, 6, 10, 0.66);
+  --story: #151922;
+  --story-border: #262C38;
+  --story-line: #303746;
 
   --status-pending: #8A93A3;          --status-pending-foreground: #BDB8AF;          --status-pending-muted: #232833;
   --status-submitted: #5B8FE8;        --status-submitted-foreground: #93B8F6;        --status-submitted-muted: #16233A;
@@ -157,11 +181,21 @@
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-muted: var(--brand-muted);
-  --color-brand-text: var(--brand-text);
   --color-cocoon: var(--cocoon);
   --color-silk: var(--silk);
   --color-navy: var(--navy);
   --color-skeleton: var(--skeleton);
+  --color-primary-hover: var(--primary-hover);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-ring-soft: var(--ring-soft);
+  --color-popover-muted: var(--popover-muted);
+  --color-brand-text: var(--brand-text);
+  --color-tooltip: var(--tooltip);
+  --color-tooltip-foreground: var(--tooltip-foreground);
+  --color-scrim: var(--scrim);
+  --color-story: var(--story);
+  --color-story-border: var(--story-border);
+  --color-story-line: var(--story-line);
 
   --color-status-pending: var(--status-pending);
   --color-status-pending-foreground: var(--status-pending-foreground);
@@ -198,16 +232,4 @@
 @theme {
   /* Yükleniyor iskeleti: --skeleton + animate-pulse, 1.6 s */
   --animate-pulse: pulse 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-
-/* Drawer / sheet backdrop (design G mobile, --scrim). */
-:root {
-  --scrim: rgba(28, 27, 25, 0.45);
-}
-.dark {
-  --scrim: rgba(4, 6, 10, 0.65);
-}
-@theme inline {
-  --color-scrim: var(--scrim);
 }

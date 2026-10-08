@@ -26,5 +26,7 @@ export const queryKeys = {
     lists: () => [...queryKeys.batches.all, "list"] as const,
     list: (filters: BatchListFilters) => [...queryKeys.batches.lists(), filters] as const,
     nextBatchNo: () => [...queryKeys.batches.all, "next-batch-no"] as const,
+    /** Under batches.all: any batch change (create, delete, status) refreshes the tab counts too. */
+    statusCounts: () => [...queryKeys.batches.all, "status-counts"] as const,
   },
 };

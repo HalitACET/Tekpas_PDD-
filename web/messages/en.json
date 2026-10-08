@@ -18,9 +18,20 @@
     "loading": "Loading…",
     "readOnly": "You do not have permission for this action",
     "listError": {
-      "title": "The list could not be loaded",
-      "body": "The server could not be reached. Check your connection and try again.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "meta": "HTTP {status}",
+      "metaWithId": "HTTP {status} · request {id}",
+      "network": "The server could not be reached. Check your connection and try again.",
+      "server": "The server is not responding right now. Try again in a moment.",
+      "other": "An unexpected error occurred.",
+      "kept": "Your filters are kept."
+    },
+    "dateRange": {
+      "dialog": "Pick a date",
+      "format": "dd.mm.yyyy",
+      "summary": "{days, plural, one {# day} other {# days}} · {from} – {to}",
+      "pickStart": "Pick the start date",
+      "pickEnd": "Pick the end date"
     }
   },
   "login": {
@@ -83,7 +94,8 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "themeSystem": "System",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "readOnly": "Read-only"
   },
   "roles": {
     "OWNER": "Company owner",
@@ -223,7 +235,7 @@
       "Size": "This value is too long.",
       "Min": "The value is too small.",
       "Max": "The value is too large.",
-      "Positive": "Enter a whole number greater than zero.",
+      "Positive": "Enter a value greater than zero.",
       "Integer": "Enter a whole number (e.g. 90).",
       "Pattern": "The format is not valid.",
       "GtinFormat": "A GTIN has 8, 12, 13 or 14 digits.",
@@ -335,7 +347,8 @@
       "cancel": "Cancel",
       "confirm": "Delete product",
       "failed": "The product could not be deleted. Please try again."
-    }
+    },
+    "listError": "Products could not be loaded"
   },
   "batches": {
     "actions": {
@@ -386,6 +399,7 @@
       "cancel": "Cancel",
       "submit": "Create batch",
       "failed": "The batch could not be created. Please try again."
-    }
+    },
+    "listError": "Batches could not be loaded"
   }
 }

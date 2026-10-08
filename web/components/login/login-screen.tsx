@@ -8,7 +8,7 @@ import { StoryPanel, StoryPanelCompact } from "./story-panel";
 export function LoginScreen() {
   const t = useTranslations("login");
   return (
-    <div className="flex min-h-dvh flex-col bg-card md:grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+    <div className="flex min-h-dvh flex-col bg-background md:grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
       <StoryPanel />
       <StoryPanelCompact />
       <main className="flex flex-1 flex-col p-6 md:px-16 md:py-12">

@@ -28,6 +28,11 @@ spring:
 server:
   port: ${PORT:8080}
 
+logging:
+  pattern:
+    # Every log line of a request carries its X-Request-Id (common.web.RequestIdFilter puts it in the MDC).
+    correlation: "[%X{requestId:-}] "
+
 management:
   endpoints:
     web:

@@ -1,6 +1,7 @@
 package com.tekpas.common.security;
 
 import com.tekpas.common.error.ProblemTypes;
+import com.tekpas.common.web.RequestId;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -57,6 +58,10 @@ public class ProblemDetailSecurityHandler implements AuthenticationEntryPoint, A
         body.put("status", status.value());
         body.put("detail", detail);
         body.put("instance", request.getRequestURI());
+        String requestId = RequestId.current();
+        if (requestId != null) {
+            body.put("requestId", requestId);
+        }
 
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);

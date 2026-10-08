@@ -52,7 +52,7 @@ export function ProductCombobox({
     >
       <Combobox.InputGroup
         aria-invalid={invalid || undefined}
-        className="relative flex h-10 items-center gap-2 rounded-md border border-input bg-card px-2.5 shadow-xs transition-colors focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/18 aria-invalid:border-status-rejected aria-invalid:ring-[3px] aria-invalid:ring-status-rejected-muted data-popup-open:border-ring data-popup-open:ring-[3px] data-popup-open:ring-ring/18"
+        className="relative flex h-10 items-center gap-2 rounded-md border border-input bg-card px-2.5 shadow-xs transition-colors focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring-soft aria-invalid:border-status-rejected aria-invalid:ring-[3px] aria-invalid:ring-status-rejected-muted data-popup-open:border-ring data-popup-open:ring-[3px] data-popup-open:ring-ring-soft"
       >
         {open && <Search className="size-[15px] flex-none text-muted-foreground" strokeWidth={1.75} aria-hidden />}
         <Combobox.Input

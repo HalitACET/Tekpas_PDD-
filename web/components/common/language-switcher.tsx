@@ -59,7 +59,7 @@ export function LanguageSwitcher({ appearance = "boxed", className }: LanguageSw
             aria-label={`${locale.toUpperCase()} – ${t(`languages.${locale}`)}`}
             onClick={() => !active && switchTo(locale)}
             className={cn(
-              "cursor-pointer rounded-sm px-2 py-[5px] uppercase outline-none focus-visible:ring-[3px] focus-visible:ring-ring/18",
+              "cursor-pointer rounded-sm px-2 py-[5px] uppercase outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft",
               active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
               active && (appearance === "boxed" ? "bg-card shadow-xs" : "bg-muted"),
             )}
@@ -84,7 +84,7 @@ export function LanguageMenu({ className }: { className?: string }) {
         aria-label={`${current.toUpperCase()} – ${t("language")}: ${t(`languages.${current}`)}`}
         className={cn(
           // Design size (≈22 px); an invisible ::after enlarges the touch target without moving the layout.
-          "relative flex cursor-pointer items-center rounded-sm after:absolute after:-inset-2.5 after:content-[''] border border-[#D9CDB8] px-1.5 py-[3px] font-mono text-[11px] font-medium text-[#57534C] uppercase outline-none focus-visible:ring-[3px] focus-visible:ring-ring/18",
+          "relative flex cursor-pointer items-center rounded-sm after:absolute after:-inset-2.5 after:content-[''] border border-story-line px-1.5 py-[3px] font-mono text-[11px] font-medium text-muted-foreground uppercase outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft",
           className,
         )}
       >

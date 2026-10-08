@@ -34,7 +34,7 @@
 - **Mutasyonla doğrulandı:** Arama kutusu genişliği, seed'in ikinci açılışta satıra yazmaması ve hata mesajının iç bilgi sızdırmaması kontrollerinde, düzeltme geri alınınca test kırmızıya dönüyor. CI'ın üç job'u yeşil.
 
 ## Ekran görüntüleri
-- `docs/design/impl-v0.3/`: 01–08, açık ve koyu; yanlarında tasarımdan `design-NN-*`. Ek durum: `03b-locked-*` (GTIN kilidi).
+- `docs/design/impl-v0.3/`: 01–08, açık ve koyu; yanlarında tasarımdan `design-NN-*`. Ek durum GTIN kilidi, v0.3.1 tasarımıyla `impl-v0.3.1/18-*` oldu.
 - `docs/design/impl-v0.2/` M1'in onaylı karşılaştırması olarak donduruldu.
 
 ## Sonraki adım
