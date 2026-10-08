@@ -148,11 +148,11 @@
     },
     "suppliers": {
       "title": "Lieferanten",
-      "sub": "Spinnereien, Webereien, Färbereien und Lohnbetriebe.",
+      "sub": "Spinnereien, Webereien und Strickereien, Färbereien, Nähbetriebe und Zubehörlieferanten.",
       "cta": "Lieferant hinzufügen",
       "cta2": "Einladungslink senden",
       "emptyTitle": "Noch keine Lieferanten",
-      "emptyBody": "Fügen Sie Ihre Lieferanten hinzu oder laden Sie sie ein; sie können ihre Dokumente über den Link hochladen, den Sie ihnen senden.",
+      "emptyBody": "Fügen Sie Ihre Spinnereien, Webereien, Färbereien und Nähbetriebe hinzu; von hier aus werden sie den Lieferketten zugewiesen.",
       "cols": ["Firma", "Rolle", "Stadt", "Zertifikate", "Aktualisiert"]
     },
     "documents": {
@@ -226,6 +226,21 @@
       "COLLECTING": "Daten werden erfasst",
       "READY": "Bereit zur Veröffentlichung",
       "PUBLISHED": "Veröffentlicht"
+    },
+    "companyType": {
+      "MANUFACTURER": "Hersteller",
+      "YARN": "Garn",
+      "FABRIC": "Stoff",
+      "DYEHOUSE": "Färberei",
+      "SEWING": "Konfektion",
+      "ACCESSORY": "Zubehör",
+      "OTHER": "Sonstige"
+    },
+    "stepStatus": {
+      "PENDING": "Ausstehend",
+      "SUBMITTED": "Eingereicht",
+      "APPROVED": "Freigegeben",
+      "REJECTED": "Abgelehnt"
     }
   },
   "errors": {
@@ -250,7 +265,8 @@
       "SameBatch": "Nur Schritte derselben Charge können verknüpft werden.",
       "Cycle": "Diese Verknüpfung würde eine Schleife in der Kette erzeugen.",
       "EnergyTotal": "Die Energiequellen müssen zusammen 100 % ergeben (aktuell {total} %).",
-      "EnergyDuplicate": "Dieselbe Energiequelle wurde mehrfach eingegeben."
+      "EnergyDuplicate": "Dieselbe Energiequelle wurde mehrfach eingegeben.",
+      "City": "Wählen Sie eine Provinz aus der Liste."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "Dieses Produkt hat Chargen. Löschen Sie zuerst die Chargen, um das Produkt zu löschen.",
@@ -261,7 +277,8 @@
       "STEP_APPROVED": "Ein freigegebener Schritt kann nicht geändert werden.",
       "STEP_NOT_PENDING": "Nur Schritte, die noch auf Daten warten, können entfernt werden.",
       "SUPPLIER_NOT_EDITABLE": "Name, Typ und Ort dieses Unternehmens können nicht geändert werden, nur die Kontaktdaten.",
-      "SUPPLIER_IN_USE": "Dieser Lieferant wird in der Kette einer Charge verwendet."
+      "SUPPLIER_IN_USE": "Dieser Lieferant wird in der Kette einer Charge verwendet.",
+      "SUPPLIER_TYPE_IN_USE": "Dieser Lieferant wird in einer Lieferkette verwendet, daher kann sein Typ nicht geändert werden."
     }
   },
   "products": {
@@ -400,6 +417,77 @@
       "submit": "Charge anlegen",
       "failed": "Die Charge konnte nicht angelegt werden. Bitte versuchen Sie es erneut."
     },
-    "listError": "Chargen konnten nicht geladen werden"
+    "listError": "Chargen konnten nicht geladen werden",
+    "supplierFilter": "Lieferant:",
+    "clearSupplier": "Lieferantenfilter entfernen"
+  },
+  "suppliers": {
+    "actions": {
+      "new": "Lieferant hinzufügen"
+    },
+    "search": "Unternehmen oder Ort suchen",
+    "typeFilter": "Typ:",
+    "all": "Alle",
+    "count": "{count, plural, one {# Lieferant} other {# Lieferanten}}",
+    "cols": {
+      "name": "Unternehmen",
+      "type": "Typ",
+      "city": "Ort",
+      "contact": "Kontakt",
+      "certificates": "Zertifikate",
+      "batches": "Chargen",
+      "status": "Status"
+    },
+    "noCertificates": "Zertifikate kommen mit den Dokumenten",
+    "noStatus": "Noch kein Schritt",
+    "noPhone": "Kein Telefon",
+    "listError": "Lieferanten konnten nicht geladen werden",
+    "rowMenu": {
+      "label": "Zeilenmenü",
+      "edit": "Bearbeiten",
+      "remove": "Verknüpfung entfernen"
+    },
+    "empty": {
+      "filteredTitle": "Kein passender Lieferant",
+      "filteredBody": "Ändern Sie die Suche oder den Typfilter.",
+      "clearFilters": "Filter zurücksetzen"
+    },
+    "form": {
+      "addTitle": "Lieferant hinzufügen",
+      "editTitle": "Lieferant bearbeiten",
+      "sub": "Der Lieferant lädt Daten und Dokumente über den zugesandten Link hoch.",
+      "name": "Unternehmensname",
+      "namePlaceholder": "z. B. Aras Örme Konfeksiyon",
+      "type": "Typ",
+      "city": "Ort",
+      "cityPlaceholder": "Ort wählen",
+      "citySearch": "Provinz suchen",
+      "cityNone": "Keine passende Provinz",
+      "phone": "Kontakttelefon",
+      "phoneCountry": "Türkei, +90",
+      "phonePlaceholder": "5xx xxx xx xx",
+      "phoneHint": "Links für Datenanfragen können per WhatsApp an diese Nummer gesendet werden.",
+      "lockedOwnAccount": "Dieses Unternehmen hat ein eigenes Konto; es verwaltet seine Angaben selbst.",
+      "lockedType": "{count, plural, one {Dieser Lieferant wird in # Charge verwendet, daher kann sein Typ nicht geändert werden.} other {Dieser Lieferant wird in # Chargen verwendet, daher kann sein Typ nicht geändert werden.}}",
+      "required": "Unternehmensname, Typ und Ort sind erforderlich",
+      "cancel": "Abbrechen",
+      "close": "Schließen",
+      "submitAdd": "Lieferant hinzufügen",
+      "submitEdit": "Speichern",
+      "failed": "Der Lieferant konnte nicht gespeichert werden. Bitte erneut versuchen."
+    },
+    "remove": {
+      "title": "Lieferantenverknüpfung entfernen",
+      "body": "{name} wird aus Ihrem Lieferantennetz entfernt und kann neuen Chargen nicht mehr zugewiesen werden.",
+      "note": "In keiner Charge verwendet.",
+      "blockedTitle": "Lieferant kann nicht entfernt werden",
+      "blockedBody": "{count, plural, one {Dieser Lieferant wird in # Charge verwendet und kann nicht entfernt werden.} other {Dieser Lieferant wird in # Chargen verwendet und kann nicht entfernt werden.}}",
+      "blockedNote": "Die Verknüpfung bleibt, weil Einträge in den Lieferketten auf diesen Lieferanten verweisen.",
+      "seeBatches": "Chargen anzeigen",
+      "close": "Schließen",
+      "cancel": "Abbrechen",
+      "confirm": "Verknüpfung entfernen",
+      "failed": "Die Verknüpfung konnte nicht entfernt werden. Bitte erneut versuchen."
+    }
   }
 }

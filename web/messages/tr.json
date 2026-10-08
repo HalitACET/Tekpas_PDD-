@@ -148,11 +148,11 @@
     },
     "suppliers": {
       "title": "Tedarikçiler",
-      "sub": "İplikçi, kumaşçı, boyahane ve fason atölyeler.",
+      "sub": "İplikçi, kumaşçı, boyahane, fason atölye ve aksesuar tedarikçileri.",
       "cta": "Tedarikçi ekle",
       "cta2": "Davet bağlantısı gönder",
       "emptyTitle": "Henüz tedarikçi yok",
-      "emptyBody": "Tedarikçilerinizi ekleyin ya da davet edin; belgelerini gönderdiğiniz bağlantıdan yükleyebilirler.",
+      "emptyBody": "İplikçi, kumaşçı, boyahane ve fason atölyelerinizi ekleyin; partilerin zincirine buradan atanırlar.",
       "cols": ["Firma", "Rol", "Şehir", "Sertifikalar", "Güncelleme"]
     },
     "documents": {
@@ -226,6 +226,21 @@
       "COLLECTING": "Veri toplanıyor",
       "READY": "Yayına hazır",
       "PUBLISHED": "Yayında"
+    },
+    "companyType": {
+      "MANUFACTURER": "Üretici",
+      "YARN": "İplik",
+      "FABRIC": "Kumaş",
+      "DYEHOUSE": "Boyahane",
+      "SEWING": "Konfeksiyon",
+      "ACCESSORY": "Aksesuar",
+      "OTHER": "Diğer"
+    },
+    "stepStatus": {
+      "PENDING": "Beklemede",
+      "SUBMITTED": "Gönderildi",
+      "APPROVED": "Onaylandı",
+      "REJECTED": "Reddedildi"
     }
   },
   "errors": {
@@ -250,7 +265,8 @@
       "SameBatch": "Yalnızca aynı partinin adımları bağlanabilir.",
       "Cycle": "Bu bağlantı zincirde döngü oluşturur.",
       "EnergyTotal": "Enerji kaynaklarının toplamı %100 olmalı (şu an %{total}).",
-      "EnergyDuplicate": "Aynı enerji kaynağı birden fazla kez girilmiş."
+      "EnergyDuplicate": "Aynı enerji kaynağı birden fazla kez girilmiş.",
+      "City": "Listeden bir il seçin."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "Bu ürünün partileri var. Ürünü silmek için önce partilerini silin.",
@@ -261,7 +277,8 @@
       "STEP_APPROVED": "Onaylanmış bir adım değiştirilemez.",
       "STEP_NOT_PENDING": "Yalnızca veri bekleyen adımlar kaldırılabilir.",
       "SUPPLIER_NOT_EDITABLE": "Bu firmanın adı, tipi ve şehri değiştirilemez; yalnızca iletişim bilgisi güncellenebilir.",
-      "SUPPLIER_IN_USE": "Bu tedarikçi bir partinin zincirinde kullanılıyor."
+      "SUPPLIER_IN_USE": "Bu tedarikçi bir partinin zincirinde kullanılıyor.",
+      "SUPPLIER_TYPE_IN_USE": "Bu tedarikçi bir partinin zincirinde kullanıldığı için tipi değiştirilemez."
     }
   },
   "products": {
@@ -400,6 +417,77 @@
       "submit": "Partiyi oluştur",
       "failed": "Parti oluşturulamadı. Lütfen tekrar deneyin."
     },
-    "listError": "Partiler yüklenemedi"
+    "listError": "Partiler yüklenemedi",
+    "supplierFilter": "Tedarikçi:",
+    "clearSupplier": "Tedarikçi filtresini kaldır"
+  },
+  "suppliers": {
+    "actions": {
+      "new": "Tedarikçi ekle"
+    },
+    "search": "Firma veya şehir ara",
+    "typeFilter": "Tip:",
+    "all": "Tümü",
+    "count": "{count} tedarikçi",
+    "cols": {
+      "name": "Firma",
+      "type": "Tip",
+      "city": "Şehir",
+      "contact": "İletişim",
+      "certificates": "Sertifikalar",
+      "batches": "Parti",
+      "status": "Durum"
+    },
+    "noCertificates": "Sertifikalar belgelerle birlikte gelecek",
+    "noStatus": "Henüz adım yok",
+    "noPhone": "Telefon yok",
+    "listError": "Tedarikçiler yüklenemedi",
+    "rowMenu": {
+      "label": "Satır menüsü",
+      "edit": "Düzenle",
+      "remove": "Bağı kaldır"
+    },
+    "empty": {
+      "filteredTitle": "Eşleşen tedarikçi yok",
+      "filteredBody": "Aramanızı veya tip filtresini değiştirin.",
+      "clearFilters": "Filtreleri temizle"
+    },
+    "form": {
+      "addTitle": "Tedarikçi ekle",
+      "editTitle": "Tedarikçiyi düzenle",
+      "sub": "Tedarikçi, veri ve belgelerini kendisine gönderilen bağlantıdan yükler.",
+      "name": "Firma adı",
+      "namePlaceholder": "örn. Aras Örme Konfeksiyon",
+      "type": "Tip",
+      "city": "Şehir",
+      "cityPlaceholder": "Şehir seçin",
+      "citySearch": "İl ara",
+      "cityNone": "Eşleşen il yok",
+      "phone": "İletişim telefonu",
+      "phoneCountry": "Türkiye, +90",
+      "phonePlaceholder": "5xx xxx xx xx",
+      "phoneHint": "Veri talep bağlantıları bu numaraya WhatsApp ile paylaşılabilir.",
+      "lockedOwnAccount": "Bu firmanın kendi hesabı var; bilgilerini firma yönetir.",
+      "lockedType": "Bu tedarikçi {count} partide kullanıldığı için tipi değiştirilemez.",
+      "required": "Firma adı, tip ve şehir gerekli",
+      "cancel": "Vazgeç",
+      "close": "Kapat",
+      "submitAdd": "Tedarikçi ekle",
+      "submitEdit": "Kaydet",
+      "failed": "Tedarikçi kaydedilemedi. Tekrar deneyin."
+    },
+    "remove": {
+      "title": "Tedarikçi bağını kaldır",
+      "body": "{name} tedarikçi ağınızdan çıkarılacak ve yeni partilere atanamayacak.",
+      "note": "Hiçbir partide kullanılmıyor.",
+      "blockedTitle": "Tedarikçi kaldırılamaz",
+      "blockedBody": "Bu tedarikçi {count} partide kullanılıyor, kaldırılamaz.",
+      "blockedNote": "Parti zincirlerindeki kayıtlar bu tedarikçiye bağlı olduğu için bağ korunur.",
+      "seeBatches": "Partileri gör",
+      "close": "Kapat",
+      "cancel": "Vazgeç",
+      "confirm": "Bağı kaldır",
+      "failed": "Bağ kaldırılamadı. Tekrar deneyin."
+    }
   }
 }

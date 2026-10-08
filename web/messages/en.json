@@ -148,11 +148,11 @@
     },
     "suppliers": {
       "title": "Suppliers",
-      "sub": "Spinners, weavers, dyehouses and contract workshops.",
+      "sub": "Spinners, weavers and knitters, dyehouses, sewing workshops and accessory suppliers.",
       "cta": "Add supplier",
       "cta2": "Send invitation link",
       "emptyTitle": "No suppliers yet",
-      "emptyBody": "Add or invite your suppliers; they can upload their documents through the link you send them.",
+      "emptyBody": "Add your spinners, weavers, dyehouses and sewing workshops; they are assigned to batch chains from here.",
       "cols": ["Company", "Role", "City", "Certificates", "Updated"]
     },
     "documents": {
@@ -226,6 +226,21 @@
       "COLLECTING": "Collecting data",
       "READY": "Ready to publish",
       "PUBLISHED": "Published"
+    },
+    "companyType": {
+      "MANUFACTURER": "Manufacturer",
+      "YARN": "Yarn",
+      "FABRIC": "Fabric",
+      "DYEHOUSE": "Dyehouse",
+      "SEWING": "Sewing",
+      "ACCESSORY": "Accessory",
+      "OTHER": "Other"
+    },
+    "stepStatus": {
+      "PENDING": "Pending",
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
     }
   },
   "errors": {
@@ -250,7 +265,8 @@
       "SameBatch": "Only steps of the same batch can be linked.",
       "Cycle": "This link would create a loop in the chain.",
       "EnergyTotal": "Energy sources must add up to 100% (now {total}%).",
-      "EnergyDuplicate": "The same energy source is entered more than once."
+      "EnergyDuplicate": "The same energy source is entered more than once.",
+      "City": "Choose a province from the list."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "This product has batches. Delete its batches first to delete the product.",
@@ -261,7 +277,8 @@
       "STEP_APPROVED": "An approved step cannot be changed.",
       "STEP_NOT_PENDING": "Only steps still waiting for data can be removed.",
       "SUPPLIER_NOT_EDITABLE": "The name, type and city of this company cannot be changed; only the contact details can.",
-      "SUPPLIER_IN_USE": "This supplier is used in a batch’s chain."
+      "SUPPLIER_IN_USE": "This supplier is used in a batch’s chain.",
+      "SUPPLIER_TYPE_IN_USE": "This supplier is used in a batch chain, so its type cannot change."
     }
   },
   "products": {
@@ -400,6 +417,77 @@
       "submit": "Create batch",
       "failed": "The batch could not be created. Please try again."
     },
-    "listError": "Batches could not be loaded"
+    "listError": "Batches could not be loaded",
+    "supplierFilter": "Supplier:",
+    "clearSupplier": "Clear the supplier filter"
+  },
+  "suppliers": {
+    "actions": {
+      "new": "Add supplier"
+    },
+    "search": "Search company or city",
+    "typeFilter": "Type:",
+    "all": "All",
+    "count": "{count, plural, one {# supplier} other {# suppliers}}",
+    "cols": {
+      "name": "Company",
+      "type": "Type",
+      "city": "City",
+      "contact": "Contact",
+      "certificates": "Certificates",
+      "batches": "Batches",
+      "status": "Status"
+    },
+    "noCertificates": "Certificates arrive with documents",
+    "noStatus": "No step yet",
+    "noPhone": "No phone",
+    "listError": "Suppliers could not be loaded",
+    "rowMenu": {
+      "label": "Row menu",
+      "edit": "Edit",
+      "remove": "Remove link"
+    },
+    "empty": {
+      "filteredTitle": "No matching supplier",
+      "filteredBody": "Change your search or the type filter.",
+      "clearFilters": "Clear filters"
+    },
+    "form": {
+      "addTitle": "Add supplier",
+      "editTitle": "Edit supplier",
+      "sub": "The supplier uploads data and documents through the link sent to them.",
+      "name": "Company name",
+      "namePlaceholder": "e.g. Aras Örme Konfeksiyon",
+      "type": "Type",
+      "city": "City",
+      "cityPlaceholder": "Choose a city",
+      "citySearch": "Search province",
+      "cityNone": "No matching province",
+      "phone": "Contact phone",
+      "phoneCountry": "Turkey, +90",
+      "phonePlaceholder": "5xx xxx xx xx",
+      "phoneHint": "Data request links can be shared to this number via WhatsApp.",
+      "lockedOwnAccount": "This company has its own account; the company manages its details.",
+      "lockedType": "{count, plural, one {This supplier is used in # batch, so its type cannot change.} other {This supplier is used in # batches, so its type cannot change.}}",
+      "required": "Company name, type and city are required",
+      "cancel": "Cancel",
+      "close": "Close",
+      "submitAdd": "Add supplier",
+      "submitEdit": "Save",
+      "failed": "The supplier could not be saved. Please try again."
+    },
+    "remove": {
+      "title": "Remove supplier link",
+      "body": "{name} will be removed from your supplier network and cannot be assigned to new batches.",
+      "note": "Not used in any batch.",
+      "blockedTitle": "Supplier cannot be removed",
+      "blockedBody": "{count, plural, one {This supplier is used in # batch and cannot be removed.} other {This supplier is used in # batches and cannot be removed.}}",
+      "blockedNote": "The link stays because records in the batch chains refer to this supplier.",
+      "seeBatches": "See batches",
+      "close": "Close",
+      "cancel": "Cancel",
+      "confirm": "Remove link",
+      "failed": "The link could not be removed. Please try again."
+    }
   }
 }

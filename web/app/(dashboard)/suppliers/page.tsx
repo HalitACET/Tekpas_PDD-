@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { PageView } from "@/components/shell/page-view";
+import { SuppliersPage } from "@/components/suppliers/suppliers-page";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("pages.suppliers");
@@ -8,5 +8,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <PageView page="suppliers" />;
+  return <SuppliersPage />;
 }
