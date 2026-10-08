@@ -148,8 +148,9 @@ Backend kuralları (M2):
 - [x] API: zinciri son partiden kopyalama (yapı + ağda kalan tedarikçiler; durum PENDING, veri boş), yoksa varsayılan Lif → İplik → Kumaş → Boya → Dikim; `GET /products/{id}/chain-preview`
 - [x] Tedarikçi telefon kolonu (`company_supplier.phone`, E.164, WhatsApp paylaşımı için)
 - [x] `supply_step.data` alanları (tipli `StepData`): ölçüler BigDecimal (kWh/kg, L/kg, g/m², kg), yüzdeler tam sayı, enerji kaynakları toplamı 100; adım tipine ait olmayan alan `NotApplicable`
-- [ ] Web: Tedarikçiler ekranı (tasarım v0.3 14/15)
-- [ ] Web: React Flow ile zincir görünümü ve düzenleme (09–11; boş düğüm paneli, "Varsayılan zinciri oluştur" ve tedarikçi çıkarma tasarımı v0.3.1 bekleniyor)
+- [ ] Web: Tedarikçiler ekranı (tasarım v0.3 14/15), PR 2b
+- [ ] Web: Tedarikçi kaldırma (v0.3.1 27 kaldırılamaz, 28 bağı kaldır onayı), PR 2b ile birlikte
+- [ ] Web: Parti detay + React Flow zincir (v0.3 09–11, v0.3.1 25 boş düğüm, 26 zinciri olmayan parti, 29 reddedildi + lejant, 30 M4 aksiyonları devre dışı), PR 3
 
 **Kabul:** Bir parti için İplik → Kumaş → Boya → Dikim zinciri çizilir, düğüm renkleri durumu gösterir.
 
@@ -234,23 +235,23 @@ Backend kuralları (M2):
 
 ## 6. Unutulmayacaklar
 
-**Tasarım borcu** (tasarımı olmayan, şimdilik geçici çözümle duran yerler):
-- [ ] Koyu tema login tasarımı: hikâye paneli koyu temada da açık (koza kremi) kalıyor.
+**Tasarım borcu** (tasarımı olmayan, şimdilik geçici çözümle duran yerler). İşaretliler `docs/design/v0.3.1/` ile kapandı; çerçeve numarası yanında, uygulama hangi PR'da:
+- [x] **v0.3.1 17** (+23 `--story`), PR 2a. Koyu tema login tasarımı: hikâye paneli koyu temada da açık (koza kremi) kalıyor.
 - [ ] Login "sunucu uyanıyor" durumu (5 sn sonra buton metni) tasarımda yok; kullanıcı onayıyla eklendi.
-- [ ] Ürün düzenle: GTIN kilidi (partisi olan ürün) — input devre dışı, kilit ikonu, ipucu satırında neden (`impl-v0.3/03b-locked-*`).
-- [ ] Liste yükleniyor durumu: tablo içinde iskelet satırlar.
-- [ ] Liste hata durumu: boş durum çerçevesinde hata ikonu, metin ve "Tekrar dene".
-- [ ] VIEWER: devre dışı yazma butonları ve satır menüsü, "Bu işlem için yetkiniz yok" tooltip'i (tooltip bileşeni tasarımda yok).
+- [x] **v0.3.1 18**, PR 2a. Ürün düzenle: GTIN kilidi (partisi olan ürün) — input devre dışı, kilit ikonu, ipucu satırında neden (`impl-v0.3/03b-locked-*`).
+- [x] **v0.3.1 19**, PR 2a. Liste yükleniyor durumu: tablo içinde iskelet satırlar.
+- [x] **v0.3.1 20**, PR 2a. Liste hata durumu: boş durum çerçevesinde hata ikonu, metin ve "Tekrar dene".
+- [x] **v0.3.1 21** (+23 `--tooltip`), PR 2a. VIEWER: devre dışı yazma butonları ve satır menüsü, "Bu işlem için yetkiniz yok" tooltip'i (tooltip bileşeni tasarımda yok).
 - [ ] Ürün formunda GTIN dışındaki alan hataları (ad, SKU, lif oranı "Tam sayı girin", aynı lif iki kez): input altında kırmızı satır; tasarımda sadece GTIN hatası var.
 - [ ] Kaydetme/silme sunucu hatası (5xx): toast.
-- [ ] Parti durum chip'leri (Taslak=pending, Veri toplanıyor=submitted, Yayına hazır=approved, Yayında=brand): tasarımdaki chip'ler adım durumlarını gösteriyor (Beklemede, Gönderildi…).
-- [ ] Yayında chip'i: dolu brand varyantı (zemin --brand, yazı --primary-foreground, nokta yerine onay ikonu); muted dut zemin "Reddedildi"ye çok benziyordu. Kontrast açıkta 7,5:1, koyuda 6,8:1.
-- [ ] Partiler: tedarik zinciri çubuğu sadece sayılardan (onaylı yeşil, kalan gri, adım yoksa "—"); adım bazında renk M3'te zincirle gelir. Uyum skoru "—" (M6). Satır oku ve satıra tıklama gizli (parti detayı 09, M3).
+- [x] **v0.3.1 22** (+23 §5: aşama chip'i köşeli ve ikonlu, adım durumu rozeti hap biçimli), PR 2a. Parti durum chip'leri (Taslak=pending, Veri toplanıyor=submitted, Yayına hazır=approved, Yayında=brand): tasarımdaki chip'ler adım durumlarını gösteriyor (Beklemede, Gönderildi…).
+- [x] **v0.3.1 22**, PR 2a. Yayında chip'i: dolu brand varyantı (zemin --brand, yazı --primary-foreground, nokta yerine onay ikonu); muted dut zemin "Reddedildi"ye çok benziyordu. Kontrast açıkta 7,5:1, koyuda 6,8:1.
+- [ ] Satır oku ve tıklama → **09**, PR 3. Partiler: tedarik zinciri çubuğu sadece sayılardan (onaylı yeşil, kalan gri, adım yoksa "—"); adım bazında renk M3'te zincirle gelir. Uyum skoru "—" (M6). Satır oku ve satıra tıklama gizli (parti detayı 09, M3).
 - [ ] Partiler: filtre sonucu boş durumu ("Eşleşen parti yok", "Filtreleri temizle") ürünlerdeki tasarım metninden uyarlandı. Hiç parti yokken v0.2'nin (tasarım G) boş durumu ve "Nasıl başlanır" rehberi duruyor.
-- [ ] Parti oluştur: "Zincir son partiden kopyalanır" alt başlığı ve "Tedarik zinciri: 5 adım kopyalanacak" ipucu M3'e kadar gizli. Tarih alanları tarayıcının tarih seçicisi (tasarımda düz metin "gg.aa.yyyy").
-- [ ] Tasarım çerçevelerinde tanımlı olup globals.css'te olmayan token'lar: `--brand-text` eklendi (08 "Otomatik öneri" rozeti, "Yayında" chip'i); `--primary-hover`, `--destructive-hover`, `--ring-soft` hâlâ yok (web'de bg-primary/85 ve ring/18 kullanılıyor); her biri ilk kullanıldığı ekranda, tasarımdaki değeriyle (açık ve koyu) eklenecek.
+- [x] Tarih → **v0.3.1 24** (Popover + Calendar, aralık, pazartesi), PR 2a; zincir ipucu → 08 + `chain-preview`, PR 3. Parti oluştur: "Zincir son partiden kopyalanır" alt başlığı ve "Tedarik zinciri: 5 adım kopyalanacak" ipucu M3'e kadar gizli. Tarih alanları tarayıcının tarih seçicisi (tasarımda düz metin "gg.aa.yyyy").
+- [x] **v0.3.1 23** (globals.css'te açık/koyu değerleriyle), PR 2a. Tasarım çerçevelerinde tanımlı olup globals.css'te olmayan token'lar: `--brand-text` eklendi (08 "Otomatik öneri" rozeti, "Yayında" chip'i); `--primary-hover`, `--destructive-hover`, `--ring-soft` hâlâ yok (web'de bg-primary/85 ve ring/18 kullanılıyor); her biri ilk kullanıldığı ekranda, tasarımdaki değeriyle (açık ve koyu) eklenecek.
 - [ ] Mobil web liste (md altı): masaüstü tablo yatay kaydırılır; tasarım 16 web için uyarlanmalı.
-- [ ] Popover üstünde muted zemin token'ı (dark'ta --muted = --popover, ikisi #1B202A): ürün silme dialogundaki ürün kutusu koyu temada geçici olarak --card kullanıyor. Mobil kullanıcı menüsündeki seçim grubunun zemini de koyu temada görünmüyor; seçili öğe zaten --card olduğu için orada --card kullanılamadı, token gelince düzelecek.
+- [x] **v0.3.1 23 §6** `--popover-muted`, PR 2a. Popover üstünde muted zemin token'ı (dark'ta --muted = --popover, ikisi #1B202A): ürün silme dialogundaki ürün kutusu koyu temada geçici olarak --card kullanıyor. Mobil kullanıcı menüsündeki seçim grubunun zemini de koyu temada görünmüyor; seçili öğe zaten --card olduğu için orada --card kullanılamadı, token gelince düzelecek.
 
 **Ertelenenler** (tasarımda var, verisi sonraki kilometre taşında gelecek):
 - [ ] Menüdeki "Görevler" rozeti (bekleyen görev sayısı): M4'te, `GET /tasks` gelince. O zamana kadar gizli.
