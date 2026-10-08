@@ -10,11 +10,11 @@ import { GuardedButton } from "@/components/common/guarded-button";
 import { EmptyState, ListError, TableSkeleton } from "@/components/common/list-states";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useBatches } from "@/lib/api/batches";
+import { type BatchStatusCounts, useBatches, useBatchStatusCounts } from "@/lib/api/batches";
 import { useProducts } from "@/lib/api/products";
 import { canWriteCatalog } from "@/lib/auth/permissions";
 import { useSession } from "@/lib/auth/use-session";
-import { BATCH_COLUMNS, BatchesTableHeader, BatchRow } from "./batches-table";
+import { BatchesTableHeader, BatchRow } from "./batches-table";
 import { CreateBatchDialog } from "./create-batch-dialog";
 
 interface GuideStep {
@@ -32,14 +32,14 @@ function useDebounced<T>(value: T, ms: number): T {
 }
 
 /**
- * Design v0.3 07 (list) with 08 (create). Without any batch the approved empty state of design G (v0.2)
- * shows, with its "how to start" guide. "Partileri gör" on a product links here with ?productId=.
+ * Design v0.3 07 (list) with 08 (create), stage tabs of v0.3.1 22. Without any batch the approved empty
+ * state of design G (v0.2) shows, with its "how to start" guide. "Partileri gör" on a product links here
+ * with ?productId=.
  */
 export function BatchesPage() {
   const t = useTranslations("batches");
   const tPage = useTranslations("pages.batches");
   const tCommon = useTranslations("common");
-  const tStatus = useTranslations("enums.batchStatus");
   const session = useSession();
   const canWrite = session.status === "authenticated" && canWriteCatalog(session.user.role);
   const router = useRouter();
@@ -53,6 +53,7 @@ export function BatchesPage() {
   const search = useDebounced(q, 250);
 
   const batches = useBatches({ q: search, status, productId });
+  const counts = useBatchStatusCounts();
   const products = useProducts({ q: "", category: "" });
   const productOptions = products.data?.content ?? [];
 
@@ -83,8 +84,10 @@ export function BatchesPage() {
           </div>
         </div>
 
+        <StageTabs label={t("statusFilter")} value={status} onChange={setStatus} counts={counts.data} />
+
         <div className="flex flex-wrap items-center gap-2">
-          <label className="flex h-8 w-[280px] max-w-full items-center gap-2 rounded-md border border-input bg-card px-2.5 text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/18">
+          <label className="flex h-8 w-[280px] max-w-full items-center gap-2 rounded-md border border-input bg-card px-2.5 text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring-soft">
             <Search className="size-3.5 flex-none" strokeWidth={1.75} aria-hidden />
             <input
               type="search"
@@ -95,15 +98,7 @@ export function BatchesPage() {
               className="min-w-0 flex-1 bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
             />
           </label>
-          <FilterSelect label={t("statusFilter")} labelWidth="pl-[62px]" value={status} onChange={(v) => setStatus(v as BatchStatus | "")}>
-            <option value="">{t("all")}</option>
-            {BATCH_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {tStatus(s)}
-              </option>
-            ))}
-          </FilterSelect>
-          <FilterSelect label={t("productFilter")} labelWidth="pl-[52px] max-w-[300px]" value={productId} onChange={setProductId}>
+          <FilterSelect label={t("productFilter")} value={productId} onChange={setProductId}>
             <option value="">{t("all")}</option>
             {productOptions.map((p) => (
               <option key={p.id} value={p.id}>
@@ -111,11 +106,13 @@ export function BatchesPage() {
               </option>
             ))}
           </FilterSelect>
-          {batches.data && (
-            <span className="ml-auto text-xs text-muted-foreground" aria-live="polite">
-              {t("count", { count: batches.data.totalElements })}
-            </span>
-          )}
+          <span className="ml-auto text-xs text-muted-foreground" aria-live="polite">
+            {batches.isPending
+              ? tCommon("loading")
+              : batches.data
+                ? t("count", { count: batches.data.totalElements })
+                : null}
+          </span>
         </div>
 
         {/* Below md the design has no list yet (16, mobile): the desktop table scrolls sideways. */}
@@ -123,9 +120,14 @@ export function BatchesPage() {
           <div role="table" aria-label={tPage("title")} aria-busy={batches.isFetching} className="min-w-[1000px]">
             <BatchesTableHeader />
             {batches.isPending ? (
-              <TableSkeleton columns={BATCH_COLUMNS} label={tCommon("loading")} />
+              <TableSkeleton label={tCommon("loading")} />
             ) : batches.isError && !batches.data ? (
-              <ListError onRetry={() => void batches.refetch()} retrying={batches.isFetching} />
+              <ListError
+                title={t("listError")}
+                error={batches.error}
+                onRetry={() => void batches.refetch()}
+                retrying={batches.isFetching}
+              />
             ) : rows.length === 0 ? (
               <div className="sticky left-0 w-[min(100vw-2rem,100%)]">
                 {filtered ? (
@@ -148,10 +150,10 @@ export function BatchesPage() {
                     body={tPage("emptyBody")}
                     footer={<Guide label={tPage("guide.label")} steps={guide} />}
                   >
-                    <GuardedButton allowed={canWrite} onClick={() => setCreating(true)}>
+                    <GuardedButton allowed={canWrite} tooltipAlign="center" onClick={() => setCreating(true)}>
                       {tPage("cta")}
                     </GuardedButton>
-                    <GuardedButton allowed={canWrite} variant="secondary" onClick={comingSoon}>
+                    <GuardedButton allowed={canWrite} tooltipAlign="center" variant="secondary" onClick={comingSoon}>
                       {tPage("cta2")}
                     </GuardedButton>
                   </EmptyState>
@@ -173,15 +175,59 @@ export function BatchesPage() {
   );
 }
 
+/**
+ * Stage tabs with counts (design v0.3.1 22): they filter the list by batch status. The counts are the
+ * company's batches per status, independent of the search and product filter, as in the design.
+ */
+function StageTabs({
+  label,
+  value,
+  onChange,
+  counts,
+}: {
+  label: string;
+  value: BatchStatus | "";
+  onChange: (value: BatchStatus | "") => void;
+  counts: BatchStatusCounts | undefined;
+}) {
+  const t = useTranslations("batches");
+  const tStatus = useTranslations("enums.batchStatus");
+  const tabs: { value: BatchStatus | ""; label: string; count: number | undefined }[] = [
+    { value: "", label: t("all"), count: counts?.all },
+    ...BATCH_STATUSES.map((s) => ({ value: s, label: tStatus(s), count: counts?.[s] })),
+  ];
+  return (
+    <div role="group" aria-label={label} className="flex max-w-full gap-0.5 self-start overflow-x-auto rounded-lg bg-muted p-[3px]">
+      {tabs.map((tab) => {
+        const active = tab.value === value;
+        return (
+          <button
+            key={tab.value || "all"}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(tab.value)}
+            className={`flex h-[30px] shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-[13px] font-medium whitespace-nowrap outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft ${
+              active ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tab.label}
+            {tab.count !== undefined && (
+              <span className="font-mono text-[11px] font-medium text-muted-foreground">{tab.count}</span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function FilterSelect({
   label,
-  labelWidth,
   value,
   onChange,
   children,
 }: {
   label: string;
-  labelWidth: string;
   value: string;
   onChange: (value: string) => void;
   children: ReactNode;
@@ -193,7 +239,7 @@ function FilterSelect({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-label={label}
-        className={`h-8 cursor-pointer appearance-none truncate rounded-md border border-input bg-card pr-[30px] text-[13px] font-medium text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/18 ${labelWidth}`}
+        className="h-8 w-[270px] max-w-full cursor-pointer appearance-none truncate rounded-md border border-input bg-card pr-[30px] pl-[52px] text-[13px] font-medium text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring-soft"
       >
         {children}
       </select>

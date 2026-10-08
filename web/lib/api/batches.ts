@@ -8,6 +8,7 @@ import { unwrap } from "./request";
 
 export type BatchResponse = components["schemas"]["BatchResponse"];
 export type BatchCreateRequest = components["schemas"]["BatchCreateRequest"];
+export type BatchStatusCounts = components["schemas"]["BatchStatusCounts"];
 
 /** Like the product list: no paging in the design, one page of up to 100 batches, newest change first. */
 export const BATCH_PAGE_SIZE = 100;
@@ -31,6 +32,14 @@ export function useBatches(filters: BatchListFilters) {
         }),
       ),
     placeholderData: keepPreviousData,
+  });
+}
+
+/** Batches per status for the list's tabs (v0.3.1 22): all of the company's, whatever the list's filters. */
+export function useBatchStatusCounts() {
+  return useQuery({
+    queryKey: queryKeys.batches.statusCounts(),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/batches/status-counts", { signal })),
   });
 }
 

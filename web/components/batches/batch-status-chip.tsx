@@ -1,34 +1,51 @@
 "use client";
 
 import type { BatchStatus } from "@tekpas/shared";
-import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-/**
- * Batch status as the design's status chip (07). The design shows supply chain step states there; batches
- * have their own four states, mapped to the same chip style (design debt, PLAN.md).
+/*
+ * Batch stage chip (design v0.3.1 22, 23 §5): square-cornered (4 px) with an icon, so it reads differently
+ * from the pill-shaped, dotted step status badge. "Yayında" is the only filled chip. Icon paths are the
+ * design's (24 × 24).
  */
-const TONES: Record<BatchStatus, { chip: string; dot?: string }> = {
-  DRAFT: { chip: "bg-status-pending-muted text-status-pending-foreground", dot: "bg-status-pending" },
-  COLLECTING: { chip: "bg-status-submitted-muted text-status-submitted-foreground", dot: "bg-status-submitted" },
-  READY: { chip: "bg-status-approved-muted text-status-approved-foreground", dot: "bg-status-approved" },
-  // Published is the end state: a filled brand chip with a check, so it never reads like "rejected" (muted red).
-  // Text --primary-foreground: cream on light brand (7.5:1), dark on dark brand (6.8:1).
-  PUBLISHED: { chip: "bg-brand text-primary-foreground" },
+const STAGES: Record<BatchStatus, { chip: string; icon: string; stroke: number }> = {
+  DRAFT: {
+    chip: "border-dashed border-input text-muted-foreground",
+    icon: "M10.1 2.18a10 10 0 0 1 3.8 0M17.6 3.7a10 10 0 0 1 2.7 2.7M21.82 10.1a10 10 0 0 1 0 3.8M20.3 17.6a10 10 0 0 1-2.7 2.7M13.9 21.82a10 10 0 0 1-3.8 0M6.4 20.3a10 10 0 0 1-2.7-2.7M2.18 13.9a10 10 0 0 1 0-3.8M3.7 6.4a10 10 0 0 1 2.7-2.7",
+    stroke: 2,
+  },
+  COLLECTING: {
+    chip: "border-transparent bg-muted text-foreground",
+    icon: "M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 2v20",
+    stroke: 2,
+  },
+  READY: {
+    chip: "border-transparent bg-brand-muted text-brand-text",
+    icon: "M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M9 12l2 2 4-4",
+    stroke: 2,
+  },
+  PUBLISHED: { chip: "border-transparent bg-brand text-brand-foreground", icon: "M20 6 9 17l-5-5", stroke: 3 },
 };
 
 export function BatchStatusChip({ status }: { status: BatchStatus }) {
   const t = useTranslations("enums.batchStatus");
-  const tone = TONES[status];
+  const stage = STAGES[status];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full py-[3px] pr-[9px] pl-2 text-xs font-medium whitespace-nowrap ${tone.chip}`}
+      className={`inline-flex h-[22px] items-center gap-[5px] rounded-[4px] border pr-2 pl-1.5 text-xs font-medium whitespace-nowrap ${stage.chip}`}
     >
-      {tone.dot ? (
-        <span className={`size-1.5 rounded-full ${tone.dot}`} aria-hidden />
-      ) : (
-        <Check className="-mx-px size-3" strokeWidth={2.5} aria-hidden />
-      )}
+      <svg
+        viewBox="0 0 24 24"
+        className="size-3 shrink-0"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={stage.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
+        <path d={stage.icon} />
+      </svg>
       {t(status)}
     </span>
   );
