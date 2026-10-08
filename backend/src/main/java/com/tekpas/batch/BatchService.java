@@ -11,6 +11,7 @@ import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
 import com.tekpas.common.error.NotFoundException;
+import com.tekpas.company.SupplierService;
 import com.tekpas.common.persistence.Constraints;
 import com.tekpas.common.web.PageResponse;
 import com.tekpas.product.Product;
@@ -41,23 +42,29 @@ public class BatchService {
     private final ChainCounts chainCounts;
     private final JdbcTemplate jdbc;
     private final ChainService chains;
+    private final SupplierService suppliers;
     private final Clock clock;
 
     public BatchService(BatchRepository batches, ProductRepository products, BatchNumbers numbers,
-            ChainCounts chainCounts, JdbcTemplate jdbc, ChainService chains, Clock clock) {
+            ChainCounts chainCounts, JdbcTemplate jdbc, ChainService chains, SupplierService suppliers, Clock clock) {
         this.batches = batches;
         this.products = products;
         this.numbers = numbers;
         this.chainCounts = chainCounts;
         this.jdbc = jdbc;
         this.chains = chains;
+        this.suppliers = suppliers;
         this.clock = clock;
     }
 
     @Transactional(readOnly = true)
     public PageResponse<BatchResponse> list(UUID companyId, @Nullable UUID productId, @Nullable BatchStatus status,
-            @Nullable String q, Pageable pageable) {
-        Page<BatchRow> page = batches.search(companyId, productId, status, q, pageable);
+            @Nullable UUID supplierId, @Nullable String q, Pageable pageable) {
+        // A supplier outside the own network is not found, like any other company's record (not an empty list).
+        if (supplierId != null && suppliers.linked(companyId, supplierId).isEmpty()) {
+            throw new NotFoundException("No such supplier in this company's network");
+        }
+        Page<BatchRow> page = batches.search(companyId, productId, status, supplierId, q, pageable);
         Map<UUID, ChainSummary> chains = chainCounts.of(page.map(BatchRow::id).getContent());
         return PageResponse.of(page).map(row -> toResponse(row, ChainCounts.orEmpty(chains, row.id())));
     }

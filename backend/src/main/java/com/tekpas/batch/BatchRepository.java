@@ -32,6 +32,7 @@ public interface BatchRepository extends JpaRepository<Batch, UUID> {
     /**
      * @param q a LIKE pattern from {@code PageQuery.containsPattern}, matched against batch no, production order
      *     no, product name and GTIN
+     * @param supplierId batches with at least one step of this supplier, each batch once
      */
     @Query(value = """
             select new com.tekpas.batch.BatchRow(b.id, b.batchNo, p.id, p.name, p.gtin, b.productionOrderNo,
@@ -40,6 +41,8 @@ public interface BatchRepository extends JpaRepository<Batch, UUID> {
             where b.companyId = :companyId
               and (:productId is null or b.productId = :productId)
               and (:status is null or b.status = :status)
+              and (:supplierId is null or exists (select 1 from SupplyStep s
+                   where s.batchId = b.id and s.supplierCompanyId = :supplierId))
               and (:q is null or b.batchNo ilike :q escape '\\' or b.productionOrderNo ilike :q escape '\\'
                    or p.name ilike :q escape '\\' or p.gtin like :q escape '\\')
             """,
@@ -48,9 +51,11 @@ public interface BatchRepository extends JpaRepository<Batch, UUID> {
             where b.companyId = :companyId
               and (:productId is null or b.productId = :productId)
               and (:status is null or b.status = :status)
+              and (:supplierId is null or exists (select 1 from SupplyStep s
+                   where s.batchId = b.id and s.supplierCompanyId = :supplierId))
               and (:q is null or b.batchNo ilike :q escape '\\' or b.productionOrderNo ilike :q escape '\\'
                    or p.name ilike :q escape '\\' or p.gtin like :q escape '\\')
             """)
-    Page<BatchRow> search(UUID companyId, @Nullable UUID productId, @Nullable BatchStatus status, @Nullable String q,
-            Pageable pageable);
+    Page<BatchRow> search(UUID companyId, @Nullable UUID productId, @Nullable BatchStatus status,
+            @Nullable UUID supplierId, @Nullable String q, Pageable pageable);
 }

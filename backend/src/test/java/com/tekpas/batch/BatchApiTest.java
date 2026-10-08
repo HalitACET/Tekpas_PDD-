@@ -250,6 +250,66 @@ class BatchApiTest {
     }
 
     @Nested
+    class SupplierFilter {
+
+        String supplier(Tenant tenant) {
+            MvcTestResult result = fixtures.post(tenant, "/api/v1/suppliers",
+                    Map.of("name", "İplikçi " + UUID.randomUUID().toString().substring(0, 4), "type", "YARN", "city", "Bursa"));
+            assertThat(result).hasStatus(201);
+            return fixtures.body(result).path("id").asString();
+        }
+
+        List<String> yarnSteps(Tenant tenant, String batchId) {
+            return fixtures.body(fixtures.get(tenant, BATCHES + "/" + batchId + "/chain")).path("steps").valueStream()
+                    .filter(step -> step.path("stepType").asString().equals("YARN"))
+                    .map(step -> step.path("id").asString()).toList();
+        }
+
+        @Test
+        void listsEachBatchWithAStepOfTheSupplierOnce() {
+            Tenant tenant = fixtures.tenant();
+            String spinner = supplier(tenant);
+            String used = createBatch(tenant);
+            String unused = createBatch(tenant);
+            // Two yarn steps of the same batch, both spun by the same supplier.
+            assertThat(fixtures.post(tenant, BATCHES + "/" + used + "/steps", Map.of("stepType", "YARN"))).hasStatus(201);
+            for (String step : yarnSteps(tenant, used)) {
+                assertThat(fixtures.patch(tenant, "/api/v1/steps/" + step, Map.of("supplierId", spinner))).hasStatusOk();
+            }
+
+            JsonNode page = fixtures.body(fixtures.get(tenant, BATCHES + "?supplierId=" + spinner));
+
+            assertThat(page.path("totalElements").asLong()).isEqualTo(1);
+            assertThat(page.path("content").valueStream().map(b -> b.path("id").asString())).containsExactly(used);
+            assertThat(fixtures.body(fixtures.get(tenant, BATCHES)).path("totalElements").asLong()).isEqualTo(2);
+            assertThat(unused).isNotEqualTo(used);
+        }
+
+        @Test
+        void aSupplierWithoutBatchesGivesAnEmptyList() {
+            Tenant tenant = fixtures.tenant();
+            createBatch(tenant);
+
+            JsonNode page = fixtures.body(fixtures.get(tenant, BATCHES + "?supplierId=" + supplier(tenant)));
+
+            assertThat(page.path("totalElements").asLong()).isZero();
+        }
+
+        @Test
+        void aSupplierOutsideTheOwnNetworkIsNotFound() {
+            TenantPair tenants = fixtures.twoTenants();
+            createBatch(tenants.a());
+            String theirs = supplier(tenants.b());
+
+            for (String id : List.of(theirs, UUID.randomUUID().toString())) {
+                MvcTestResult result = fixtures.get(tenants.a(), BATCHES + "?supplierId=" + id);
+                assertThat(result).hasStatus(404);
+                assertThat(fixtures.body(result).path("type").asString()).isEqualTo("urn:tekpas:problem:not-found");
+            }
+        }
+    }
+
+    @Nested
     class StatusCounts {
 
         @Test
