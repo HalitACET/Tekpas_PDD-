@@ -53,7 +53,7 @@ export function AppShell({ user, children }: { user: SessionUser; children: Reac
     <div className="flex h-dvh bg-background text-foreground">
       <a
         href="#main"
-        className="sr-only z-50 rounded-md bg-card px-3 py-2 text-[13px] shadow-md focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:ring-[3px] focus:ring-ring/18"
+        className="sr-only z-50 rounded-md bg-card px-3 py-2 text-[13px] shadow-md focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:ring-[3px] focus:ring-ring-soft"
       >
         {t("skipToContent")}
       </a>

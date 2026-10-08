@@ -35,7 +35,7 @@ export function MobileNavDrawer({ open, onOpenChange, user }: MobileNavDrawerPro
             </Dialog.Title>
             <Dialog.Close
               aria-label={t("close")}
-              className="ml-auto flex size-11 cursor-pointer items-center justify-center rounded-lg text-muted-foreground outline-none hover:bg-sidebar-accent focus-visible:ring-[3px] focus-visible:ring-ring/18"
+              className="ml-auto flex size-11 cursor-pointer items-center justify-center rounded-lg text-muted-foreground outline-none hover:bg-sidebar-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
             >
               <X className="size-5" strokeWidth={1.75} aria-hidden />
             </Dialog.Close>
@@ -59,7 +59,7 @@ export function MobileNavDrawer({ open, onOpenChange, user }: MobileNavDrawerPro
                           onClick={() => onOpenChange(false)}
                           aria-current={active ? "page" : undefined}
                           className={cn(
-                            "flex h-11 items-center gap-3 rounded-lg px-3 text-[15px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/18",
+                            "flex h-11 items-center gap-3 rounded-lg px-3 text-[15px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft",
                             active
                               ? "bg-sidebar-accent font-semibold text-foreground"
                               : "font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",

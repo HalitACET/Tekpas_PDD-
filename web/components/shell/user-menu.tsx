@@ -39,7 +39,7 @@ export function UserMenu({ user }: { user: SessionUser }) {
     <DropdownMenu>
       {/* Name comes from the visible text (WCAG 2.5.3); aria-haspopup announces the menu. */}
       <DropdownMenuTrigger
-        className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/18"
+        className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
       >
         <span
           className="flex size-7 items-center justify-center rounded-full bg-silk text-[11px] font-semibold text-[#3D3A35]"

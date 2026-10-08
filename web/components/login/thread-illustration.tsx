@@ -1,13 +1,13 @@
 import { useTranslations } from "next-intl";
 
 /*
- * Design F: a thread leaves the cocoon and passes the four supply-chain stages. The story panel is a
- * fixed light "cocoon" surface in both themes, so the colours are the design's literal brand values.
+ * Design F: a thread leaves the cocoon and passes the four supply-chain stages. Colours are theme tokens
+ * (v0.3.1 17): the cutouts and stage dots take the --story surface the illustration sits on.
  */
-const BRAND = "#8C2F4B";
-const COCOON = "#FAF6EE";
-const INK = "#1F1E1C";
-const LABEL = "#57534C";
+const BRAND = "var(--brand)";
+const COCOON = "var(--story)";
+const INK = "var(--foreground)";
+const LABEL = "var(--muted-foreground)";
 
 const STAGES = ["yarn", "fabric", "dye", "garment"] as const;
 

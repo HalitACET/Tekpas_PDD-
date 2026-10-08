@@ -188,17 +188,27 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
             <label htmlFor={ids.gtin} className={LABEL}>
               {t("gtin")}
             </label>
-            <Input
-              id={ids.gtin}
-              inputMode="numeric"
-              autoComplete="off"
-              placeholder={t("gtinPlaceholder")}
-              disabled={gtinLocked}
-              aria-invalid={gtinState.tone === "err" ? true : undefined}
-              aria-describedby={ids.gtinHint}
-              className={`${INPUT} font-mono`}
-              {...register("gtin", { setValueAs: (v: string) => v.replace(/\s/g, "") })}
-            />
+            {/* Locked (design v0.3.1 18): readable on --muted with a lock inside, not faded like other disabled inputs. */}
+            <div className={`relative ${gtinLocked ? "cursor-not-allowed" : ""}`}>
+              <Input
+                id={ids.gtin}
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder={t("gtinPlaceholder")}
+                disabled={gtinLocked}
+                aria-invalid={gtinState.tone === "err" ? true : undefined}
+                aria-describedby={ids.gtinHint}
+                className={`${INPUT} font-mono disabled:bg-muted disabled:pr-[34px] disabled:text-muted-foreground disabled:opacity-100 disabled:shadow-none`}
+                {...register("gtin", { setValueAs: (v: string) => v.replace(/\s/g, "") })}
+              />
+              {gtinLocked && (
+                <Lock
+                  className="pointer-events-none absolute top-1/2 right-2.5 size-3.5 -translate-y-1/2 text-muted-foreground"
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
+              )}
+            </div>
             <p
               id={ids.gtinHint}
               aria-live="polite"
@@ -274,7 +284,7 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
                       onClick={() => fibers.remove(i)}
                       disabled={fibers.fields.length === 1}
                       aria-label={t("removeFiber")}
-                      className="flex size-[34px] cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-status-rejected-foreground focus-visible:ring-[3px] focus-visible:ring-ring/18 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
+                      className="flex size-[34px] cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-status-rejected-foreground focus-visible:ring-[3px] focus-visible:ring-ring-soft disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
                     >
                       <Trash2 className="size-[15px]" strokeWidth={1.75} aria-hidden />
                     </button>
@@ -287,7 +297,7 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
               <button
                 type="button"
                 onClick={() => fibers.append({ fiber: "ELASTANE", percent: "" })}
-                className="flex h-[30px] cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-medium outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/18"
+                className="flex h-[30px] cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-medium outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
               >
                 <Plus className="size-3.5" strokeWidth={1.75} aria-hidden />
                 {t("addFiber")}
@@ -400,7 +410,7 @@ function NativeSelect({
   return (
     <span className="relative flex items-center">
       <select
-        className={`flex-1 cursor-pointer appearance-none rounded-md border border-input bg-card pr-[30px] pl-2.5 text-[13px] text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/18 ${
+        className={`flex-1 cursor-pointer appearance-none rounded-md border border-input bg-card pr-[30px] pl-2.5 text-[13px] text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring-soft ${
           compact ? "h-[34px]" : "h-9 shadow-xs"
         } ${className}`}
         {...props}

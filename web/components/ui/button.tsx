@@ -8,14 +8,14 @@ import { cn } from "cn"
  * --ring at 3px / 18 %.
  */
 const buttonVariants = cva(
-  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-transparent font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/18 disabled:pointer-events-none disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-[15px]",
+  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-transparent font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring-soft disabled:pointer-events-none disabled:opacity-45 data-disabled:cursor-not-allowed data-disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-[15px]",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/85",
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover",
         secondary: "border-input bg-card text-foreground shadow-xs hover:bg-accent",
         ghost: "text-foreground hover:bg-accent",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive-hover",
         brand: "bg-brand text-brand-foreground hover:bg-brand/90",
       },
       size: {

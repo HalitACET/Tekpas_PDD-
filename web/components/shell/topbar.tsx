@@ -1,8 +1,9 @@
 "use client";
 
-import { Building2, Search } from "lucide-react";
+import { Building2, Lock, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
+import { canWriteCatalog } from "@/lib/auth/permissions";
 import type { SessionUser } from "@/lib/auth/session";
 import type { PageKey } from "@/lib/nav";
 import { useSearchShortcutLabel } from "@/lib/platform";
@@ -63,6 +64,13 @@ export function Topbar({ user, page }: { user: SessionUser; page?: PageKey }) {
         )}
       </div>
 
+      {/* Design v0.3.1 21: read-only users see why write actions are disabled before hovering one. */}
+      {!canWriteCatalog(user.role) && (
+        <span className="flex h-6 items-center gap-[5px] rounded-[4px] border px-2 text-xs text-muted-foreground">
+          <Lock className="size-3" strokeWidth={1.75} aria-hidden />
+          {t("readOnly")}
+        </span>
+      )}
       <LanguageSwitcher />
       <UserMenu user={user} />
     </header>

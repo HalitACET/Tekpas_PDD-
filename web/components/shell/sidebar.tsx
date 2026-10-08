@@ -50,7 +50,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                       aria-label={collapsed ? label : undefined}
                       title={collapsed ? label : undefined}
                       className={cn(
-                        "flex h-8 items-center gap-2.5 rounded-md text-[13px] outline-none hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/18",
+                        "flex h-8 items-center gap-2.5 rounded-md text-[13px] outline-none hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring-soft",
                         collapsed ? "justify-center" : "px-2",
                         active ? "bg-sidebar-accent font-semibold text-foreground" : "font-medium text-muted-foreground",
                       )}
@@ -73,7 +73,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         aria-label={collapsed ? t("expand") : undefined}
         title={collapsed ? t("expand") : undefined}
         className={cn(
-          "mt-auto flex h-8 cursor-pointer items-center gap-2.5 rounded-md text-[13px] text-muted-foreground outline-none hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/18",
+          "mt-auto flex h-8 cursor-pointer items-center gap-2.5 rounded-md text-[13px] text-muted-foreground outline-none hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring-soft",
           collapsed ? "justify-center" : "px-2",
         )}
       >

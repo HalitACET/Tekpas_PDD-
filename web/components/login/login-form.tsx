@@ -87,7 +87,7 @@ export function LoginForm() {
         <div
           id={ids.error}
           role="alert"
-          className="flex gap-2.5 rounded-lg bg-status-rejected-muted p-3 text-[13px] leading-[1.45] text-status-rejected-foreground"
+          className="flex items-center gap-2.5 rounded-lg bg-status-rejected-muted p-3 text-[13px] leading-[1.45] text-status-rejected-foreground"
         >
           <CircleAlert className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />
           <span className="font-medium">{error}</span>
@@ -138,7 +138,7 @@ export function LoginForm() {
               aria-label={showPassword ? t("hidePassword") : t("showPassword")}
               aria-pressed={showPassword}
               aria-controls={ids.password}
-              className="absolute inset-y-0 right-0 flex w-12 cursor-pointer items-center justify-center rounded-r-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/18 md:w-10 md:rounded-r-md"
+              className="absolute inset-y-0 right-0 flex w-12 cursor-pointer items-center justify-center rounded-r-lg text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring-soft md:w-10 md:rounded-r-md"
             >
               {showPassword ? (
                 <EyeOff className="size-[18px]" strokeWidth={1.75} aria-hidden />
