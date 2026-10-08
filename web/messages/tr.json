@@ -231,13 +231,25 @@
       "FiberTotal": "Lif oranlarının toplamı %100 olmalı (şu an %{total}).",
       "FiberDuplicate": "Aynı lif birden fazla kez girilmiş.",
       "DateRange": "Bitiş tarihi başlangıç tarihinden önce olamaz.",
-      "Unique": "Bu değer zaten kullanılıyor."
+      "Unique": "Bu değer zaten kullanılıyor.",
+      "Digits": "Çok fazla basamak var; değeri kısaltın.",
+      "SupplierType": "Bu firma tipi bu işlem için uygun değil.",
+      "NotApplicable": "Bu alan bu adım için kullanılmaz.",
+      "SameBatch": "Yalnızca aynı partinin adımları bağlanabilir.",
+      "Cycle": "Bu bağlantı zincirde döngü oluşturur.",
+      "EnergyTotal": "Enerji kaynaklarının toplamı %100 olmalı (şu an %{total}).",
+      "EnergyDuplicate": "Aynı enerji kaynağı birden fazla kez girilmiş."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "Bu ürünün partileri var. Ürünü silmek için önce partilerini silin.",
       "GTIN_LOCKED": "Ürünün partisi olduğu için GTIN değiştirilemez; basılmış QR kodlar bu GTIN'i taşıyor.",
       "BATCH_NOT_DRAFT": "Bu işlem yalnızca taslak partilerde yapılabilir.",
-      "BATCH_HAS_PASSPORT": "Pasaportu olan bir parti silinemez."
+      "BATCH_HAS_PASSPORT": "Pasaportu olan bir parti silinemez.",
+      "CHAIN_EXISTS": "Bu partinin zaten bir tedarik zinciri var.",
+      "STEP_APPROVED": "Onaylanmış bir adım değiştirilemez.",
+      "STEP_NOT_PENDING": "Yalnızca veri bekleyen adımlar kaldırılabilir.",
+      "SUPPLIER_NOT_EDITABLE": "Bu firmanın adı, tipi ve şehri değiştirilemez; yalnızca iletişim bilgisi güncellenebilir.",
+      "SUPPLIER_IN_USE": "Bu tedarikçi bir partinin zincirinde kullanılıyor."
     }
   },
   "products": {

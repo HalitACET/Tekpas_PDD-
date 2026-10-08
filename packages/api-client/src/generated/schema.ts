@@ -141,6 +141,47 @@ export interface paths {
         patch: operations["updateBatch"];
         trace?: never;
     };
+    "/api/v1/batches/{id}/chain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A batch's supply chain
+         * @description Flat list of steps; each step names the steps whose output it uses (inputStepIds).
+         */
+        get: operations["getChain"];
+        put?: never;
+        /**
+         * Give a batch without steps the default chain
+         * @description FIBER → YARN → FABRIC → DYEING → SEWING, without suppliers. For batches created before supply chains existed; new batches get their chain when they are created.
+         */
+        post: operations["createDefaultChain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/batches/{id}/steps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a step to a batch's chain */
+        post: operations["addStep"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products": {
         parameters: {
             query?: never;
@@ -182,6 +223,87 @@ export interface paths {
          * @description Missing fields stay unchanged; null clears sku, description and declaredFiberComposition.
          */
         patch: operations["updateProduct"];
+        trace?: never;
+    };
+    "/api/v1/products/{id}/chain-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What a new batch of the product starts with
+         * @description The product's last chain is copied; without one, the default five-step chain is used.
+         */
+        get: operations["getChainPreview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/steps/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a pending step and its links */
+        delete: operations["deleteStep"];
+        options?: never;
+        head?: never;
+        /** Assign a supplier, set the data or the inputs of a step */
+        patch: operations["updateStep"];
+        trace?: never;
+    };
+    "/api/v1/suppliers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the supplier network */
+        get: operations["listSuppliers"];
+        put?: never;
+        /**
+         * Add a supplier to the network
+         * @description Creates a supplier company without users, owned by the current company for editing.
+         */
+        post: operations["createSupplier"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/suppliers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A supplier of the network */
+        get: operations["getSupplier"];
+        put?: never;
+        post?: never;
+        /** Remove a supplier from the network */
+        delete: operations["removeSupplier"];
+        options?: never;
+        head?: never;
+        /**
+         * Change a supplier
+         * @description The phone can always change; name, type and city only for a supplier the current company created and that has no users.
+         */
+        patch: operations["updateSupplier"];
         trace?: never;
     };
 }
@@ -259,6 +381,35 @@ export interface components {
             /** Format: int32 */
             quantity?: number | null;
         };
+        ChainPreviewResponse: {
+            sourceBatchNo?: string | null;
+            /** Format: int32 */
+            stepCount: number;
+        };
+        ChainResponse: {
+            /** Format: uuid */
+            batchId: string;
+            steps: components["schemas"]["ChainStepResponse"][];
+            summary: components["schemas"]["ChainSummary"];
+            unassignedStepTypes: components["schemas"]["StepType"][];
+        };
+        ChainStepResponse: {
+            data: components["schemas"]["StepData"];
+            /** Format: int32 */
+            documentCount: number;
+            /** Format: uuid */
+            id: string;
+            inputStepIds: string[];
+            /** Format: int32 */
+            sortOrder: number;
+            status: components["schemas"]["StepStatus"];
+            stepType: components["schemas"]["StepType"];
+            /** Format: date-time */
+            submittedAt?: string | null;
+            supplier?: components["schemas"]["StepSupplier"];
+            /** Format: date-time */
+            updatedAt: string;
+        };
         ChainSummary: {
             /** Format: int32 */
             approvedSteps: number;
@@ -272,6 +423,13 @@ export interface components {
             /** @enum {string} */
             type: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
         };
+        EnergyShare: {
+            /** Format: int32 */
+            percent: number;
+            source: components["schemas"]["EnergySource"];
+        };
+        /** @enum {string} */
+        EnergySource: "GRID" | "SOLAR" | "WIND" | "NATURAL_GAS" | "COAL" | "BIOMASS" | "OTHER";
         /** @enum {string} */
         Fiber: "COTTON" | "ORGANIC_COTTON" | "ELASTANE" | "POLYESTER" | "RECYCLED_POLYESTER" | "LINEN" | "WOOL" | "VISCOSE" | "POLYAMIDE" | "LYOCELL" | "RECYCLED_COTTON" | "SILK" | "OTHER";
         FiberShare: {
@@ -344,6 +502,17 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
+        PageResponseSupplierResponse: {
+            content: components["schemas"]["SupplierResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
         /** @enum {string} */
         ProductCategory: "T_SHIRT" | "SHIRT" | "TROUSERS" | "DRESS" | "KNITWEAR" | "SWEATSHIRT" | "OUTERWEAR" | "BABY" | "HOME_TEXTILE" | "FABRIC" | "OTHER";
         ProductCreateRequest: {
@@ -397,6 +566,83 @@ export interface components {
         RefreshRequest: {
             refreshToken: string;
         };
+        StepCreateRequest: {
+            inputStepIds?: string[] | null;
+            outputStepIds?: string[] | null;
+            stepType: components["schemas"]["StepType"];
+            /** Format: uuid */
+            supplierId?: string | null;
+        };
+        StepData: {
+            chemicalCompliance?: string | null;
+            deliveredKg?: number | null;
+            energyKwhPerKg?: number | null;
+            energyKwhPerPiece?: number | null;
+            energySources?: components["schemas"]["EnergyShare"][] | null;
+            fabricType?: string | null;
+            fiberComposition?: components["schemas"]["FiberShare"][] | null;
+            fiberType?: components["schemas"]["Fiber"];
+            gsm?: number | null;
+            /** Format: int32 */
+            harvestYear?: number | null;
+            /** @example TR */
+            originCountry?: string | null;
+            originRegion?: string | null;
+            process?: string | null;
+            quantityKg?: number | null;
+            waterLPerKg?: number | null;
+            /** @example Ne 30/1 */
+            yarnCount?: string | null;
+            yarnProcess?: components["schemas"]["YarnProcess"];
+        };
+        /** @enum {string} */
+        StepStatus: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED";
+        StepSupplier: {
+            city?: string | null;
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** @enum {string} */
+            type: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
+        };
+        /** @enum {string} */
+        StepType: "FIBER" | "YARN" | "FABRIC" | "DYEING" | "SEWING" | "ACCESSORY" | "PACKAGING";
+        StepUpdateRequest: {
+            data?: components["schemas"]["StepData"];
+            inputStepIds?: string[] | null;
+            /** Format: uuid */
+            supplierId?: string | null;
+        };
+        SupplierCreateRequest: {
+            city: string;
+            name: string;
+            /** @example +902240000000 */
+            phone?: string | null;
+            /** @enum {string} */
+            type: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
+        };
+        SupplierResponse: {
+            /** Format: int64 */
+            batchCount: number;
+            city?: string | null;
+            editable: boolean;
+            /** Format: uuid */
+            id: string;
+            latestStepStatus?: components["schemas"]["StepStatus"];
+            /** Format: date-time */
+            linkedAt: string;
+            name: string;
+            phone?: string | null;
+            /** @enum {string} */
+            type: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
+        };
+        SupplierUpdateRequest: {
+            city?: string | null;
+            name?: string | null;
+            phone?: string | null;
+            /** @enum {string|null} */
+            type?: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER" | null;
+        };
         TokenResponse: {
             accessToken: string;
             /** Format: int64 */
@@ -414,6 +660,8 @@ export interface components {
             /** @enum {string} */
             role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
         };
+        /** @enum {string} */
+        YarnProcess: "COMBED" | "CARDED" | "OPEN_END" | "OTHER";
     };
     responses: never;
     parameters: never;
@@ -844,6 +1092,148 @@ export interface operations {
             };
         };
     };
+    getChain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The chain */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChainResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    createDefaultChain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChainResponse"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The batch already has steps (reason CHAIN_EXISTS) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    addStep: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StepCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description The chain with the new step */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChainResponse"];
+                };
+            };
+            /** @description Validation failed (SupplierType, SameBatch, Cycle, …) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch, or supplier not in the network */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     listProducts: {
         parameters: {
             query?: {
@@ -1081,6 +1471,393 @@ export interface operations {
                 };
             };
             /** @description GTIN taken, or GTIN change on a product with batches */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getChainPreview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Step count and source batch */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChainPreviewResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such product in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    deleteStep: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such step in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The step is not pending (reason STEP_NOT_PENDING) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    updateStep: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StepUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description The chain after the change */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChainResponse"];
+                };
+            };
+            /** @description Validation failed (NotApplicable, EnergyTotal, Cycle, …) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such step in this company, or supplier not in the network */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The step is approved (reason STEP_APPROVED) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    listSuppliers: {
+        parameters: {
+            query?: {
+                /** @description Search in name and city */
+                q?: string;
+                type?: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
+                /** @description Zero-based page */
+                page?: number;
+                size?: number;
+                /** @description name | city | linkedAt, optionally ,asc or ,desc (default name) */
+                sort?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description One page of suppliers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponseSupplierResponse"];
+                };
+            };
+            /** @description Invalid paging or sort parameter */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    createSupplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierResponse"];
+                };
+            };
+            /** @description Validation failed (e.g. SupplierType, Pattern on phone) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getSupplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The supplier */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Not in this company's network */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    removeSupplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Not in this company's network */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Used in a supply chain (reason SUPPLIER_IN_USE) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    updateSupplier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierResponse"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Not in this company's network */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description SUPPLIER_NOT_EDITABLE, or SUPPLIER_IN_USE for a type change */
             409: {
                 headers: {
                     [name: string]: unknown;

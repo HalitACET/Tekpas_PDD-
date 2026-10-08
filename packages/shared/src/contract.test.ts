@@ -1,6 +1,16 @@
 import type { components } from "@tekpas/api-client";
 import { describe, expectTypeOf, it } from "vitest";
-import type { BatchStatus, Fiber, FieldErrorCode, ProductCategory } from "./constants";
+import type {
+  BatchStatus,
+  EnergySource,
+  Fiber,
+  FieldErrorCode,
+  ProductCategory,
+  StepStatus,
+  StepType,
+  SupplierType,
+  YarnProcess,
+} from "./constants";
 
 type Schemas = components["schemas"];
 
@@ -13,6 +23,14 @@ describe("constants match the generated API client", () => {
     expectTypeOf<Fiber>().toEqualTypeOf<Schemas["Fiber"]>();
     expectTypeOf<ProductCategory>().toEqualTypeOf<Schemas["ProductCategory"]>();
     expectTypeOf<BatchStatus>().toEqualTypeOf<Schemas["BatchStatus"]>();
+    expectTypeOf<StepType>().toEqualTypeOf<Schemas["StepType"]>();
+    expectTypeOf<StepStatus>().toEqualTypeOf<Schemas["StepStatus"]>();
+    expectTypeOf<EnergySource>().toEqualTypeOf<Schemas["EnergySource"]>();
+    expectTypeOf<YarnProcess>().toEqualTypeOf<Schemas["YarnProcess"]>();
+  });
+
+  it("supplier types are company types", () => {
+    expectTypeOf<SupplierType>().toExtend<Schemas["SupplierCreateRequest"]["type"]>();
   });
 
   it("error codes are plain strings in the API", () => {

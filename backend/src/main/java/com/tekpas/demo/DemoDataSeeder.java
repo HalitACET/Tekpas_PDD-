@@ -76,6 +76,34 @@ public class DemoDataSeeder implements ApplicationRunner {
             new DemoBatch(uuid("30000000-0000-0000-0000-000000000005"), PRODUCTS.get(2).id(), "KP-2026-0918-A",
                     "UE-2026-1171", 1200, LocalDate.of(2026, 9, 18), LocalDate.of(2026, 9, 30)));
 
+    record DemoSupplier(UUID id, String phone) {
+    }
+
+    /** Demo phone numbers: the 000 exchange is not assigned in Türkiye. */
+    static final List<DemoSupplier> SUPPLIERS = List.of(
+            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000002"), "+902580000001"),
+            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000003"), "+902240000002"),
+            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000004"), "+902240000003"),
+            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000005"), "+902240000004"));
+
+    record DemoStep(String type, @Nullable UUID supplier, String status, String data) {
+    }
+
+    static final List<DemoStep> CHAIN = List.of(
+            new DemoStep("FIBER", null, "APPROVED", """
+                    {"fiberType":"COTTON","originCountry":"TR","originRegion":"Harran, Şanlıurfa","harvestYear":2025,\
+                    "quantityKg":1210}"""),
+            new DemoStep("YARN", SUPPLIERS.get(0).id(), "APPROVED", """
+                    {"fiberComposition":[{"fiber":"COTTON","percent":100}],"originCountry":"TR",\
+                    "energySources":[{"source":"GRID","percent":70},{"source":"SOLAR","percent":30}],\
+                    "energyKwhPerKg":2.9,"deliveredKg":1180,"yarnCount":"Ne 30/1","yarnProcess":"COMBED"}"""),
+            new DemoStep("FABRIC", SUPPLIERS.get(1).id(), "SUBMITTED", """
+                    {"fabricType":"Süprem","gsm":180,"fiberComposition":[{"fiber":"COTTON","percent":95},\
+                    {"fiber":"ELASTANE","percent":5}],"originCountry":"TR",\
+                    "energySources":[{"source":"GRID","percent":100}],"energyKwhPerKg":1.8}"""),
+            new DemoStep("DYEING", SUPPLIERS.get(2).id(), "PENDING", "{}"),
+            new DemoStep("SEWING", SUPPLIERS.get(3).id(), "PENDING", "{}"));
+
     private final JdbcTemplate jdbc;
     private final TransactionTemplate tx;
     private final PasswordEncoder passwordEncoder;
@@ -129,8 +157,54 @@ public class DemoDataSeeder implements ApplicationRunner {
                     """, b.id(), b.productId(), NILUFER, b.batchNo(), b.productionOrderNo(), b.quantity(),
                     b.producedFrom(), b.producedTo(), b.productId(), NILUFER);
         }
-        log.info("Demo data ready: {} companies, {} users, {} products, {} batches", COMPANIES.size(), USERS.size(),
-                PRODUCTS.size(), BATCHES.size());
+        seedSupplierNetwork();
+        for (DemoBatch b : BATCHES) {
+            seedChain(b);
+        }
+        log.info("Demo data ready: {} companies, {} users, {} products, {} batches, {} suppliers", COMPANIES.size(),
+                USERS.size(), PRODUCTS.size(), BATCHES.size(), SUPPLIERS.size());
+    }
+
+    /** Nilüfer Giyim's network: the four other demo companies, created by Nilüfer, with demo phone numbers. */
+    private void seedSupplierNetwork() {
+        for (DemoSupplier sup : SUPPLIERS) {
+            jdbc.update("UPDATE company SET created_by_company_id = ? WHERE id = ? AND created_by_company_id IS NULL",
+                    NILUFER, sup.id());
+            jdbc.update("""
+                    INSERT INTO company_supplier (manufacturer_id, supplier_id, phone) VALUES (?, ?, ?)
+                    ON CONFLICT DO NOTHING
+                    """, NILUFER, sup.id(), sup.phone());
+        }
+    }
+
+    /**
+     * Five steps per demo batch, FIBER → YARN → FABRIC → DYEING → SEWING, suppliers assigned. The first batch
+     * shows a chain in progress (approved, submitted, pending) with the suppliers' data; the others wait.
+     * Fixed ids (4000…{batch}{step}); a batch that already has its chain is left alone.
+     */
+    private void seedChain(DemoBatch batch) {
+        int b = BATCHES.indexOf(batch) + 1;
+        boolean showcase = b == 1;
+        UUID previous = null;
+        for (int i = 0; i < CHAIN.size(); i++) {
+            DemoStep step = CHAIN.get(i);
+            UUID id = uuid(String.format("40000000-0000-0000-0000-0000000000%d%d", b, i + 1));
+            jdbc.update("""
+                    INSERT INTO supply_step (id, batch_id, step_type, supplier_company_id, status, data, submitted_at)
+                    SELECT ?, ?, ?, ?, ?, ?::jsonb, CASE WHEN ? <> 'PENDING' THEN now() END
+                    WHERE EXISTS (SELECT 1 FROM batch WHERE id = ? AND company_id = ?)
+                    ON CONFLICT (id) DO NOTHING
+                    """, id, batch.id(), step.type(), step.supplier(), showcase ? step.status() : "PENDING",
+                    showcase ? step.data() : "{}", showcase ? step.status() : "PENDING", batch.id(), NILUFER);
+            if (previous != null) {
+                jdbc.update("""
+                        INSERT INTO supply_step_input (step_id, input_step_id)
+                        SELECT ?, ? WHERE EXISTS (SELECT 1 FROM supply_step WHERE id = ?)
+                        ON CONFLICT DO NOTHING
+                        """, id, previous, id);
+            }
+            previous = id;
+        }
     }
 
     private void seedUser(DemoUser u) {

@@ -14,6 +14,7 @@ import com.tekpas.common.persistence.Constraints;
 import com.tekpas.common.web.PageResponse;
 import com.tekpas.product.Product;
 import com.tekpas.product.ProductRepository;
+import com.tekpas.supplychain.ChainService;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Map;
@@ -37,15 +38,17 @@ public class BatchService {
     private final BatchNumbers numbers;
     private final ChainCounts chainCounts;
     private final JdbcTemplate jdbc;
+    private final ChainService chains;
     private final Clock clock;
 
     public BatchService(BatchRepository batches, ProductRepository products, BatchNumbers numbers,
-            ChainCounts chainCounts, JdbcTemplate jdbc, Clock clock) {
+            ChainCounts chainCounts, JdbcTemplate jdbc, ChainService chains, Clock clock) {
         this.batches = batches;
         this.products = products;
         this.numbers = numbers;
         this.chainCounts = chainCounts;
         this.jdbc = jdbc;
+        this.chains = chains;
         this.clock = clock;
     }
 
@@ -82,6 +85,8 @@ public class BatchService {
         batch.setProducedFrom(request.producedFrom());
         batch.setProducedTo(request.producedTo());
         saveAndFlush(batch);
+        // The product's last chain is copied (or the default one started): the batch is ready for suppliers.
+        chains.startChain(batch);
         return toResponse(batch, product, chainCounts.of(batch.getId()));
     }
 

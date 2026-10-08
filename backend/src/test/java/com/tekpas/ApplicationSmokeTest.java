@@ -32,18 +32,19 @@ class ApplicationSmokeTest {
         var versions = jdbc.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank", String.class);
 
-        assertThat(versions).containsExactly("1", "2", "3");
+        assertThat(versions).containsExactly("1", "2", "3", "4");
     }
 
     @Test
-    void schemaHasSixteenTables() {
+    void schemaHasSeventeenTables() {
         Integer tables = jdbc.queryForObject("""
                 SELECT count(*) FROM information_schema.tables
                 WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
                   AND table_name <> 'flyway_schema_history'
                 """, Integer.class);
 
-        assertThat(tables).isEqualTo(16);
+        // V4 adds supply_step_input (the links of the supply chain DAG).
+        assertThat(tables).isEqualTo(17);
     }
 
     @Test

@@ -231,13 +231,25 @@
       "FiberTotal": "Die Faseranteile müssen zusammen 100 % ergeben (aktuell {total} %).",
       "FiberDuplicate": "Dieselbe Faser wurde mehrfach eingegeben.",
       "DateRange": "Das Enddatum darf nicht vor dem Startdatum liegen.",
-      "Unique": "Dieser Wert wird bereits verwendet."
+      "Unique": "Dieser Wert wird bereits verwendet.",
+      "Digits": "Zu viele Stellen; kürzen Sie den Wert.",
+      "SupplierType": "Dieser Unternehmenstyp passt hier nicht.",
+      "NotApplicable": "Dieses Feld wird für diesen Schritt nicht verwendet.",
+      "SameBatch": "Nur Schritte derselben Charge können verknüpft werden.",
+      "Cycle": "Diese Verknüpfung würde eine Schleife in der Kette erzeugen.",
+      "EnergyTotal": "Die Energiequellen müssen zusammen 100 % ergeben (aktuell {total} %).",
+      "EnergyDuplicate": "Dieselbe Energiequelle wurde mehrfach eingegeben."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "Dieses Produkt hat Chargen. Löschen Sie zuerst die Chargen, um das Produkt zu löschen.",
       "GTIN_LOCKED": "Die GTIN kann nicht geändert werden, da das Produkt Chargen hat; gedruckte QR-Codes enthalten diese GTIN.",
       "BATCH_NOT_DRAFT": "Das ist nur bei Chargen im Entwurf möglich.",
-      "BATCH_HAS_PASSPORT": "Eine Charge mit Pass kann nicht gelöscht werden."
+      "BATCH_HAS_PASSPORT": "Eine Charge mit Pass kann nicht gelöscht werden.",
+      "CHAIN_EXISTS": "Diese Charge hat bereits eine Lieferkette.",
+      "STEP_APPROVED": "Ein freigegebener Schritt kann nicht geändert werden.",
+      "STEP_NOT_PENDING": "Nur Schritte, die noch auf Daten warten, können entfernt werden.",
+      "SUPPLIER_NOT_EDITABLE": "Name, Typ und Ort dieses Unternehmens können nicht geändert werden, nur die Kontaktdaten.",
+      "SUPPLIER_IN_USE": "Dieser Lieferant wird in der Kette einer Charge verwendet."
     }
   },
   "products": {

@@ -159,6 +159,89 @@
         },
         "type" : "object"
       },
+      "ChainPreviewResponse" : {
+        "properties" : {
+          "sourceBatchNo" : {
+            "type" : [ "string", "null" ]
+          },
+          "stepCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "stepCount" ],
+        "type" : "object"
+      },
+      "ChainResponse" : {
+        "properties" : {
+          "batchId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "steps" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ChainStepResponse"
+            },
+            "type" : "array"
+          },
+          "summary" : {
+            "$ref" : "#/components/schemas/ChainSummary"
+          },
+          "unassignedStepTypes" : {
+            "items" : {
+              "$ref" : "#/components/schemas/StepType"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "batchId", "steps", "summary", "unassignedStepTypes" ],
+        "type" : "object"
+      },
+      "ChainStepResponse" : {
+        "properties" : {
+          "data" : {
+            "$ref" : "#/components/schemas/StepData"
+          },
+          "documentCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "inputStepIds" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "sortOrder" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/StepStatus"
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "submittedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "supplier" : {
+            "$ref" : "#/components/schemas/StepSupplier"
+          },
+          "updatedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "data", "documentCount", "id", "inputStepIds", "sortOrder", "status", "stepType", "updatedAt" ],
+        "type" : "object"
+      },
       "ChainSummary" : {
         "properties" : {
           "approvedSteps" : {
@@ -189,6 +272,25 @@
         },
         "required" : [ "id", "name", "type" ],
         "type" : "object"
+      },
+      "EnergyShare" : {
+        "properties" : {
+          "percent" : {
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "source" : {
+            "$ref" : "#/components/schemas/EnergySource"
+          }
+        },
+        "required" : [ "percent", "source" ],
+        "type" : "object"
+      },
+      "EnergySource" : {
+        "enum" : [ "GRID", "SOLAR", "WIND", "NATURAL_GAS", "COAL", "BIOMASS", "OTHER" ],
+        "type" : "string"
       },
       "Fiber" : {
         "enum" : [ "COTTON", "ORGANIC_COTTON", "ELASTANE", "POLYESTER", "RECYCLED_POLYESTER", "LINEN", "WOOL", "VISCOSE", "POLYAMIDE", "LYOCELL", "RECYCLED_COTTON", "SILK", "OTHER" ],
@@ -368,6 +470,34 @@
         "required" : [ "content", "page", "size", "totalElements", "totalPages" ],
         "type" : "object"
       },
+      "PageResponseSupplierResponse" : {
+        "properties" : {
+          "content" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SupplierResponse"
+            },
+            "type" : "array"
+          },
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "totalElements" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "totalPages" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "content", "page", "size", "totalElements", "totalPages" ],
+        "type" : "object"
+      },
       "ProductCategory" : {
         "enum" : [ "T_SHIRT", "SHIRT", "TROUSERS", "DRESS", "KNITWEAR", "SWEATSHIRT", "OUTERWEAR", "BABY", "HOME_TEXTILE", "FABRIC", "OTHER" ],
         "type" : "string"
@@ -524,6 +654,244 @@
         "required" : [ "refreshToken" ],
         "type" : "object"
       },
+      "StepCreateRequest" : {
+        "properties" : {
+          "inputStepIds" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "outputStepIds" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "supplierId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "stepType" ],
+        "type" : "object"
+      },
+      "StepData" : {
+        "properties" : {
+          "chemicalCompliance" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "deliveredKg" : {
+            "exclusiveMinimum" : 0,
+            "type" : [ "number", "null" ]
+          },
+          "energyKwhPerKg" : {
+            "exclusiveMinimum" : 0,
+            "type" : [ "number", "null" ]
+          },
+          "energyKwhPerPiece" : {
+            "exclusiveMinimum" : 0,
+            "type" : [ "number", "null" ]
+          },
+          "energySources" : {
+            "items" : {
+              "$ref" : "#/components/schemas/EnergyShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "fabricType" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "fiberComposition" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FiberShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "fiberType" : {
+            "$ref" : "#/components/schemas/Fiber"
+          },
+          "gsm" : {
+            "exclusiveMinimum" : 0,
+            "type" : [ "number", "null" ]
+          },
+          "harvestYear" : {
+            "format" : "int32",
+            "maximum" : 2100,
+            "minimum" : 1900,
+            "type" : [ "integer", "null" ]
+          },
+          "originCountry" : {
+            "example" : "TR",
+            "pattern" : "^[A-Z]{2}$",
+            "type" : [ "string", "null" ]
+          },
+          "originRegion" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "process" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "quantityKg" : {
+            "exclusiveMinimum" : 0,
+            "type" : [ "number", "null" ]
+          },
+          "waterLPerKg" : {
+            "exclusiveMinimum" : 0,
+            "type" : [ "number", "null" ]
+          },
+          "yarnCount" : {
+            "example" : "Ne 30/1",
+            "maxLength" : 30,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "yarnProcess" : {
+            "$ref" : "#/components/schemas/YarnProcess"
+          }
+        },
+        "type" : "object"
+      },
+      "StepStatus" : {
+        "enum" : [ "PENDING", "SUBMITTED", "APPROVED", "REJECTED" ],
+        "type" : "string"
+      },
+      "StepSupplier" : {
+        "properties" : {
+          "city" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "type" : {
+            "enum" : [ "MANUFACTURER", "YARN", "FABRIC", "DYEHOUSE", "SEWING", "ACCESSORY", "OTHER" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "name", "type" ],
+        "type" : "object"
+      },
+      "StepType" : {
+        "enum" : [ "FIBER", "YARN", "FABRIC", "DYEING", "SEWING", "ACCESSORY", "PACKAGING" ],
+        "type" : "string"
+      },
+      "StepUpdateRequest" : {
+        "properties" : {
+          "data" : {
+            "$ref" : "#/components/schemas/StepData"
+          },
+          "inputStepIds" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "supplierId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "SupplierCreateRequest" : {
+        "properties" : {
+          "city" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "name" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "phone" : {
+            "example" : "+902240000000",
+            "pattern" : "^\\+[1-9][0-9]{6,14}$",
+            "type" : [ "string", "null" ]
+          },
+          "type" : {
+            "enum" : [ "MANUFACTURER", "YARN", "FABRIC", "DYEHOUSE", "SEWING", "ACCESSORY", "OTHER" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "city", "name", "type" ],
+        "type" : "object"
+      },
+      "SupplierResponse" : {
+        "properties" : {
+          "batchCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "city" : {
+            "type" : [ "string", "null" ]
+          },
+          "editable" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "latestStepStatus" : {
+            "$ref" : "#/components/schemas/StepStatus"
+          },
+          "linkedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ]
+          },
+          "type" : {
+            "enum" : [ "MANUFACTURER", "YARN", "FABRIC", "DYEHOUSE", "SEWING", "ACCESSORY", "OTHER" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "batchCount", "editable", "id", "linkedAt", "name", "type" ],
+        "type" : "object"
+      },
+      "SupplierUpdateRequest" : {
+        "properties" : {
+          "city" : {
+            "type" : [ "string", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ]
+          },
+          "phone" : {
+            "type" : [ "string", "null" ]
+          },
+          "type" : {
+            "enum" : [ "MANUFACTURER", "YARN", "FABRIC", "DYEHOUSE", "SEWING", "ACCESSORY", "OTHER" ],
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
       "TokenResponse" : {
         "properties" : {
           "accessToken" : {
@@ -568,6 +936,10 @@
         },
         "required" : [ "company", "email", "fullName", "id", "locale", "role" ],
         "type" : "object"
+      },
+      "YarnProcess" : {
+        "enum" : [ "COMBED", "CARDED", "OPEN_END", "OTHER" ],
+        "type" : "string"
       }
     },
     "securitySchemes" : {
@@ -1130,6 +1502,180 @@
         "tags" : [ "batches" ]
       }
     },
+    "/api/v1/batches/{id}/chain" : {
+      "get" : {
+        "description" : "Flat list of steps; each step names the steps whose output it uses (inputStepIds).",
+        "operationId" : "getChain",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChainResponse"
+                }
+              }
+            },
+            "description" : "The chain"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          }
+        },
+        "summary" : "A batch's supply chain",
+        "tags" : [ "supply-chain" ]
+      },
+      "post" : {
+        "description" : "FIBER → YARN → FABRIC → DYEING → SEWING, without suppliers. For batches created before supply chains existed; new batches get their chain when they are created.",
+        "operationId" : "createDefaultChain",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChainResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The batch already has steps (reason CHAIN_EXISTS)"
+          }
+        },
+        "summary" : "Give a batch without steps the default chain",
+        "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/batches/{id}/steps" : {
+      "post" : {
+        "operationId" : "addStep",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StepCreateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChainResponse"
+                }
+              }
+            },
+            "description" : "The chain with the new step"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed (SupplierType, SameBatch, Cycle, …)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch, or supplier not in the network"
+          }
+        },
+        "summary" : "Add a step to a batch's chain",
+        "tags" : [ "supply-chain" ]
+      }
+    },
     "/api/v1/products" : {
       "get" : {
         "operationId" : "listProducts",
@@ -1446,6 +1992,490 @@
         "summary" : "Change some fields of a product",
         "tags" : [ "products" ]
       }
+    },
+    "/api/v1/products/{id}/chain-preview" : {
+      "get" : {
+        "description" : "The product's last chain is copied; without one, the default five-step chain is used.",
+        "operationId" : "getChainPreview",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChainPreviewResponse"
+                }
+              }
+            },
+            "description" : "Step count and source batch"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such product in this company"
+          }
+        },
+        "summary" : "What a new batch of the product starts with",
+        "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/steps/{id}" : {
+      "delete" : {
+        "operationId" : "deleteStep",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Removed"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such step in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The step is not pending (reason STEP_NOT_PENDING)"
+          }
+        },
+        "summary" : "Remove a pending step and its links",
+        "tags" : [ "supply-chain" ]
+      },
+      "patch" : {
+        "operationId" : "updateStep",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StepUpdateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChainResponse"
+                }
+              }
+            },
+            "description" : "The chain after the change"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed (NotApplicable, EnergyTotal, Cycle, …)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such step in this company, or supplier not in the network"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The step is approved (reason STEP_APPROVED)"
+          }
+        },
+        "summary" : "Assign a supplier, set the data or the inputs of a step",
+        "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/suppliers" : {
+      "get" : {
+        "operationId" : "listSuppliers",
+        "parameters" : [ {
+          "description" : "Search in name and city",
+          "in" : "query",
+          "name" : "q",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "MANUFACTURER", "YARN", "FABRIC", "DYEHOUSE", "SEWING", "ACCESSORY", "OTHER" ],
+            "type" : "string"
+          }
+        }, {
+          "description" : "Zero-based page",
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        }, {
+          "description" : "name | city | linkedAt, optionally ,asc or ,desc (default name)",
+          "in" : "query",
+          "name" : "sort",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseSupplierResponse"
+                }
+              }
+            },
+            "description" : "One page of suppliers"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Invalid paging or sort parameter"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          }
+        },
+        "summary" : "List the supplier network",
+        "tags" : [ "suppliers" ]
+      },
+      "post" : {
+        "description" : "Creates a supplier company without users, owned by the current company for editing.",
+        "operationId" : "createSupplier",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SupplierCreateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SupplierResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed (e.g. SupplierType, Pattern on phone)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          }
+        },
+        "summary" : "Add a supplier to the network",
+        "tags" : [ "suppliers" ]
+      }
+    },
+    "/api/v1/suppliers/{id}" : {
+      "delete" : {
+        "operationId" : "removeSupplier",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Removed"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Not in this company's network"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Used in a supply chain (reason SUPPLIER_IN_USE)"
+          }
+        },
+        "summary" : "Remove a supplier from the network",
+        "tags" : [ "suppliers" ]
+      },
+      "get" : {
+        "operationId" : "getSupplier",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SupplierResponse"
+                }
+              }
+            },
+            "description" : "The supplier"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Not in this company's network"
+          }
+        },
+        "summary" : "A supplier of the network",
+        "tags" : [ "suppliers" ]
+      },
+      "patch" : {
+        "description" : "The phone can always change; name, type and city only for a supplier the current company created and that has no users.",
+        "operationId" : "updateSupplier",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SupplierUpdateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SupplierResponse"
+                }
+              }
+            },
+            "description" : "Updated"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Not in this company's network"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "SUPPLIER_NOT_EDITABLE, or SUPPLIER_IN_USE for a type change"
+          }
+        },
+        "summary" : "Change a supplier",
+        "tags" : [ "suppliers" ]
+      }
     }
   },
   "security" : [ {
@@ -1455,10 +2485,16 @@
     "description" : "Login, token refresh, logout and the current user",
     "name" : "auth"
   }, {
+    "description" : "The current company's supplier network",
+    "name" : "suppliers"
+  }, {
     "description" : "Production batches of the current company; a passport is published per batch",
     "name" : "batches"
   }, {
     "description" : "Product models (one GTIN each) of the current company",
     "name" : "products"
+  }, {
+    "description" : "A batch's supply chain: steps and the links between them (a DAG)",
+    "name" : "supply-chain"
   } ]
 }
