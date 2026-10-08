@@ -18,10 +18,13 @@
     "loading": "Wird geladen…",
     "readOnly": "Für diese Aktion fehlt Ihnen die Berechtigung",
     "listError": {
-      "body": "Der Server war nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut; Ihre Filter bleiben erhalten.",
       "retry": "Erneut versuchen",
       "meta": "HTTP {status}",
-      "metaWithId": "HTTP {status} · Anfrage {id}"
+      "metaWithId": "HTTP {status} · Anfrage {id}",
+      "network": "Der Server war nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "server": "Der Server antwortet gerade nicht. Versuchen Sie es gleich noch einmal.",
+      "other": "Ein unerwarteter Fehler ist aufgetreten.",
+      "kept": "Ihre Filter bleiben erhalten."
     },
     "dateRange": {
       "dialog": "Datum wählen",

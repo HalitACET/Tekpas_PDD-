@@ -37,8 +37,9 @@ export function EmptyState({
 }
 
 /**
- * A list that could not be loaded (design v0.3.1 20). The mono line names the HTTP status and the request
- * id when the server answered; without an answer (offline, unreachable) there is nothing to name.
+ * A list that could not be loaded (design v0.3.1 20). The text follows the kind of failure: no answer at
+ * all (offline, unreachable), a server error (5xx) or anything else. When the server answered, the mono
+ * line names the HTTP status and the request id.
  */
 export function ListError({
   title,
@@ -53,13 +54,16 @@ export function ListError({
 }) {
   const t = useTranslations("common.listError");
   const answer = error instanceof ApiError ? error : undefined;
+  const kind = !answer ? "network" : answer.status >= 500 ? "server" : "other";
   return (
     <div role="alert" className="flex flex-col items-center gap-2.5 px-6 py-[72px] text-center">
       <span className="flex size-11 items-center justify-center rounded-[10px] bg-status-rejected-muted text-status-rejected-foreground">
         <CircleAlert className="size-5" strokeWidth={1.75} aria-hidden />
       </span>
       <strong className="text-[15px] font-semibold">{title}</strong>
-      <span className="max-w-[380px] text-[13px] leading-normal text-pretty text-muted-foreground">{t("body")}</span>
+      <span className="max-w-[380px] text-[13px] leading-normal text-pretty text-muted-foreground">
+        {t(kind)} {t("kept")}
+      </span>
       {answer && (
         <span className="font-mono text-[11px] text-muted-foreground">
           {answer.requestId

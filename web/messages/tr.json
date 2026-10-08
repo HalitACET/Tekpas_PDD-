@@ -18,10 +18,13 @@
     "loading": "Yükleniyor…",
     "readOnly": "Bu işlem için yetkiniz yok",
     "listError": {
-      "body": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin; filtreleriniz korunur.",
       "retry": "Tekrar dene",
       "meta": "HTTP {status}",
-      "metaWithId": "HTTP {status} · istek {id}"
+      "metaWithId": "HTTP {status} · istek {id}",
+      "network": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+      "server": "Sunucu şu an yanıt vermiyor. Birazdan tekrar deneyin.",
+      "other": "Beklenmeyen bir hata oluştu.",
+      "kept": "Filtreleriniz korunur."
     },
     "dateRange": {
       "dialog": "Tarih seç",

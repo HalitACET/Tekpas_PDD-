@@ -18,10 +18,13 @@
     "loading": "Loading…",
     "readOnly": "You do not have permission for this action",
     "listError": {
-      "body": "The server could not be reached. Check your connection and try again; your filters are kept.",
       "retry": "Try again",
       "meta": "HTTP {status}",
-      "metaWithId": "HTTP {status} · request {id}"
+      "metaWithId": "HTTP {status} · request {id}",
+      "network": "The server could not be reached. Check your connection and try again.",
+      "server": "The server is not responding right now. Try again in a moment.",
+      "other": "An unexpected error occurred.",
+      "kept": "Your filters are kept."
     },
     "dateRange": {
       "dialog": "Pick a date",

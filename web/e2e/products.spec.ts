@@ -210,25 +210,50 @@ test("supplier users are sent to their tasks", async ({ page }) => {
   await expect(page).toHaveURL(/\/tasks$/);
 });
 
-test("a list that cannot load names the HTTP status and request id, and offers a retry", async ({ page }) => {
+/** The error card of the product list (design v0.3.1 20); its text follows the kind of failure. */
+const listError = (page: Page) => page.getByRole("alert").filter({ hasText: "Ürünler yüklenemedi" });
+
+test("a server error (5xx) says the server is not responding and names status and request id", async ({ page }) => {
   await mockAuthApi(page, { signedIn: true });
   await mockCatalogApi(page, { failLists: true });
   await page.goto("/products");
-  const alert = page.getByRole("alert").filter({ hasText: "Ürünler yüklenemedi" });
+  const alert = listError(page);
   await expect(alert).toBeVisible();
-  await expect(alert).toContainText("filtreleriniz korunur");
+  await expect(alert).toContainText("Sunucu şu an yanıt vermiyor. Birazdan tekrar deneyin. Filtreleriniz korunur.");
+  await expect(alert).not.toContainText("Sunucuya ulaşılamadı");
   await expect(alert).toContainText(`HTTP 503 · istek ${FAILED_REQUEST_ID}`);
   await expect(alert.getByRole("button", { name: "Tekrar dene" })).toBeVisible();
 });
 
-test("without an answer from the server the error card has no HTTP line", async ({ page }) => {
+test("without an answer from the server the card says so and has no HTTP line", async ({ page }) => {
   await mockAuthApi(page, { signedIn: true });
   await mockCatalogApi(page);
   await page.route(/\/api\/v1\/products(\?.*)?$/, (route) => route.abort("connectionrefused"));
   await page.goto("/products");
-  const alert = page.getByRole("alert").filter({ hasText: "Ürünler yüklenemedi" });
+  const alert = listError(page);
   await expect(alert).toBeVisible({ timeout: 15_000 });
+  await expect(alert).toContainText(
+    "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin. Filtreleriniz korunur.",
+  );
   await expect(alert).not.toContainText("HTTP");
+});
+
+test("any other error is unexpected and names its status and request id", async ({ page }) => {
+  await mockAuthApi(page, { signedIn: true });
+  await mockCatalogApi(page);
+  await page.route(/\/api\/v1\/products(\?.*)?$/, (route) =>
+    route.fulfill({
+      status: 400,
+      contentType: "application/problem+json",
+      headers: { "X-Request-Id": "0a1b-2c3d" },
+      body: JSON.stringify({ type: "urn:tekpas:problem:bad-request", title: "Bad request", status: 400, requestId: "0a1b-2c3d" }),
+    }),
+  );
+  await page.goto("/products");
+  const alert = listError(page);
+  await expect(alert).toBeVisible({ timeout: 15_000 });
+  await expect(alert).toContainText("Beklenmeyen bir hata oluştu. Filtreleriniz korunur.");
+  await expect(alert).toContainText("HTTP 400 · istek 0a1b-2c3d");
 });
 
 test("the top bar search placeholder fits uncut next to the shortcut label", async ({ page }) => {
