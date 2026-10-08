@@ -1,6 +1,7 @@
 package com.tekpas.company.dto;
 
 import com.tekpas.company.CompanyType;
+import com.tekpas.company.validation.City;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +18,8 @@ import org.jspecify.annotations.Nullable;
 public record SupplierCreateRequest(
         @NotBlank @Size(max = 200) String name,
         @NotNull CompanyType type,
-        @NotBlank @Size(max = 100) String city,
+        @Schema(description = "One of Turkey's 81 provinces (field error City otherwise)", example = "Bursa")
+        @NotBlank @Size(max = 100) @City String city,
         @Schema(example = "+902240000000") @Nullable @Pattern(regexp = SupplierCreateRequest.E164) String phone) {
 
     public static final String E164 = "^\\+[1-9][0-9]{6,14}$";

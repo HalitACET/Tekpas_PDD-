@@ -1,3 +1,5 @@
+import provinces from "./tr-provinces.json";
+
 /**
  * Enum values of the API. They mirror the backend enums (com.tekpas.product.Fiber, ProductCategory,
  * com.tekpas.batch.BatchStatus, com.tekpas.company.CompanyType, com.tekpas.supplychain.*); the generated client has the same lists as types, these are the runtime values
@@ -43,6 +45,12 @@ export type BatchStatus = (typeof BATCH_STATUSES)[number];
 export const SUPPLIER_TYPES = ["YARN", "FABRIC", "DYEHOUSE", "SEWING", "ACCESSORY"] as const;
 export type SupplierType = (typeof SUPPLIER_TYPES)[number];
 
+/**
+ * Turkey's 81 provinces in Turkish alphabetical order: the cities a supplier can be in. Single source for the
+ * web app and the backend (TurkishProvinces, kept equal by a test).
+ */
+export const TR_PROVINCES: readonly string[] = provinces;
+
 /** Supplier phone, E.164 (e.g. +902240000000). */
 export const PHONE_PATTERN = /^\+[1-9][0-9]{6,14}$/;
 
@@ -83,6 +91,7 @@ export const FIELD_ERROR_CODES = [
   "DateRange",
   "Unique",
   "SupplierType",
+  "City",
   "NotApplicable",
   "SameBatch",
   "Cycle",

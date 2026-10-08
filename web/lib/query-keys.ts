@@ -1,4 +1,4 @@
-import type { BatchStatus, ProductCategory } from "@tekpas/shared";
+import type { BatchStatus, ProductCategory, SupplierType } from "@tekpas/shared";
 
 /** Every TanStack Query key of the app, in one place (web/CLAUDE.md). */
 export interface ProductListFilters {
@@ -10,6 +10,12 @@ export interface BatchListFilters {
   q: string;
   status: BatchStatus | "";
   productId: string;
+  supplierId: string;
+}
+
+export interface SupplierListFilters {
+  q: string;
+  type: SupplierType | "";
 }
 
 export const queryKeys = {
@@ -28,5 +34,11 @@ export const queryKeys = {
     nextBatchNo: () => [...queryKeys.batches.all, "next-batch-no"] as const,
     /** Under batches.all: any batch change (create, delete, status) refreshes the tab counts too. */
     statusCounts: () => [...queryKeys.batches.all, "status-counts"] as const,
+  },
+  suppliers: {
+    all: ["suppliers"] as const,
+    lists: () => [...queryKeys.suppliers.all, "list"] as const,
+    list: (filters: SupplierListFilters) => [...queryKeys.suppliers.lists(), filters] as const,
+    detail: (id: string) => [...queryKeys.suppliers.all, "detail", id] as const,
   },
 };

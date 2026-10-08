@@ -24,6 +24,7 @@ export function useBatches(filters: BatchListFilters) {
               q: filters.q.trim() || undefined,
               status: filters.status || undefined,
               productId: filters.productId || undefined,
+              supplierId: filters.supplierId || undefined,
               size: BATCH_PAGE_SIZE,
               sort: "updatedAt,desc",
             },

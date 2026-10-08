@@ -847,6 +847,8 @@
       "SupplierCreateRequest" : {
         "properties" : {
           "city" : {
+            "description" : "One of Turkey's 81 provinces (field error City otherwise)",
+            "example" : "Bursa",
             "maxLength" : 100,
             "minLength" : 0,
             "type" : "string"
@@ -1197,6 +1199,15 @@
             "$ref" : "#/components/schemas/BatchStatus"
           }
         }, {
+          "description" : "Batches whose supply chain has a step of this supplier (404 if the supplier is not in the company's network)",
+          "in" : "query",
+          "name" : "supplierId",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
           "description" : "Zero-based page",
           "in" : "query",
           "name" : "page",
@@ -1257,6 +1268,16 @@
               }
             },
             "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "supplierId is not in the company's supplier network"
           }
         },
         "summary" : "List batches with product and supply chain progress",
@@ -2532,7 +2553,7 @@
                 }
               }
             },
-            "description" : "SUPPLIER_NOT_EDITABLE, or SUPPLIER_IN_USE for a type change"
+            "description" : "SUPPLIER_NOT_EDITABLE, or SUPPLIER_TYPE_IN_USE for a type change"
           }
         },
         "summary" : "Change a supplier",

@@ -32,6 +32,17 @@ async function shoot(page: Page, name: string) {
   await page.screenshot({ path: `${OUT}/${name}.png` });
 }
 
+async function openSuppliers(page: Page, scheme: "light" | "dark") {
+  await page.setViewportSize(DESKTOP);
+  await page.clock.install({ time: NOW });
+  await page.addInitScript((theme) => localStorage.setItem("theme", theme), scheme);
+  await mockAuthApi(page, { signedIn: true });
+  await mockCatalogApi(page);
+  await page.goto("/suppliers");
+  await expect(page.getByRole("row", { name: /Bursa İplik San\./ })).toBeVisible();
+  await page.mouse.move(0, 0);
+}
+
 async function openBatches(page: Page, scheme: "light" | "dark") {
   await page.setViewportSize(DESKTOP);
   await page.clock.install({ time: NOW });
@@ -126,6 +137,33 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `08-${scheme}`);
     });
 
+    test("14 suppliers list", async ({ page }) => {
+      await openSuppliers(page, scheme);
+      await shoot(page, `14-${scheme}`);
+    });
+
+    test("15 add supplier", async ({ page }) => {
+      await openSuppliers(page, scheme);
+      await page.getByRole("button", { name: "Tedarikçi ekle" }).click();
+      const form = page.getByRole("dialog", { name: "Tedarikçi ekle" });
+      await form.getByLabel("Firma adı").fill("Aras Örme Konfeksiyon");
+      await form.getByRole("radio", { name: "Konfeksiyon" }).click();
+      await form.getByRole("combobox", { name: "Şehir" }).click();
+      await form.getByRole("combobox", { name: "Şehir" }).fill("izm");
+      await page.getByRole("option", { name: "İzmir" }).click();
+      await form.getByLabel("İletişim telefonu").fill("224 000 00 99");
+      await form.getByLabel("Firma adı").focus();
+      await shoot(page, `15-${scheme}`);
+    });
+
+    test("15b edit supplier, details locked (not in the design yet)", async ({ page }) => {
+      await openSuppliers(page, scheme);
+      await page.getByRole("button", { name: "Satır menüsü: Ekin Aksesuar" }).click();
+      await page.getByRole("menuitem", { name: "Düzenle" }).click();
+      await expect(page.getByRole("dialog", { name: "Tedarikçiyi düzenle" }).getByLabel("Firma adı")).toBeDisabled();
+      await shoot(page, `15b-edit-locked-${scheme}`);
+    });
+
     test("06 delete confirm", async ({ page }) => {
       await openProducts(page, scheme);
       await menu(page, "Viskon elbise, desenli").click();
@@ -141,8 +179,8 @@ test.describe("design references", () => {
   test.describe.configure({ retries: 2 });
   const design = serveDesign(DESIGN_DIR);
 
-  test("capture 01–08", async ({ page }) => {
-    test.setTimeout(180_000);
-    await captureDesignFrames(page, design.url("KozaPass v0.3.dc.html"), OUT, [1, 2, 3, 4, 5, 6, 7, 8]);
+  test("capture 01–08, 14–15", async ({ page }) => {
+    test.setTimeout(240_000);
+    await captureDesignFrames(page, design.url("KozaPass v0.3.dc.html"), OUT, [1, 2, 3, 4, 5, 6, 7, 8, 14, 15]);
   });
 });

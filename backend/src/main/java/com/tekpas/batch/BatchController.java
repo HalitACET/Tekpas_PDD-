@@ -58,17 +58,21 @@ public class BatchController {
     @ApiResponse(responseCode = "200", description = "One page of batches")
     @ApiResponse(responseCode = "400", description = "Invalid paging or sort parameter")
     @ApiResponse(responseCode = "403", description = "Supplier users have no access")
+    @ApiResponse(responseCode = "404", description = "supplierId is not in the company's supplier network")
     public PageResponse<BatchResponse> listBatches(
             @Parameter(description = "Search in batch no, production order no, product name and GTIN")
             @RequestParam(required = false) @Nullable String q,
             @RequestParam(required = false) @Nullable UUID productId,
             @RequestParam(required = false) @Nullable BatchStatus status,
+            @Parameter(description = "Batches whose supply chain has a step of this supplier (404 if the supplier is "
+                    + "not in the company's network)")
+            @RequestParam(required = false) @Nullable UUID supplierId,
             @Parameter(description = "Zero-based page") @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(PageQuery.MAX_SIZE) int size,
             @Parameter(description = "batchNo | productName | quantity | producedFrom | createdAt | updatedAt, "
                     + "optionally ,asc or ,desc (default createdAt,desc)")
             @RequestParam(required = false) @Nullable String sort) {
-        return service.list(currentUser.companyId(), productId, status, PageQuery.containsPattern(q),
+        return service.list(currentUser.companyId(), productId, status, supplierId, PageQuery.containsPattern(q),
                 PageQuery.of(page, size, sort, SORT_FIELDS, DEFAULT_SORT));
     }
 

@@ -652,6 +652,10 @@ export interface components {
             supplierId?: string | null;
         };
         SupplierCreateRequest: {
+            /**
+             * @description One of Turkey's 81 provinces (field error City otherwise)
+             * @example Bursa
+             */
             city: string;
             name: string;
             /** @example +902240000000 */
@@ -851,6 +855,8 @@ export interface operations {
                 q?: string;
                 productId?: string;
                 status?: components["schemas"]["BatchStatus"];
+                /** @description Batches whose supply chain has a step of this supplier (404 if the supplier is not in the company's network) */
+                supplierId?: string;
                 /** @description Zero-based page */
                 page?: number;
                 size?: number;
@@ -883,6 +889,15 @@ export interface operations {
             };
             /** @description Supplier users have no access */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description supplierId is not in the company's supplier network */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1924,7 +1939,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ApiProblem"];
                 };
             };
-            /** @description SUPPLIER_NOT_EDITABLE, or SUPPLIER_IN_USE for a type change */
+            /** @description SUPPLIER_NOT_EDITABLE, or SUPPLIER_TYPE_IN_USE for a type change */
             409: {
                 headers: {
                     [name: string]: unknown;
