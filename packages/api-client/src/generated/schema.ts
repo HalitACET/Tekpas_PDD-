@@ -119,6 +119,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/batches/status-counts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count batches per status
+         * @description All batches of the company, independent of the list's search and filters
+         */
+        get: operations["getBatchStatusCounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/batches/{id}": {
         parameters: {
             query?: never;
@@ -322,6 +342,11 @@ export interface components {
              */
             reason?: string | null;
             /**
+             * @description Id of the request, also in the X-Request-Id header and the server log
+             * @example ab12-cd34
+             */
+            requestId?: string | null;
+            /**
              * Format: int32
              * @example 400
              */
@@ -371,6 +396,19 @@ export interface components {
         };
         /** @enum {string} */
         BatchStatus: "DRAFT" | "COLLECTING" | "READY" | "PUBLISHED";
+        /** @description Batch count per status; all is the sum */
+        BatchStatusCounts: {
+            /** Format: int64 */
+            COLLECTING?: number;
+            /** Format: int64 */
+            DRAFT?: number;
+            /** Format: int64 */
+            PUBLISHED?: number;
+            /** Format: int64 */
+            READY?: number;
+            /** Format: int64 */
+            all: number;
+        };
         BatchUpdateRequest: {
             batchNo?: string | null;
             /** Format: date */
@@ -930,6 +968,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NextBatchNoResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getBatchStatusCounts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Count per status, zero included */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchStatusCounts"];
                 };
             };
             /** @description Supplier users have no access */
