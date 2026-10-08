@@ -34,11 +34,12 @@ export function serveDesign(dir: string) {
 }
 
 /**
- * Opens a design canvas and saves each top-level frame ("NN …") whose number is in `frames`, light and dark
+ * Opens a design canvas and saves each top-level frame ("NN …" or "NNa …") listed in `frames`, light and dark
  * side by side in the canvas, as `<out>/design-NN-<theme>.png`. Skips the test when the canvas cannot load
  * React from unpkg.com.
  */
-export async function captureDesignFrames(page: Page, url: string, out: string, frames: number[]) {
+export async function captureDesignFrames(page: Page, url: string, out: string, frames: (number | string)[]) {
+  const wanted = frames.map((f) => (typeof f === "number" ? String(f).padStart(2, "0") : f));
   await page.setViewportSize({ width: 1600, height: 1000 });
   // Some networks block unpkg.com; jsDelivr serves the same npm files under the same path.
   await page.route("https://unpkg.com/**", async (route) => {
@@ -61,17 +62,16 @@ export async function captureDesignFrames(page: Page, url: string, out: string, 
   // Top-level frames only; the panels inside carry labels of their own.
   const found = await page.$$eval("[data-screen-label]", (els) =>
     els
-      .map((e) => /^(\d\d) /.exec(e.getAttribute("data-screen-label") ?? "")?.[1])
+      .map((e) => /^(\d\d[a-z]?) /.exec(e.getAttribute("data-screen-label") ?? "")?.[1])
       .flatMap((n, i) => {
         if (!n) return [];
         els[i].setAttribute("data-cap", n);
-        return [Number(n)];
+        return [n];
       }),
   );
-  expect(found).toEqual(expect.arrayContaining(frames));
+  expect(found).toEqual(expect.arrayContaining(wanted));
 
-  for (const number of frames) {
-    const n = String(number).padStart(2, "0");
+  for (const n of wanted) {
     const label = page.locator(`[data-cap="${n}"]`).first();
     for (const [j, scheme] of (["light", "dark"] as const).entries()) {
       // The canvas renders a frame once its label is scrolled into view.
