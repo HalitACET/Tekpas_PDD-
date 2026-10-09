@@ -36,7 +36,13 @@
     "serverWake": {
       "title": "Der Server startet, das kann eine Minute dauern.",
       "body": "Die Liste füllt sich von selbst, sobald er bereit ist.",
-      "elapsed": "{elapsed} · meist 60–90 s"
+      "elapsed": "{elapsed} · meist 60–90 s",
+      "sessionBody": "Das Panel öffnet sich von selbst, sobald er bereit ist.",
+      "gaveUpTitle": "Der Server war nach 90 Sekunden nicht bereit.",
+      "gaveUpBody": "Sie bleiben angemeldet. Der Server startet möglicherweise noch; beim nächsten Versuch ist er sehr wahrscheinlich bereit.",
+      "networkTitle": "Der Server war nicht erreichbar.",
+      "networkBody": "Sie bleiben angemeldet. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "retry": "Erneut versuchen"
     },
     "errorToast": {
       "network": "Der Server war nicht erreichbar.",

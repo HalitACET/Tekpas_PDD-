@@ -23,8 +23,10 @@ const json = (status: number, body: unknown) =>
 const problem = (status: number, slug: string) => json(status, { type: `urn:tekpas:problem:${slug}`, title: slug, status });
 
 /** Accepts only the latest access token; each refresh issues a new one while the cookie is valid. */
-function fakeBackend({ cookie = true, password = "right" } = {}) {
+function fakeBackend({ cookie = true, password = "right", asleep = 0, refreshFails = 0 } = {}) {
   let hasCookie = cookie;
+  let sleeping = asleep;
+  let failing = refreshFails;
   let issued = 0;
   let valid = "";
   const calls: string[] = [];
@@ -34,7 +36,18 @@ function fakeBackend({ cookie = true, password = "right" } = {}) {
     calls.push(path);
     const auth = input.headers.get("Authorization");
     switch (path) {
+      case "/api/health":
+        // A sleeping server: the proxy answers 503 until it has started.
+        if (sleeping > 0) {
+          sleeping--;
+          return new Response("", { status: 503 });
+        }
+        return json(200, { status: "UP" });
       case "/api/v1/auth/refresh":
+        if (failing > 0) {
+          failing--;
+          throw new TypeError("Failed to fetch");
+        }
         await new Promise((r) => setTimeout(r, 5));
         // Like Spring's bearer filter: a stale Authorization header is rejected before the cookie is read.
         if (auth && auth !== `Bearer ${valid}`) return problem(401, "unauthorized");
@@ -193,5 +206,50 @@ describe("session", () => {
     expect(backend.count("/api/v1/auth/logout")).toBe(1);
     expect(session.getSessionState()).toEqual({ status: "anonymous" });
     expect(await session.restoreSession()).toEqual({ status: "anonymous" });
+  });
+
+  describe("waking a sleeping server first (design v0.3.2 32)", () => {
+    it("probes the server before the refresh, and sends the refresh exactly once when it has started", async () => {
+      const backend = fakeBackend({ asleep: 2 });
+      const session = await loadSession(backend);
+      const states: string[] = [];
+      session.subscribeSession(() => states.push(session.getSessionState().status));
+
+      const restored = await session.restoreSession();
+
+      expect(restored.status).toBe("authenticated");
+      expect(states).toContain("starting");
+      expect(backend.count("/api/health")).toBe(3);
+      expect(backend.count("/api/v1/auth/refresh")).toBe(1);
+      // The refresh only went out after the server answered.
+      expect(backend.calls.indexOf("/api/v1/auth/refresh")).toBeGreaterThan(backend.calls.lastIndexOf("/api/health"));
+    }, 15_000);
+
+    it("keeps the session when the refresh cannot connect, and restores it on 'Tekrar dene'", async () => {
+      const backend = fakeBackend({ refreshFails: 1 });
+      const session = await loadSession(backend);
+
+      expect(await session.restoreSession()).toEqual({ status: "unreachable", reason: "network" });
+      expect(backend.count("/api/v1/auth/refresh")).toBe(1);
+
+      expect((await session.restoreSession()).status).toBe("authenticated");
+      expect(backend.count("/api/v1/auth/refresh")).toBe(2);
+    });
+
+    it("after 90 s without the server it stops, without a refresh and without dropping the session", async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      try {
+        const backend = fakeBackend({ asleep: Number.MAX_SAFE_INTEGER });
+        const session = await loadSession(backend);
+
+        const restored = session.restoreSession();
+        await vi.advanceTimersByTimeAsync(91_000);
+
+        expect(await restored).toEqual({ status: "unreachable", reason: "timeout" });
+        expect(backend.count("/api/v1/auth/refresh")).toBe(0);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });

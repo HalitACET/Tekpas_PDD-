@@ -1,11 +1,19 @@
 "use client";
 
 import { createApiClient, type components } from "@tekpas/api-client";
+import { isAwake, waitUntilAwake } from "@/lib/server-wake";
 
 export type SessionUser = components["schemas"]["MeResponse"];
 
+/**
+ * starting: the server sleeps and is being woken before the session is restored (design v0.3.2 32);
+ * unreachable: it did not answer (90 s, no connection or a server error). Neither drops the session: the
+ * refresh cookie is still unused, "Tekrar dene" restores it later.
+ */
 export type SessionState =
   | { status: "unknown" }
+  | { status: "starting"; startedAt: number }
+  | { status: "unreachable"; reason: "timeout" | "network" }
   | { status: "anonymous" }
   | { status: "authenticated"; user: SessionUser };
 
@@ -54,21 +62,26 @@ export const api = createApiClient({
   },
 });
 
-let refreshInFlight: Promise<boolean> | undefined;
+/** rejected: the cookie is not (or no longer) valid; unavailable: no connection, or the server failed. */
+type RefreshResult = "ok" | "rejected" | "unavailable";
+
+let refreshInFlight: Promise<RefreshResult> | undefined;
 
 /**
  * POST /auth/refresh with the cookie. Single-flight: concurrent callers (React strict-mode double
  * effects, several 401s at once) share one request; a second request with the same cookie would be
- * rejected as token reuse.
+ * rejected as token reuse. For the same reason it is never repeated on a timeout: the rotation is
+ * single-use, so a slow refresh is waited for.
  */
-export function refreshAccessToken(): Promise<boolean> {
-  refreshInFlight ??= (async () => {
+function refreshOnce(): Promise<RefreshResult> {
+  refreshInFlight ??= (async (): Promise<RefreshResult> => {
     try {
-      const { data } = await api.POST("/api/v1/auth/refresh", {});
+      const { data, response } = await api.POST("/api/v1/auth/refresh", {});
       accessToken = data?.accessToken;
-      return accessToken !== undefined;
+      if (accessToken !== undefined) return "ok";
+      return response.status >= 500 ? "unavailable" : "rejected";
     } catch {
-      return false;
+      return "unavailable";
     }
   })().finally(() => {
     refreshInFlight = undefined;
@@ -76,14 +89,36 @@ export function refreshAccessToken(): Promise<boolean> {
   return refreshInFlight;
 }
 
+export function refreshAccessToken(): Promise<boolean> {
+  return refreshOnce().then((result) => result === "ok");
+}
+
 let restoreInFlight: Promise<SessionState> | undefined;
 
-/** On app start: turn the refresh cookie (if any) into an in-memory session. Runs once at a time. */
+/**
+ * On app start: turn the refresh cookie (if any) into an in-memory session. Runs once at a time.
+ *
+ * The liveness check comes first (design v0.3.2 32): a sleeping server is woken by polling it, and only
+ * then the refresh is sent, exactly once. A refresh sent to a sleeping server could be processed after the
+ * browser gave up on it, and a second one with the same cookie would count as token reuse.
+ */
 export function restoreSession(): Promise<SessionState> {
   if (state.status === "authenticated") return Promise.resolve(state);
   restoreInFlight ??= (async () => {
-    const refreshed = await refreshAccessToken();
-    if (!refreshed) {
+    if (!(await isAwake())) {
+      const startedAt = Date.now();
+      setState({ status: "starting", startedAt });
+      if (!(await waitUntilAwake(startedAt))) {
+        setState({ status: "unreachable", reason: "timeout" });
+        return state;
+      }
+    }
+    const refreshed = await refreshOnce();
+    if (refreshed === "unavailable") {
+      setState({ status: "unreachable", reason: "network" });
+      return state;
+    }
+    if (refreshed === "rejected") {
       clearSession();
       return state;
     }

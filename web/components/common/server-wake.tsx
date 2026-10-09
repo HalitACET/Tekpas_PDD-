@@ -78,7 +78,14 @@ export function useListWake(query: UseQueryResult<unknown>, queryKey: QueryKey) 
 }
 
 /** The strip above the list while the server starts: spinner, note, elapsed time and a 2 px progress line. */
-export function ServerWakeStrip({ startedAt }: { startedAt: number }) {
+export function ServerWakeStrip({
+  startedAt,
+  body = "body",
+}: {
+  startedAt: number;
+  /** What happens when the server is ready: the list fills in, or the panel opens. */
+  body?: "body" | "sessionBody";
+}) {
   const t = useTranslations("common.serverWake");
   const [now, setNow] = useState(startedAt);
   useEffect(() => {
@@ -98,7 +105,7 @@ export function ServerWakeStrip({ startedAt }: { startedAt: number }) {
         aria-hidden
       />
       <span className="font-medium">{t("title")}</span>
-      <span className="truncate text-muted-foreground">{t("body")}</span>
+      <span className="truncate text-muted-foreground">{t(body)}</span>
       <span className="ml-auto shrink-0 font-mono text-xs text-muted-foreground tabular-nums">
         {t("elapsed", { elapsed: formatElapsed(elapsed) })}
       </span>
