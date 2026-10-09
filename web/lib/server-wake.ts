@@ -20,7 +20,8 @@ export const LIVENESS_PATH = "/api/health";
 /** Is the backend answering? A short request; any failure is "not yet". */
 export async function isAwake(timeoutMs = WAKE_PROBE_TIMEOUT_MS): Promise<boolean> {
   try {
-    const response = await fetch(LIVENESS_PATH, { cache: "no-store", signal: AbortSignal.timeout(timeoutMs) });
+    const url = typeof window === "undefined" ? LIVENESS_PATH : new URL(LIVENESS_PATH, window.location.origin).href;
+    const response = await fetch(new Request(url, { cache: "no-store", signal: AbortSignal.timeout(timeoutMs) }));
     return response.ok;
   } catch {
     return false;

@@ -27,14 +27,19 @@ async function shoot(page: Page, name: string) {
   await page.screenshot({ path: `${OUT}/${name}.png` });
 }
 
-/** The server sleeps: the liveness check never answers 200 and the first `url` request never answers. */
+/**
+ * The server falls asleep at the first `url` request: that request never answers and from then on the
+ * liveness check answers 503 (before it, e.g. while the panel restores its session, the server is awake).
+ */
 async function sleepingServer(page: Page, url: RegExp, method = "GET") {
-  await page.route("**/api/health", (route) => route.fulfill({ status: 503, body: "" }));
-  let first = true;
+  let asleep = false;
+  await page.route("**/api/health", (route) =>
+    asleep ? route.fulfill({ status: 503, body: "" }) : route.fulfill({ json: { status: "UP" } }),
+  );
   await page.route(url, (route) => {
     if (route.request().method() !== method) return route.fallback();
-    if (first) {
-      first = false;
+    if (!asleep) {
+      asleep = true;
       return undefined;
     }
     return route.fallback();
@@ -93,6 +98,32 @@ for (const scheme of ["light", "dark"] as const) {
       await page.clock.fastForward(20_000);
       await page.mouse.move(0, 0);
       await shoot(page, `32-${scheme}`);
+    });
+
+    test("32b panel opening, the server is starting (not in the design: the 32 strip before the session)", async ({
+      page,
+    }) => {
+      await prepare(page, scheme);
+      await mockAuthApi(page, { signedIn: true });
+      await page.route("**/api/health", (route) => route.fulfill({ status: 503, body: "" }));
+      await page.goto("/batches");
+      await expect(page.getByRole("status").filter({ hasText: "panel kendiliğinden açılır" })).toBeVisible();
+      await page.clock.fastForward(12_000);
+      await shoot(page, `32b-session-starting-${scheme}`);
+    });
+
+    test("32c panel opening, the server did not start (not in the design: like 31b, the session is kept)", async ({
+      page,
+    }) => {
+      await prepare(page, scheme);
+      await mockAuthApi(page, { signedIn: true });
+      await page.route("**/api/health", (route) => route.fulfill({ status: 503, body: "" }));
+      await page.goto("/batches");
+      await expect(page.getByRole("status").filter({ hasText: "panel kendiliğinden açılır" })).toBeVisible();
+      await page.clock.fastForward(91_000);
+      await expect(page.getByRole("button", { name: "Tekrar dene" })).toBeVisible();
+      await page.mouse.move(0, 0);
+      await shoot(page, `32c-session-unreachable-${scheme}`);
     });
 
     test("33 product save, server error toast", async ({ page }) => {

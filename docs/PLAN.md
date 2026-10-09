@@ -259,6 +259,8 @@ Backend kuralları (M2):
 - [x] **v0.3.2 36a/36b** (WhatsApp ipucu M4'e kadar gizli), PR 2c. Tedarikçiyi düzenle diyaloğu: 15 "Tedarikçi ekle" yeniden kullanılıyor (başlık "Tedarikçiyi düzenle", "Kaydet"); kilitli alanlar 18'deki GTIN kilidi gibi, kilit nedeni üstte not veya tip altında satır (`impl-v0.3/15b-edit-locked-*`). v0.3.2'de resmileşecek.
 - [x] **v0.3.2 37**, PR 2c. Tedarikçi şehir alanı: tasarımda 11 şehirlik select; 81 il için aramalı combobox (v0.3.2'de resmileşecek).
 
+- [ ] Panel açılışında uyuyan sunucu: önce liveness yoklanır, refresh sunucu hazır olunca tek kez gider (rotation tek kullanımlık); 32'deki şerit kabuk iskeletinin içinde, 90 sn veya bağlantı hatasında 31b benzeri "Tekrar dene" kutusu, oturum korunur (`impl-v0.3.2/32b-*`, `32c-*`). Tasarımda yok.
+
 **Ertelenenler** (tasarımda var, verisi sonraki kilometre taşında gelecek):
 - [ ] Menüdeki "Görevler" rozeti (bekleyen görev sayısı): M4'te, `GET /tasks` gelince. O zamana kadar gizli.
 

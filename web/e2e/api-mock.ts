@@ -28,6 +28,8 @@ interface MockOptions {
 /** Browser-side stand-in for the backend's /api/v1/auth endpoints. */
 export async function mockAuthApi(page: Page, { signedIn, login = "ok", role }: MockOptions) {
   let session = signedIn;
+  // The server is awake (lib/server-wake.ts probes this first); wake.spec.ts overrides it.
+  await page.route("**/api/health", (route) => route.fulfill({ json: { status: "UP" } }));
   const user = role ? { ...DESIGN_USER, role } : DESIGN_USER;
   const tokens = { access: "access-1" };
 

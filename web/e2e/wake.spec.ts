@@ -38,7 +38,8 @@ async function fillLogin(page: Page) {
 test("31a: a login without an answer waits for the server, then signs in with one more request", async ({ page }) => {
   await mockAuthApi(page, { signedIn: false });
   await mockCatalogApi(page);
-  const probes = await mockLiveness(page, 2);
+  // The login page probes too (it checks for a session to restore), so the server sleeps a little longer.
+  await mockLiveness(page, 6);
   const logins = await firstRequestHangs(page, /\/api\/v1\/auth\/login$/, "POST");
   await page.goto("/login");
   await fillLogin(page);
@@ -51,7 +52,6 @@ test("31a: a login without an answer waits for the server, then signs in with on
   await expect(page.getByRole("button", { name: "Giriş yapılıyor…" })).toBeDisabled();
 
   await expect(page).toHaveURL(/\/batches$/, { timeout: 20_000 });
-  expect(probes.count).toBe(3);
   expect(logins.count).toBe(2);
 });
 
@@ -76,8 +76,21 @@ test("31b: after 90 s without the server the login offers 'Tekrar dene' and keep
 test("32: a list waiting for the server shows the strip and skeleton counts, then fills in by itself", async ({ page }) => {
   await mockAuthApi(page, { signedIn: true });
   await mockCatalogApi(page);
-  const probes = await mockLiveness(page, 1);
-  const lists = await firstRequestHangs(page, /\/api\/v1\/batches(\?.*)?$/);
+  // Awake while the panel opens; asleep (one 503) once the list is asked for.
+  const probes = { afterList: 0 };
+  let listAsked = false;
+  await page.route("**/api/health", (route) => {
+    if (!listAsked) return route.fulfill({ json: { status: "UP" } });
+    probes.afterList++;
+    return probes.afterList <= 1 ? route.fulfill({ status: 503, body: "" }) : route.fulfill({ json: { status: "UP" } });
+  });
+  const lists = { count: 0 };
+  await page.route(/\/api\/v1\/batches(\?.*)?$/, (route) => {
+    if (route.request().method() !== "GET") return route.fallback();
+    lists.count++;
+    listAsked = true;
+    return lists.count === 1 ? undefined : route.fallback();
+  });
   await page.goto("/batches");
 
   const strip = page.getByRole("status").filter({ hasText: "Sunucu hazırlanıyor, bu bir dakika sürebilir." });
@@ -92,5 +105,58 @@ test("32: a list waiting for the server shows the strip and skeleton counts, the
   await expect(strip).toBeHidden();
   await expect(page.getByRole("group", { name: "Durum" }).getByRole("button", { name: /Tümü/ })).toHaveText("Tümü7");
   expect(lists.count).toBe(2);
-  expect(probes.count).toBeGreaterThanOrEqual(2);
+  expect(probes.afterList).toBeGreaterThanOrEqual(2);
+});
+
+/** Counts the refresh requests; the regular mock answers them. */
+async function countRefreshes(page: Page) {
+  const refreshes = { count: 0 };
+  await page.route("**/api/v1/auth/refresh", (route) => {
+    refreshes.count++;
+    return route.fallback();
+  });
+  return refreshes;
+}
+
+test("opening the panel on a sleeping server: strip first, then exactly one refresh", async ({ page }) => {
+  await mockAuthApi(page, { signedIn: true });
+  await mockCatalogApi(page);
+  const probes = await mockLiveness(page, 2);
+  const refreshes = await countRefreshes(page);
+  await page.goto("/batches");
+
+  const strip = page.getByRole("status").filter({ hasText: "Sunucu hazırlanıyor, bu bir dakika sürebilir." });
+  await expect(strip).toBeVisible();
+  await expect(strip).toContainText("Hazır olunca panel kendiliğinden açılır.");
+
+  await expect(page.getByRole("heading", { level: 1, name: "Partiler" })).toBeVisible({ timeout: 15_000 });
+  expect(refreshes.count).toBe(1);
+  expect(probes.count).toBe(3);
+});
+
+test("the panel keeps the session when the server does not start within 90 s; 'Tekrar dene' opens it", async ({
+  page,
+}) => {
+  await page.clock.install({ time: NOW });
+  await mockAuthApi(page, { signedIn: true });
+  await mockCatalogApi(page);
+  let awake = false;
+  await page.route("**/api/health", (route) =>
+    awake ? route.fulfill({ json: { status: "UP" } }) : route.fulfill({ status: 503, body: "" }),
+  );
+  const refreshes = await countRefreshes(page);
+  await page.goto("/batches");
+  await expect(page.getByRole("status").filter({ hasText: "Sunucu hazırlanıyor" })).toBeVisible();
+
+  await page.clock.fastForward(91_000);
+
+  const gaveUp = page.getByRole("alert").filter({ hasText: "Sunucu 90 saniyede hazır olmadı." });
+  await expect(gaveUp).toContainText("Oturumunuz korunuyor.");
+  expect(refreshes.count).toBe(0);
+  await expect(page).toHaveURL(/\/batches$/);
+
+  awake = true;
+  await gaveUp.getByRole("button", { name: "Tekrar dene" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Partiler" })).toBeVisible();
+  expect(refreshes.count).toBe(1);
 });

@@ -36,7 +36,13 @@
     "serverWake": {
       "title": "Sunucu hazırlanıyor, bu bir dakika sürebilir.",
       "body": "Hazır olunca liste kendiliğinden dolar.",
-      "elapsed": "{elapsed} · genellikle 60–90 sn"
+      "elapsed": "{elapsed} · genellikle 60–90 sn",
+      "sessionBody": "Hazır olunca panel kendiliğinden açılır.",
+      "gaveUpTitle": "Sunucu 90 saniyede hazır olmadı.",
+      "gaveUpBody": "Oturumunuz korunuyor. Sunucu hâlâ açılıyor olabilir; tekrar denediğinizde büyük ihtimalle hazır olacak.",
+      "networkTitle": "Sunucuya bağlanılamadı.",
+      "networkBody": "Oturumunuz korunuyor. Bağlantınızı kontrol edip tekrar deneyin.",
+      "retry": "Tekrar dene"
     },
     "errorToast": {
       "network": "Sunucuya ulaşılamadı.",
