@@ -1,8 +1,11 @@
 export {
   createApiClient,
+  discardBody,
   hasProblemType,
+  isWakingPage,
   isProblem,
   ProblemTypes,
+  SERVER_WAKING_HEADER,
   type ApiClient,
   type ApiClientOptions,
   type ApiProblem,
