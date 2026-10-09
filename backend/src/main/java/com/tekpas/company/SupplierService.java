@@ -60,7 +60,10 @@ public class SupplierService {
                     WHERE s.supplier_company_id = c.id AND b.company_id = :me) AS batch_count,
                    (SELECT s.status FROM supply_step s JOIN batch b ON b.id = s.batch_id
                     WHERE s.supplier_company_id = c.id AND b.company_id = :me
-                    ORDER BY s.updated_at DESC LIMIT 1) AS latest_status
+                    ORDER BY s.updated_at DESC, s.id LIMIT 1) AS latest_status,
+                   (SELECT s.updated_at FROM supply_step s JOIN batch b ON b.id = s.batch_id
+                    WHERE s.supplier_company_id = c.id AND b.company_id = :me
+                    ORDER BY s.updated_at DESC, s.id LIMIT 1) AS latest_at
             """;
 
     private final NamedParameterJdbcTemplate jdbc;
@@ -206,6 +209,7 @@ public class SupplierService {
                 rs.getString("phone"),
                 rs.getLong("batch_count"),
                 status == null ? null : StepStatus.valueOf(status),
+                rs.getTimestamp("latest_at") == null ? null : rs.getTimestamp("latest_at").toInstant(),
                 rs.getBoolean("editable"),
                 rs.getTimestamp("linked_at").toInstant());
     }

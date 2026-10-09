@@ -141,6 +141,47 @@ class SupplierApiTest {
         }
 
         @Test
+        void theLatestStatusAndItsTimeComeOnlyFromTheOwnBatches() {
+            TenantPair tenants = fixtures.twoTenants();
+            String id = create(tenants.a(), "Ortak İplikçi", "YARN").path("id").asString();
+            jdbc.update("INSERT INTO company_supplier (manufacturer_id, supplier_id) VALUES (?, ?::uuid)",
+                    tenants.b().company().getId(), id);
+            useInChain(tenants.a(), id);
+            useInChain(tenants.b(), id);
+            // B's step is newer and approved: it must not leak into A's view.
+            jdbc.update("""
+                    UPDATE supply_step SET status = 'APPROVED', updated_at = now() + interval '1 hour'
+                    WHERE supplier_company_id = ?::uuid
+                      AND batch_id IN (SELECT id FROM batch WHERE company_id = ?)
+                    """, id, tenants.b().company().getId());
+            String ownAt = jdbc.queryForObject("""
+                    SELECT to_char(s.updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS') FROM supply_step s
+                    JOIN batch b ON b.id = s.batch_id WHERE s.supplier_company_id = ?::uuid AND b.company_id = ?
+                    """, String.class, id, tenants.a().company().getId());
+
+            JsonNode mine = fixtures.body(fixtures.get(tenants.a(), SUPPLIERS + "/" + id));
+            JsonNode listed = fixtures.body(fixtures.get(tenants.a(), SUPPLIERS)).path("content").get(0);
+            JsonNode theirs = fixtures.body(fixtures.get(tenants.b(), SUPPLIERS + "/" + id));
+
+            for (JsonNode view : List.of(mine, listed)) {
+                assertThat(view.path("latestStepStatus").asString()).isEqualTo("PENDING");
+                assertThat(view.path("latestStepAt").asString()).startsWith(ownAt);
+                assertThat(view.path("batchCount").asLong()).isEqualTo(1);
+            }
+            assertThat(theirs.path("latestStepStatus").asString()).isEqualTo("APPROVED");
+            assertThat(theirs.path("latestStepAt").asString()).isNotEqualTo(mine.path("latestStepAt").asString());
+        }
+
+        @Test
+        void aSupplierWithoutStepsHasNoLatestStep() {
+            Tenant tenant = fixtures.tenant();
+            JsonNode created = create(tenant, "Yeni Atölye", "SEWING");
+
+            assertThat(created.path("latestStepStatus").isNull()).isTrue();
+            assertThat(created.path("latestStepAt").isNull()).isTrue();
+        }
+
+        @Test
         void anotherCompanysSupplierIsNotFound() {
             TenantPair tenants = fixtures.twoTenants();
             String theirs = create(tenants.b(), "Onların iplikçisi", "YARN").path("id").asString();
