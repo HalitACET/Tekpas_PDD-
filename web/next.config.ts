@@ -13,7 +13,11 @@ const nextConfig: NextConfig = {
   // K18: the browser talks to the API through this origin, so the refresh cookie is first-party
   // (SameSite=Strict works) and no CORS is needed.
   async rewrites() {
-    return [{ source: "/api/v1/:path*", destination: `${backendUrl}/api/v1/:path*` }];
+    return [
+      { source: "/api/v1/:path*", destination: `${backendUrl}/api/v1/:path*` },
+      // Liveness only (no DB): the "server is starting" polling of lib/server-wake.ts.
+      { source: "/api/health", destination: `${backendUrl}/actuator/health/liveness` },
+    ];
   },
 };
 

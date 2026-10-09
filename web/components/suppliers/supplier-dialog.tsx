@@ -3,11 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProblemTypes } from "@tekpas/api-client";
 import { SUPPLIER_TYPES } from "@tekpas/shared";
-import { CircleAlert, Lock, MessageCircle } from "lucide-react";
+import { CircleAlert, Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useId } from "react";
 import { Controller, type FieldPath, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
+import { showErrorToast } from "@/components/common/error-toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -28,12 +29,13 @@ import { CityCombobox } from "./city-combobox";
 export type SupplierDialogState = { kind: "new" } | { kind: "edit"; supplier: SupplierResponse } | undefined;
 
 /**
- * Design v0.3 15 "Tedarikçi ekle", also used to edit (design debt: the edit state is not in the design yet).
- * Name, type and city are locked for a company that manages its own details; the type alone while the
- * supplier is used in a batch chain. The phone always stays editable.
+ * Design v0.3 15 "Tedarikçi ekle"; editing is v0.3.2 36a (a company with its own account: name, type and
+ * city locked) and 36b (used in batches: type locked). The phone always stays editable. The WhatsApp hint
+ * under the phone waits for data request links (M4).
  */
 export function SupplierDialog({ state, onClose }: { state: SupplierDialogState; onClose: () => void }) {
   const t = useTranslations("suppliers.form");
+  const tType = useTranslations("enums.companyType");
   return (
     <Dialog open={state !== undefined} onOpenChange={(open) => !open && onClose()}>
       <DialogContent closeLabel={t("close")} className="w-[500px]">
@@ -41,7 +43,11 @@ export function SupplierDialog({ state, onClose }: { state: SupplierDialogState;
           <>
             <div className="flex flex-col gap-1 px-6 pt-5 pr-16 pb-1">
               <DialogTitle>{state.kind === "new" ? t("addTitle") : t("editTitle")}</DialogTitle>
-              <span className="text-[13px] text-muted-foreground">{t("sub")}</span>
+              <span className="text-[13px] text-muted-foreground">
+                {state.kind === "new"
+                  ? t("sub")
+                  : t("editSub", { type: tType(state.supplier.type), count: state.supplier.batchCount })}
+              </span>
             </div>
             <SupplierForm key={state.kind === "edit" ? state.supplier.id : "new"} state={state} onDone={onClose} />
           </>
@@ -93,15 +99,14 @@ function SupplierForm({
       }
       onDone();
     } catch (error) {
-      if (!(error instanceof ApiError)) throw error;
-      const reason = error.problem?.reason;
-      if (error.hasType(ProblemTypes.conflict) && reason && tConflict.has(reason as never)) {
+      const reason = error instanceof ApiError ? error.problem?.reason : undefined;
+      if (error instanceof ApiError && error.hasType(ProblemTypes.conflict) && reason && tConflict.has(reason as never)) {
         toast.error(tConflict(reason as never));
         return;
       }
-      const fieldErrors = fieldErrorsFrom(error.problem?.errors);
+      const fieldErrors = error instanceof ApiError ? fieldErrorsFrom(error.problem?.errors) : [];
       if (fieldErrors.length === 0) {
-        toast.error(t("failed"));
+        showErrorToast({ title: t("failed"), error, keepsForm: true, onRetry: () => void onSubmit() });
         return;
       }
       for (const e of fieldErrors) {
@@ -113,7 +118,11 @@ function SupplierForm({
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col">
       <div className="flex flex-col gap-4 px-6 pt-4 pb-5">
-        {locks.details && <LockNote id={ids.lock}>{t("lockedOwnAccount")}</LockNote>}
+        {locks.details && (
+          <LockNote id={ids.lock} title={t("lockedOwnAccount")}>
+            {t("lockedOwnAccountBody")}
+          </LockNote>
+        )}
 
         <Field label={t("name")} htmlFor={ids.name} error={message(formState.errors.name?.message)}>
           <span className={`relative flex items-center ${locks.details ? "cursor-not-allowed" : ""}`}>
@@ -157,8 +166,8 @@ function SupplierForm({
                       onClick={() => field.onChange(type)}
                       className={`flex h-[34px] cursor-pointer items-center rounded-md border px-3 text-[13px] font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft disabled:cursor-not-allowed ${
                         checked
-                          ? "border-transparent bg-primary text-primary-foreground disabled:bg-muted disabled:text-foreground"
-                          : "border-input bg-card text-foreground hover:bg-accent disabled:opacity-45 disabled:hover:bg-card"
+                          ? "border-transparent bg-primary text-primary-foreground"
+                          : "border-input bg-card text-foreground hover:bg-accent disabled:text-muted-foreground disabled:opacity-60 disabled:hover:bg-card"
                       }`}
                     >
                       {tType(type)}
@@ -215,10 +224,6 @@ function SupplierForm({
             </span>
           </Field>
         </div>
-        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <MessageCircle className="size-3.5 flex-none" strokeWidth={1.75} aria-hidden />
-          {t("phoneHint")}
-        </span>
       </div>
 
       <div className="flex items-center gap-2 border-t px-6 py-3.5">
@@ -250,12 +255,16 @@ function LockIcon() {
   );
 }
 
-function LockNote({ id, children }: { id: string; children: ReactNode }) {
+/** v0.3.2 36a: why the details are locked, above the form. */
+function LockNote({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
-    <p id={id} className="flex items-start gap-[5px] rounded-md bg-popover-muted px-2.5 py-2 text-xs leading-[1.4] text-muted-foreground">
-      <Lock className="mt-px size-3.5 flex-none" strokeWidth={1.75} aria-hidden />
-      {children}
-    </p>
+    <div id={id} className="flex items-start gap-2.5 rounded-lg bg-popover-muted px-3.5 py-3">
+      <Lock className="mt-0.5 size-[15px] flex-none text-muted-foreground" strokeWidth={1.75} aria-hidden />
+      <span className="flex flex-col gap-1">
+        <span className="text-[13px] font-medium">{title}</span>
+        <span className="text-xs leading-[1.45] text-muted-foreground">{children}</span>
+      </span>
+    </div>
   );
 }
 

@@ -5,7 +5,7 @@ import { Lock, Unlink } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
+import { showErrorToast } from "@/components/common/error-toast";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -53,7 +53,7 @@ export function RemoveSupplierDialog({
       if (error instanceof ApiError && error.hasType(ProblemTypes.conflict) && error.problem?.reason === "SUPPLIER_IN_USE") {
         setBlockedBy(Math.max(supplier.batchCount, 1));
       } else {
-        toast.error(t("failed"));
+        showErrorToast({ title: t("failed"), error, onRetry: () => void confirm() });
       }
     }
   };

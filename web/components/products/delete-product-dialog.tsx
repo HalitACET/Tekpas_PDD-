@@ -5,7 +5,7 @@ import { Lock, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
+import { showErrorToast } from "@/components/common/error-toast";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -52,7 +52,7 @@ export function DeleteProductDialog({
       if (error instanceof ApiError && error.hasType(ProblemTypes.conflict) && error.problem?.reason === "PRODUCT_HAS_BATCHES") {
         setBlockedBy(Math.max(product.batchCount, 1));
       } else {
-        toast.error(t("failed"));
+        showErrorToast({ title: t("failed"), error, onRetry: () => void confirm() });
       }
     }
   };

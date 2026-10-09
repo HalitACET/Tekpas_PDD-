@@ -7,8 +7,8 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 /**
- * City field of design v0.3 15: a select in the design; with 81 provinces it is searchable ("bur" → Burdur,
- * Bursa). Turkish case rules, so "is" finds İstanbul and "ığ" finds Iğdır.
+ * City field (design v0.3.2 37): a search over the 81 provinces with a match count and the matching letters
+ * marked ("bur" → Bayburt, Burdur, Bursa). Turkish case rules, so "is" finds İstanbul and "ığ" finds Iğdır.
  */
 export function CityCombobox({
   id,
@@ -27,8 +27,8 @@ export function CityCombobox({
 }) {
   const t = useTranslations("suppliers.form");
   const [open, setOpen] = useState(false);
-  const matches = (city: string, query: string) =>
-    city.toLocaleLowerCase("tr").includes(query.trim().toLocaleLowerCase("tr"));
+  const [query, setQuery] = useState("");
+  const matches = (city: string, q: string) => city.toLocaleLowerCase("tr").includes(q.trim().toLocaleLowerCase("tr"));
 
   return (
     <Combobox.Root
@@ -38,6 +38,7 @@ export function CityCombobox({
       open={open}
       onOpenChange={setOpen}
       filter={matches}
+      onInputValueChange={(text: string) => setQuery(text === value ? "" : text)}
       disabled={disabled}
       openOnInputClick
       autoHighlight
@@ -48,7 +49,7 @@ export function CityCombobox({
           disabled ? "cursor-not-allowed bg-muted text-muted-foreground" : "bg-card shadow-xs"
         }`}
       >
-        {open && <Search className="size-[15px] flex-none text-muted-foreground" strokeWidth={1.75} aria-hidden />}
+        {!disabled && <Search className="size-[15px] flex-none text-muted-foreground" strokeWidth={1.75} aria-hidden />}
         <Combobox.Input
           id={id}
           aria-describedby={describedBy}
@@ -70,6 +71,7 @@ export function CityCombobox({
       <Combobox.Portal>
         <Combobox.Positioner sideOffset={6} className="isolate z-50 outline-none">
           <Combobox.Popup className="flex max-h-[min(280px,var(--available-height))] w-(--anchor-width) flex-col rounded-lg border bg-popover p-1 text-popover-foreground shadow-md outline-none">
+            <CityCount label={(count) => t("cityCount", { count })} />
             <Combobox.Empty>
               <span className="block px-2 py-3 text-[13px] text-muted-foreground">{t("cityNone")}</span>
             </Combobox.Empty>
@@ -78,9 +80,11 @@ export function CityCombobox({
                 <Combobox.Item
                   key={city}
                   value={city}
+                  // The highlight splits the text; the name stays the whole province.
+                  aria-label={city}
                   className="flex h-8 cursor-pointer items-center rounded-md px-2 text-[13px] outline-none select-none data-highlighted:bg-accent data-selected:font-medium"
                 >
-                  {city}
+                  <Highlighted text={city} query={query} />
                 </Combobox.Item>
               )}
             </Combobox.List>
@@ -88,5 +92,29 @@ export function CityCombobox({
         </Combobox.Positioner>
       </Combobox.Portal>
     </Combobox.Root>
+  );
+}
+
+/** "3 il eşleşti" over the list. */
+function CityCount({ label }: { label: (count: number) => string }) {
+  const items = Combobox.useFilteredItems<string>();
+  return (
+    <span className="px-2 py-1.5 text-[11px] text-muted-foreground" aria-live="polite">
+      {label(items.length)}
+    </span>
+  );
+}
+
+/** The letters that matched the search, in the brand colour (Turkish case rules keep the length). */
+function Highlighted({ text, query }: { text: string; query: string }) {
+  const q = query.trim().toLocaleLowerCase("tr");
+  const at = q ? text.toLocaleLowerCase("tr").indexOf(q) : -1;
+  if (at < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, at)}
+      <mark className="bg-transparent font-medium text-brand-text">{text.slice(at, at + q.length)}</mark>
+      {text.slice(at + q.length)}
+    </>
   );
 }

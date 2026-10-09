@@ -54,7 +54,12 @@ const optionalText = (max: number) =>
 
 export const productCreateSchema = z.object({
   gtin: gtinSchema,
-  sku: optionalText(60),
+  // The company's own code, free text (design v0.3.2 38: no format rule); trimmed, then at most 64.
+  sku: z
+    .string()
+    .nullish()
+    .transform((v) => (v == null || v.trim() === "" ? null : v.trim()))
+    .pipe(z.string().max(64, { error: "Size" }).nullable()),
   name: z.string({ error: "NotBlank" }).trim().min(1, { error: "NotBlank" }).max(200, { error: "Size" }),
   category: z.enum(PRODUCT_CATEGORIES, { error: "NotNull" }),
   description: optionalText(2000),

@@ -44,7 +44,8 @@ function fakeBackend({ cookie = true, password = "right" } = {}) {
       case "/api/v1/auth/login": {
         const body = await input.json();
         loginBodies.push(body);
-        if (body.password === "boom") return new Response("Bad Gateway", { status: 502 });
+        if (body.password === "boom") return new Response("Internal Server Error", { status: 500 });
+        if (body.password === "gateway") return new Response("Bad Gateway", { status: 502 });
         if (body.password === "hang") {
           // Never answers; gives up only when the caller aborts (like a server that does not wake up).
           return new Promise<Response>((_, reject) =>
@@ -148,25 +149,27 @@ describe("session", () => {
     expect(lost).toHaveBeenCalled();
   });
 
-  it("maps login failures to one generic result, and outages to 'unavailable'", async () => {
+  it("maps login failures to one generic result, and server errors to 'unavailable'", async () => {
     const session = await loadSession(fakeBackend({ cookie: false }));
 
     expect(await session.login("a@test.example", "wrong", true)).toBe("invalid");
     expect(await session.login("a@test.example", "boom", true)).toBe("unavailable");
+    // The proxy could not reach the backend: treated like a sleeping server.
+    expect(await session.login("a@test.example", "gateway", true)).toBe("unreachable");
     expect(session.getSessionState().status).not.toBe("authenticated");
   });
 
-  it("gives up after the timeout and reports the server as unavailable", async () => {
+  it("reports a login that does not answer in time as unreachable (probably a sleeping server)", async () => {
     const session = await loadSession(fakeBackend({ cookie: false }));
 
     const started = Date.now();
-    expect(await session.login("a@test.example", "hang", true, { timeoutMs: 200 })).toBe("unavailable");
+    expect(await session.login("a@test.example", "hang", true, { timeoutMs: 200 })).toBe("unreachable");
     expect(Date.now() - started).toBeLessThan(5_000);
   });
 
-  it("waits 90 s by default before giving up", async () => {
+  it("does not rely on one long request: an attempt waits 20 s at most", async () => {
     const session = await loadSession(fakeBackend());
-    expect(session.LOGIN_TIMEOUT_MS).toBe(90_000);
+    expect(session.LOGIN_TIMEOUT_MS).toBe(20_000);
   });
 
   it("sends rememberMe with the login request", async () => {

@@ -7,10 +7,12 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { GuardedButton } from "@/components/common/guarded-button";
 import { EmptyState, ListError, TableSkeleton } from "@/components/common/list-states";
+import { ServerWakeStrip, useListWake } from "@/components/common/server-wake";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { type ProductListItem, useProducts, useProductTotal } from "@/lib/api/products";
 import { canWriteCatalog } from "@/lib/auth/permissions";
+import { queryKeys } from "@/lib/query-keys";
 import { useSession } from "@/lib/auth/use-session";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { ProductSheet, type ProductSheetTarget } from "./product-sheet";
@@ -39,6 +41,8 @@ export function ProductsPage() {
   const [category, setCategory] = useState<ProductCategory | "">("");
   const search = useDebounced(q, 250);
   const products = useProducts({ q: search, category });
+  // A sleeping server (design v0.3.2 32): poll, then fetch the list again once it answers.
+  const { wake, retry: retryWake } = useListWake(products, queryKeys.products.list({ q: search, category }));
   const total = useProductTotal();
 
   const [sheet, setSheet] = useState<ProductSheetTarget>();
@@ -110,11 +114,19 @@ export function ProductsPage() {
           </span>
         </div>
 
+        {wake.phase === "waking" && <ServerWakeStrip startedAt={wake.startedAt} />}
+
         {/* Below md the design has no list yet (16, mobile): the desktop table scrolls sideways. */}
         <div className="overflow-x-auto rounded-lg border bg-card">
           <div role="table" aria-label={tPage("title")} aria-busy={products.isFetching} className="min-w-[1000px]">
             <ProductsTableHeader />
-            {products.isPending ? (
+            {wake.phase === "gaveUp" ? (
+              <ListError
+                title={t("listError")}
+                error={undefined}
+                onRetry={retryWake}
+              />
+            ) : products.isPending ? (
               <TableSkeleton label={tCommon("loading")} />
             ) : products.isError && !products.data ? (
               <ListError

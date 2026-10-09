@@ -7,7 +7,7 @@ import { Check, ChevronDown, CircleAlert, Lock, Plus, Trash2 } from "lucide-reac
 import { useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useId, useState } from "react";
 import { type FieldPath, useFieldArray, useForm, useWatch } from "react-hook-form";
-import { toast } from "sonner";
+import { showErrorToast } from "@/components/common/error-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -100,6 +100,16 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
     defaultValues: initial,
   });
   const { register, control, handleSubmit, setError, formState } = form;
+  // Design v0.3.2 38: after a save attempt, the footer counts the invalid fields and the first one gets focus.
+  const [attempted, setAttempted] = useState(false);
+  const showInvalid = (event: { target?: EventTarget | null } | undefined) => {
+    setAttempted(true);
+    const formElement = event?.target instanceof HTMLFormElement ? event.target : undefined;
+    // After React has rendered the errors (aria-invalid), in the page's order.
+    requestAnimationFrame(() =>
+      formElement?.querySelector<HTMLElement>('[aria-invalid="true"], [data-error-anchor] input')?.focus(),
+    );
+  };
   const fibers = useFieldArray({ control, name: "declaredFiberComposition" });
   const values = useWatch({ control }) as ProductFormValues;
 
@@ -118,7 +128,11 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
   const update = useUpdateProduct();
   const saving = create.isPending || update.isPending;
 
-  const onSubmit = handleSubmit(async (output) => {
+  const onSubmit = handleSubmit(async (output, event) => {
+    if (!gtinOk) {
+      showInvalid(event);
+      return;
+    }
     try {
       if (product) {
         await update.mutateAsync({ id: product.id, body: productPatch(initial, output, { gtinLocked }) });
@@ -127,14 +141,17 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
       }
       onDone();
     } catch (error) {
-      if (!(error instanceof ApiError)) throw error;
+      if (!(error instanceof ApiError)) {
+        showErrorToast({ title: t("saveFailed"), error, keepsForm: true, onRetry: () => void onSubmit() });
+        return;
+      }
       if (error.hasType(ProblemTypes.gtinLocked)) {
         setGtinLocked(true);
         return;
       }
       const fieldErrors = fieldErrorsFrom(error.problem?.errors);
       if (fieldErrors.length === 0) {
-        toast.error(t("saveFailed"));
+        showErrorToast({ title: t("saveFailed"), error, keepsForm: true, onRetry: () => void onSubmit() });
         return;
       }
       for (const e of fieldErrors) {
@@ -145,7 +162,8 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
         }
       }
     }
-  });
+  }, (_errors, event) => showInvalid(event));
+  const errorCount = countFieldErrors(formState.errors) + (taken ? 1 : 0);
 
   const gtinState = gtinLocked
     ? { tone: "muted" as const, icon: Lock, text: tConflict("GTIN_LOCKED") }
@@ -173,7 +191,12 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
   return (
     <form onSubmit={onSubmit} noValidate className="flex min-h-0 flex-1 flex-col">
       <SheetBody>
-        <Field label={t("name")} htmlFor={ids.name} error={message(formState.errors.name?.message)}>
+        <Field
+          label={t("name")}
+          htmlFor={ids.name}
+          // Field-specific wording for the one required text (design v0.3.2 38).
+          error={formState.errors.name?.message === "NotBlank" ? t("nameRequired") : message(formState.errors.name?.message)}
+        >
           <Input
             id={ids.name}
             placeholder={t("namePlaceholder")}
@@ -248,7 +271,11 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
           </NativeSelect>
         </Field>
 
-        <fieldset className="flex flex-col gap-2">
+        <fieldset
+          className="flex flex-col gap-2"
+          // The total or a repeated fiber is an error of the whole group: a failed save focuses its first input.
+          data-error-anchor={formState.errors.declaredFiberComposition ? "" : undefined}
+        >
           <div className="flex items-baseline justify-between">
             <legend className="text-[13px] font-medium">{t("fibers")}</legend>
             <span className="text-xs text-muted-foreground">{t("fibersHint")}</span>
@@ -345,18 +372,20 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
       </SheetBody>
 
       <SheetFooter>
-        <span className="text-xs text-muted-foreground" aria-live="polite">
-          {blocker ? t(`saveHint.${blocker}`) : null}
-        </span>
+        {attempted && errorCount > 0 ? (
+          <span className="flex items-center gap-1.5 text-xs font-medium text-status-rejected-foreground" role="alert">
+            <CircleAlert className="size-3.5 flex-none" strokeWidth={2} aria-hidden />
+            {t("errorCount", { count: errorCount })}
+          </span>
+        ) : (
+          <span className="text-xs text-muted-foreground" aria-live="polite">
+            {blocker ? t(`saveHint.${blocker}`) : null}
+          </span>
+        )}
         <Button type="button" variant="ghost" className="ml-auto" onClick={onDone}>
           {t("cancel")}
         </Button>
-        <Button
-          type="submit"
-          className="px-4 disabled:opacity-45"
-          // The design's three hints, plus any other field error (e.g. "90,5" in a fiber line).
-          disabled={blocker !== undefined || !formState.isValid || saving}
-        >
+        <Button type="submit" className="px-4" disabled={saving}>
           {t("save")}
         </Button>
       </SheetFooter>
@@ -424,4 +453,14 @@ function NativeSelect({
       />
     </span>
   );
+}
+
+/** Invalid inputs among react-hook-form's (nested) errors: every leaf with a message counts once. */
+function countFieldErrors(errors: object | undefined): number {
+  if (!errors) return 0;
+  return Object.entries(errors).reduce((count, [key, value]) => {
+    if (key === "ref" || value == null || typeof value !== "object") return count;
+    if ("message" in value && typeof value.message === "string") return count + 1;
+    return count + countFieldErrors(value);
+  }, 0);
 }

@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
  */
 public record ProductUpdateRequest(
         @Nullable Optional<@NotNull @GtinFormat @GtinCheckDigit String> gtin,
-        @Nullable Optional<@Size(max = 60) String> sku,
+        @Nullable Optional<@Size(max = 64) String> sku,
         @Nullable Optional<@NotBlank @Size(max = 200) String> name,
         @Nullable Optional<@NotNull ProductCategory> category,
         @Nullable Optional<@Size(max = 2000) String> description,

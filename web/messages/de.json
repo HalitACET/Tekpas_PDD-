@@ -32,6 +32,19 @@
       "summary": "{days, plural, one {# Tag} other {# Tage}} · {from} – {to}",
       "pickStart": "Startdatum wählen",
       "pickEnd": "Enddatum wählen"
+    },
+    "serverWake": {
+      "title": "Der Server startet, das kann eine Minute dauern.",
+      "body": "Die Liste füllt sich von selbst, sobald er bereit ist.",
+      "elapsed": "{elapsed} · meist 60–90 s"
+    },
+    "errorToast": {
+      "network": "Der Server war nicht erreichbar.",
+      "server": "Der Server hat einen Fehler zurückgegeben.",
+      "other": "Ein unerwarteter Fehler ist aufgetreten.",
+      "keepsForm": "Ihre Änderungen sind noch im Formular.",
+      "retry": "Erneut versuchen",
+      "close": "Schließen"
     }
   },
   "login": {
@@ -56,11 +69,17 @@
     "rememberMe": "Angemeldet bleiben",
     "submit": "Anmelden",
     "submitting": "Anmeldung läuft…",
-    "waking": "Der Server startet, das kann eine Minute dauern…",
     "invalidCredentials": "E-Mail oder Passwort ist falsch.",
     "serverError": "Der Server war nicht erreichbar. Bitte versuchen Sie es gleich noch einmal.",
     "forgotPassword": "Passwort vergessen? Wenden Sie sich an den Administrator Ihrer Firma.",
-    "footer": "© 2026 KozaPass · Bursa"
+    "footer": "© 2026 KozaPass · Bursa",
+    "wakingTitle": "Der Server startet, das kann eine Minute dauern.",
+    "wakingBody": "Ein länger ungenutzter Server startet bei der ersten Anfrage. Bleiben Sie auf der Seite; sobald er bereit ist, werden Sie angemeldet.",
+    "wakingProgress": "Serverstart",
+    "wakingUsually": "Meist 60–90 Sekunden",
+    "gaveUpTitle": "Der Server war nach 90 Sekunden nicht bereit.",
+    "gaveUpBody": "Ihre Angaben bleiben erhalten. Der Server startet möglicherweise noch; beim nächsten Versuch ist er sehr wahrscheinlich bereit.",
+    "retry": "Erneut versuchen"
   },
   "nav": {
     "label": "Hauptmenü",
@@ -350,7 +369,9 @@
         "total": "Die Fasersumme muss 100 % sein",
         "name": "Produktname ist erforderlich"
       },
-      "saveFailed": "Das Produkt konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+      "saveFailed": "Das Produkt konnte nicht gespeichert werden",
+      "nameRequired": "Produktname ist erforderlich",
+      "errorCount": "{count, plural, one {# Feld ist fehlerhaft} other {# Felder sind fehlerhaft}}"
     },
     "delete": {
       "blockedTitle": "Produkt kann nicht gelöscht werden",
@@ -363,7 +384,7 @@
       "note": "Keine Chargen oder Pässe verknüpft.",
       "cancel": "Abbrechen",
       "confirm": "Produkt löschen",
-      "failed": "Das Produkt konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+      "failed": "Das Produkt konnte nicht gelöscht werden"
     },
     "listError": "Produkte konnten nicht geladen werden"
   },
@@ -392,8 +413,12 @@
     "yesterday": "Gestern",
     "empty": {
       "filteredTitle": "Keine passenden Chargen",
-      "filteredBody": "Ändern Sie die Suche oder die Filter.",
-      "clearFilters": "Filter zurücksetzen"
+      "filteredBody": "Keine Charge passt zu Suche und Filtern.",
+      "clearFilters": "Filter zurücksetzen",
+      "search": "Suche „{q}“",
+      "status": "Status: {status}",
+      "product": "Produkt: {name}",
+      "supplier": "Lieferant: {name}"
     },
     "create": {
       "title": "Neue Charge",
@@ -415,7 +440,7 @@
       "required": "Produkt und Menge sind erforderlich",
       "cancel": "Abbrechen",
       "submit": "Charge anlegen",
-      "failed": "Die Charge konnte nicht angelegt werden. Bitte versuchen Sie es erneut."
+      "failed": "Die Charge konnte nicht angelegt werden"
     },
     "listError": "Chargen konnten nicht geladen werden",
     "supplierFilter": "Lieferant:",
@@ -449,8 +474,10 @@
     },
     "empty": {
       "filteredTitle": "Kein passender Lieferant",
-      "filteredBody": "Ändern Sie die Suche oder den Typfilter.",
-      "clearFilters": "Filter zurücksetzen"
+      "filteredBody": "Kein Lieferant passt zu Suche und Filtern.",
+      "clearFilters": "Filter zurücksetzen",
+      "search": "Suche „{q}“",
+      "type": "Typ: {type}"
     },
     "form": {
       "addTitle": "Lieferant hinzufügen",
@@ -473,8 +500,11 @@
       "cancel": "Abbrechen",
       "close": "Schließen",
       "submitAdd": "Lieferant hinzufügen",
-      "submitEdit": "Speichern",
-      "failed": "Der Lieferant konnte nicht gespeichert werden. Bitte erneut versuchen."
+      "submitEdit": "Änderungen speichern",
+      "failed": "Der Lieferant konnte nicht gespeichert werden",
+      "editSub": "{type} · {count, plural, =0 {noch in keiner Charge verwendet} one {in # Charge verwendet} other {in # Chargen verwendet}}",
+      "lockedOwnAccountBody": "Name, Typ und Ort kommen aus dem KozaPass-Konto des Unternehmens. Das Kontakttelefon können Sie ändern.",
+      "cityCount": "{count, plural, one {# Provinz passt} other {# Provinzen passen}}"
     },
     "remove": {
       "title": "Lieferantenverknüpfung entfernen",
@@ -487,7 +517,7 @@
       "close": "Schließen",
       "cancel": "Abbrechen",
       "confirm": "Verknüpfung entfernen",
-      "failed": "Die Verknüpfung konnte nicht entfernt werden. Bitte erneut versuchen."
+      "failed": "Die Verknüpfung konnte nicht entfernt werden"
     }
   }
 }

@@ -32,6 +32,19 @@
       "summary": "{days} gün · {from} – {to}",
       "pickStart": "Başlangıç tarihini seçin",
       "pickEnd": "Bitiş tarihini seçin"
+    },
+    "serverWake": {
+      "title": "Sunucu hazırlanıyor, bu bir dakika sürebilir.",
+      "body": "Hazır olunca liste kendiliğinden dolar.",
+      "elapsed": "{elapsed} · genellikle 60–90 sn"
+    },
+    "errorToast": {
+      "network": "Sunucuya ulaşılamadı.",
+      "server": "Sunucu hata döndürdü.",
+      "other": "Beklenmeyen bir hata oluştu.",
+      "keepsForm": "Değişiklikleriniz formda duruyor.",
+      "retry": "Tekrar dene",
+      "close": "Kapat"
     }
   },
   "login": {
@@ -56,11 +69,17 @@
     "rememberMe": "Beni hatırla",
     "submit": "Giriş yap",
     "submitting": "Giriş yapılıyor…",
-    "waking": "Sunucu uyanıyor, bu bir dakika sürebilir…",
     "invalidCredentials": "E-posta veya şifre hatalı.",
     "serverError": "Sunucuya ulaşılamadı. Lütfen biraz sonra tekrar deneyin.",
     "forgotPassword": "Şifrenizi mi unuttunuz? Firma yöneticinizle iletişime geçin.",
-    "footer": "© 2026 KozaPass · Bursa"
+    "footer": "© 2026 KozaPass · Bursa",
+    "wakingTitle": "Sunucu hazırlanıyor, bu bir dakika sürebilir.",
+    "wakingBody": "Bir süre kullanılmayan sunucu ilk istekte açılır. Sayfada kalın; hazır olduğunda giriş kendiliğinden tamamlanır.",
+    "wakingProgress": "Sunucunun açılması",
+    "wakingUsually": "Genellikle 60–90 saniye",
+    "gaveUpTitle": "Sunucu 90 saniyede hazır olmadı.",
+    "gaveUpBody": "Bilgileriniz korundu. Sunucu hâlâ açılıyor olabilir; tekrar denediğinizde büyük ihtimalle hazır olacak.",
+    "retry": "Tekrar dene"
   },
   "nav": {
     "label": "Ana menü",
@@ -350,7 +369,9 @@
         "total": "Lif toplamı %100 olmalı",
         "name": "Ürün adı gerekli"
       },
-      "saveFailed": "Ürün kaydedilemedi. Lütfen tekrar deneyin."
+      "saveFailed": "Ürün kaydedilemedi",
+      "nameRequired": "Ürün adı gerekli",
+      "errorCount": "{count} alanda hata var"
     },
     "delete": {
       "blockedTitle": "Ürün silinemez",
@@ -363,7 +384,7 @@
       "note": "Bağlı parti veya pasaport yok.",
       "cancel": "Vazgeç",
       "confirm": "Ürünü sil",
-      "failed": "Ürün silinemedi. Lütfen tekrar deneyin."
+      "failed": "Ürün silinemedi"
     },
     "listError": "Ürünler yüklenemedi"
   },
@@ -392,8 +413,12 @@
     "yesterday": "Dün",
     "empty": {
       "filteredTitle": "Eşleşen parti yok",
-      "filteredBody": "Arama veya filtreleri değiştirin.",
-      "clearFilters": "Filtreleri temizle"
+      "filteredBody": "Arama ve filtrelerle eşleşen parti bulunamadı.",
+      "clearFilters": "Filtreleri temizle",
+      "search": "\"{q}\" araması",
+      "status": "Durum: {status}",
+      "product": "Ürün: {name}",
+      "supplier": "Tedarikçi: {name}"
     },
     "create": {
       "title": "Yeni parti",
@@ -415,7 +440,7 @@
       "required": "Ürün ve miktar gerekli",
       "cancel": "Vazgeç",
       "submit": "Partiyi oluştur",
-      "failed": "Parti oluşturulamadı. Lütfen tekrar deneyin."
+      "failed": "Parti oluşturulamadı"
     },
     "listError": "Partiler yüklenemedi",
     "supplierFilter": "Tedarikçi:",
@@ -449,8 +474,10 @@
     },
     "empty": {
       "filteredTitle": "Eşleşen tedarikçi yok",
-      "filteredBody": "Aramanızı veya tip filtresini değiştirin.",
-      "clearFilters": "Filtreleri temizle"
+      "filteredBody": "Arama ve filtrelerle eşleşen tedarikçi bulunamadı.",
+      "clearFilters": "Filtreleri temizle",
+      "search": "\"{q}\" araması",
+      "type": "Tip: {type}"
     },
     "form": {
       "addTitle": "Tedarikçi ekle",
@@ -473,8 +500,11 @@
       "cancel": "Vazgeç",
       "close": "Kapat",
       "submitAdd": "Tedarikçi ekle",
-      "submitEdit": "Kaydet",
-      "failed": "Tedarikçi kaydedilemedi. Tekrar deneyin."
+      "submitEdit": "Değişiklikleri kaydet",
+      "failed": "Tedarikçi kaydedilemedi",
+      "editSub": "{type} · {count, plural, =0 {henüz partide kullanılmıyor} other {# partide kullanılıyor}}",
+      "lockedOwnAccountBody": "Ad, tip ve şehir firmanın KozaPass hesabından gelir. İletişim telefonunu değiştirebilirsiniz.",
+      "cityCount": "{count} il eşleşti"
     },
     "remove": {
       "title": "Tedarikçi bağını kaldır",
@@ -487,7 +517,7 @@
       "close": "Kapat",
       "cancel": "Vazgeç",
       "confirm": "Bağı kaldır",
-      "failed": "Bağ kaldırılamadı. Tekrar deneyin."
+      "failed": "Bağ kaldırılamadı"
     }
   }
 }
