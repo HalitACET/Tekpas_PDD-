@@ -9,7 +9,7 @@ Tarayıcı ──► Vercel (web, Next.js) ──/api/v1/* rewrite (K18)──�
 cron-job.org ──► Render /actuator/health/liveness (09:00–22:00, 10 dk'da bir; DB'ye dokunmaz)
 ```
 
-Tarayıcının `/api/health` isteği de Vercel'de `/actuator/health/liveness`'a rewrite edilir. Uyuyan sunucuda giriş ve listeler bunu 3 sn arayla, kısa timeout'larla yoklar ve sunucu cevap verince asıl isteği bir kez tekrarlar (tasarım v0.3.2 31–32, `web/lib/server-wake.ts`).
+Tarayıcının `/api/health` isteği de Vercel'de `/actuator/health/liveness`'a rewrite edilir. Uyuyan sunucuda Render, servis açılana kadar her yola (`Accept: application/json` olsa da) satır satır akan bir HTML sayfası döner ("Welcome to Render / SERVICE WAKING UP"). Web bu sayfayı JSON gibi okumaz, "uyanıyor" sayar (`packages/api-client` ara katmanı). Giriş ve listeler 3 sn cevapsız kalınca tek bir uzun health isteğini (60 sn) açık tutar, biterse yenisini açar; sunucu `{"status":"UP"}` dönünce asıl isteği bir kez tekrarlar. Sınır 3 dk (tasarım v0.3.2 31–32, `web/lib/server-wake.ts`).
 
 Sıra önemli: **1 → 2 → 3 → 4 → 5 → 6**. Vercel, Render'ın adresine ihtiyaç duyar.
 
@@ -98,13 +98,13 @@ Beklenen: `1 init` ve `2 auth and jobs`, ikisi de `success = true`.
 4. **Deploy**. Sonra **Settings → Build and Deployment**:
    - **Root Directory → Skip deployment:** açık (sadece web'i etkileyen commit'ler build eder; yeni projelerde varsayılan).
 5. Canlı adresi aç (production: `https://kozapass.vercel.app`; Vercel → Settings → Domains): "KozaPass" başlığı ve **Sunucu: Çalışıyor (UP)** rozeti.
-   Render uyuyorsa rozet ilk açılışta "Erişilemiyor" der; ~1 dk sonra yenile.
+   Render uyuyorsa rozet ilk açılışta "Erişilemiyor" der; 1–2 dk sonra yenile.
 
 **Otomatik deploy:** `main`'e her push production deploy'u, her PR bir preview deploy'u üretir.
 
 ## 6. cron-job.org (uyanık tutma)
 
-Render ücretsiz servis 15 dk trafiksizlikte uyur, uyanması ~1 dk sürer. Sadece gün içinde uyanık tutuyoruz.
+Render ücretsiz servis 15 dk trafiksizlikte uyur. Uyanması konteyner dahil 1,5–2,5 dk sürer (Render log'u: "Started TekpasApplication in" 75–83 sn, Ekim 2026). Sadece gün içinde uyanık tutuyoruz.
 
 1. https://console.cron-job.org → **Create cronjob**
    - **Title:** `tekpas-api keep-awake`
@@ -117,6 +117,8 @@ Render ücretsiz servis 15 dk trafiksizlikte uyur, uyanması ~1 dk sürer. Sadec
    - Son ping 21:50, servis ~22:05'te uyur. Böylece 09:00–22:00 uyanık.
    - **Notifications:** "on failure" açık (servis yanıt vermezse e-posta).
 2. **Create**. Birkaç dakika sonra **History**'de 200 yanıtları görünmeli.
+
+**History'yi düzenli kontrol et.** Servis uyurken cron-job.org'un isteğine Render'ın uyanma sayfası döner: büyük, akan bir HTML. cron-job.org bunu "output too large" hatası sayar ve art arda hatalardan sonra işi kendiliğinden kapatır (27 Eylül 2026'da böyle oldu). İş kapanmışsa **Enable** ile aç; History'de son çalışmaların 200 olduğunu gör.
 
 **Demo günlerinde 7/24:** aynı işi düzenle → Hours: `*` (her saat). Demodan sonra `9-21`'e geri al. Demodan ~5 dk önce Vercel adresini bir kez aç: Render ve Neon ısınmış olur.
 
