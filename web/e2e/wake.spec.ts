@@ -3,18 +3,25 @@ import { mockAuthApi } from "./api-mock";
 import { mockCatalogApi, NOW } from "./catalog-mock";
 
 /*
- * A sleeping server (design v0.3.2 31–32): a request without an answer after 3 s switches to polling the
- * liveness check (/api/health) with short timeouts; the real request is sent once more when it answers.
+ * A sleeping server (design v0.3.2 31–32): a request without an answer after 3 s (or with Render's HTML waking
+ * page) switches to a long liveness request (/api/health); the real request is sent once more when it answers.
  */
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
-/** The liveness check answers 503 for the first `asleep` probes, then 200 (or never, with Infinity). */
+/** What Render answers while a sleeping service starts, to every path and also to `Accept: application/json`. */
+const WAKING_PAGE = {
+  status: 200,
+  contentType: "text/html; charset=utf-8",
+  body: "<!DOCTYPE html><html><head><title>Welcome to Render</title></head><body><h1>SERVICE WAKING UP</h1></body></html>",
+};
+
+/** The liveness check answers Render's waking page for the first `asleep` requests, then UP (never, with Infinity). */
 async function mockLiveness(page: Page, asleep: number) {
   const probes = { count: 0 };
   await page.route("**/api/health", (route) => {
     probes.count++;
-    return probes.count <= asleep ? route.fulfill({ status: 503, body: "" }) : route.fulfill({ json: { status: "UP" } });
+    return probes.count <= asleep ? route.fulfill(WAKING_PAGE) : route.fulfill({ json: { status: "UP" } });
   });
   return probes;
 }
@@ -48,14 +55,36 @@ test("31a: a login without an answer waits for the server, then signs in with on
   const note = page.getByRole("status").filter({ hasText: "Sunucu hazırlanıyor, bu bir dakika sürebilir." });
   await expect(note).toBeVisible({ timeout: 6_000 });
   await expect(note.getByRole("progressbar", { name: "Sunucunun açılması" })).toBeVisible();
-  await expect(note).toContainText("Genellikle 60–90 saniye");
+  await expect(note).toContainText("Genellikle 1–2 dakika");
   await expect(page.getByRole("button", { name: "Giriş yapılıyor…" })).toBeDisabled();
 
   await expect(page).toHaveURL(/\/batches$/, { timeout: 20_000 });
   expect(logins.count).toBe(2);
 });
 
-test("31b: after 90 s without the server the login offers 'Tekrar dene' and keeps what was typed", async ({ page }) => {
+test("31a with Render's waking page: the login's HTML answer is not parsed; it waits, then signs in", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await mockAuthApi(page, { signedIn: false });
+  await mockCatalogApi(page);
+  await mockLiveness(page, 4);
+  const logins = { count: 0 };
+  await page.route(/\/api\/v1\/auth\/login$/, (route) => {
+    if (route.request().method() !== "POST") return route.fallback();
+    logins.count++;
+    return logins.count === 1 ? route.fulfill(WAKING_PAGE) : route.fallback();
+  });
+  await page.goto("/login");
+  await fillLogin(page);
+  await page.getByRole("button", { name: "Giriş yap" }).click();
+
+  await expect(page.getByRole("status").filter({ hasText: "Sunucu hazırlanıyor" })).toBeVisible({ timeout: 6_000 });
+  await expect(page).toHaveURL(/\/batches$/, { timeout: 30_000 });
+  expect(logins.count).toBe(2);
+  expect(errors).toEqual([]);
+});
+
+test("31b: after 3 minutes without the server the login offers 'Tekrar dene' and keeps what was typed", async ({ page }) => {
   await page.clock.install({ time: NOW });
   await mockAuthApi(page, { signedIn: false });
   await mockLiveness(page, Infinity);
@@ -65,9 +94,9 @@ test("31b: after 90 s without the server the login offers 'Tekrar dene' and keep
   await page.getByRole("button", { name: "Giriş yap" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Sunucu hazırlanıyor" })).toBeVisible({ timeout: 6_000 });
 
-  await page.clock.fastForward(91_000);
+  await page.clock.fastForward(181_000);
 
-  const gaveUp = page.getByRole("alert").filter({ hasText: "Sunucu 90 saniyede hazır olmadı." });
+  const gaveUp = page.getByRole("alert").filter({ hasText: "Sunucu 3 dakikada hazır olmadı." });
   await expect(gaveUp).toContainText("Bilgileriniz korundu.");
   await expect(page.getByLabel("Şifre", { exact: true })).toHaveValue("demo-sifre");
   await expect(page.getByRole("button", { name: "Tekrar dene" })).toBeEnabled();
@@ -96,7 +125,7 @@ test("32: a list waiting for the server shows the strip and skeleton counts, the
   const strip = page.getByRole("status").filter({ hasText: "Sunucu hazırlanıyor, bu bir dakika sürebilir." });
   await expect(strip).toBeVisible({ timeout: 6_000 });
   await expect(strip).toContainText("Hazır olunca liste kendiliğinden dolar.");
-  await expect(strip).toContainText("genellikle 60–90 sn");
+  await expect(strip).toContainText("genellikle 1–2 dk");
   // No numbers on the tabs while the server starts.
   await expect(page.getByRole("group", { name: "Durum" }).getByRole("button", { name: /Tümü/ })).toHaveText("Tümü");
 
@@ -134,7 +163,7 @@ test("opening the panel on a sleeping server: strip first, then exactly one refr
   expect(probes.count).toBe(3);
 });
 
-test("the panel keeps the session when the server does not start within 90 s; 'Tekrar dene' opens it", async ({
+test("the panel keeps the session when the server does not start within 3 minutes; 'Tekrar dene' opens it", async ({
   page,
 }) => {
   await page.clock.install({ time: NOW });
@@ -148,9 +177,9 @@ test("the panel keeps the session when the server does not start within 90 s; 'T
   await page.goto("/batches");
   await expect(page.getByRole("status").filter({ hasText: "Sunucu hazırlanıyor" })).toBeVisible();
 
-  await page.clock.fastForward(91_000);
+  await page.clock.fastForward(181_000);
 
-  const gaveUp = page.getByRole("alert").filter({ hasText: "Sunucu 90 saniyede hazır olmadı." });
+  const gaveUp = page.getByRole("alert").filter({ hasText: "Sunucu 3 dakikada hazır olmadı." });
   await expect(gaveUp).toContainText("Oturumunuz korunuyor.");
   expect(refreshes.count).toBe(0);
   await expect(page).toHaveURL(/\/batches$/);

@@ -36,9 +36,9 @@
     "serverWake": {
       "title": "The server is starting; this can take a minute.",
       "body": "The list fills in by itself once it is ready.",
-      "elapsed": "{elapsed} · usually 60–90 s",
+      "elapsed": "{elapsed} · usually 1–2 min",
       "sessionBody": "The panel opens by itself once it is ready.",
-      "gaveUpTitle": "The server was not ready within 90 seconds.",
+      "gaveUpTitle": "The server was not ready within 3 minutes.",
       "gaveUpBody": "You are still signed in. The server may still be starting; it will most likely be ready when you try again.",
       "networkTitle": "The server could not be reached.",
       "networkBody": "You are still signed in. Check your connection and try again.",
@@ -82,8 +82,8 @@
     "wakingTitle": "The server is starting; this can take a minute.",
     "wakingBody": "A server that has been idle starts on the first request. Stay on the page; you are signed in as soon as it is ready.",
     "wakingProgress": "Server start",
-    "wakingUsually": "Usually 60–90 seconds",
-    "gaveUpTitle": "The server was not ready within 90 seconds.",
+    "wakingUsually": "Usually 1–2 minutes",
+    "gaveUpTitle": "The server was not ready within 3 minutes.",
     "gaveUpBody": "Your details are kept. The server may still be starting; it will most likely be ready when you try again.",
     "retry": "Try again"
   },

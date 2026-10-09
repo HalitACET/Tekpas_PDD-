@@ -105,14 +105,14 @@ describe("LoginForm", () => {
     expect(login).toHaveBeenNthCalledWith(2, "elif@karacatekstil.com.tr", "sifre", true);
   });
 
-  it("after 90 s without the server it offers to try again, keeping what was typed", async () => {
+  it("after 3 minutes without the server it offers to try again, keeping what was typed", async () => {
     waitUntilAwake.mockResolvedValue(false);
     login.mockResolvedValue("unreachable");
     renderWithIntl(<LoginForm />);
 
     const user = await fillAndSubmit();
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Sunucu 90 saniyede hazır olmadı.");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Sunucu 3 dakikada hazır olmadı.");
     expect(screen.getByLabelText("Şifre")).toHaveValue("sifre");
     expect(login).toHaveBeenCalledTimes(1);
 
