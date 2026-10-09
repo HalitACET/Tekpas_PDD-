@@ -263,6 +263,8 @@ Backend kuralları (M2):
 
 - [ ] Panel açılışında uyuyan sunucu: önce liveness yoklanır, refresh sunucu hazır olunca tek kez gider (rotation tek kullanımlık); 32'deki şerit kabuk iskeletinin içinde, 90 sn veya bağlantı hatasında 31b benzeri "Tekrar dene" kutusu, oturum korunur (`impl-v0.3.2/32b-*`, `32c-*`). Tasarımda yok.
 
+- [ ] Flaky test: `web/e2e/keyboard.spec.ts` "mobile panel (390 × 800) › drawer and user menu…" tam e2e paketi çalışırken bir kez odak çekmece dışına çıktı (satır 142); tek başına 3/3 geçiyor. Ayrı bakılacak (PR 3 dışında).
+
 **Ertelenenler** (tasarımda var, verisi sonraki kilometre taşında gelecek):
 - [ ] Menüdeki "Görevler" rozeti (bekleyen görev sayısı): M4'te, `GET /tasks` gelince. O zamana kadar gizli.
 
