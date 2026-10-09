@@ -451,6 +451,7 @@ export interface components {
         ChainSummary: {
             /** Format: int32 */
             approvedSteps: number;
+            stepStatuses: components["schemas"]["StepStatus"][];
             /** Format: int32 */
             totalSteps: number;
         };
@@ -670,6 +671,8 @@ export interface components {
             editable: boolean;
             /** Format: uuid */
             id: string;
+            /** Format: date-time */
+            latestStepAt?: string | null;
             latestStepStatus?: components["schemas"]["StepStatus"];
             /** Format: date-time */
             linkedAt: string;

@@ -280,12 +280,18 @@
             "format" : "int32",
             "type" : "integer"
           },
+          "stepStatuses" : {
+            "items" : {
+              "$ref" : "#/components/schemas/StepStatus"
+            },
+            "type" : "array"
+          },
           "totalSteps" : {
             "format" : "int32",
             "type" : "integer"
           }
         },
-        "required" : [ "approvedSteps", "totalSteps" ],
+        "required" : [ "approvedSteps", "stepStatuses", "totalSteps" ],
         "type" : "object"
       },
       "CompanySummary" : {
@@ -886,6 +892,10 @@
           "id" : {
             "format" : "uuid",
             "type" : "string"
+          },
+          "latestStepAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
           },
           "latestStepStatus" : {
             "$ref" : "#/components/schemas/StepStatus"
