@@ -52,6 +52,23 @@ class RefreshRotationTest {
         assertThat(familyOf(second)).isEqualTo(familyOf(first));
     }
 
+    /**
+     * A login repeated while the server woke up (web, design v0.3.2 31): if the first, abandoned request was
+     * processed too, the user has two families. The browser keeps the cookie of the answer it received, the
+     * second; it refreshes normally. The first family is independent of it and simply expires.
+     */
+    @Test
+    void aRepeatedLoginMakesAnIndependentFamilyAndTheLatestTokenRefreshes() {
+        String abandoned = mobileLogin();
+        String kept = mobileLogin();
+
+        assertThat(familyOf(kept)).isNotEqualTo(familyOf(abandoned));
+        MvcTestResult refreshed = refresh(kept);
+        assertThat(refreshed).hasStatusOk();
+        assertThat(refresh(refreshToken(refreshed))).hasStatusOk();
+        assertThat(usedAt(abandoned)).isNull();
+    }
+
     @Test
     void reuseWithinGraceIsRejectedButTheFamilySurvives() {
         String first = mobileLogin();
