@@ -31,8 +31,10 @@ tekpas:
     cookie-secure: true
   client-ip:
     # client -> Vercel (rewrite) -> Render: entries our proxies append to X-Forwarded-For after the one Vercel
-    # saw (common/web/ClientIp). Checked against the live access log ("xff=N" on /api/v1/public/ lines).
-    trusted-proxies: 1
+    # saw (common/web/ClientIp). With 1 the live check (10.10.2026) keyed on changing addresses, not the
+    # client, so the client IP is off (-1): per-token limits plus one general counter. Turn it back on with
+    # the hop count from the access log ("xff=N" on /api/v1/public/ lines) once confirmed.
+    trusted-proxies: -1
   cors:
     # Optional: the web app goes through its own origin (K18), so CORS stays off unless origins are listed.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:}

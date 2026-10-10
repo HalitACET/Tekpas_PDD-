@@ -502,6 +502,16 @@ class DataRequestApiTest {
         }
 
         @Test
+        void sixtyOpeningsAMinutePerLinkWhateverTheClient() {
+            Setup s = setup(fixtures.tenant());
+            String token = token(s.tenant(), s.yarnStep());
+            for (int i = 0; i < 60; i++) {
+                assertThat(open(token)).hasStatusOk();
+            }
+            assertThat(open(token)).hasStatus(429);
+        }
+
+        @Test
         void thirtyRequestsAMinutePerClient() {
             String ip = randomIp();
             Setup s = setup(fixtures.tenant());
