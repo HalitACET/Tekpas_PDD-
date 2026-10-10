@@ -5,11 +5,13 @@ import { fiberText, formatPercent } from "@/lib/format";
 type StepData = components["schemas"]["StepData"];
 type EnergySource = components["schemas"]["EnergySource"];
 type YarnProcess = components["schemas"]["YarnProcess"];
+type DyeProcess = components["schemas"]["DyeProcess"];
+type ChemicalStandard = components["schemas"]["ChemicalStandard"];
 
 /*
  * "Tedarikçinin girdiği veriler" of the step panel (design v0.3 10, v0.3.1 30): which StepData fields a step
- * type shows, in the design's order (YARN and DYEING as there; the others follow the API's fields per type,
- * backend StepData.FIELDS). A missing value is null; the panel shows "—".
+ * type shows, in the design's order (YARN as in 10, DYEING as the form in v0.4 41; the others follow the API's
+ * fields per type, backend StepData.FIELDS). A missing value is null; the panel shows "—".
  */
 
 export type StepField =
@@ -23,15 +25,17 @@ export type StepField =
   | "energySources"
   | "energyUse"
   | "delivered"
-  | "process"
-  | "chemicalCompliance"
+  | "dyeProcess"
+  | "shade"
+  | "chemicalStandards"
+  | "processed"
   | "waterLPerKg";
 
 const FIELDS: Record<StepType, StepField[]> = {
   FIBER: ["fiberType", "originRegion", "originCountry", "harvestYear", "quantityKg"],
   YARN: ["fiberComposition", "originCountry", "energySources", "energyUse", "delivered"],
   FABRIC: ["fiberComposition", "fabric", "originCountry", "energySources", "energyUse", "delivered"],
-  DYEING: ["process", "chemicalCompliance", "energySources", "energyUse", "waterLPerKg"],
+  DYEING: ["dyeProcess", "shade", "chemicalStandards", "processed", "waterLPerKg", "energySources", "energyUse"],
   SEWING: ["originCountry", "energySources", "energyUse"],
   ACCESSORY: ["originCountry", "energySources"],
   PACKAGING: ["originCountry", "energySources"],
@@ -41,6 +45,8 @@ export interface StepDataText {
   fiber: (fiber: Fiber) => string;
   energySource: (source: EnergySource) => string;
   yarnProcess: (process: YarnProcess) => string;
+  dyeProcess: (process: DyeProcess) => string;
+  chemicalStandard: (standard: ChemicalStandard) => string;
   country: (code: string) => string;
   unit: (unit: "kg" | "kwhPerKg" | "kwhPerPiece" | "lPerKg" | "gsm", value: string) => string;
 }
@@ -85,10 +91,16 @@ export function stepDataRows(
           data.deliveredKg != null ? text.unit("kg", number(data.deliveredKg)) : null,
           [data.yarnCount, data.yarnProcess ? text.yarnProcess(data.yarnProcess) : null].filter(Boolean).join(" "),
         ]);
-      case "process":
-        return data.process ?? null;
-      case "chemicalCompliance":
-        return data.chemicalCompliance ?? null;
+      case "dyeProcess":
+        if (!data.dyeProcess) return null;
+        return data.dyeProcess === "OTHER" && data.dyeProcessOther ? data.dyeProcessOther : text.dyeProcess(data.dyeProcess);
+      case "shade":
+        return data.shade ?? null;
+      case "chemicalStandards":
+        return data.chemicalStandards?.length ? data.chemicalStandards.map(text.chemicalStandard).join(" · ") : null;
+      case "processed":
+        // Dyeing: "İşlenen miktar" (design v0.4 41) is the API's deliveredKg.
+        return data.deliveredKg != null ? text.unit("kg", number(data.deliveredKg)) : null;
       case "waterLPerKg":
         return data.waterLPerKg != null ? text.unit("lPerKg", number(data.waterLPerKg)) : null;
     }

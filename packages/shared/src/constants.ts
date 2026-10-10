@@ -66,6 +66,24 @@ export type EnergySource = (typeof ENERGY_SOURCES)[number];
 export const YARN_PROCESSES = ["COMBED", "CARDED", "OPEN_END", "OTHER"] as const;
 export type YarnProcess = (typeof YARN_PROCESSES)[number];
 
+/** Dyeing process (design v0.4 41); OTHER needs `dyeProcessOther`. */
+export const DYE_PROCESSES = ["REACTIVE", "DISPERSE", "VAT", "PIGMENT", "OTHER"] as const;
+export type DyeProcess = (typeof DYE_PROCESSES)[number];
+
+/** Chemical compliance, all that apply (design v0.4 41); NONE ("Hiçbiri") cannot be combined with the others. */
+export const CHEMICAL_STANDARDS = ["ZDHC_MRSL", "OEKO_TEX_ECO_PASSPORT", "BLUESIGN", "GOTS_APPROVED", "NONE"] as const;
+export type ChemicalStandard = (typeof CHEMICAL_STANDARDS)[number];
+
+/**
+ * "Düzeltme iste" presets (design v0.4 47b) and the step data fields each marks on the supplier's form (45).
+ * The single place for this mapping: the documents' presets ("Belge okunaksız", "Sertifika süresi dolmuş")
+ * join with M5 and M7. `stepTypes` are the steps that have those fields (backend StepData).
+ */
+export const CORRECTION_PRESETS = [
+  { key: "FIBER_MISMATCH", fields: ["fiberComposition"], stepTypes: ["YARN", "FABRIC"] },
+] as const satisfies readonly { key: string; fields: readonly string[]; stepTypes: readonly StepType[] }[];
+export type CorrectionPreset = (typeof CORRECTION_PRESETS)[number]["key"];
+
 /** GS1 AI(10): up to 20 characters of A–Z, 0–9 and "-". */
 export const BATCH_NO_PATTERN = /^[A-Z0-9-]{1,20}$/;
 
@@ -97,5 +115,7 @@ export const FIELD_ERROR_CODES = [
   "Cycle",
   "EnergyTotal",
   "EnergyDuplicate",
+  "NoneExclusive",
+  "Duplicate",
 ] as const;
 export type FieldErrorCode = (typeof FIELD_ERROR_CODES)[number];

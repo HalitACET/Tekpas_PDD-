@@ -290,6 +290,20 @@
       "CARDED": "carded",
       "OPEN_END": "open-end",
       "OTHER": "other"
+    },
+    "dyeProcess": {
+      "REACTIVE": "Reactive dyeing",
+      "DISPERSE": "Disperse dyeing",
+      "VAT": "Vat dyeing",
+      "PIGMENT": "Pigment dyeing",
+      "OTHER": "Other"
+    },
+    "chemicalStandard": {
+      "ZDHC_MRSL": "ZDHC MRSL",
+      "OEKO_TEX_ECO_PASSPORT": "OEKO-TEX ECO PASSPORT",
+      "BLUESIGN": "bluesign",
+      "GOTS_APPROVED": "GOTS approved chemicals",
+      "NONE": "None"
     }
   },
   "errors": {
@@ -315,7 +329,9 @@
       "Cycle": "This link would create a loop in the chain.",
       "EnergyTotal": "Energy sources must add up to 100% (now {total}%).",
       "EnergyDuplicate": "The same energy source is entered more than once.",
-      "City": "Choose a province from the list."
+      "City": "Choose a province from the list.",
+      "NoneExclusive": "\"None\" cannot be combined with other options.",
+      "Duplicate": "The same option is selected twice."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "This product has batches. Delete its batches first to delete the product.",
@@ -327,7 +343,11 @@
       "STEP_NOT_PENDING": "Only steps still waiting for data can be removed.",
       "SUPPLIER_NOT_EDITABLE": "The name, type and city of this company cannot be changed; only the contact details can.",
       "SUPPLIER_IN_USE": "This supplier is used in a batch’s chain.",
-      "SUPPLIER_TYPE_IN_USE": "This supplier is used in a batch chain, so its type cannot change."
+      "SUPPLIER_TYPE_IN_USE": "This supplier is used in a batch chain, so its type cannot change.",
+      "STEP_HAS_NO_SUPPLIER": "Assign a supplier to the step before requesting data.",
+      "STEP_NOT_OPEN": "The data of this step was already submitted.",
+      "REQUEST_NOT_OPEN": "This link is no longer open.",
+      "STEP_NOT_SUBMITTED": "Only submitted data can be approved or sent back for correction."
     }
   },
   "products": {
@@ -542,9 +562,11 @@
           "energySources": "Energy source",
           "energyUse": "Energy use",
           "delivered": "Delivered",
-          "process": "Process",
-          "chemicalCompliance": "Chemical compliance",
-          "waterLPerKg": "Water use"
+          "waterLPerKg": "Water use",
+          "dyeProcess": "Process",
+          "shade": "Colour / shade",
+          "chemicalStandards": "Chemical compliance",
+          "processed": "Processed"
         },
         "units": {
           "kg": "{value} kg",

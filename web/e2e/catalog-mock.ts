@@ -184,8 +184,10 @@ export function designChain(batch = 2): MockStep[] {
       "SUBMITTED",
       "Çınar Boya Apre",
       {
-        process: "Reaktif boya, ekru",
-        chemicalCompliance: "ZDHC MRSL 3.1",
+        dyeProcess: "REACTIVE",
+        shade: "Ekru",
+        chemicalStandards: ["ZDHC_MRSL", "OEKO_TEX_ECO_PASSPORT"],
+        deliveredKg: 1150,
         energySources: [{ source: "NATURAL_GAS", percent: 80 }, { source: "SOLAR", percent: 20 }],
         waterLPerKg: 62,
       },

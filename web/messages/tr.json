@@ -290,6 +290,20 @@
       "CARDED": "karde",
       "OPEN_END": "open-end",
       "OTHER": "diğer"
+    },
+    "dyeProcess": {
+      "REACTIVE": "Reaktif boyama",
+      "DISPERSE": "Dispers boyama",
+      "VAT": "Küp boyama",
+      "PIGMENT": "Pigment boyama",
+      "OTHER": "Diğer"
+    },
+    "chemicalStandard": {
+      "ZDHC_MRSL": "ZDHC MRSL",
+      "OEKO_TEX_ECO_PASSPORT": "OEKO-TEX ECO PASSPORT",
+      "BLUESIGN": "bluesign",
+      "GOTS_APPROVED": "GOTS onaylı kimyasallar",
+      "NONE": "Hiçbiri"
     }
   },
   "errors": {
@@ -315,7 +329,9 @@
       "Cycle": "Bu bağlantı zincirde döngü oluşturur.",
       "EnergyTotal": "Enerji kaynaklarının toplamı %100 olmalı (şu an %{total}).",
       "EnergyDuplicate": "Aynı enerji kaynağı birden fazla kez girilmiş.",
-      "City": "Listeden bir il seçin."
+      "City": "Listeden bir il seçin.",
+      "NoneExclusive": "\"Hiçbiri\" başka bir seçenekle birlikte seçilemez.",
+      "Duplicate": "Aynı seçenek iki kez seçilmiş."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "Bu ürünün partileri var. Ürünü silmek için önce partilerini silin.",
@@ -327,7 +343,11 @@
       "STEP_NOT_PENDING": "Yalnızca veri bekleyen adımlar kaldırılabilir.",
       "SUPPLIER_NOT_EDITABLE": "Bu firmanın adı, tipi ve şehri değiştirilemez; yalnızca iletişim bilgisi güncellenebilir.",
       "SUPPLIER_IN_USE": "Bu tedarikçi bir partinin zincirinde kullanılıyor.",
-      "SUPPLIER_TYPE_IN_USE": "Bu tedarikçi bir partinin zincirinde kullanıldığı için tipi değiştirilemez."
+      "SUPPLIER_TYPE_IN_USE": "Bu tedarikçi bir partinin zincirinde kullanıldığı için tipi değiştirilemez.",
+      "STEP_HAS_NO_SUPPLIER": "Veri talep etmek için önce adıma bir tedarikçi atayın.",
+      "STEP_NOT_OPEN": "Bu adımın verisi zaten gönderildi.",
+      "REQUEST_NOT_OPEN": "Bu bağlantı artık açık değil.",
+      "STEP_NOT_SUBMITTED": "Yalnızca gönderilmiş veriler onaylanabilir veya düzeltmeye gönderilebilir."
     }
   },
   "products": {
@@ -542,9 +562,11 @@
           "energySources": "Enerji kaynağı",
           "energyUse": "Enerji tüketimi",
           "delivered": "Teslim edilen",
-          "process": "İşlem",
-          "chemicalCompliance": "Kimyasal uyumu",
-          "waterLPerKg": "Su tüketimi"
+          "waterLPerKg": "Su tüketimi",
+          "dyeProcess": "İşlem",
+          "shade": "Renk / ton",
+          "chemicalStandards": "Kimyasal uyumu",
+          "processed": "İşlenen miktar"
         },
         "units": {
           "kg": "{value} kg",
