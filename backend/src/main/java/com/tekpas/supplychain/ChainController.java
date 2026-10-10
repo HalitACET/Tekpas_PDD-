@@ -88,14 +88,17 @@ public class ChainController {
 
     @PatchMapping(path = "/steps/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @WriteAccess
-    @Operation(operationId = "updateStep", summary = "Assign a supplier, set the data or the inputs of a step")
+    @Operation(operationId = "updateStep", summary = "Assign a supplier, set the data or the inputs of a step",
+            description = "FIBER data is the manufacturer's declaration: fiberType and originCountry are required, "
+                    + "the step is approved on saving and stays editable until the batch is published.")
     @ApiResponse(responseCode = "200", description = "The chain after the change")
     @ApiResponse(responseCode = "400", description = "Validation failed (NotApplicable, EnergyTotal, Cycle, …)")
     @ApiResponse(responseCode = "403", description = "Read-only or supplier user")
     @ApiResponse(responseCode = "404", description = "No such step in this company, or supplier not in the network")
-    @ApiResponse(responseCode = "409", description = "The step is approved (reason STEP_APPROVED)")
+    @ApiResponse(responseCode = "409", description = "The step is approved (STEP_APPROVED), or for FIBER the "
+            + "batch is published (BATCH_PUBLISHED)")
     public ChainResponse updateStep(@PathVariable UUID id, @Valid @RequestBody StepUpdateRequest request) {
-        return service.updateStep(currentUser.companyId(), id, request);
+        return service.updateStep(currentUser.companyId(), currentUser.userId(), id, request);
     }
 
     @PostMapping("/steps/{id}/approve")

@@ -112,10 +112,18 @@ public record StepData(
      * list "filled" means at least one entry.
      */
     private static final Map<StepType, List<String>> REQUIRED = Map.of(
+            StepType.FIBER, List.of("fiberType", "originCountry"),
             StepType.YARN, List.of("fiberComposition", "originCountry"),
             StepType.FABRIC, List.of("fiberComposition", "fabricType"),
             StepType.DYEING, List.of("dyeProcess", "chemicalStandards"),
             StepType.SEWING, List.of("originCountry"));
+
+    /** How many fields are filled ("Selin Arslan gönderdi · 5 alan", design v0.4 48a). */
+    public int filledCount() {
+        return (int) FIELDS.values().stream().map(f -> f.value().apply(this))
+                .filter(v -> v != null && !(v instanceof String t && t.isBlank()) && !(v instanceof List<?> l && l.isEmpty()))
+                .count();
+    }
 
     /** Field names a step type has (whitelist for the fields of a correction request). */
     public static List<String> fieldsOf(StepType type) {

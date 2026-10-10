@@ -22,6 +22,14 @@ public interface SupplyStepRepository extends JpaRepository<SupplyStep, UUID> {
             """)
     Optional<SupplyStep> lockForUpdate(UUID id, UUID companyId);
 
+    /** Steps of the company's batches that are not published yet (the tasks, design v0.4 48a). */
+    @Query("""
+            select s from SupplyStep s, Batch b
+            where b.id = s.batchId and b.companyId = :companyId
+              and b.status <> com.tekpas.batch.BatchStatus.PUBLISHED
+            """)
+    List<SupplyStep> findOpenOfCompany(UUID companyId);
+
     /** For the public link: the request already proves which step; no company filter applies. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from SupplyStep s where s.id = :id")
