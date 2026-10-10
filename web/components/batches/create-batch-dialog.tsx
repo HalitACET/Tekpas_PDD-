@@ -8,9 +8,9 @@ import { Controller, type FieldPath, useForm, useWatch } from "react-hook-form";
 import { DateRangeFields } from "@/components/common/date-range-fields";
 import { showErrorToast } from "@/components/common/error-toast";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useCreateBatch, useNextBatchNo } from "@/lib/api/batches";
+import { useChainPreview, useCreateBatch, useNextBatchNo } from "@/lib/api/batches";
 import type { ProductListItem } from "@/lib/api/products";
 import { ApiError } from "@/lib/api/request";
 import {
@@ -24,7 +24,10 @@ import {
 import { fieldErrorsFrom } from "@/lib/products/product-form";
 import { ProductCombobox } from "./product-combobox";
 
-/** Design v0.3 08 "Yeni parti". The "steps are copied from the last batch" line waits for M3. */
+/**
+ * Design v0.3 08 "Yeni parti". Once product and quantity are set, the footer tells how many supply chain steps
+ * the batch gets: copied from the product's last batch, or the default chain for its first one.
+ */
 export function CreateBatchDialog({
   open,
   onClose,
@@ -38,8 +41,9 @@ export function CreateBatchDialog({
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent closeLabel={t("close")}>
-        <div className="px-6 pt-5 pr-16 pb-1">
+        <div className="flex flex-col gap-1 px-6 pt-5 pr-16 pb-1">
           <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </div>
         {open && <CreateBatchForm products={products} onDone={onClose} />}
       </DialogContent>
@@ -71,6 +75,12 @@ function CreateBatchForm({ products, onDone }: { products: ProductListItem[]; on
 
   const create = useCreateBatch();
   const missing = !values.productId || !values.quantity?.trim();
+  const preview = useChainPreview(values.productId || undefined);
+  const chainHint = preview.data
+    ? preview.data.sourceBatchNo
+      ? t("chainCopied", { count: preview.data.stepCount })
+      : t("chainDefault", { count: preview.data.stepCount })
+    : null;
   const message = (code: string | undefined) =>
     code === undefined ? undefined : tField.has(code as never) ? tField(code as never) : code;
 
@@ -204,7 +214,7 @@ function CreateBatchForm({ products, onDone }: { products: ProductListItem[]; on
 
       <div className="flex items-center gap-2 border-t px-6 py-3.5">
         <span className="text-xs text-muted-foreground" aria-live="polite">
-          {missing ? t("required") : null}
+          {missing ? t("required") : chainHint}
         </span>
         <DialogClose render={<Button type="button" variant="ghost" className="ml-auto" />}>{t("cancel")}</DialogClose>
         <Button

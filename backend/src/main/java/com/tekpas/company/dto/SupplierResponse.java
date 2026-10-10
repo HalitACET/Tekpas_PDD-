@@ -10,7 +10,9 @@ import org.jspecify.annotations.Nullable;
  * A supplier in the current company's network (design 14).
  *
  * @param batchCount batches of the current company with this supplier in their chain
- * @param latestStepStatus status of the supplier's most recently changed step there; null without steps
+ * @param latestStepStatus status of the supplier's most recently changed step there; null without steps.
+ *     Only the current company's batches count, never the supplier's work for other manufacturers.
+ * @param latestStepAt when that step last changed (design v0.3.1 25 "Son durum · 8 Eyl")
  * @param editable whether name, type and city can change (created by the current company, no users)
  * @param linkedAt when the supplier was added to the network
  */
@@ -22,6 +24,7 @@ public record SupplierResponse(
         @Nullable String phone,
         long batchCount,
         @Nullable StepStatus latestStepStatus,
+        @Nullable Instant latestStepAt,
         boolean editable,
         Instant linkedAt) {
 }

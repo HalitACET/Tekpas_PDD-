@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import path from "node:path";
 import { mockAuthApi } from "./api-mock";
-import { mockCatalogApi, NOW } from "./catalog-mock";
+import { designBatches, mockCatalogApi, NOW } from "./catalog-mock";
 import { captureDesignFrames, serveDesign } from "./design-capture";
 
 /*
@@ -104,6 +104,28 @@ for (const scheme of ["light", "dark"] as const) {
       await expect(page.getByRole("group", { name: "Durum" })).toContainText("Tümü7");
       await page.mouse.move(0, 0);
       await shoot(page, `22-${scheme}`);
+    });
+
+    test("26 batch without a supply chain", async ({ page }) => {
+      await prepare(page, scheme);
+      await mockAuthApi(page, { signedIn: true });
+      await mockCatalogApi(page);
+      await page.goto("/batches/30000000-0000-4000-8000-000000000001");
+      await expect(page.getByRole("button", { name: "Varsayılan zinciri oluştur" })).toBeVisible();
+      await page.mouse.move(0, 0);
+      await shoot(page, `26-${scheme}`);
+    });
+
+    test("29 a rejected step (the 'Düzeltme istendi' line waits for M4)", async ({ page }) => {
+      await prepare(page, scheme);
+      await mockAuthApi(page, { signedIn: true });
+      const batches = designBatches();
+      batches[1].steps[2].status = "REJECTED";
+      await mockCatalogApi(page, { batches });
+      await page.goto("/batches/30000000-0000-4000-8000-000000000002");
+      await expect(page.locator(".react-flow__node")).toHaveCount(6);
+      await page.mouse.move(0, 0);
+      await shoot(page, `29-${scheme}`);
     });
 
     test("27 supplier in use cannot be removed", async ({ page }) => {

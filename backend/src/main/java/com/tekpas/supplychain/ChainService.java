@@ -202,11 +202,11 @@ public class ChainService {
                     step.getSortOrder(), inputs.getOrDefault(step.getId(), List.of()), step.getData(), 0,
                     step.getSubmittedAt(), step.getUpdatedAt());
         }).toList();
-        int approved = (int) chain.stream().filter(s -> s.getStatus() == StepStatus.APPROVED).count();
         List<StepType> unassigned = chain.stream()
                 .filter(s -> s.getStepType().supplierType() != null && s.getSupplierCompanyId() == null)
                 .map(SupplyStep::getStepType).distinct().sorted().toList();
-        return new ChainResponse(batchId, nodes, new ChainSummary(chain.size(), approved), unassigned);
+        return new ChainResponse(batchId, nodes, ChainSummary.of(chain.stream().map(SupplyStep::getStatus).toList()),
+                unassigned);
     }
 
     private void createDefault(UUID batchId) {

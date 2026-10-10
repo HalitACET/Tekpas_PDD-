@@ -250,6 +250,39 @@ class BatchApiTest {
     }
 
     @Nested
+    class StepStatuses {
+
+        @Test
+        void theListCarriesEveryStepStatusInChainOrder() {
+            Tenant tenant = fixtures.tenant();
+            String batchId = createBatch(tenant);
+            String fabric = jdbc.queryForObject(
+                    "SELECT id::text FROM supply_step WHERE batch_id = ?::uuid AND step_type = 'FABRIC'", String.class, batchId);
+            // A second spinner (DAG), added after the first one: it comes right after it.
+            assertThat(fixtures.post(tenant, BATCHES + "/" + batchId + "/steps",
+                    Map.of("stepType", "YARN", "outputStepIds", List.of(fabric)))).hasStatus(201);
+            jdbc.update("UPDATE supply_step SET status = 'APPROVED' WHERE batch_id = ?::uuid AND step_type = 'FIBER'", batchId);
+            jdbc.update("UPDATE supply_step SET status = 'SUBMITTED' WHERE id = ?::uuid", fabric);
+            jdbc.update("""
+                    UPDATE supply_step SET status = 'REJECTED' WHERE id = (SELECT id FROM supply_step
+                    WHERE batch_id = ?::uuid AND step_type = 'YARN' ORDER BY sort_order DESC LIMIT 1)
+                    """, batchId);
+
+            JsonNode row = fixtures.body(fixtures.get(tenant, BATCHES)).path("content").get(0);
+            JsonNode chain = fixtures.body(fixtures.get(tenant, BATCHES + "/" + batchId + "/chain"));
+
+            List<String> expected = List.of("APPROVED", "PENDING", "REJECTED", "SUBMITTED", "PENDING", "PENDING");
+            assertThat(row.path("chain").path("stepStatuses").valueStream().map(JsonNode::asString)).containsExactlyElementsOf(expected);
+            assertThat(row.path("chain").path("totalSteps").asInt()).isEqualTo(6);
+            assertThat(row.path("chain").path("approvedSteps").asInt()).isEqualTo(1);
+            assertThat(chain.path("summary").path("stepStatuses").valueStream().map(JsonNode::asString))
+                    .containsExactlyElementsOf(expected);
+            assertThat(chain.path("steps").valueStream().map(step -> step.path("status").asString()))
+                    .containsExactlyElementsOf(expected);
+        }
+    }
+
+    @Nested
     class SupplierFilter {
 
         String supplier(Tenant tenant) {

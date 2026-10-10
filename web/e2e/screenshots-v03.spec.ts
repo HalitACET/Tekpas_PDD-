@@ -137,6 +137,35 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `08-${scheme}`);
     });
 
+    test("08b create batch, the chain steps line", async ({ page }) => {
+      await openBatches(page, scheme);
+      await page.getByRole("button", { name: "Yeni parti" }).click();
+      const form = page.getByRole("dialog", { name: "Yeni parti" });
+      await form.getByRole("combobox", { name: "Ürün" }).click();
+      await form.getByRole("combobox", { name: "Ürün" }).fill("pamuk tişört");
+      await page.getByRole("option", { name: /Organik pamuk tişört, ekru/ }).click();
+      await form.getByLabel("Üretim emri no").fill("ÜE-2026-0452");
+      await form.getByLabel("Miktar").fill("1.800");
+      // The form needs both dates for now (M10: an empty date should count as none, as in the API).
+      const calendar = page.getByRole("dialog", { name: "Tarih seç" });
+      await form.getByRole("button", { name: "Üretim başlangıcı" }).click();
+      await calendar.getByRole("button", { name: /(^|, )5 Ekim 2026/ }).click();
+      await calendar.getByRole("button", { name: /(^|, )20 Ekim 2026/ }).click();
+      await expect(calendar).toBeHidden();
+      await expect(form.getByText("Tedarik zinciri: 6 adım kopyalanacak")).toBeVisible();
+      await expect(form.getByRole("button", { name: "Partiyi oluştur" })).toBeEnabled();
+      await page.mouse.move(0, 0);
+      await shoot(page, `08b-chain-line-${scheme}`);
+    });
+
+    test("09 batch detail, supply chain", async ({ page }) => {
+      await openBatches(page, scheme);
+      await page.getByRole("link", { name: "KP-2026-0918-A partisini aç" }).click();
+      await expect(page.locator(".react-flow__node")).toHaveCount(6);
+      await page.mouse.move(0, 0);
+      await shoot(page, `09-${scheme}`);
+    });
+
     test("14 suppliers list", async ({ page }) => {
       await openSuppliers(page, scheme);
       await shoot(page, `14-${scheme}`);
@@ -179,8 +208,8 @@ test.describe("design references", () => {
   test.describe.configure({ retries: 2 });
   const design = serveDesign(DESIGN_DIR);
 
-  test("capture 01–08, 14–15", async ({ page }) => {
+  test("capture 01–09, 14–15", async ({ page }) => {
     test.setTimeout(240_000);
-    await captureDesignFrames(page, design.url("KozaPass v0.3.dc.html"), OUT, [1, 2, 3, 4, 5, 6, 7, 8, 14, 15]);
+    await captureDesignFrames(page, design.url("KozaPass v0.3.dc.html"), OUT, [1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15]);
   });
 });

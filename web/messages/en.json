@@ -266,6 +266,15 @@
       "SUBMITTED": "Submitted",
       "APPROVED": "Approved",
       "REJECTED": "Rejected"
+    },
+    "stepType": {
+      "FIBER": "Fibre",
+      "YARN": "Yarn",
+      "FABRIC": "Fabric",
+      "DYEING": "Dyeing",
+      "SEWING": "Sewing",
+      "ACCESSORY": "Accessory",
+      "PACKAGING": "Packaging"
     }
   },
   "errors": {
@@ -446,11 +455,60 @@
       "required": "Product and quantity are required",
       "cancel": "Cancel",
       "submit": "Create batch",
-      "failed": "The batch could not be created"
+      "failed": "The batch could not be created",
+      "description": "The supply chain steps are copied from the product's last batch.",
+      "chainCopied": "Supply chain: {count} steps will be copied",
+      "chainDefault": "Supply chain: the default {count} steps"
     },
     "listError": "Batches could not be loaded",
     "supplierFilter": "Supplier:",
-    "clearSupplier": "Clear the supplier filter"
+    "clearSupplier": "Clear the supplier filter",
+    "openDetail": "Open batch {batchNo}",
+    "detail": {
+      "loadError": "The batch could not be loaded",
+      "notFoundTitle": "Batch not found",
+      "notFoundBody": "It may have been deleted, or it does not belong to this company.",
+      "back": "Back to batches",
+      "gtin": "GTIN",
+      "productionOrderNo": "Production order",
+      "produced": "Produced",
+      "label": "Label declaration",
+      "score": "Compliance score",
+      "threshold": "Publishing threshold {threshold}",
+      "noScore": "The compliance score is not calculated yet",
+      "preview": "Preview",
+      "publish": "Publish passport",
+      "publishLocked": "Publishing is locked",
+      "reasons": {
+        "noChain": "No supply chain yet",
+        "unassignedOne": "No supplier assigned to the {step} step",
+        "unassignedMany": "No supplier assigned to {count} steps",
+        "awaiting": "{count} steps awaiting approval"
+      },
+      "tabs": {
+        "label": "Batch sections",
+        "chain": "Supply chain",
+        "documents": "Documents",
+        "alerts": "Alerts",
+        "versions": "Passport versions",
+        "unavailable": "Not yet available"
+      }
+    },
+    "chain": {
+      "label": "Supply chain",
+      "legend": "Step statuses",
+      "documents": "{count} documents",
+      "emptyNode": "Assign supplier",
+      "emptyNodeBody": "The {step} step is empty",
+      "loadError": "The supply chain could not be loaded",
+      "emptyTitle": "This batch has no supply chain",
+      "emptyBody": "The chain shows every production step from the fibre source to sewing, with the supplier of each step. The default chain has five steps; you assign a supplier to each step afterwards.",
+      "createDefault": "Create the default chain",
+      "createFailed": "The supply chain could not be created",
+      "labelDeclaration": "Label declaration",
+      "yarnDeclarations": "Yarn supplier declarations",
+      "noDeclaration": "No declaration yet"
+    }
   },
   "suppliers": {
     "actions": {

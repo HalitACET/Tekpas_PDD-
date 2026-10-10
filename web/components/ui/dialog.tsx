@@ -56,6 +56,10 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   );
 }
 
+function DialogDescription({ className, ...props }: DialogPrimitive.Description.Props) {
+  return <DialogPrimitive.Description className={cn("text-[13px] text-muted-foreground", className)} {...props} />;
+}
+
 const DialogClose = DialogPrimitive.Close;
 
 /*
@@ -109,6 +113,7 @@ export {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogTitle,
   AlertDialog,
   AlertDialogClose,
