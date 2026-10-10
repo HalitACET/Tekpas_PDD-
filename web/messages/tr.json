@@ -275,6 +275,21 @@
       "SEWING": "Konfeksiyon",
       "ACCESSORY": "Aksesuar",
       "PACKAGING": "Ambalaj"
+    },
+    "energySource": {
+      "GRID": "Şebeke",
+      "SOLAR": "GES",
+      "WIND": "RES",
+      "NATURAL_GAS": "Doğalgaz",
+      "COAL": "Kömür",
+      "BIOMASS": "Biyokütle",
+      "OTHER": "Diğer"
+    },
+    "yarnProcess": {
+      "COMBED": "penye",
+      "CARDED": "karde",
+      "OPEN_END": "open-end",
+      "OTHER": "diğer"
     }
   },
   "errors": {
@@ -483,7 +498,8 @@
         "noChain": "Tedarik zinciri oluşturulmadı",
         "unassignedOne": "{step} adımına tedarikçi atanmadı",
         "unassignedMany": "{count} adıma tedarikçi atanmadı",
-        "awaiting": "{count} adım onay bekliyor"
+        "awaiting": "{count} adım onay bekliyor",
+        "originMissing": "Lif adımında menşe girilmedi"
       },
       "tabs": {
         "label": "Parti bölümleri",
@@ -506,7 +522,59 @@
       "createFailed": "Tedarik zinciri oluşturulamadı",
       "labelDeclaration": "Etiket beyanı",
       "yarnDeclarations": "İplikçi beyanları",
-      "noDeclaration": "Henüz beyan yok"
+      "noDeclaration": "Henüz beyan yok",
+      "hint": "Ayrıntı için bir adıma tıklayın",
+      "originMissing": "Menşe girilmedi",
+      "openStep": "{step} adımı: {name}",
+      "panel": {
+        "close": "Kapat",
+        "stepLine": "{step} · adım {n}/{total}",
+        "supplierData": "Tedarikçinin girdiği veriler",
+        "originData": "Menşe bilgileri",
+        "fields": {
+          "fiberType": "Lif türü",
+          "originRegion": "Bölge",
+          "originCountry": "Menşe ülke",
+          "harvestYear": "Hasat yılı",
+          "quantityKg": "Lot miktarı",
+          "fiberComposition": "Lif bileşimi",
+          "fabric": "Kumaş",
+          "energySources": "Enerji kaynağı",
+          "energyUse": "Enerji tüketimi",
+          "delivered": "Teslim edilen",
+          "process": "İşlem",
+          "chemicalCompliance": "Kimyasal uyumu",
+          "waterLPerKg": "Su tüketimi"
+        },
+        "units": {
+          "kg": "{value} kg",
+          "kwhPerKg": "{value} kWh/kg",
+          "kwhPerPiece": "{value} kWh/adet",
+          "lPerKg": "{value} L/kg",
+          "gsm": "{value} g/m²"
+        },
+        "requestData": "Veri talep et",
+        "requestFix": "Düzeltme iste",
+        "approve": "Adımı onayla",
+        "nextVersion": "Bir sonraki sürümde"
+      },
+      "assign": {
+        "title": "Tedarikçi ata",
+        "sub": "Tedarikçi ağınızdaki {type} tedarikçileri listelenir.",
+        "search": "Firma veya şehir ara",
+        "count": "{count} tedarikçi · {type}",
+        "row": "{city} · {count} parti",
+        "latest": "Son durum · {when}",
+        "none": "Eşleşen tedarikçi yok.",
+        "addNew": "Listede yok mu? Tedarikçi ekle",
+        "pick": "Bir tedarikçi seçin",
+        "picked": "{name} atanacak",
+        "cancel": "Vazgeç",
+        "submit": "Ata",
+        "failed": "Tedarikçi atanamadı",
+        "listError": "Tedarikçiler yüklenemedi",
+        "retry": "Tekrar dene"
+      }
     }
   },
   "suppliers": {

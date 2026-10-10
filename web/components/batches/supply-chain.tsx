@@ -57,26 +57,31 @@ export function ChainLegend({ statuses }: { statuses: readonly StepStatus[] }) {
   const t = useTranslations("batches.chain");
   const tStatus = useTranslations("enums.stepStatus");
   return (
-    <ul aria-label={t("legend")} className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-      {legendStatuses(statuses).map((status) => (
-        <li key={status} className="flex items-center gap-1.5">
-          <span className={`size-2 rounded-full ${STATUS_DOT[status]}`} aria-hidden />
-          {tStatus(status)}
-        </li>
-      ))}
-    </ul>
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      <ul aria-label={t("legend")} className="flex flex-wrap items-center gap-x-4 gap-y-1">
+        {legendStatuses(statuses).map((status) => (
+          <li key={status} className="flex items-center gap-1.5">
+            <span className={`size-2 rounded-full ${STATUS_DOT[status]}`} aria-hidden />
+            {tStatus(status)}
+          </li>
+        ))}
+      </ul>
+      <span className="ml-auto">{t("hint")}</span>
+    </div>
   );
 }
 
-type StepNode = Node<{ step: ChainNodeStep }, "step">;
+type StepNode = Node<{ step: ChainNodeStep; selected: boolean; onOpen: (step: ChainNodeStep) => void }, "step">;
 type StepEdge = Edge<{ x1: number; y1: number; x2: number; y2: number; toEmpty: boolean }, "chain">;
 
 const HANDLE = "!min-h-0 !min-w-0 !size-px !border-0 !bg-transparent";
 
-function StepNodeView({ data: { step } }: NodeProps<StepNode>) {
+/** Each node is a button: it opens the step's panel, or for an empty step "Tedarikçi ata" (v0.3.1 25). */
+function StepNodeView({ data: { step, selected, onOpen } }: NodeProps<StepNode>) {
   const t = useTranslations("batches.chain");
   const tStep = useTranslations("enums.stepType");
   const label = tStep(step.stepType);
+  const focus = "outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft";
   const handles = (
     <>
       <Handle type="target" position={Position.Left} isConnectable={false} className={HANDLE} />
@@ -85,26 +90,43 @@ function StepNodeView({ data: { step } }: NodeProps<StepNode>) {
   );
 
   if (!step.filled) {
+    // FIBER records an origin, not a company: its empty node waits for the origin instead of a supplier.
+    const fiber = step.stepType === "FIBER";
     return (
-      <div
+      <button
+        type="button"
+        onClick={() => onOpen(step)}
+        aria-haspopup="dialog"
         style={{ width: NODE_WIDTH, height: NODE_HEIGHT }}
-        className="flex flex-col items-center justify-center gap-2 rounded-[10px] border border-dashed border-input p-3 text-center text-muted-foreground"
+        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[10px] border border-dashed p-3 text-center text-muted-foreground hover:border-ring hover:text-foreground ${focus} ${
+          selected ? "border-ring bg-ring-soft" : "border-input"
+        }`}
       >
         {handles}
-        <span className="flex size-8 items-center justify-center rounded-full border border-input" aria-hidden>
-          <Plus className="size-4" strokeWidth={1.75} />
-        </span>
-        <span className="text-[13px] font-medium text-foreground">{t("emptyNode")}</span>
+        {!fiber && (
+          <span className="flex size-8 items-center justify-center rounded-full border border-input" aria-hidden>
+            <Plus className="size-4" strokeWidth={1.75} />
+          </span>
+        )}
+        <span className="text-[13px] font-medium text-foreground">{fiber ? t("originMissing") : t("emptyNode")}</span>
         <span className="text-[11px]">{t("emptyNodeBody", { step: label })}</span>
-      </div>
+      </button>
     );
   }
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={() => onOpen(step)}
+      aria-haspopup="dialog"
+      aria-label={t("openStep", { step: label, name: step.name ?? "" })}
       style={{ width: NODE_WIDTH, height: NODE_HEIGHT }}
-      className={`flex flex-col gap-1 rounded-[10px] border bg-card p-3 shadow-xs ${
-        step.status === "REJECTED" ? "border-status-rejected" : "border-border"
+      className={`flex cursor-pointer flex-col gap-1 rounded-[10px] border bg-card p-3 text-left hover:border-ring ${focus} ${
+        selected
+          ? "border-ring shadow-[0_0_0_3px_var(--ring-soft)]"
+          : step.status === "REJECTED"
+            ? "border-status-rejected shadow-xs"
+            : "border-border shadow-xs"
       }`}
     >
       {handles}
@@ -115,7 +137,7 @@ function StepNodeView({ data: { step } }: NodeProps<StepNode>) {
       <span className="mt-auto">
         <StepStatusBadge status={step.status} size="sm" />
       </span>
-    </div>
+    </button>
   );
 }
 
@@ -142,7 +164,15 @@ function ChainEdgeView({ data }: EdgeProps<StepEdge>) {
 const nodeTypes = { step: StepNodeView };
 const edgeTypes = { chain: ChainEdgeView };
 
-export function SupplyChainCanvas({ steps }: { steps: readonly ChainNodeStep[] }) {
+export function SupplyChainCanvas({
+  steps,
+  selectedId,
+  onOpen,
+}: {
+  steps: readonly ChainNodeStep[];
+  selectedId?: string;
+  onOpen: (step: ChainNodeStep) => void;
+}) {
   const t = useTranslations("batches.chain");
   const tStep = useTranslations("enums.stepType");
   const layout = useMemo(() => layoutChain(steps), [steps]);
@@ -155,12 +185,14 @@ export function SupplyChainCanvas({ steps }: { steps: readonly ChainNodeStep[] }
         position: { x: n.x, y: n.y },
         width: NODE_WIDTH,
         height: NODE_HEIGHT,
-        data: { step: n.step },
+        data: { step: n.step, selected: n.step.id === selectedId, onOpen },
         draggable: false,
         selectable: false,
         focusable: false,
+        // React Flow turns pointer events off for nodes it does not drag or select; the node is a button.
+        style: { pointerEvents: "all" },
       })),
-    [layout],
+    [layout, selectedId, onOpen],
   );
   const edges = useMemo<StepEdge[]>(() => {
     const at = new Map(layout.nodes.map((n) => [n.step.id, n]));
