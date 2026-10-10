@@ -73,7 +73,7 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `31a-${scheme}`);
     });
 
-    test("31b login, not ready after 90 s", async ({ page }) => {
+    test("31b login, not ready after 3 minutes", async ({ page }) => {
       await prepare(page, scheme);
       await mockAuthApi(page, { signedIn: false });
       await sleepingServer(page, /\/api\/v1\/auth\/login$/, "POST");
@@ -82,7 +82,7 @@ for (const scheme of ["light", "dark"] as const) {
       await page.getByLabel("Şifre", { exact: true }).fill("demo-sifre");
       await page.getByRole("button", { name: "Giriş yap" }).click();
       await expect(page.getByRole("status").filter({ hasText: "Sunucu hazırlanıyor" })).toBeVisible({ timeout: 6_000 });
-      await page.clock.fastForward(91_000);
+      await page.clock.fastForward(181_000);
       await expect(page.getByRole("button", { name: "Tekrar dene" })).toBeEnabled();
       await page.mouse.move(0, 0);
       await shoot(page, `31b-${scheme}`);
@@ -120,7 +120,7 @@ for (const scheme of ["light", "dark"] as const) {
       await page.route("**/api/health", (route) => route.fulfill({ status: 503, body: "" }));
       await page.goto("/batches");
       await expect(page.getByRole("status").filter({ hasText: "panel kendiliğinden açılır" })).toBeVisible();
-      await page.clock.fastForward(91_000);
+      await page.clock.fastForward(181_000);
       await expect(page.getByRole("button", { name: "Tekrar dene" })).toBeVisible();
       await page.mouse.move(0, 0);
       await shoot(page, `32c-session-unreachable-${scheme}`);

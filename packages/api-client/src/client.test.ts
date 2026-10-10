@@ -1,5 +1,5 @@
 import { describe, expect, it, type Mock, vi } from "vitest";
-import { createApiClient, hasProblemType, isProblem, ProblemTypes } from "./client";
+import { createApiClient, hasProblemType, isProblem, ProblemTypes, SERVER_WAKING_HEADER } from "./client";
 
 const BASE = "http://api.test";
 const unauthorized = {
@@ -231,5 +231,59 @@ describe("problem helpers", () => {
     expect(isProblem({ status: 401 })).toBe(false);
     expect(hasProblemType(unauthorized, ProblemTypes.unauthorized)).toBe(true);
     expect(hasProblemType(unauthorized, ProblemTypes.forbidden)).toBe(false);
+  });
+});
+
+describe("Render's waking page", () => {
+  /** Like Render while a sleeping service starts: 200, text/html, streamed in pieces. */
+  function wakingPage(onEnd: () => void) {
+    const lines = ["<!DOCTYPE html><title>Welcome to Render</title>", "<p>SERVICE WAKING UP</p>", "<p>...</p>"];
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        const line = lines.shift();
+        if (line === undefined) {
+          onEnd();
+          controller.close();
+        } else {
+          controller.enqueue(new TextEncoder().encode(line));
+        }
+      },
+    });
+    return new Response(body, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } });
+  }
+
+  it("is read to its end without being parsed, and handed on as a marked 503", async () => {
+    let ended = false;
+    const fetch = mockFetch(async () => wakingPage(() => (ended = true)));
+    const api = createApiClient({ baseUrl: BASE, fetch });
+
+    const { data, error, response } = await api.GET("/api/v1/auth/me");
+
+    expect(ended).toBe(true);
+    expect(data).toBeUndefined();
+    expect(error).toBeUndefined();
+    expect(response.status).toBe(503);
+    expect(response.headers.get(SERVER_WAKING_HEADER)).toBe("true");
+  });
+
+  it("is recognized after a refresh retry too", async () => {
+    let calls = 0;
+    const fetch = mockFetch(async () => (++calls === 1 ? json(401, unauthorized) : wakingPage(() => {})));
+    const api = createApiClient({ baseUrl: BASE, fetch, refreshAccessToken: async () => true });
+
+    const { response } = await api.GET("/api/v1/auth/me");
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get(SERVER_WAKING_HEADER)).toBe("true");
+  });
+
+  it("leaves JSON answers and empty answers alone", async () => {
+    const fetch = mockFetch(async (input) =>
+      new URL(input.url).pathname === "/api/v1/auth/me" ? json(200, me) : new Response(null, { status: 204 }),
+    );
+    const api = createApiClient({ baseUrl: BASE, fetch });
+
+    expect((await api.GET("/api/v1/auth/me")).data).toEqual(me);
+    expect((await api.POST("/api/v1/auth/logout", {})).response.status).toBe(204);
   });
 });

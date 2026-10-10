@@ -63,8 +63,49 @@ const NO_REFRESH_PATHS = ["/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
   const client = createClient<paths>({ baseUrl: options.baseUrl, fetch: options.fetch });
+  // onResponse runs last-registered first: the waking-page check sees the final answer, also a retried one.
+  client.use(wakingPageMiddleware());
   client.use(authMiddleware(options));
   return client;
+}
+
+/** Marks the 503 that stands in for Render's waking page (see wakingPageMiddleware). */
+export const SERVER_WAKING_HEADER = "X-Tekpas-Server-Waking";
+
+/**
+ * While a sleeping Render service starts, Render answers in its place with a "SERVICE WAKING UP" HTML page that
+ * streams line by line (docs/DEPLOY.md), also to `Accept: application/json`. The API itself only answers JSON.
+ */
+export function isWakingPage(response: Response): boolean {
+  return (response.headers.get("Content-Type") ?? "").toLowerCase().includes("text/html");
+}
+
+/** Reads a body to its end and drops it: the request stays open as long as the answer streams. */
+export async function discardBody(response: Response): Promise<void> {
+  const reader = response.body?.getReader();
+  if (!reader) return;
+  for (;;) {
+    const { done } = await reader.read();
+    if (done) return;
+  }
+}
+
+/**
+ * Render's waking page is never parsed as JSON. It is read to its end, so the request that started the wake is
+ * not cut short (a slow answer, as before), and handed on as an empty 503 with SERVER_WAKING_HEADER.
+ */
+function wakingPageMiddleware(): Middleware {
+  return {
+    async onResponse({ response }) {
+      if (!isWakingPage(response)) return response;
+      await discardBody(response);
+      return new Response(null, {
+        status: 503,
+        statusText: "Service Unavailable",
+        headers: { [SERVER_WAKING_HEADER]: "true", "Content-Length": "0" },
+      });
+    },
+  };
 }
 
 function authMiddleware(options: ApiClientOptions): Middleware {

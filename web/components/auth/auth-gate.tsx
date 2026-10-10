@@ -53,7 +53,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
 }
 
 /**
- * Like the login's 31b: the server did not start within 90 s, or could not be reached. The session is
+ * Like the login's 31b: the server did not start within 3 minutes, or could not be reached. The session is
  * kept (the refresh cookie was never used); "Tekrar dene" starts over.
  */
 function SessionUnreachable({ reason }: { reason: "timeout" | "network" }) {

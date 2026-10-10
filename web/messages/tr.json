@@ -36,9 +36,9 @@
     "serverWake": {
       "title": "Sunucu hazırlanıyor, bu bir dakika sürebilir.",
       "body": "Hazır olunca liste kendiliğinden dolar.",
-      "elapsed": "{elapsed} · genellikle 60–90 sn",
+      "elapsed": "{elapsed} · genellikle 1–2 dk",
       "sessionBody": "Hazır olunca panel kendiliğinden açılır.",
-      "gaveUpTitle": "Sunucu 90 saniyede hazır olmadı.",
+      "gaveUpTitle": "Sunucu 3 dakikada hazır olmadı.",
       "gaveUpBody": "Oturumunuz korunuyor. Sunucu hâlâ açılıyor olabilir; tekrar denediğinizde büyük ihtimalle hazır olacak.",
       "networkTitle": "Sunucuya bağlanılamadı.",
       "networkBody": "Oturumunuz korunuyor. Bağlantınızı kontrol edip tekrar deneyin.",
@@ -82,8 +82,8 @@
     "wakingTitle": "Sunucu hazırlanıyor, bu bir dakika sürebilir.",
     "wakingBody": "Bir süre kullanılmayan sunucu ilk istekte açılır. Sayfada kalın; hazır olduğunda giriş kendiliğinden tamamlanır.",
     "wakingProgress": "Sunucunun açılması",
-    "wakingUsually": "Genellikle 60–90 saniye",
-    "gaveUpTitle": "Sunucu 90 saniyede hazır olmadı.",
+    "wakingUsually": "Genellikle 1–2 dakika",
+    "gaveUpTitle": "Sunucu 3 dakikada hazır olmadı.",
     "gaveUpBody": "Bilgileriniz korundu. Sunucu hâlâ açılıyor olabilir; tekrar denediğinizde büyük ihtimalle hazır olacak.",
     "retry": "Tekrar dene"
   },

@@ -37,10 +37,13 @@ function fakeBackend({ cookie = true, password = "right", asleep = 0, refreshFai
     const auth = input.headers.get("Authorization");
     switch (path) {
       case "/api/health":
-        // A sleeping server: the proxy answers 503 until it has started.
+        // A sleeping server: Render answers with its HTML waking page until the service has started.
         if (sleeping > 0) {
           sleeping--;
-          return new Response("", { status: 503 });
+          return new Response("<!DOCTYPE html><title>Welcome to Render</title><p>SERVICE WAKING UP</p>", {
+            status: 200,
+            headers: { "Content-Type": "text/html; charset=utf-8" },
+          });
         }
         return json(200, { status: "UP" });
       case "/api/v1/auth/refresh":
@@ -236,14 +239,14 @@ describe("session", () => {
       expect(backend.count("/api/v1/auth/refresh")).toBe(2);
     });
 
-    it("after 90 s without the server it stops, without a refresh and without dropping the session", async () => {
+    it("after 3 minutes without the server it stops, without a refresh and without dropping the session", async () => {
       vi.useFakeTimers({ shouldAdvanceTime: true });
       try {
         const backend = fakeBackend({ asleep: Number.MAX_SAFE_INTEGER });
         const session = await loadSession(backend);
 
         const restored = session.restoreSession();
-        await vi.advanceTimersByTimeAsync(91_000);
+        await vi.advanceTimersByTimeAsync(181_000);
 
         expect(await restored).toEqual({ status: "unreachable", reason: "timeout" });
         expect(backend.count("/api/v1/auth/refresh")).toBe(0);

@@ -9,8 +9,8 @@ export type ServerWake = { phase: "idle" } | { phase: "waking"; startedAt: numbe
 
 /**
  * Design v0.3.2 32: a list whose first page has not arrived within 3 s probably waits for a sleeping server.
- * The liveness check is then polled (lib/server-wake.ts) and the list fetched again once the server answers,
- * instead of trusting the long request. After 90 s the page shows its error card with "Tekrar dene".
+ * A long liveness request is then kept open (lib/server-wake.ts) and the list fetched again once the server
+ * answers. After 3 minutes the page shows its error card with "Tekrar dene".
  *
  * @param waiting the list is loading and has nothing to show yet
  * @param onAwake fetch again (cancelling the request that waits)

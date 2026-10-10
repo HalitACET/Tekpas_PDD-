@@ -1,13 +1,13 @@
 "use client";
 
 import { createApiClient, type components } from "@tekpas/api-client";
-import { isAwake, waitUntilAwake } from "@/lib/server-wake";
+import { WAKE_DETECT_MS, waitUntilAwake } from "@/lib/server-wake";
 
 export type SessionUser = components["schemas"]["MeResponse"];
 
 /**
  * starting: the server sleeps and is being woken before the session is restored (design v0.3.2 32);
- * unreachable: it did not answer (90 s, no connection or a server error). Neither drops the session: the
+ * unreachable: it did not answer (3 minutes, no connection or a server error). Neither drops the session: the
  * refresh cookie is still unused, "Tekrar dene" restores it later.
  */
 export type SessionState =
@@ -98,20 +98,20 @@ let restoreInFlight: Promise<SessionState> | undefined;
 /**
  * On app start: turn the refresh cookie (if any) into an in-memory session. Runs once at a time.
  *
- * The liveness check comes first (design v0.3.2 32): a sleeping server is woken by polling it, and only
- * then the refresh is sent, exactly once. A refresh sent to a sleeping server could be processed after the
+ * The liveness check comes first (design v0.3.2 32): a sleeping server is woken by a long liveness request
+ * ("starting" once it has not answered within WAKE_DETECT_MS), and only then the refresh is sent, exactly once. A refresh sent to a sleeping server could be processed after the
  * browser gave up on it, and a second one with the same cookie would count as token reuse.
  */
 export function restoreSession(): Promise<SessionState> {
   if (state.status === "authenticated") return Promise.resolve(state);
   restoreInFlight ??= (async () => {
-    if (!(await isAwake())) {
-      const startedAt = Date.now();
-      setState({ status: "starting", startedAt });
-      if (!(await waitUntilAwake(startedAt))) {
-        setState({ status: "unreachable", reason: "timeout" });
-        return state;
-      }
+    const startedAt = Date.now();
+    const slow = setTimeout(() => setState({ status: "starting", startedAt }), WAKE_DETECT_MS);
+    const awake = await waitUntilAwake(startedAt);
+    clearTimeout(slow);
+    if (!awake) {
+      setState({ status: "unreachable", reason: "timeout" });
+      return state;
     }
     const refreshed = await refreshOnce();
     if (refreshed === "unavailable") {

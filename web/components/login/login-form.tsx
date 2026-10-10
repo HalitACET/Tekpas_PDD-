@@ -12,7 +12,7 @@ import { safeNextPath } from "@/lib/auth/use-session";
 import { formatElapsed, WAKE_DETECT_MS, WAKE_LIMIT_MS, waitUntilAwake } from "@/lib/server-wake";
 import { cn } from "@/lib/utils";
 
-/** waking: the server is starting (31a); gaveUp: it did not start within 90 s (31b). */
+/** waking: the server is starting (31a); gaveUp: it did not start within 3 minutes (31b). */
 type Status = "idle" | "submitting" | "waking" | "gaveUp" | "invalid" | "unavailable";
 
 /**
@@ -57,8 +57,8 @@ export function LoginForm() {
   }, [router, next]);
 
   /**
-   * Design v0.3.2 31: a login that does not answer within 3 s is given up; the liveness check is polled with
-   * short timeouts until the server answers, then the login is sent once more. The password stays in this
+   * Design v0.3.2 31: a login that does not answer within 3 s (or meets Render's waking page) is given up; a
+   * long liveness request waits for the server (lib/server-wake.ts), then the login is sent once more. The password stays in this
    * component's state only.
    */
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
