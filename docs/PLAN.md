@@ -142,7 +142,7 @@ Backend kuralları (M2):
 **Kabul:** Panelden ürün ve parti oluşturulur. Hatalı GTIN alan bazında hata gösterir. Başka firmanın ürününe erişim 404.
 
 ### M3 — Tedarik zinciri
-- [ ] Parti detay ekranı (M2'den taşındı): 09 Parti detayı + zincir ekranıyla birlikte yapılacak, ayrı iskelet yazılmayacak.
+- [x] Parti detay ekranı (M2'den taşındı): 09 Parti detayı + zincir ekranıyla birlikte, PR 3a.
 - [x] API: tedarikçi ağı (ekle / listele / düzenle / çıkar). Tedarikçi = `company` + `created_by_company_id`; ad, tip ve şehri yalnızca onu oluşturan ve kullanıcısı olmayan firmanın üreticisi değiştirir, diğer durumda sadece bağlantı alanları (telefon)
 - [x] API: zincir adımı ekle / düzenle / çıkar, `GET /batches/{id}/chain`. Zincir ağaç değil **DAG**: `supply_step_input(step_id, input_step_id)`; bağlantı yalnızca aynı partinin adımları arasında, kendine bağlantı ve döngü yasak (recursive CTE kontrolü). `parent_step_id` V4'te kaldırıldı
 - [x] API: zinciri son partiden kopyalama (yapı + ağda kalan tedarikçiler; durum PENDING, veri boş), yoksa varsayılan Lif → İplik → Kumaş → Boya → Dikim; `GET /products/{id}/chain-preview`
@@ -150,8 +150,9 @@ Backend kuralları (M2):
 - [x] `supply_step.data` alanları (tipli `StepData`): ölçüler BigDecimal (kWh/kg, L/kg, g/m², kg), yüzdeler tam sayı, enerji kaynakları toplamı 100; adım tipine ait olmayan alan `NotApplicable`
 - [x] Web: Tedarikçiler ekranı (tasarım v0.3 14/15), PR 2b. Şehir 81 il (tek kaynak `packages/shared/src/tr-provinces.json`, backend aynı listeyle doğrular, alan hatası `City`), aramalı liste; telefon +90 sabit, E.164 saklanır; sertifikalar "—" (M5); durum = son adım durumu, yoksa "—". Düzenleme 15'teki diyalogla: kendi hesabı olan firmada ad/tip/şehir kilitli, partide kullanılan tedarikçinin tipi kilitli (`SUPPLIER_TYPE_IN_USE`), telefon her zaman değişir
 - [x] Web: Tedarikçi kaldırma (v0.3.1 27 kaldırılamaz, 28 bağı kaldır onayı), PR 2b ile birlikte. "Partileri gör" → `/batches?supplierId=` (API filtresi; ağda olmayan tedarikçi 404, her parti bir kez; sekme sayaçları filtreden bağımsız)
-- [ ] Web: Parti detay + React Flow zincir (v0.3 09–11, v0.3.1 25 boş düğüm, 26 zinciri olmayan parti, 29 reddedildi + lejant, 30 M4 aksiyonları devre dışı), PR 3
-- [ ] PR 3: Partiler listesindeki zincir çubuğu adım adım renklenir (v0.3.1 22: onaylı yeşil, gönderildi mavi, reddedildi kırmızı, bekleyen gri). Liste cevabına her partinin adım durumları sıralı dizi olarak eklenir (`GET /batches`). Satır oku ve satıra tıklama → parti detayı (09).
+- [x] Web: Parti detay + React Flow zincir (v0.3 09, v0.3.1 26 zinciri olmayan parti, 29 reddedildi + lejant), PR 3a. Sabit 5 sütun (`web/lib/batches/chain-layout.ts`, yerleşim kütüphanesi yok); uyum skoru "—", Önizle ve Pasaportu yayınla kilitli, gerekçeler M3'ün bildikleri; sadece Tedarik zinciri sekmesi açık; lejantta 4 durum (Reddedildi yalnızca reddedilmiş adım varsa); alttaki beyan kartında uyuşmazlık rozeti yok (M5)
+- [ ] Web: Düğüm paneli (v0.3 10–11, v0.3.1 30: "Belgelerden okunan alanlar" gizli, M4 aksiyonları devre dışı "Bir sonraki sürümde") ve Tedarikçi ata paneli (v0.3.1 25, "davet edildi" gizli), PR 3b. Lejanttaki "Ayrıntı için bir adıma tıklayın" ipucu da panelle gelir
+- [x] PR 3a: Partiler listesindeki zincir çubuğu adım adım renklenir (v0.3.1 22: onaylı yeşil, gönderildi mavi, reddedildi kırmızı, bekleyen gri). Liste cevabına her partinin adım durumları sıralı dizi olarak eklenir (`GET /batches`). Satır oku ve satıra tıklama → parti detayı (09).
 
 **Kabul:** Bir parti için İplik → Kumaş → Boya → Dikim zinciri çizilir, düğüm renkleri durumu gösterir.
 
@@ -210,6 +211,7 @@ Backend kuralları (M2):
 - [ ] Görsel cila, boş durumlar, yükleniyor durumları
 - [ ] Sunucu uyanık, APK hazır, 5 dakikalık demo senaryosu yazılı ve prova edilmiş
 - [ ] e2e testleri CI'da çalışsın (şu an yalnızca yerelde; `pnpm --filter web exec playwright test`)
+- [ ] "Yeni parti" formu: boş üretim tarihi şimdi geçersiz sayılıyor (`packages/shared` `isoDate`, `""` tarih değil), oysa API tarihsiz partiyi kabul ediyor; boş = tarih yok olmalı. PR 3a'da fark edildi.
 - [ ] Açılışı hızlandırma / Render araştırması: soğuk başlangıç 100–150 sn ("Started TekpasApplication in" 75–83 sn). Render'da önce/sonra ölç: lazy init, gereksiz auto-config, Flyway validate. Prod'a lazy init kullanıcı onayıyla. Uyuyan sunucuda erken kesilen isteğin uyanmayı iptal edip etmediği canlıda ölçülemedi (cron gün içinde uyanık tutuyor); burada bak.
 
 **Kabul:** Demo senaryosu baştan sona hatasız, internet yavaşken bile çalışıyor.
@@ -250,9 +252,9 @@ Backend kuralları (M2):
 - [x] **v0.3.2 33**, PR 2c. Kaydetme/silme sunucu hatası (5xx): toast.
 - [x] **v0.3.1 22** (+23 §5: aşama chip'i köşeli ve ikonlu, adım durumu rozeti hap biçimli), PR 2a. Parti durum chip'leri (Taslak=pending, Veri toplanıyor=submitted, Yayına hazır=approved, Yayında=brand): tasarımdaki chip'ler adım durumlarını gösteriyor (Beklemede, Gönderildi…).
 - [x] **v0.3.1 22**, PR 2a. Yayında chip'i: dolu brand varyantı (zemin --brand, yazı --primary-foreground, nokta yerine onay ikonu); muted dut zemin "Reddedildi"ye çok benziyordu. Kontrast açıkta 7,5:1, koyuda 6,8:1.
-- [ ] Satır oku, tıklama ve adım bazında renkli zincir çubuğu → M3 PR 3 maddesi. Partiler: tedarik zinciri çubuğu sadece sayılardan (onaylı yeşil, kalan gri, adım yoksa "—"); adım bazında renk M3'te zincirle gelir. Uyum skoru "—" (M6). Satır oku ve satıra tıklama gizli (parti detayı 09, M3).
+- [x] Satır oku, tıklama ve adım bazında renkli zincir çubuğu, PR 3a. Partiler: tedarik zinciri çubuğu sadece sayılardan (onaylı yeşil, kalan gri, adım yoksa "—"); adım bazında renk M3'te zincirle gelir. Uyum skoru "—" (M6). Satır oku ve satıra tıklama gizli (parti detayı 09, M3).
 - [x] **v0.3.2 34**, PR 2c. Partiler: filtre sonucu boş durumu ("Eşleşen parti yok", "Filtreleri temizle") ürünlerdeki tasarım metninden uyarlandı. Hiç parti yokken v0.2'nin (tasarım G) boş durumu ve "Nasıl başlanır" rehberi duruyor.
-- [x] Tarih → **v0.3.1 24** (Popover + Calendar, aralık, pazartesi), PR 2a; zincir ipucu → 08 + `chain-preview`, PR 3. Parti oluştur: "Zincir son partiden kopyalanır" alt başlığı ve "Tedarik zinciri: 5 adım kopyalanacak" ipucu M3'e kadar gizli. Tarih alanları tarayıcının tarih seçicisi (tasarımda düz metin "gg.aa.yyyy").
+- [x] Tarih → **v0.3.1 24** (Popover + Calendar, aralık, pazartesi), PR 2a; zincir ipucu → 08 + `chain-preview`, PR 3a: alt başlık ve "Tedarik zinciri: N adım kopyalanacak"; ürünün zincirli partisi yoksa "Tedarik zinciri: varsayılan 5 adım" (tasarımda yok). Tarih alanları tarayıcının tarih seçicisi (tasarımda düz metin "gg.aa.yyyy").
 - [x] **v0.3.1 23** (globals.css'te açık/koyu değerleriyle), PR 2a. Tasarım çerçevelerinde tanımlı olup globals.css'te olmayan token'lar: `--brand-text` eklendi (08 "Otomatik öneri" rozeti, "Yayında" chip'i); `--primary-hover`, `--destructive-hover`, `--ring-soft` hâlâ yok (web'de bg-primary/85 ve ring/18 kullanılıyor); her biri ilk kullanıldığı ekranda, tasarımdaki değeriyle (açık ve koyu) eklenecek.
 - [ ] Mobil web liste (md altı): masaüstü tablo yatay kaydırılır; tasarım 16 web için uyarlanmalı.
 - [x] **v0.3.1 23 §6** `--popover-muted`, PR 2a. Popover üstünde muted zemin token'ı (dark'ta --muted = --popover, ikisi #1B202A): ürün silme dialogundaki ürün kutusu koyu temada geçici olarak --card kullanıyor. Mobil kullanıcı menüsündeki seçim grubunun zemini de koyu temada görünmüyor; seçili öğe zaten --card olduğu için orada --card kullanılamadı, token gelince düzelecek.
