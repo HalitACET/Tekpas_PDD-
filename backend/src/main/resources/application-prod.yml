@@ -30,9 +30,11 @@ tekpas:
   auth:
     cookie-secure: true
   client-ip:
-    # client -> Vercel (rewrite) -> Render: entries our proxies append to X-Forwarded-For after the one Vercel
-    # saw (common/web/ClientIp). Checked against the live access log ("xff=N" on /api/v1/public/ lines).
-    trusted-proxies: 1
+    # client -> Vercel (rewrite) -> Render. Live check (10.10.2026): Render sees 2 entries (xff=2), but Vercel
+    # passes a client's own X-Forwarded-For through on the rewrite, so the first entry can be forged. The
+    # client IP is off (-1): per-token limits plus general counters. Next: Vercel's own header (x-real-ip or
+    # x-vercel-forwarded-for), once it is confirmed to reach Render.
+    trusted-proxies: -1
   cors:
     # Optional: the web app goes through its own origin (K18), so CORS stays off unless origins are listed.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:}
