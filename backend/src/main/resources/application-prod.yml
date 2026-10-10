@@ -29,6 +29,10 @@ tekpas:
     secret: ${JWT_SECRET}
   auth:
     cookie-secure: true
+  client-ip:
+    # client -> Vercel (rewrite) -> Render: entries our proxies append to X-Forwarded-For after the one Vercel
+    # saw (common/web/ClientIp). Checked against the live access log ("xff=N" on /api/v1/public/ lines).
+    trusted-proxies: 1
   cors:
     # Optional: the web app goes through its own origin (K18), so CORS stays off unless origins are listed.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:}

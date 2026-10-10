@@ -1,6 +1,7 @@
 package com.tekpas.supplychain;
 
 import com.tekpas.batch.Batch;
+import com.tekpas.batch.BatchProgress;
 import com.tekpas.batch.BatchRepository;
 import com.tekpas.batch.dto.ChainSummary;
 import com.tekpas.common.error.ConflictException;
@@ -11,13 +12,21 @@ import com.tekpas.company.Company;
 import com.tekpas.company.CompanyRepository;
 import com.tekpas.company.SupplierService;
 import com.tekpas.product.ProductRepository;
+import com.tekpas.request.DataRequest;
+import com.tekpas.request.DataRequestRepository;
+import com.tekpas.request.RequestStatus;
+import com.tekpas.request.RequestTokens;
+import com.tekpas.request.dto.DataRequestSummary;
 import com.tekpas.supplychain.dto.ChainPreviewResponse;
 import com.tekpas.supplychain.dto.ChainResponse;
 import com.tekpas.supplychain.dto.ChainStepResponse;
 import com.tekpas.supplychain.dto.StepCreateRequest;
+import com.tekpas.supplychain.dto.StepRejection;
+import com.tekpas.supplychain.dto.StepSubmission;
 import com.tekpas.supplychain.dto.StepSupplier;
 import com.tekpas.supplychain.dto.StepUpdateRequest;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -55,18 +64,22 @@ public class ChainService {
     private final ProductRepository products;
     private final CompanyRepository companies;
     private final SupplierService suppliers;
+    private final DataRequestRepository requests;
+    private final BatchProgress progress;
     private final JdbcTemplate jdbc;
     private final Clock clock;
 
     public ChainService(SupplyStepRepository steps, ChainLinks links, BatchRepository batches,
-            ProductRepository products, CompanyRepository companies, SupplierService suppliers, JdbcTemplate jdbc,
-            Clock clock) {
+            ProductRepository products, CompanyRepository companies, SupplierService suppliers,
+            DataRequestRepository requests, BatchProgress progress, JdbcTemplate jdbc, Clock clock) {
         this.steps = steps;
         this.links = links;
         this.batches = batches;
         this.products = products;
         this.companies = companies;
         this.suppliers = suppliers;
+        this.requests = requests;
+        this.progress = progress;
         this.jdbc = jdbc;
         this.clock = clock;
     }
@@ -134,6 +147,8 @@ public class ChainService {
             }
             links.add(output, step.getId());
         }
+        // A new step of a READY batch waits for its data again.
+        progress.refresh(batchId);
         return chainOf(batchId);
     }
 
@@ -150,13 +165,7 @@ public class ChainService {
         }
         if (request.data() != null) {
             StepData data = request.data().orElse(StepData.EMPTY);
-            List<String> wrong = data.fieldsNotFor(step.getStepType());
-            if (!wrong.isEmpty()) {
-                throw new InvalidFieldsException(wrong.stream()
-                        .map(field -> new FieldViolation("data." + field, "NotApplicable",
-                                "Not a field of a " + step.getStepType() + " step"))
-                        .toArray(FieldViolation[]::new));
-            }
+            StepDataRules.check(step.getStepType(), data);
             step.replaceData(data);
         }
         if (request.inputStepIds() != null) {
@@ -184,6 +193,8 @@ public class ChainService {
         }
         // Links in both directions go with the step (ON DELETE CASCADE).
         steps.delete(step);
+        steps.flush();
+        progress.refresh(step.getBatchId());
     }
 
     private ChainResponse chainOf(UUID batchId) {
@@ -193,14 +204,33 @@ public class ChainService {
                 .collect(Collectors.toSet());
         Map<UUID, Company> supplierById = companies.findAllById(supplierIds).stream()
                 .collect(Collectors.toMap(Company::getId, Function.identity()));
+        // Newest first: the first per step is its latest link, the first COMPLETED its last submission.
+        Map<UUID, List<DataRequest>> requestsByStep = requests
+                .findByStepIdInOrderByCreatedAtDesc(chain.stream().map(SupplyStep::getId).toList()).stream()
+                .collect(Collectors.groupingBy(DataRequest::getStepId));
+        Instant now = clock.instant();
 
         List<ChainStepResponse> nodes = chain.stream().map(step -> {
             Company supplier = step.getSupplierCompanyId() == null ? null : supplierById.get(step.getSupplierCompanyId());
+            List<DataRequest> stepRequests = requestsByStep.getOrDefault(step.getId(), List.of());
+            DataRequest completed = stepRequests.stream()
+                    .filter(r -> r.getStatus() == RequestStatus.COMPLETED && r.getSubmitterName() != null)
+                    .findFirst().orElse(null);
             return new ChainStepResponse(step.getId(), step.getStepType(), step.getStatus(),
                     supplier == null ? null
                             : new StepSupplier(supplier.getId(), supplier.getName(), supplier.getCity(), supplier.getType()),
                     step.getSortOrder(), inputs.getOrDefault(step.getId(), List.of()), step.getData(), 0,
-                    step.getSubmittedAt(), step.getUpdatedAt());
+                    step.getSubmittedAt(), step.getUpdatedAt(),
+                    stepRequests.isEmpty() ? null : DataRequestSummary.of(stepRequests.getFirst(), now),
+                    completed == null || completed.getCompletedAt() == null ? null
+                            : new StepSubmission(completed.getSubmitterName(), completed.getSubmitterRole(),
+                                    completed.getCompletedAt(), RequestTokens.code(completed.getId())),
+                    step.getStatus() == StepStatus.REJECTED && step.getRejectionReason() != null
+                            && step.getRejectedAt() != null
+                            ? new StepRejection(step.getRejectionReason(), step.getRejectionFields(),
+                                    step.getRejectedAt())
+                            : null,
+                    step.getApprovedAt());
         }).toList();
         List<StepType> unassigned = chain.stream()
                 .filter(s -> s.getStepType().supplierType() != null && s.getSupplierCompanyId() == null)

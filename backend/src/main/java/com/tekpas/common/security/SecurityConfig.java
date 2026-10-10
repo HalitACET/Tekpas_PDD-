@@ -1,6 +1,7 @@
 package com.tekpas.common.security;
 
 import com.tekpas.common.web.RequestId;
+import com.tekpas.request.PublicRequestController;
 import java.util.List;
 import java.util.Set;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,8 @@ public class SecurityConfig {
         "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/logout",
         "/actuator/health", "/actuator/health/**",
         "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**",
+        // The supplier's link (K21): the token in X-Request-Token is checked by the service.
+        "/api/v1/public/**",
         "/error"
     };
 
@@ -79,7 +82,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(properties.allowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE,
-                HttpHeaders.ACCEPT_LANGUAGE));
+                HttpHeaders.ACCEPT_LANGUAGE, PublicRequestController.TOKEN_HEADER));
         config.setExposedHeaders(List.of(RequestId.HEADER));
         config.setAllowCredentials(true);
         source.registerCorsConfiguration("/api/**", config);
@@ -92,7 +95,8 @@ public class SecurityConfig {
      */
     static BearerTokenResolver bearerTokenResolver() {
         DefaultBearerTokenResolver delegate = new DefaultBearerTokenResolver();
-        return request -> BEARERLESS_AUTH_PATHS.contains(request.getRequestURI()) ? null : delegate.resolve(request);
+        return request -> BEARERLESS_AUTH_PATHS.contains(request.getRequestURI())
+                || request.getRequestURI().startsWith("/api/v1/public/") ? null : delegate.resolve(request);
     }
 
     @Bean

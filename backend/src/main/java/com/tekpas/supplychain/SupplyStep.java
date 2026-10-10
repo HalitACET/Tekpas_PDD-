@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -47,6 +48,19 @@ public class SupplyStep {
     private StepData data;
 
     private @Nullable Instant submittedAt;
+
+    private @Nullable UUID approvedBy;
+
+    private @Nullable Instant approvedAt;
+
+    private @Nullable String rejectionReason;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private @Nullable List<String> rejectionFields;
+
+    private @Nullable Instant rejectedAt;
+
+    private @Nullable UUID rejectedBy;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
@@ -116,6 +130,56 @@ public class SupplyStep {
     }
 
     public void touch(Instant now) {
+        this.updatedAt = now;
+    }
+
+    public @Nullable Instant getApprovedAt() {
+        return approvedAt;
+    }
+
+    public @Nullable String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public List<String> getRejectionFields() {
+        return rejectionFields == null ? List.of() : rejectionFields;
+    }
+
+    public @Nullable Instant getRejectedAt() {
+        return rejectedAt;
+    }
+
+    public @Nullable UUID getRejectedBy() {
+        return rejectedBy;
+    }
+
+    /** The supplier's data arrived through a data request (PENDING or REJECTED → SUBMITTED). */
+    public void submit(StepData data, Instant now) {
+        this.data = data;
+        this.status = StepStatus.SUBMITTED;
+        this.submittedAt = now;
+        this.rejectionReason = null;
+        this.rejectionFields = null;
+        this.rejectedAt = null;
+        this.rejectedBy = null;
+        this.updatedAt = now;
+    }
+
+    /** SUBMITTED → APPROVED. */
+    public void approve(UUID userId, Instant now) {
+        this.status = StepStatus.APPROVED;
+        this.approvedBy = userId;
+        this.approvedAt = now;
+        this.updatedAt = now;
+    }
+
+    /** SUBMITTED → REJECTED with the reason and the fields to correct (design v0.4 45, 47b). */
+    public void reject(UUID userId, String reason, List<String> fields, Instant now) {
+        this.status = StepStatus.REJECTED;
+        this.rejectionReason = reason;
+        this.rejectionFields = List.copyOf(fields);
+        this.rejectedAt = now;
+        this.rejectedBy = userId;
         this.updatedAt = now;
     }
 }
