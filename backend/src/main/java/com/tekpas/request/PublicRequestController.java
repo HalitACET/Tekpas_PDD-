@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
  * never in the path or query (K21), so no proxy or access log sees it.
  *
  * Rate limits: per token (openings and submissions) always; per client IP when it is known (ClientIp). Without
- * a client IP every request shares one general counter, and unknown tokens are not blocked as a group: that
- * would let anyone lock every supplier out (a 256-bit token cannot be guessed anyway).
+ * a client IP all requests share one general counter, and unknown tokens one general counter of their own
+ * (a 256-bit token cannot be guessed; the counter only slows a flood down).
  */
 @RestController
 @RequestMapping(path = "/api/v1/public/request", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -44,6 +44,8 @@ public class PublicRequestController {
     static final int OPENS_PER_TOKEN_PER_MINUTE = 60;
     /** All requests together, when the client IP is unknown. */
     static final int GENERAL_PER_MINUTE = 600;
+    /** Unknown tokens of all clients together, when the client IP is unknown. */
+    static final int GENERAL_INVALID_PER_MINUTE = 100;
 
     private final PublicRequestService service;
     private final RateLimiter limiter;
@@ -98,17 +100,16 @@ public class PublicRequestController {
     /** The per-IP limits around a call (a lookup of an unknown token also counts against the stricter one). */
     private <T> T limited(HttpServletRequest http, Supplier<T> call) {
         String ip = clientIp.of(http);
-        if (ip == null) {
-            limiter.hit("public", "general", GENERAL_PER_MINUTE, Duration.ofMinutes(1));
-            return call.get();
-        }
-        limiter.hit("public", ip, PER_IP_PER_MINUTE, Duration.ofMinutes(1));
-        limiter.check("invalid", ip, INVALID_PER_IP_PER_MINUTE, Duration.ofMinutes(1));
+        String key = ip == null ? "general" : ip;
+        int requests = ip == null ? GENERAL_PER_MINUTE : PER_IP_PER_MINUTE;
+        int invalid = ip == null ? GENERAL_INVALID_PER_MINUTE : INVALID_PER_IP_PER_MINUTE;
+        limiter.hit("public", key, requests, Duration.ofMinutes(1));
+        limiter.check("invalid", key, invalid, Duration.ofMinutes(1));
         try {
             return call.get();
         } catch (LinkClosedException e) {
             if ("LINK_INVALID".equals(e.reason())) {
-                limiter.hit("invalid", ip, Integer.MAX_VALUE, Duration.ofMinutes(1));
+                limiter.hit("invalid", key, Integer.MAX_VALUE, Duration.ofMinutes(1));
             }
             throw e;
         }
