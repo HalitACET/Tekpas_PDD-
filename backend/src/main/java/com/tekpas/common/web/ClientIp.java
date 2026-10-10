@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
  * The client's IP for rate limits. In production the chain is client → Vercel (rewrite, K18) → Render, and
  * each proxy appends the address it received the request from to X-Forwarded-For. The client can put anything
  * in front, so the address is read from the right: skipping the {@code trusted-proxies} entries our own
- * proxies appended, the next one is what Vercel saw. 0 (local, tests) uses the socket address.
+ * proxies appended, the next one is what Vercel saw. 0 (local) uses the socket address; a negative value turns
+ * the client IP off (unknown for every request), for when the live chain could not be confirmed.
  */
 @Component
 public class ClientIp {
@@ -24,6 +25,9 @@ public class ClientIp {
 
     /** Null when the header has fewer entries than our proxies add (not a request through them). */
     public @Nullable String of(HttpServletRequest request) {
+        if (trustedProxies < 0) {
+            return null;
+        }
         if (trustedProxies == 0) {
             return request.getRemoteAddr();
         }
