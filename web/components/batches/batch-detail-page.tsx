@@ -4,7 +4,7 @@ import type { Fiber, StepStatus } from "@tekpas/shared";
 import { Layers, Lock, MoveRight, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { showErrorToast } from "@/components/common/error-toast";
 import { GuardedButton } from "@/components/common/guarded-button";
 import { EmptyState, ListError } from "@/components/common/list-states";
@@ -28,6 +28,7 @@ import { useSetBreadcrumbDetail } from "@/lib/breadcrumb";
 import { displayGtin, fiberText, formatDateRange, formatPercent, formatQuantity } from "@/lib/format";
 import { queryKeys } from "@/lib/query-keys";
 import { BatchStatusChip } from "./batch-status-chip";
+import { type ChainPanel, ChainPanels, panelFor } from "./chain-panels";
 import { ChainLegend, type ChainNodeStep, SupplyChainCanvas, toNodeStep } from "./supply-chain";
 
 /** The publishing threshold of the compliance score (design v0.3 09). */
@@ -206,9 +207,11 @@ function useReasons(steps: ChainNodeStep[] | undefined): Reason[] {
   if (steps === undefined) return [];
   if (steps.length === 0) return [{ text: t("noChain"), tone: "pending" }];
   const reasons: Reason[] = [];
-  const empty = steps.filter((s) => !s.filled);
+  // FIBER records an origin, not a supplier.
+  const empty = steps.filter((s) => !s.filled && s.stepType !== "FIBER");
   if (empty.length === 1) reasons.push({ text: t("unassignedOne", { step: tStep(empty[0].stepType) }), tone: "pending" });
   else if (empty.length > 1) reasons.push({ text: t("unassignedMany", { count: empty.length }), tone: "pending" });
+  if (steps.some((s) => !s.filled && s.stepType === "FIBER")) reasons.push({ text: t("originMissing"), tone: "pending" });
   const awaiting = steps.filter((s) => s.filled && s.status !== "APPROVED").length;
   if (awaiting > 0) reasons.push({ text: t("awaiting", { count: awaiting }), tone: "low-confidence" });
   return reasons;
@@ -299,10 +302,29 @@ function ChainSection({
 
   const statuses: StepStatus[] = steps.map((s) => s.status);
   return (
+    <ChainView batch={batch} chain={chain.data} steps={steps} statuses={statuses} />
+  );
+}
+
+function ChainView({
+  batch,
+  chain,
+  steps,
+  statuses,
+}: {
+  batch: BatchResponse;
+  chain: ChainResponse;
+  steps: ChainNodeStep[];
+  statuses: StepStatus[];
+}) {
+  const [panel, setPanel] = useState<ChainPanel>();
+  const open = useCallback((step: ChainNodeStep) => setPanel(panelFor(step)), []);
+  return (
     <div className="flex flex-col gap-3">
       <ChainLegend statuses={statuses} />
-      <SupplyChainCanvas steps={steps} />
-      {steps.some((s) => s.filled) && <Declarations batch={batch} chain={chain.data} />}
+      <SupplyChainCanvas steps={steps} selectedId={panel?.stepId} onOpen={open} />
+      {steps.some((s) => s.filled) && <Declarations batch={batch} chain={chain} />}
+      <ChainPanels batchId={batch.id} panel={panel} steps={chain.steps} onClose={() => setPanel(undefined)} />
     </div>
   );
 }

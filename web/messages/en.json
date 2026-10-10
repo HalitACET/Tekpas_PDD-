@@ -275,6 +275,21 @@
       "SEWING": "Sewing",
       "ACCESSORY": "Accessory",
       "PACKAGING": "Packaging"
+    },
+    "energySource": {
+      "GRID": "Grid",
+      "SOLAR": "Solar",
+      "WIND": "Wind",
+      "NATURAL_GAS": "Natural gas",
+      "COAL": "Coal",
+      "BIOMASS": "Biomass",
+      "OTHER": "Other"
+    },
+    "yarnProcess": {
+      "COMBED": "combed",
+      "CARDED": "carded",
+      "OPEN_END": "open-end",
+      "OTHER": "other"
     }
   },
   "errors": {
@@ -483,7 +498,8 @@
         "noChain": "No supply chain yet",
         "unassignedOne": "No supplier assigned to the {step} step",
         "unassignedMany": "No supplier assigned to {count} steps",
-        "awaiting": "{count} steps awaiting approval"
+        "awaiting": "{count} steps awaiting approval",
+        "originMissing": "No origin recorded for the fibre step"
       },
       "tabs": {
         "label": "Batch sections",
@@ -497,7 +513,6 @@
     "chain": {
       "label": "Supply chain",
       "legend": "Step statuses",
-      "documents": "{count} documents",
       "emptyNode": "Assign supplier",
       "emptyNodeBody": "The {step} step is empty",
       "loadError": "The supply chain could not be loaded",
@@ -507,7 +522,59 @@
       "createFailed": "The supply chain could not be created",
       "labelDeclaration": "Label declaration",
       "yarnDeclarations": "Yarn supplier declarations",
-      "noDeclaration": "No declaration yet"
+      "noDeclaration": "No declaration yet",
+      "hint": "Click a step for details",
+      "originMissing": "No origin recorded",
+      "openStep": "{step} step: {name}",
+      "panel": {
+        "close": "Close",
+        "stepLine": "{step} · step {n}/{total}",
+        "supplierData": "Data entered by the supplier",
+        "originData": "Origin",
+        "fields": {
+          "fiberType": "Fibre",
+          "originRegion": "Region",
+          "originCountry": "Country of origin",
+          "harvestYear": "Harvest year",
+          "quantityKg": "Lot size",
+          "fiberComposition": "Fibre composition",
+          "fabric": "Fabric",
+          "energySources": "Energy source",
+          "energyUse": "Energy use",
+          "delivered": "Delivered",
+          "process": "Process",
+          "chemicalCompliance": "Chemical compliance",
+          "waterLPerKg": "Water use"
+        },
+        "units": {
+          "kg": "{value} kg",
+          "kwhPerKg": "{value} kWh/kg",
+          "kwhPerPiece": "{value} kWh/piece",
+          "lPerKg": "{value} L/kg",
+          "gsm": "{value} g/m²"
+        },
+        "requestData": "Request data",
+        "requestFix": "Request a correction",
+        "approve": "Approve step",
+        "nextVersion": "In the next version"
+      },
+      "assign": {
+        "title": "Assign supplier",
+        "sub": "Lists the {type} suppliers of your network.",
+        "search": "Search company or city",
+        "count": "{count, plural, one {# supplier} other {# suppliers}} · {type}",
+        "row": "{city} · {count, plural, one {# batch} other {# batches}}",
+        "latest": "Latest status · {when}",
+        "none": "No matching supplier.",
+        "addNew": "Not in the list? Add a supplier",
+        "pick": "Choose a supplier",
+        "picked": "{name} will be assigned",
+        "cancel": "Cancel",
+        "submit": "Assign",
+        "failed": "The supplier could not be assigned",
+        "listError": "The suppliers could not be loaded",
+        "retry": "Try again"
+      }
     }
   },
   "suppliers": {

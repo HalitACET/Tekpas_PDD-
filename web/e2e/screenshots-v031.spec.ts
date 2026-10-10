@@ -128,6 +128,31 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `29-${scheme}`);
     });
 
+    test("25 assign a supplier", async ({ page }) => {
+      await prepare(page, scheme);
+      await mockAuthApi(page, { signedIn: true });
+      await mockCatalogApi(page);
+      await page.goto("/batches/30000000-0000-4000-8000-000000000002");
+      await page.getByRole("button", { name: /Tedarikçi ata/ }).click();
+      const sheet = page.getByRole("dialog", { name: "Tedarikçi ata" });
+      await sheet.locator("label").filter({ hasText: "Lale Konfeksiyon" }).click();
+      await expect(sheet.getByText("Lale Konfeksiyon atanacak")).toBeVisible();
+      await page.mouse.move(0, 0);
+      await shoot(page, `25-${scheme}`);
+    });
+
+    test("30 step panel, M4 actions in the next version", async ({ page }) => {
+      await prepare(page, scheme);
+      await mockAuthApi(page, { signedIn: true });
+      await mockCatalogApi(page);
+      await page.goto("/batches/30000000-0000-4000-8000-000000000002");
+      await page.getByRole("button", { name: "Boya adımı: Çınar Boya Apre" }).click();
+      const sheet = page.getByRole("dialog", { name: "Çınar Boya Apre" });
+      await sheet.getByRole("button", { name: "Veri talep et" }).hover();
+      await expect(page.locator("[data-slot=tooltip-content][data-open]")).toBeVisible();
+      await shoot(page, `30-${scheme}`);
+    });
+
     test("27 supplier in use cannot be removed", async ({ page }) => {
       await prepare(page, scheme);
       await mockAuthApi(page, { signedIn: true });

@@ -77,7 +77,8 @@ test("09: the chain in five columns, with the origin, the suppliers, an empty st
   const nodes = chain(page).locator(".react-flow__node");
   await expect(nodes).toHaveCount(6);
   await expect(nodes.nth(0)).toContainText("Lif");
-  await expect(nodes.nth(0)).toContainText("0 belge");
+  // No document count until documents exist (M5).
+  await expect(nodes.nth(0)).not.toContainText("belge");
   await expect(nodes.nth(0)).toContainText("Organik pamukHarran, Şanlıurfa");
   await expect(nodes.nth(1)).toContainText("Bursa İplik San.");
   await expect(nodes.nth(1)).toContainText("Onaylandı");
@@ -106,7 +107,7 @@ test("29: a rejected step has a red border and adds Reddedildi to the legend", a
     "Reddedildi",
     "Beklemede",
   ]);
-  const node = (i: number) => chain(page).locator(".react-flow__node").nth(i).locator("> div");
+  const node = (i: number) => chain(page).locator(".react-flow__node").nth(i).getByRole("button");
   await expect(node(2)).toContainText("Reddedildi");
   const border = (i: number) => node(i).evaluate((el) => getComputedStyle(el).borderTopColor);
   const red = await page.evaluate(() => {
@@ -133,9 +134,14 @@ test("26: a batch without a chain gets the default five steps", async ({ page })
 
   const nodes = chain(page).locator(".react-flow__node");
   await expect(nodes).toHaveCount(5);
-  await expect(nodes.nth(0)).toContainText("Lif adımı boş");
-  await expect(nodes.nth(4)).toContainText("Konfeksiyon adımı boş");
-  await expect(page.getByRole("list", { name: "Yayın kilitli" })).toHaveText("5 adıma tedarikçi atanmadı");
+  // FIBER records an origin, not a supplier.
+  await expect(nodes.nth(0)).toContainText("Menşe girilmediLif adımı boş");
+  await expect(nodes.nth(0)).not.toContainText("Tedarikçi ata");
+  await expect(nodes.nth(4)).toContainText("Tedarikçi ataKonfeksiyon adımı boş");
+  await expect(page.getByRole("list", { name: "Yayın kilitli" }).getByRole("listitem")).toHaveText([
+    "4 adıma tedarikçi atanmadı",
+    "Lif adımında menşe girilmedi",
+  ]);
   // Nothing assigned yet: no declarations card.
   await expect(page.getByText("İplikçi beyanları")).toHaveCount(0);
 });
@@ -169,4 +175,121 @@ test("22: the list's chain bar is coloured step by step", async ({ page }) => {
   expect(colours[0]).toBe(colours[1]);
   expect(new Set(colours).size).toBe(3); // approved, rejected, pending
   await expect(page.getByRole("row", { name: /KP-2026-0927-A/ })).toContainText("—");
+});
+
+const panel = (page: Page, name: string) => page.getByRole("dialog", { name });
+
+test("10/30: a step opens its panel with the supplier's data; the M4 actions are disabled", async ({ page }) => {
+  await openDetail(page, BATCH_0918);
+  await expect(page.getByText("Ayrıntı için bir adıma tıklayın")).toBeVisible();
+
+  const step = chain(page).getByRole("button", { name: "İplik adımı: Maraş Penye İplik" });
+  await step.click();
+  const sheet = panel(page, "Maraş Penye İplik");
+  await expect(sheet).toBeVisible();
+  await expect(sheet).toContainText("İplik · adım 2/5");
+  await expect(sheet).toContainText("Kahramanmaraş");
+  await expect(sheet).toContainText("Gönderildi");
+  await expect(sheet.getByRole("heading", { name: "Tedarikçinin girdiği veriler" })).toBeVisible();
+  await expect(sheet).toContainText("20 Eyl 2026 09:00");
+  await expect(sheet.locator("dl > div")).toHaveText([
+    "Lif bileşimi%80 pamuk · %20 polyester",
+    "Menşe ülkeTürkiye",
+    "Enerji kaynağıŞebeke %60 · GES %40",
+    "Enerji tüketimi3,4 kWh/kg",
+    "Teslim edilen640 kg · Ne 30/1 karde",
+  ]);
+  // The documents' fields (M5) stay out.
+  await expect(sheet).not.toContainText("Belgelerden okunan alanlar");
+
+  for (const name of ["Veri talep et", "Düzeltme iste", "Adımı onayla"]) {
+    await expect(sheet.getByRole("button", { name })).toBeDisabled();
+  }
+  await sheet.getByRole("button", { name: "Adımı onayla" }).hover();
+  await expect(page.locator("[data-slot=tooltip-content][data-open]")).toHaveText("Bir sonraki sürümde");
+
+  // The open step is marked on the canvas (behind the modal sheet, so out of the accessibility tree).
+  await expect(page.locator(".react-flow__node button").nth(2)).toHaveClass(/border-ring/);
+  await page.keyboard.press("Escape");
+  await expect(sheet).toBeHidden();
+});
+
+test("an empty fibre step opens the origin panel, not 'Tedarikçi ata'", async ({ page }) => {
+  await openDetail(page, BATCH_0927);
+  await page.getByRole("button", { name: "Varsayılan zinciri oluştur" }).click();
+
+  await chain(page).getByRole("button", { name: /Menşe girilmedi/ }).click();
+  const sheet = panel(page, "Menşe girilmedi");
+  await expect(sheet.getByRole("heading", { name: "Menşe bilgileri" })).toBeVisible();
+  await expect(sheet.locator("dl > div")).toHaveText([
+    "Lif türü—",
+    "Bölge—",
+    "Menşe ülke—",
+    "Hasat yılı—",
+    "Lot miktarı—",
+  ]);
+});
+
+test("25: an empty step gets a supplier of the step's type", async ({ page }) => {
+  await openDetail(page, BATCH_0918);
+
+  await chain(page).getByRole("button", { name: /Tedarikçi ata/ }).click();
+  const sheet = panel(page, "Tedarikçi ata");
+  await expect(sheet).toContainText("Konfeksiyon · adım 5/5");
+  await expect(sheet).toContainText("Tedarikçi ağınızdaki konfeksiyon tedarikçileri listelenir.");
+  await expect(sheet.getByText("4 tedarikçi · Konfeksiyon")).toBeVisible();
+  const options = sheet.getByRole("radio");
+  await expect(options).toHaveCount(4);
+  const lale = sheet.locator("label").filter({ hasText: "Lale Konfeksiyon" });
+  await expect(lale).toContainText("Bursa · 6 parti");
+  await expect(lale).toContainText("Onaylandı");
+  await expect(lale).toContainText("Son durum · 14 Eyl");
+  // A supplier without steps has no status yet ("davet edildi" waits for data requests, M4).
+  await expect(sheet.locator("label").filter({ hasText: "Ege Fason Dikim" })).toContainText("Son durum · —");
+
+  const search = sheet.getByRole("searchbox", { name: "Firma veya şehir ara" });
+  await search.fill("izmir");
+  await expect(options).toHaveCount(1);
+  await search.fill("");
+
+  await expect(sheet.getByText("Bir tedarikçi seçin")).toBeVisible();
+  await expect(sheet.getByRole("button", { name: "Ata" })).toBeDisabled();
+  await lale.click();
+  await expect(sheet.getByText("Lale Konfeksiyon atanacak")).toBeVisible();
+  const sent = page.waitForRequest((r) => r.url().includes("/api/v1/steps/") && r.method() === "PATCH");
+  await sheet.getByRole("button", { name: "Ata" }).click();
+  expect((await sent).postDataJSON()).toEqual({ supplierId: "00000000-0000-4000-8000-000000000106" });
+
+  await expect(sheet).toBeHidden();
+  await expect(chain(page).getByRole("button", { name: "Konfeksiyon adımı: Lale Konfeksiyon" })).toContainText("Beklemede");
+  await expect(page.getByRole("list", { name: "Yayın kilitli" }).getByRole("listitem")).toHaveText(["4 adım onay bekliyor"]);
+});
+
+test("25: 'Listede yok mu?' adds a supplier of the step's type and selects it", async ({ page }) => {
+  await openDetail(page, BATCH_0918);
+  await chain(page).getByRole("button", { name: /Tedarikçi ata/ }).click();
+  const sheet = panel(page, "Tedarikçi ata");
+  await sheet.getByRole("button", { name: "Listede yok mu? Tedarikçi ekle" }).click();
+
+  const form = panel(page, "Tedarikçi ekle");
+  await expect(form.getByRole("radio", { name: "Konfeksiyon" })).toHaveAttribute("aria-checked", "true");
+  await form.getByLabel("Firma adı").fill("Aras Örme Konfeksiyon");
+  await form.getByRole("combobox", { name: "Şehir" }).click();
+  await form.getByRole("combobox", { name: "Şehir" }).fill("deni");
+  await page.getByRole("option", { name: "Denizli" }).click();
+  await form.getByRole("button", { name: "Tedarikçi ekle" }).click();
+
+  await expect(form).toBeHidden();
+  await expect(sheet.getByText("5 tedarikçi · Konfeksiyon")).toBeVisible();
+  await expect(sheet.getByText("Aras Örme Konfeksiyon atanacak")).toBeVisible();
+  await expect(sheet.getByRole("radio", { name: /Aras Örme Konfeksiyon/ })).toBeChecked();
+});
+
+test("25: read-only users see the list but cannot assign", async ({ page }) => {
+  await openDetail(page, BATCH_0918, { role: "VIEWER" });
+  await chain(page).getByRole("button", { name: /Tedarikçi ata/ }).click();
+  const sheet = panel(page, "Tedarikçi ata");
+  await sheet.locator("label").filter({ hasText: "Lale Konfeksiyon" }).click();
+  await expect(sheet.getByRole("button", { name: "Ata" })).toBeDisabled();
+  await expect(sheet.getByRole("button", { name: "Listede yok mu? Tedarikçi ekle" })).toBeDisabled();
 });

@@ -39,6 +39,14 @@ describe("batchCreateSchema", () => {
     expect(codes({ ...valid, quantity: undefined })).toEqual(["quantity:NotNull"]);
   });
 
+  it("leaves the production dates optional: empty means none", () => {
+    const parsed = batchCreateSchema.parse({ ...valid, producedFrom: "", producedTo: "" });
+    expect([parsed.producedFrom, parsed.producedTo]).toEqual([null, null]);
+    expect(codes({ ...valid, producedFrom: "2026-11-02", producedTo: "" })).toEqual([]);
+    expect(codes({ ...valid, producedFrom: undefined, producedTo: undefined })).toEqual([]);
+    expect(codes({ ...valid, producedFrom: "02.11.2026" })).toEqual(["producedFrom:Pattern"]);
+  });
+
   it("reports DateRange on producedTo when it is before producedFrom", () => {
     expect(codes({ ...valid, producedTo: "2026-11-01" })).toEqual(["producedTo:DateRange"]);
     expect(codes({ ...valid, producedTo: null })).toEqual([]);

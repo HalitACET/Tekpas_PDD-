@@ -146,12 +146,6 @@ for (const scheme of ["light", "dark"] as const) {
       await page.getByRole("option", { name: /Organik pamuk tişört, ekru/ }).click();
       await form.getByLabel("Üretim emri no").fill("ÜE-2026-0452");
       await form.getByLabel("Miktar").fill("1.800");
-      // The form needs both dates for now (M10: an empty date should count as none, as in the API).
-      const calendar = page.getByRole("dialog", { name: "Tarih seç" });
-      await form.getByRole("button", { name: "Üretim başlangıcı" }).click();
-      await calendar.getByRole("button", { name: /(^|, )5 Ekim 2026/ }).click();
-      await calendar.getByRole("button", { name: /(^|, )20 Ekim 2026/ }).click();
-      await expect(calendar).toBeHidden();
       await expect(form.getByText("Tedarik zinciri: 6 adım kopyalanacak")).toBeVisible();
       await expect(form.getByRole("button", { name: "Partiyi oluştur" })).toBeEnabled();
       await page.mouse.move(0, 0);
@@ -164,6 +158,15 @@ for (const scheme of ["light", "dark"] as const) {
       await expect(page.locator(".react-flow__node")).toHaveCount(6);
       await page.mouse.move(0, 0);
       await shoot(page, `09-${scheme}`);
+    });
+
+    test("10 step panel (documents' fields and M4 actions wait, as in v0.3.1 30)", async ({ page }) => {
+      await openBatches(page, scheme);
+      await page.getByRole("link", { name: "KP-2026-0918-A partisini aç" }).click();
+      await page.getByRole("button", { name: "İplik adımı: Maraş Penye İplik" }).click();
+      await expect(page.getByRole("dialog", { name: "Maraş Penye İplik" })).toBeVisible();
+      await page.mouse.move(0, 0);
+      await shoot(page, `10-${scheme}`);
     });
 
     test("14 suppliers list", async ({ page }) => {

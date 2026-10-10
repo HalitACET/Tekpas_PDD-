@@ -110,3 +110,18 @@ export function useChainPreview(productId: string | undefined) {
     enabled: productId !== undefined && productId !== "",
   });
 }
+
+/** v0.3.1 25: assign a supplier of the network to an empty step (PATCH /steps/{id}). */
+export function useAssignSupplier(batchId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ stepId, supplierId }: { stepId: string; supplierId: string }) =>
+      unwrap(api.PATCH("/api/v1/steps/{id}", { params: { path: { id: stepId } }, body: { supplierId } })),
+    onSuccess: (chain) => {
+      queryClient.setQueryData(queryKeys.batches.chain(batchId), chain);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.batches.all });
+      // The supplier list counts batches per supplier.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
+    },
+  });
+}

@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProblemTypes } from "@tekpas/api-client";
-import { SUPPLIER_TYPES } from "@tekpas/shared";
+import { SUPPLIER_TYPES, type SupplierType } from "@tekpas/shared";
 import { CircleAlert, Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useId } from "react";
@@ -26,7 +26,12 @@ import {
 } from "@/lib/suppliers/supplier-form";
 import { CityCombobox } from "./city-combobox";
 
-export type SupplierDialogState = { kind: "new" } | { kind: "edit"; supplier: SupplierResponse } | undefined;
+/**
+ * new: from the suppliers page, or from "Tedarikçi ata" (v0.3.1 25) with the step's type chosen and the created
+ * supplier handed back so the panel selects it.
+ */
+export type NewSupplier = { kind: "new"; type?: SupplierType; onCreated?: (supplier: SupplierResponse) => void };
+export type SupplierDialogState = NewSupplier | { kind: "edit"; supplier: SupplierResponse } | undefined;
 
 /**
  * Design v0.3 15 "Tedarikçi ekle"; editing is v0.3.2 36a (a company with its own account: name, type and
@@ -61,7 +66,7 @@ function SupplierForm({
   state,
   onDone,
 }: {
-  state: { kind: "new" } | { kind: "edit"; supplier: SupplierResponse };
+  state: NewSupplier | { kind: "edit"; supplier: SupplierResponse };
   onDone: () => void;
 }) {
   const t = useTranslations("suppliers.form");
@@ -79,7 +84,9 @@ function SupplierForm({
     // The schema converts the typed phone first (preprocess), which the resolver typings cannot follow.
     resolver: zodResolver(supplierFormSchema as never) as never,
     mode: "onChange",
-    defaultValues: supplier ? supplierFormFrom(supplier) : emptySupplierForm(),
+    defaultValues: supplier
+      ? supplierFormFrom(supplier)
+      : { ...emptySupplierForm(), ...(state.kind === "new" && state.type ? { type: state.type } : {}) },
   });
   const { register, control, handleSubmit, setError, formState } = form;
   const values = useWatch({ control }) as SupplierFormValues;
@@ -95,7 +102,8 @@ function SupplierForm({
       if (supplier) {
         await update.mutateAsync({ id: supplier.id, body: supplierPatch(supplier, output, locks) });
       } else {
-        await create.mutateAsync(supplierCreateBody(output));
+        const created = await create.mutateAsync(supplierCreateBody(output));
+        if (state.kind === "new") state.onCreated?.(created);
       }
       onDone();
     } catch (error) {

@@ -275,6 +275,21 @@
       "SEWING": "Konfektion",
       "ACCESSORY": "Zubehör",
       "PACKAGING": "Verpackung"
+    },
+    "energySource": {
+      "GRID": "Netz",
+      "SOLAR": "Solar",
+      "WIND": "Wind",
+      "NATURAL_GAS": "Erdgas",
+      "COAL": "Kohle",
+      "BIOMASS": "Biomasse",
+      "OTHER": "Sonstige"
+    },
+    "yarnProcess": {
+      "COMBED": "gekämmt",
+      "CARDED": "kardiert",
+      "OPEN_END": "Open-End",
+      "OTHER": "sonstige"
     }
   },
   "errors": {
@@ -483,7 +498,8 @@
         "noChain": "Noch keine Lieferkette",
         "unassignedOne": "Dem Schritt {step} ist kein Lieferant zugeordnet",
         "unassignedMany": "{count} Schritten ist kein Lieferant zugeordnet",
-        "awaiting": "{count} Schritte warten auf Freigabe"
+        "awaiting": "{count} Schritte warten auf Freigabe",
+        "originMissing": "Für den Faserschritt ist keine Herkunft erfasst"
       },
       "tabs": {
         "label": "Bereiche der Charge",
@@ -497,7 +513,6 @@
     "chain": {
       "label": "Lieferkette",
       "legend": "Schrittstatus",
-      "documents": "{count} Dokumente",
       "emptyNode": "Lieferant zuordnen",
       "emptyNodeBody": "Schritt {step} ist leer",
       "loadError": "Die Lieferkette konnte nicht geladen werden",
@@ -507,7 +522,59 @@
       "createFailed": "Die Lieferkette konnte nicht angelegt werden",
       "labelDeclaration": "Etikettangabe",
       "yarnDeclarations": "Angaben der Garnlieferanten",
-      "noDeclaration": "Noch keine Angabe"
+      "noDeclaration": "Noch keine Angabe",
+      "hint": "Für Details auf einen Schritt klicken",
+      "originMissing": "Keine Herkunft erfasst",
+      "openStep": "Schritt {step}: {name}",
+      "panel": {
+        "close": "Schließen",
+        "stepLine": "{step} · Schritt {n}/{total}",
+        "supplierData": "Angaben des Lieferanten",
+        "originData": "Herkunft",
+        "fields": {
+          "fiberType": "Faser",
+          "originRegion": "Region",
+          "originCountry": "Herkunftsland",
+          "harvestYear": "Erntejahr",
+          "quantityKg": "Losgröße",
+          "fiberComposition": "Faserzusammensetzung",
+          "fabric": "Stoff",
+          "energySources": "Energiequelle",
+          "energyUse": "Energieverbrauch",
+          "delivered": "Geliefert",
+          "process": "Verfahren",
+          "chemicalCompliance": "Chemikalienkonformität",
+          "waterLPerKg": "Wasserverbrauch"
+        },
+        "units": {
+          "kg": "{value} kg",
+          "kwhPerKg": "{value} kWh/kg",
+          "kwhPerPiece": "{value} kWh/Stück",
+          "lPerKg": "{value} L/kg",
+          "gsm": "{value} g/m²"
+        },
+        "requestData": "Daten anfordern",
+        "requestFix": "Korrektur anfordern",
+        "approve": "Schritt freigeben",
+        "nextVersion": "In der nächsten Version"
+      },
+      "assign": {
+        "title": "Lieferant zuordnen",
+        "sub": "Hier stehen die Lieferanten vom Typ {type} aus Ihrem Netzwerk.",
+        "search": "Unternehmen oder Stadt suchen",
+        "count": "{count} Lieferanten · {type}",
+        "row": "{city} · {count, plural, one {# Charge} other {# Chargen}}",
+        "latest": "Letzter Status · {when}",
+        "none": "Kein passender Lieferant.",
+        "addNew": "Nicht in der Liste? Lieferanten hinzufügen",
+        "pick": "Wählen Sie einen Lieferanten",
+        "picked": "{name} wird zugeordnet",
+        "cancel": "Abbrechen",
+        "submit": "Zuordnen",
+        "failed": "Der Lieferant konnte nicht zugeordnet werden",
+        "listError": "Die Lieferanten konnten nicht geladen werden",
+        "retry": "Erneut versuchen"
+      }
     }
   },
   "suppliers": {

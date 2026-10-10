@@ -141,7 +141,8 @@ Backend kuralları (M2):
 
 **Kabul:** Panelden ürün ve parti oluşturulur. Hatalı GTIN alan bazında hata gösterir. Başka firmanın ürününe erişim 404.
 
-### M3 — Tedarik zinciri
+### M3 — Tedarik zinciri ✓
+_Tamamlandı: 10.10.2026 (PR #18–#26). Özet: `docs/haftalik/03-tedarik-zinciri.md`._
 - [x] Parti detay ekranı (M2'den taşındı): 09 Parti detayı + zincir ekranıyla birlikte, PR 3a.
 - [x] API: tedarikçi ağı (ekle / listele / düzenle / çıkar). Tedarikçi = `company` + `created_by_company_id`; ad, tip ve şehri yalnızca onu oluşturan ve kullanıcısı olmayan firmanın üreticisi değiştirir, diğer durumda sadece bağlantı alanları (telefon)
 - [x] API: zincir adımı ekle / düzenle / çıkar, `GET /batches/{id}/chain`. Zincir ağaç değil **DAG**: `supply_step_input(step_id, input_step_id)`; bağlantı yalnızca aynı partinin adımları arasında, kendine bağlantı ve döngü yasak (recursive CTE kontrolü). `parent_step_id` V4'te kaldırıldı
@@ -151,7 +152,8 @@ Backend kuralları (M2):
 - [x] Web: Tedarikçiler ekranı (tasarım v0.3 14/15), PR 2b. Şehir 81 il (tek kaynak `packages/shared/src/tr-provinces.json`, backend aynı listeyle doğrular, alan hatası `City`), aramalı liste; telefon +90 sabit, E.164 saklanır; sertifikalar "—" (M5); durum = son adım durumu, yoksa "—". Düzenleme 15'teki diyalogla: kendi hesabı olan firmada ad/tip/şehir kilitli, partide kullanılan tedarikçinin tipi kilitli (`SUPPLIER_TYPE_IN_USE`), telefon her zaman değişir
 - [x] Web: Tedarikçi kaldırma (v0.3.1 27 kaldırılamaz, 28 bağı kaldır onayı), PR 2b ile birlikte. "Partileri gör" → `/batches?supplierId=` (API filtresi; ağda olmayan tedarikçi 404, her parti bir kez; sekme sayaçları filtreden bağımsız)
 - [x] Web: Parti detay + React Flow zincir (v0.3 09, v0.3.1 26 zinciri olmayan parti, 29 reddedildi + lejant), PR 3a. Sabit 5 sütun (`web/lib/batches/chain-layout.ts`, yerleşim kütüphanesi yok); uyum skoru "—", Önizle ve Pasaportu yayınla kilitli, gerekçeler M3'ün bildikleri; sadece Tedarik zinciri sekmesi açık; lejantta 4 durum (Reddedildi yalnızca reddedilmiş adım varsa); alttaki beyan kartında uyuşmazlık rozeti yok (M5)
-- [ ] Web: Düğüm paneli (v0.3 10–11, v0.3.1 30: "Belgelerden okunan alanlar" gizli, M4 aksiyonları devre dışı "Bir sonraki sürümde") ve Tedarikçi ata paneli (v0.3.1 25, "davet edildi" gizli), PR 3b. Lejanttaki "Ayrıntı için bir adıma tıklayın" ipucu da panelle gelir
+- [x] Web: Düğüm paneli (v0.3 10, v0.3.1 30: "Belgelerden okunan alanlar" gizli, başlıkta yalnızca tarih, M4 aksiyonları devre dışı "Bir sonraki sürümde"; 11'in düzeltme formu M4) ve Tedarikçi ata paneli (v0.3.1 25: adımın tipindeki tedarikçiler, son durum ve göreli tarihi, "Listede yok mu?" ile 15'teki diyalog tip seçili açılır ve yeni tedarikçi seçilir; "davet edildi" gizli), PR 3b. Lejant ipucu panelle geldi. Düğümlerde belge simgesi ve sayısı M5'e kadar gizli. Boş Lif düğümü "Menşe girilmedi" der ve menşe panelini açar (Lif'in tedarikçisi olmaz; kullanıcı kararı)
+- [x] "Yeni parti" formu: üretim tarihleri isteğe bağlı (boş = tarih yok); ikisi doluyken sıra kontrolü sürüyor, PR 3b
 - [x] PR 3a: Partiler listesindeki zincir çubuğu adım adım renklenir (v0.3.1 22: onaylı yeşil, gönderildi mavi, reddedildi kırmızı, bekleyen gri). Liste cevabına her partinin adım durumları sıralı dizi olarak eklenir (`GET /batches`). Satır oku ve satıra tıklama → parti detayı (09).
 
 **Kabul:** Bir parti için İplik → Kumaş → Boya → Dikim zinciri çizilir, düğüm renkleri durumu gösterir.
@@ -211,7 +213,6 @@ Backend kuralları (M2):
 - [ ] Görsel cila, boş durumlar, yükleniyor durumları
 - [ ] Sunucu uyanık, APK hazır, 5 dakikalık demo senaryosu yazılı ve prova edilmiş
 - [ ] e2e testleri CI'da çalışsın (şu an yalnızca yerelde; `pnpm --filter web exec playwright test`)
-- [ ] "Yeni parti" formu: boş üretim tarihi şimdi geçersiz sayılıyor (`packages/shared` `isoDate`, `""` tarih değil), oysa API tarihsiz partiyi kabul ediyor; boş = tarih yok olmalı. PR 3a'da fark edildi.
 - [ ] Açılışı hızlandırma / Render araştırması: soğuk başlangıç 100–150 sn ("Started TekpasApplication in" 75–83 sn). Render'da önce/sonra ölç: lazy init, gereksiz auto-config, Flyway validate. Prod'a lazy init kullanıcı onayıyla. Uyuyan sunucuda erken kesilen isteğin uyanmayı iptal edip etmediği canlıda ölçülemedi (cron gün içinde uyanık tutuyor); burada bak.
 
 **Kabul:** Demo senaryosu baştan sona hatasız, internet yavaşken bile çalışıyor.
