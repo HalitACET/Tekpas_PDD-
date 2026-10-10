@@ -30,6 +30,10 @@ export async function mockAuthApi(page: Page, { signedIn, login = "ok", role }: 
   let session = signedIn;
   // The server is awake (lib/server-wake.ts probes this first); wake.spec.ts overrides it.
   await page.route("**/api/health", (route) => route.fulfill({ json: { status: "UP" } }));
+  // The menu asks for the task count on every panel page; catalog-mock.ts answers with the design's tasks.
+  await page.route("**/api/v1/tasks", (route) =>
+    route.fulfill({ json: { total: 0, review: [], followUp: [], incomplete: [] } }),
+  );
   const user = role ? { ...DESIGN_USER, role } : DESIGN_USER;
   const tokens = { access: "access-1" };
 
