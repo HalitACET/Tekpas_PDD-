@@ -2,9 +2,11 @@
 
 import { Building2, Lock, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { canWriteCatalog } from "@/lib/auth/permissions";
 import type { SessionUser } from "@/lib/auth/session";
+import { useBreadcrumbDetail } from "@/lib/breadcrumb";
 import type { PageKey } from "@/lib/nav";
 import { useSearchShortcutLabel } from "@/lib/platform";
 import { UserMenu } from "./user-menu";
@@ -17,6 +19,7 @@ export function Topbar({ user, page }: { user: SessionUser; page?: PageKey }) {
   const t = useTranslations("shell");
   const tNav = useTranslations("nav.items");
   const shortcut = useSearchShortcutLabel();
+  const detail = useBreadcrumbDetail();
 
   return (
     <header className="hidden h-[52px] shrink-0 items-center gap-3 border-b pr-4 pl-6 md:flex">
@@ -33,9 +36,25 @@ export function Topbar({ user, page }: { user: SessionUser; page?: PageKey }) {
               <li className="text-input" aria-hidden>
                 /
               </li>
-              <li className="text-muted-foreground" aria-current="page">
-                {tNav(page)}
-              </li>
+              {detail ? (
+                <>
+                  <li className="text-muted-foreground">
+                    <Link href={`/${page}`} className="rounded-sm hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring-soft focus-visible:outline-none">
+                      {tNav(page)}
+                    </Link>
+                  </li>
+                  <li className="text-input" aria-hidden>
+                    /
+                  </li>
+                  <li className="font-mono text-xs" aria-current="page">
+                    {detail}
+                  </li>
+                </>
+              ) : (
+                <li className="text-muted-foreground" aria-current="page">
+                  {tNav(page)}
+                </li>
+              )}
             </>
           )}
         </ol>

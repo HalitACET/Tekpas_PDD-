@@ -266,6 +266,15 @@
       "SUBMITTED": "Gönderildi",
       "APPROVED": "Onaylandı",
       "REJECTED": "Reddedildi"
+    },
+    "stepType": {
+      "FIBER": "Lif",
+      "YARN": "İplik",
+      "FABRIC": "Kumaş",
+      "DYEING": "Boya",
+      "SEWING": "Konfeksiyon",
+      "ACCESSORY": "Aksesuar",
+      "PACKAGING": "Ambalaj"
     }
   },
   "errors": {
@@ -446,11 +455,60 @@
       "required": "Ürün ve miktar gerekli",
       "cancel": "Vazgeç",
       "submit": "Partiyi oluştur",
-      "failed": "Parti oluşturulamadı"
+      "failed": "Parti oluşturulamadı",
+      "description": "Tedarik zinciri adımları ürünün son partisinden kopyalanır.",
+      "chainCopied": "Tedarik zinciri: {count} adım kopyalanacak",
+      "chainDefault": "Tedarik zinciri: varsayılan {count} adım"
     },
     "listError": "Partiler yüklenemedi",
     "supplierFilter": "Tedarikçi:",
-    "clearSupplier": "Tedarikçi filtresini kaldır"
+    "clearSupplier": "Tedarikçi filtresini kaldır",
+    "openDetail": "{batchNo} partisini aç",
+    "detail": {
+      "loadError": "Parti yüklenemedi",
+      "notFoundTitle": "Parti bulunamadı",
+      "notFoundBody": "Silinmiş olabilir ya da bu firmaya ait değil.",
+      "back": "Partilere dön",
+      "gtin": "GTIN",
+      "productionOrderNo": "Üretim emri",
+      "produced": "Üretim",
+      "label": "Etiket beyanı",
+      "score": "Uyum skoru",
+      "threshold": "Yayın eşiği {threshold}",
+      "noScore": "Uyum skoru henüz hesaplanmadı",
+      "preview": "Önizle",
+      "publish": "Pasaportu yayınla",
+      "publishLocked": "Yayın kilitli",
+      "reasons": {
+        "noChain": "Tedarik zinciri oluşturulmadı",
+        "unassignedOne": "{step} adımına tedarikçi atanmadı",
+        "unassignedMany": "{count} adıma tedarikçi atanmadı",
+        "awaiting": "{count} adım onay bekliyor"
+      },
+      "tabs": {
+        "label": "Parti bölümleri",
+        "chain": "Tedarik zinciri",
+        "documents": "Belgeler",
+        "alerts": "Uyarılar",
+        "versions": "Pasaport sürümleri",
+        "unavailable": "Henüz yok"
+      }
+    },
+    "chain": {
+      "label": "Tedarik zinciri",
+      "legend": "Adım durumları",
+      "documents": "{count} belge",
+      "emptyNode": "Tedarikçi ata",
+      "emptyNodeBody": "{step} adımı boş",
+      "loadError": "Tedarik zinciri yüklenemedi",
+      "emptyTitle": "Bu partinin tedarik zinciri yok",
+      "emptyBody": "Zincir, lif kaynağından konfeksiyona kadar her üretim adımını ve o adımın tedarikçisini gösterir. Varsayılan zincir beş adımla oluşturulur; her adıma sonra tedarikçi atarsınız.",
+      "createDefault": "Varsayılan zinciri oluştur",
+      "createFailed": "Tedarik zinciri oluşturulamadı",
+      "labelDeclaration": "Etiket beyanı",
+      "yarnDeclarations": "İplikçi beyanları",
+      "noDeclaration": "Henüz beyan yok"
+    }
   },
   "suppliers": {
     "actions": {

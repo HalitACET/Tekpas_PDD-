@@ -56,3 +56,25 @@ export function formatUpdated(iso: string, now: Date, locale: string, yesterday:
     .format(date)
     .replace(/\.$/, "");
 }
+
+/**
+ * Production period of a batch (09): "02.09 – 20.09.2026" within one year, both years otherwise, a single
+ * date when only one end is known. Dates are plain ISO dates (no time zone).
+ */
+export function formatDateRange(from: string | null | undefined, to: string | null | undefined, locale: string): string {
+  const date = (iso: string) => new Date(`${iso}T00:00:00`);
+  const full = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
+  if (!from || !to) {
+    const one = from ?? to;
+    return one ? full.format(date(one)) : "";
+  }
+  // Without its year, the start keeps the full date's separators ("02.09", not ICU's day-month "02/09").
+  const withoutYear = (d: Date) => {
+    const parts = full.formatToParts(d);
+    const year = parts.findIndex((p) => p.type === "year");
+    const kept = parts.filter((_, i) => i !== year && !(parts[i].type === "literal" && (i === year - 1 || i === year + 1)));
+    return kept.map((p) => p.value).join("");
+  };
+  const start = from.slice(0, 4) === to.slice(0, 4) ? withoutYear(date(from)) : full.format(date(from));
+  return `${start} – ${full.format(date(to))}`;
+}

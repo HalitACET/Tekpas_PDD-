@@ -77,11 +77,14 @@ export function ListError({
   error,
   onRetry,
   retrying,
+  keepsFilters = true,
 }: {
   title: string;
   error: unknown;
   onRetry: () => void;
   retrying?: boolean;
+  /** "Filtreleriniz korunur." — only where there are filters. */
+  keepsFilters?: boolean;
 }) {
   const t = useTranslations("common.listError");
   const answer = error instanceof ApiError ? error : undefined;
@@ -93,7 +96,7 @@ export function ListError({
       </span>
       <strong className="text-[15px] font-semibold">{title}</strong>
       <span className="max-w-[380px] text-[13px] leading-normal text-pretty text-muted-foreground">
-        {t(kind)} {t("kept")}
+        {keepsFilters ? `${t(kind)} ${t("kept")}` : t(kind)}
       </span>
       {answer && (
         <span className="font-mono text-[11px] text-muted-foreground">

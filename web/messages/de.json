@@ -266,6 +266,15 @@
       "SUBMITTED": "Eingereicht",
       "APPROVED": "Freigegeben",
       "REJECTED": "Abgelehnt"
+    },
+    "stepType": {
+      "FIBER": "Faser",
+      "YARN": "Garn",
+      "FABRIC": "Stoff",
+      "DYEING": "Färberei",
+      "SEWING": "Konfektion",
+      "ACCESSORY": "Zubehör",
+      "PACKAGING": "Verpackung"
     }
   },
   "errors": {
@@ -446,11 +455,60 @@
       "required": "Produkt und Menge sind erforderlich",
       "cancel": "Abbrechen",
       "submit": "Charge anlegen",
-      "failed": "Die Charge konnte nicht angelegt werden"
+      "failed": "Die Charge konnte nicht angelegt werden",
+      "description": "Die Schritte der Lieferkette werden aus der letzten Charge des Produkts übernommen.",
+      "chainCopied": "Lieferkette: {count} Schritte werden übernommen",
+      "chainDefault": "Lieferkette: die Standardkette mit {count} Schritten"
     },
     "listError": "Chargen konnten nicht geladen werden",
     "supplierFilter": "Lieferant:",
-    "clearSupplier": "Lieferantenfilter entfernen"
+    "clearSupplier": "Lieferantenfilter entfernen",
+    "openDetail": "Charge {batchNo} öffnen",
+    "detail": {
+      "loadError": "Die Charge konnte nicht geladen werden",
+      "notFoundTitle": "Charge nicht gefunden",
+      "notFoundBody": "Sie wurde vielleicht gelöscht oder gehört nicht zu diesem Unternehmen.",
+      "back": "Zurück zu den Chargen",
+      "gtin": "GTIN",
+      "productionOrderNo": "Fertigungsauftrag",
+      "produced": "Produktion",
+      "label": "Etikettangabe",
+      "score": "Konformitätswert",
+      "threshold": "Veröffentlichungsschwelle {threshold}",
+      "noScore": "Der Konformitätswert wird noch nicht berechnet",
+      "preview": "Vorschau",
+      "publish": "Pass veröffentlichen",
+      "publishLocked": "Veröffentlichung gesperrt",
+      "reasons": {
+        "noChain": "Noch keine Lieferkette",
+        "unassignedOne": "Dem Schritt {step} ist kein Lieferant zugeordnet",
+        "unassignedMany": "{count} Schritten ist kein Lieferant zugeordnet",
+        "awaiting": "{count} Schritte warten auf Freigabe"
+      },
+      "tabs": {
+        "label": "Bereiche der Charge",
+        "chain": "Lieferkette",
+        "documents": "Dokumente",
+        "alerts": "Warnungen",
+        "versions": "Passversionen",
+        "unavailable": "Noch nicht verfügbar"
+      }
+    },
+    "chain": {
+      "label": "Lieferkette",
+      "legend": "Schrittstatus",
+      "documents": "{count} Dokumente",
+      "emptyNode": "Lieferant zuordnen",
+      "emptyNodeBody": "Schritt {step} ist leer",
+      "loadError": "Die Lieferkette konnte nicht geladen werden",
+      "emptyTitle": "Diese Charge hat keine Lieferkette",
+      "emptyBody": "Die Kette zeigt jeden Produktionsschritt von der Faserquelle bis zur Konfektion und den Lieferanten jedes Schritts. Die Standardkette hat fünf Schritte; jedem Schritt ordnen Sie danach einen Lieferanten zu.",
+      "createDefault": "Standardkette anlegen",
+      "createFailed": "Die Lieferkette konnte nicht angelegt werden",
+      "labelDeclaration": "Etikettangabe",
+      "yarnDeclarations": "Angaben der Garnlieferanten",
+      "noDeclaration": "Noch keine Angabe"
+    }
   },
   "suppliers": {
     "actions": {

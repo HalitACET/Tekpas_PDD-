@@ -1,6 +1,6 @@
 "use client";
 
-import type { BatchStatus } from "@tekpas/shared";
+import type { BatchStatus, StepStatus } from "@tekpas/shared";
 import { useTranslations } from "next-intl";
 
 /*
@@ -27,12 +27,14 @@ const STAGES: Record<BatchStatus, { chip: string; icon: string; stroke: number }
   PUBLISHED: { chip: "border-transparent bg-brand text-brand-foreground", icon: "M20 6 9 17l-5-5", stroke: 3 },
 };
 
-export function BatchStatusChip({ status }: { status: BatchStatus }) {
+/** lg: next to the batch number on the detail page (09), 24 px and 13 px. */
+export function BatchStatusChip({ status, size = "default" }: { status: BatchStatus; size?: "default" | "lg" }) {
   const t = useTranslations("enums.batchStatus");
   const stage = STAGES[status];
+  const box = size === "lg" ? "h-6 text-[13px]" : "h-[22px] text-xs";
   return (
     <span
-      className={`inline-flex h-[22px] items-center gap-[5px] rounded-[4px] border pr-2 pl-1.5 text-xs font-medium whitespace-nowrap ${stage.chip}`}
+      className={`inline-flex items-center gap-[5px] rounded-[4px] border pr-2 pl-1.5 font-medium whitespace-nowrap ${box} ${stage.chip}`}
     >
       <svg
         viewBox="0 0 24 24"
@@ -51,12 +53,21 @@ export function BatchStatusChip({ status }: { status: BatchStatus }) {
   );
 }
 
+const SEGMENT: Record<StepStatus, string> = {
+  APPROVED: "bg-status-approved",
+  SUBMITTED: "bg-status-submitted",
+  REJECTED: "bg-status-rejected",
+  PENDING: "bg-status-pending",
+};
+
 /**
- * Supply chain progress (07): one segment per step, approved green, the rest grey; "—" while there is no
- * chain (M3 builds it). Step-level colours need the chain itself (design debt).
+ * Supply chain progress (v0.3.1 22): one segment per step in chain order, coloured by its status, then
+ * "approved/total"; "—" while there is no chain.
  */
-export function ChainProgress({ total, approved }: { total: number; approved: number }) {
+export function ChainProgress({ statuses }: { statuses: readonly StepStatus[] }) {
   const t = useTranslations("batches");
+  const total = statuses.length;
+  const approved = statuses.filter((s) => s === "APPROVED").length;
   if (total === 0) {
     return (
       <span className="font-mono text-[11px] text-muted-foreground">
@@ -67,11 +78,8 @@ export function ChainProgress({ total, approved }: { total: number; approved: nu
   }
   return (
     <span className="flex items-center gap-[3px]" role="img" aria-label={t("chainProgress", { approved, total })}>
-      {Array.from({ length: total }, (_, i) => (
-        <span
-          key={i}
-          className={`h-1.5 w-5 rounded-[2px] ${i < approved ? "bg-status-approved" : "bg-status-pending"}`}
-        />
+      {statuses.map((status, i) => (
+        <span key={i} className={`h-1.5 w-5 rounded-[2px] ${SEGMENT[status]}`} />
       ))}
       <span className="ml-1.5 font-mono text-[11px] text-muted-foreground">
         {approved}/{total}

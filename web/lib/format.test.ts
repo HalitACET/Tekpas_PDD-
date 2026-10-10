@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { displayGtin, fiberText, formatPercent, formatQuantity, formatUpdated } from "./format";
+import { displayGtin, fiberText, formatDateRange, formatPercent, formatQuantity, formatUpdated } from "./format";
 
 const names: Record<string, Record<string, string>> = {
   tr: { ORGANIC_COTTON: "Organik pamuk", ELASTANE: "Elastan", SILK: "İpek" },
@@ -65,5 +65,20 @@ describe("formatUpdated", () => {
   it("uses the locale's month names", () => {
     expect(formatUpdated(new Date(2026, 8, 12).toISOString(), now, "en", "Yesterday")).toBe("Sep 12");
     expect(formatUpdated(new Date(2026, 8, 12).toISOString(), now, "de", "Gestern")).toBe("12. Sept");
+  });
+});
+
+describe("formatDateRange", () => {
+  it("writes the year once within one year (09), both years otherwise", () => {
+    expect(formatDateRange("2026-09-02", "2026-09-20", "tr")).toBe("02.09 – 20.09.2026");
+    expect(formatDateRange("2026-12-28", "2027-01-08", "tr")).toBe("28.12.2026 – 08.01.2027");
+    expect(formatDateRange("2026-09-02", "2026-09-20", "de")).toBe("02.09 – 20.09.2026");
+    expect(formatDateRange("2026-09-02", "2026-09-20", "en")).toBe("09/02 – 09/20/2026");
+  });
+
+  it("shows the one known end, or nothing", () => {
+    expect(formatDateRange("2026-09-02", null, "tr")).toBe("02.09.2026");
+    expect(formatDateRange(undefined, "2026-09-20", "tr")).toBe("20.09.2026");
+    expect(formatDateRange(null, null, "tr")).toBe("");
   });
 });
