@@ -1204,6 +1204,86 @@
         },
         "type" : "object"
       },
+      "TaskItem" : {
+        "properties" : {
+          "at" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "batchId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "batchNo" : {
+            "type" : "string"
+          },
+          "deadline" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "filledFields" : {
+            "format" : "int32",
+            "type" : [ "integer", "null" ]
+          },
+          "kind" : {
+            "$ref" : "#/components/schemas/TaskKind"
+          },
+          "openCount" : {
+            "format" : "int32",
+            "type" : [ "integer", "null" ]
+          },
+          "productName" : {
+            "type" : "string"
+          },
+          "stepId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "submitterName" : {
+            "type" : [ "string", "null" ]
+          },
+          "supplierName" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "batchId", "batchNo", "kind", "productName" ],
+        "type" : "object"
+      },
+      "TaskKind" : {
+        "enum" : [ "STEP_SUBMITTED", "CORRECTION_NO_LINK", "LINK_EXPIRED", "LINK_EXPIRING", "STEP_UNASSIGNED", "ORIGIN_MISSING", "NO_CHAIN" ],
+        "type" : "string"
+      },
+      "TasksResponse" : {
+        "properties" : {
+          "followUp" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TaskItem"
+            },
+            "type" : "array"
+          },
+          "incomplete" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TaskItem"
+            },
+            "type" : "array"
+          },
+          "review" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TaskItem"
+            },
+            "type" : "array"
+          },
+          "total" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "followUp", "incomplete", "review", "total" ],
+        "type" : "object"
+      },
       "TokenResponse" : {
         "properties" : {
           "accessToken" : {
@@ -2642,6 +2722,7 @@
         "tags" : [ "supply-chain" ]
       },
       "patch" : {
+        "description" : "FIBER data is the manufacturer's declaration: fiberType and originCountry are required, the step is approved on saving and stays editable until the batch is published.",
         "operationId" : "updateStep",
         "parameters" : [ {
           "in" : "path",
@@ -2711,7 +2792,7 @@
                 }
               }
             },
-            "description" : "The step is approved (reason STEP_APPROVED)"
+            "description" : "The step is approved (STEP_APPROVED), or for FIBER the batch is published (BATCH_PUBLISHED)"
           }
         },
         "summary" : "Assign a supplier, set the data or the inputs of a step",
@@ -3222,12 +3303,45 @@
         "summary" : "Change a supplier",
         "tags" : [ "suppliers" ]
       }
+    },
+    "/api/v1/tasks" : {
+      "get" : {
+        "description" : "Batches that are not published only. Data waiting for approval is listed for OWNER and ADMIN, who can approve it.",
+        "operationId" : "getTasks",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TasksResponse"
+                }
+              }
+            },
+            "description" : "Tasks in three groups"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          }
+        },
+        "summary" : "The company's open tasks and the menu badge count",
+        "tags" : [ "tasks" ]
+      }
     }
   },
   "security" : [ {
     "bearerAuth" : [ ]
   } ],
   "tags" : [ {
+    "description" : "What waits for the manufacturer (design v0.4 48)",
+    "name" : "tasks"
+  }, {
     "description" : "Login, token refresh, logout and the current user",
     "name" : "auth"
   }, {

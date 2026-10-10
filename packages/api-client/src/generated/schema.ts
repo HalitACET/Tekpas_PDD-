@@ -339,7 +339,10 @@ export interface paths {
         delete: operations["deleteStep"];
         options?: never;
         head?: never;
-        /** Assign a supplier, set the data or the inputs of a step */
+        /**
+         * Assign a supplier, set the data or the inputs of a step
+         * @description FIBER data is the manufacturer's declaration: fiberType and originCountry are required, the step is approved on saving and stays editable until the batch is published.
+         */
         patch: operations["updateStep"];
         trace?: never;
     };
@@ -444,6 +447,26 @@ export interface paths {
          * @description The phone can always change; name, type and city only for a supplier the current company created and that has no users.
          */
         patch: operations["updateSupplier"];
+        trace?: never;
+    };
+    "/api/v1/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The company's open tasks and the menu badge count
+         * @description Batches that are not published only. Data waiting for approval is listed for OWNER and ADMIN, who can approve it.
+         */
+        get: operations["getTasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -904,6 +927,35 @@ export interface components {
             phone?: string | null;
             /** @enum {string|null} */
             type?: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER" | null;
+        };
+        TaskItem: {
+            /** Format: date-time */
+            at?: string | null;
+            /** Format: uuid */
+            batchId: string;
+            batchNo: string;
+            /** Format: date-time */
+            deadline?: string | null;
+            /** Format: int32 */
+            filledFields?: number | null;
+            kind: components["schemas"]["TaskKind"];
+            /** Format: int32 */
+            openCount?: number | null;
+            productName: string;
+            /** Format: uuid */
+            stepId?: string | null;
+            stepType?: components["schemas"]["StepType"];
+            submitterName?: string | null;
+            supplierName?: string | null;
+        };
+        /** @enum {string} */
+        TaskKind: "STEP_SUBMITTED" | "CORRECTION_NO_LINK" | "LINK_EXPIRED" | "LINK_EXPIRING" | "STEP_UNASSIGNED" | "ORIGIN_MISSING" | "NO_CHAIN";
+        TasksResponse: {
+            followUp: components["schemas"]["TaskItem"][];
+            incomplete: components["schemas"]["TaskItem"][];
+            review: components["schemas"]["TaskItem"][];
+            /** Format: int32 */
+            total: number;
         };
         TokenResponse: {
             accessToken: string;
@@ -2079,7 +2131,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ApiProblem"];
                 };
             };
-            /** @description The step is approved (reason STEP_APPROVED) */
+            /** @description The step is approved (STEP_APPROVED), or for FIBER the batch is published (BATCH_PUBLISHED) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2479,6 +2531,35 @@ export interface operations {
             };
             /** @description SUPPLIER_NOT_EDITABLE, or SUPPLIER_TYPE_IN_USE for a type change */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getTasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tasks in three groups */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TasksResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
