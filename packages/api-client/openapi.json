@@ -336,6 +336,10 @@
           "code" : {
             "type" : "string"
           },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
           "expiresAt" : {
             "format" : "date-time",
             "type" : "string"
@@ -346,9 +350,22 @@
           },
           "token" : {
             "type" : "string"
+          },
+          "validDays" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         },
-        "required" : [ "code", "expiresAt", "id", "token" ],
+        "required" : [ "code", "createdAt", "expiresAt", "id", "token", "validDays" ],
+        "type" : "object"
+      },
+      "DataRequestOptions" : {
+        "properties" : {
+          "validDays" : {
+            "format" : "int32",
+            "type" : [ "integer", "null" ]
+          }
+        },
         "type" : "object"
       },
       "DataRequestSummary" : {
@@ -382,9 +399,13 @@
           },
           "status" : {
             "$ref" : "#/components/schemas/RequestStatus"
+          },
+          "validDays" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         },
-        "required" : [ "code", "createdAt", "expiresAt", "id", "openCount", "status" ],
+        "required" : [ "code", "createdAt", "expiresAt", "id", "openCount", "status", "validDays" ],
         "type" : "object"
       },
       "DyeProcess" : {
@@ -2619,6 +2640,85 @@
         "tags" : [ "public-requests" ]
       }
     },
+    "/api/v1/requests/{id}" : {
+      "patch" : {
+        "description" : "3, 7 or 14 days from the link's creation (design v0.4 46a); the token stays the same.",
+        "operationId" : "changeDataRequestDeadline",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DataRequestOptions"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DataRequestSummary"
+                }
+              }
+            },
+            "description" : "The link after the change"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "validDays is not 3, 7 or 14 (OneOf)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such link in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The link is no longer open (REQUEST_NOT_OPEN), or the new deadline is already over (DEADLINE_PASSED)"
+          }
+        },
+        "summary" : "Change an open link's deadline",
+        "tags" : [ "data-requests" ]
+      }
+    },
     "/api/v1/requests/{id}/revoke" : {
       "post" : {
         "description" : "The supplier then sees that the link was revoked and cannot submit.",
@@ -2950,6 +3050,15 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DataRequestOptions"
+              }
+            }
+          }
+        },
         "responses" : {
           "201" : {
             "content" : {
@@ -2960,6 +3069,16 @@
               }
             },
             "description" : "The link, once"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "validDays is not 3, 7 or 14 (OneOf)"
           },
           "403" : {
             "content" : {

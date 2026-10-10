@@ -117,5 +117,6 @@ export const FIELD_ERROR_CODES = [
   "EnergyDuplicate",
   "NoneExclusive",
   "Duplicate",
+  "OneOf",
 ] as const;
 export type FieldErrorCode = (typeof FIELD_ERROR_CODES)[number];
