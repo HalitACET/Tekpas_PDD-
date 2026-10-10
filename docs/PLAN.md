@@ -211,7 +211,6 @@ Backend kuralları (M2):
 - [ ] Görsel cila, boş durumlar, yükleniyor durumları
 - [ ] Sunucu uyanık, APK hazır, 5 dakikalık demo senaryosu yazılı ve prova edilmiş
 - [ ] e2e testleri CI'da çalışsın (şu an yalnızca yerelde; `pnpm --filter web exec playwright test`)
-- [ ] "Yeni parti" formu: boş üretim tarihi şimdi geçersiz sayılıyor (`packages/shared` `isoDate`, `""` tarih değil), oysa API tarihsiz partiyi kabul ediyor; boş = tarih yok olmalı. PR 3a'da fark edildi.
 - [ ] Açılışı hızlandırma / Render araştırması: soğuk başlangıç 100–150 sn ("Started TekpasApplication in" 75–83 sn). Render'da önce/sonra ölç: lazy init, gereksiz auto-config, Flyway validate. Prod'a lazy init kullanıcı onayıyla. Uyuyan sunucuda erken kesilen isteğin uyanmayı iptal edip etmediği canlıda ölçülemedi (cron gün içinde uyanık tutuyor); burada bak.
 
 **Kabul:** Demo senaryosu baştan sona hatasız, internet yavaşken bile çalışıyor.

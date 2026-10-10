@@ -120,6 +120,24 @@ test("creates a batch", async ({ page }) => {
   await expect(page.getByText(`${designBatches().length + 1} parti`)).toBeVisible();
 });
 
+test("the production dates are optional (the range rule: packages/shared batch.test.ts)", async ({ page }) => {
+  await openBatches(page);
+  await page.getByRole("button", { name: "Yeni parti" }).click();
+  const form = dialog(page);
+  await form.getByRole("combobox", { name: "Ürün" }).click();
+  await page.getByRole("option", { name: /Merino triko kazak/ }).click();
+  await form.getByLabel("Miktar").fill("600");
+
+  // Without dates the batch can be created.
+  const create = form.getByRole("button", { name: "Partiyi oluştur" });
+  await expect(create).toBeEnabled();
+  const sent = page.waitForRequest((r) => r.url().endsWith("/api/v1/batches") && r.method() === "POST");
+  await create.click();
+  expect((await sent).postDataJSON()).toMatchObject({ producedFrom: null, producedTo: null });
+  await expect(form).toBeHidden();
+  await expect(page.getByRole("row", { name: new RegExp(NEXT_BATCH_NO) })).toContainText("Merino triko kazak");
+});
+
 test("the quantity is validated like the API", async ({ page }) => {
   await openBatches(page);
   await page.getByRole("button", { name: "Yeni parti" }).click();

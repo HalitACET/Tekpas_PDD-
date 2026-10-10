@@ -12,7 +12,10 @@ const batchNoOrEmpty = z
   .nullish()
   .transform((v) => (v ? v : null));
 
-const isoDate = z.iso.date({ error: "Pattern" }).nullish().transform((v) => v ?? null);
+/** Optional: an empty field (the form's "") means no date, as null or a missing field does in the API. */
+const isoDate = z
+  .preprocess((v) => (v === "" ? null : v), z.iso.date({ error: "Pattern" }).nullish())
+  .transform((v) => v ?? null);
 
 export const batchCreateSchema = z
   .object({
