@@ -2,6 +2,7 @@ package com.tekpas.common.error;
 
 import jakarta.validation.ConstraintViolation;
 import com.tekpas.common.web.RequestId;
+import com.tekpas.request.LinkClosedException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -49,8 +50,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             }
         } else if (ex instanceof InvalidFieldsException invalid) {
             body.setProperty("errors", sorted(invalid.errors()));
+        } else if (ex instanceof LinkClosedException closed) {
+            body.setProperty("reason", closed.reason());
+            if (closed.link() != null) {
+                body.setProperty("link", closed.link());
+            }
         }
         return body;
+    }
+
+    /** 429 with Retry-After (seconds), from the rate limits of the public link endpoints. */
+    @ExceptionHandler(TooManyRequestsException.class)
+    ResponseEntity<ProblemDetail> handleTooManyRequests(TooManyRequestsException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.retryAfterSeconds()))
+                .body(handleApiException(ex));
     }
 
     // Method security failures surface in MVC, not in the security filter chain.

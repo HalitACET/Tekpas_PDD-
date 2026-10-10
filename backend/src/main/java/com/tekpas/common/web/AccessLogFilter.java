@@ -29,6 +29,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
 
     /** Segments after which the next segment is a link token (web /r/{token}, M4 data request links). */
     private static final Set<String> TOKEN_PARENTS = Set.of("r");
+    private static final String PUBLIC_PREFIX = "/api/v1/public/";
     private static final Pattern UUID = Pattern.compile(
             "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     /**
@@ -55,7 +56,15 @@ public class AccessLogFilter extends OncePerRequestFilter {
             long millis = (System.nanoTime() - start) / 1_000_000;
             // An exception escaping the chain becomes a 500 in the container.
             int status = failed ? HttpServletResponse.SC_INTERNAL_SERVER_ERROR : response.getStatus();
-            log.info("{} {} {} {}ms", request.getMethod(), maskPath(request.getRequestURI()), status, millis);
+            String path = maskPath(request.getRequestURI());
+            if (path.startsWith(PUBLIC_PREFIX)) {
+                // How many proxies appended to X-Forwarded-For (no addresses): checks the client IP rule
+                // (ClientIp, tekpas.client-ip.trusted-proxies) against the live chain.
+                log.info("{} {} {} {}ms xff={}", request.getMethod(), path, status, millis,
+                        ClientIp.hops(request).size());
+            } else {
+                log.info("{} {} {} {}ms", request.getMethod(), path, status, millis);
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.tekpas.supplychain.dto;
 
+import com.tekpas.request.dto.DataRequestSummary;
 import com.tekpas.supplychain.StepData;
 import com.tekpas.supplychain.StepStatus;
 import com.tekpas.supplychain.StepType;
@@ -15,6 +16,9 @@ import org.jspecify.annotations.Nullable;
  * @param sortOrder order within the step type's column
  * @param inputStepIds steps whose output this step uses (edges come in from these)
  * @param documentCount documents attached to the step; 0 until M5
+ * @param request the step's latest data request link (no token), if any
+ * @param submission the last data the supplier sent, if any
+ * @param rejection the correction asked for, while the step is REJECTED
  */
 public record ChainStepResponse(
         UUID id,
@@ -26,5 +30,9 @@ public record ChainStepResponse(
         StepData data,
         int documentCount,
         @Nullable Instant submittedAt,
-        Instant updatedAt) {
+        Instant updatedAt,
+        @Nullable DataRequestSummary request,
+        @Nullable StepSubmission submission,
+        @Nullable StepRejection rejection,
+        @Nullable Instant approvedAt) {
 }

@@ -265,6 +265,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What the link holder sees
+         * @description Counts the opening. Unknown token: 404 LINK_INVALID. Expired, revoked or submitted: 410 with reason LINK_EXPIRED, LINK_REVOKED or ALREADY_SUBMITTED and the link's context.
+         */
+        get: operations["openPublicRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/request/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit the step's data, once
+         * @description Required besides the submitter's name: YARN fiberComposition, originCountry; FABRIC fiberComposition, fabricType; DYEING dyeProcess, chemicalStandards; SEWING originCountry.
+         */
+        post: operations["submitPublicRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requests/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke a link
+         * @description The supplier then sees that the link was revoked and cannot submit.
+         */
+        post: operations["revokeDataRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/steps/{id}": {
         parameters: {
             query?: never;
@@ -281,6 +341,66 @@ export interface paths {
         head?: never;
         /** Assign a supplier, set the data or the inputs of a step */
         patch: operations["updateStep"];
+        trace?: never;
+    };
+    "/api/v1/steps/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve the data a supplier submitted
+         * @description SUBMITTED → APPROVED. Once every step is approved the batch becomes READY.
+         */
+        post: operations["approveStep"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/steps/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask the supplier for a correction
+         * @description SUBMITTED → REJECTED with the reason and the fields to mark; then a new link is sent.
+         */
+        post: operations["rejectStep"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/steps/{id}/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create the step's link (revokes its open one)
+         * @description Valid for 7 days. The token is in this answer only; the web builds {origin}/r#<token>.
+         */
+        post: operations["createDataRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/suppliers": {
@@ -336,6 +456,7 @@ export interface components {
             /** @description Field errors: type urn:tekpas:problem:validation, or conflict on a unique field (code Unique) */
             errors?: components["schemas"]["FieldViolation"][] | null;
             instance?: string | null;
+            link?: components["schemas"]["LinkContext"];
             /**
              * @description Conflicts that are not about one field, e.g. PRODUCT_HAS_BATCHES, GTIN_LOCKED
              * @example PRODUCT_HAS_BATCHES
@@ -432,16 +553,21 @@ export interface components {
             unassignedStepTypes: components["schemas"]["StepType"][];
         };
         ChainStepResponse: {
+            /** Format: date-time */
+            approvedAt?: string | null;
             data: components["schemas"]["StepData"];
             /** Format: int32 */
             documentCount: number;
             /** Format: uuid */
             id: string;
             inputStepIds: string[];
+            rejection?: components["schemas"]["StepRejection"];
+            request?: components["schemas"]["DataRequestSummary"];
             /** Format: int32 */
             sortOrder: number;
             status: components["schemas"]["StepStatus"];
             stepType: components["schemas"]["StepType"];
+            submission?: components["schemas"]["StepSubmission"];
             /** Format: date-time */
             submittedAt?: string | null;
             supplier?: components["schemas"]["StepSupplier"];
@@ -455,6 +581,8 @@ export interface components {
             /** Format: int32 */
             totalSteps: number;
         };
+        /** @enum {string} */
+        ChemicalStandard: "ZDHC_MRSL" | "OEKO_TEX_ECO_PASSPORT" | "BLUESIGN" | "GOTS_APPROVED" | "NONE";
         CompanySummary: {
             /** Format: uuid */
             id: string;
@@ -462,6 +590,32 @@ export interface components {
             /** @enum {string} */
             type: "MANUFACTURER" | "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY" | "OTHER";
         };
+        CreatedDataRequest: {
+            code: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** Format: uuid */
+            id: string;
+            token: string;
+        };
+        DataRequestSummary: {
+            code: string;
+            /** Format: date-time */
+            completedAt?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            openCount: number;
+            /** Format: date-time */
+            openedAt?: string | null;
+            status: components["schemas"]["RequestStatus"];
+        };
+        /** @enum {string} */
+        DyeProcess: "REACTIVE" | "DISPERSE" | "VAT" | "PIGMENT" | "OTHER";
         EnergyShare: {
             /** Format: int32 */
             percent: number;
@@ -489,6 +643,18 @@ export interface components {
             params?: {
                 [key: string]: unknown;
             } | null;
+        };
+        /** @description A closed data request link (urn:tekpas:problem:link-gone): what its holder may still see */
+        LinkContext: {
+            code?: string | null;
+            /** Format: date-time */
+            expiresAt: string;
+            manufacturerName: string;
+            requesterName: string;
+            stepType: components["schemas"]["StepType"];
+            /** Format: date-time */
+            submittedAt?: string | null;
+            submitterName?: string | null;
         };
         LoginRequest: {
             /** @enum {string} */
@@ -602,9 +768,41 @@ export interface components {
             name?: string | null;
             sku?: string | null;
         };
+        PublicRejection: {
+            /** Format: date-time */
+            at: string;
+            byName: string;
+            fields: string[];
+            reason: string;
+        };
+        PublicRequestView: {
+            batchNo: string;
+            code: string;
+            data: components["schemas"]["StepData"];
+            /** Format: date-time */
+            expiresAt: string;
+            manufacturerName: string;
+            productName: string;
+            rejection?: components["schemas"]["PublicRejection"];
+            requesterName: string;
+            stepType: components["schemas"]["StepType"];
+        };
+        PublicSubmitRequest: {
+            data: components["schemas"]["StepData"];
+            submitterName: string;
+            submitterRole?: string | null;
+        };
+        PublicSubmitResponse: {
+            code: string;
+            manufacturerName: string;
+            /** Format: date-time */
+            submittedAt: string;
+        };
         RefreshRequest: {
             refreshToken: string;
         };
+        /** @enum {string} */
+        RequestStatus: "SENT" | "OPENED" | "COMPLETED" | "EXPIRED" | "REVOKED";
         StepCreateRequest: {
             inputStepIds?: string[] | null;
             outputStepIds?: string[] | null;
@@ -613,8 +811,10 @@ export interface components {
             supplierId?: string | null;
         };
         StepData: {
-            chemicalCompliance?: string | null;
+            chemicalStandards?: components["schemas"]["ChemicalStandard"][] | null;
             deliveredKg?: number | null;
+            dyeProcess?: components["schemas"]["DyeProcess"];
+            dyeProcessOther?: string | null;
             energyKwhPerKg?: number | null;
             energyKwhPerPiece?: number | null;
             energySources?: components["schemas"]["EnergyShare"][] | null;
@@ -627,15 +827,32 @@ export interface components {
             /** @example TR */
             originCountry?: string | null;
             originRegion?: string | null;
-            process?: string | null;
             quantityKg?: number | null;
+            shade?: string | null;
             waterLPerKg?: number | null;
             /** @example Ne 30/1 */
             yarnCount?: string | null;
             yarnProcess?: components["schemas"]["YarnProcess"];
         };
+        StepRejectRequest: {
+            fields?: string[] | null;
+            reason: string;
+        };
+        StepRejection: {
+            /** Format: date-time */
+            at: string;
+            fields: string[];
+            reason: string;
+        };
         /** @enum {string} */
         StepStatus: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED";
+        StepSubmission: {
+            /** Format: date-time */
+            at: string;
+            code: string;
+            name: string;
+            role?: string | null;
+        };
         StepSupplier: {
             city?: string | null;
             /** Format: uuid */
@@ -1606,6 +1823,164 @@ export interface operations {
             };
         };
     };
+    openPublicRequest: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Request-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The step to fill */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicRequestView"];
+                };
+            };
+            /** @description Unknown link (LINK_INVALID) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED) */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Too many requests (Retry-After) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    submitPublicRequest: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Request-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublicSubmitRequest"];
+            };
+        };
+        responses: {
+            /** @description Submitted (design v0.4 43) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicSubmitResponse"];
+                };
+            };
+            /** @description Validation failed (NotNull, NotApplicable, NoneExclusive, ...) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Unknown link (LINK_INVALID) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED) */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Too many requests (Retry-After) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    revokeDataRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revoked */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such link in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The link is no longer open (REQUEST_NOT_OPEN) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     deleteStep: {
         parameters: {
             query?: never;
@@ -1705,6 +2080,166 @@ export interface operations {
                 };
             };
             /** @description The step is approved (reason STEP_APPROVED) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    approveStep: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The chain after the approval */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChainResponse"];
+                };
+            };
+            /** @description Only OWNER and ADMIN review steps */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such step in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The step is not submitted (reason STEP_NOT_SUBMITTED) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    rejectStep: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StepRejectRequest"];
+            };
+        };
+        responses: {
+            /** @description The chain after the rejection */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChainResponse"];
+                };
+            };
+            /** @description No reason, or a field the step type does not have (fields) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Only OWNER and ADMIN review steps */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such step in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The step is not submitted (reason STEP_NOT_SUBMITTED) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    createDataRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The link, once */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedDataRequest"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such step in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No supplier assigned (STEP_HAS_NO_SUPPLIER), or the data is already submitted or approved (STEP_NOT_OPEN) */
             409: {
                 headers: {
                     [name: string]: unknown;

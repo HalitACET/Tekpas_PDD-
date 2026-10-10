@@ -15,6 +15,11 @@ public final class ProblemTypes {
     public static final URI INVALID_CREDENTIALS = of("invalid-credentials");
     public static final URI INVALID_REFRESH_TOKEN = of("invalid-refresh-token");
     public static final URI INTERNAL = of("internal");
+    /** A data request link that is unknown (404, reason LINK_INVALID). */
+    public static final URI LINK_INVALID = of("link-invalid");
+    /** A data request link that expired, was revoked or was used (410, design v0.4 44). */
+    public static final URI LINK_GONE = of("link-gone");
+    public static final URI TOO_MANY_REQUESTS = of("too-many-requests");
 
     private ProblemTypes() {
     }

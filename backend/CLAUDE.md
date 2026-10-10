@@ -12,7 +12,7 @@ com.tekpas
 ├── product/
 ├── batch/         parti + uyum skoru
 ├── supplychain/   supply_step, supply_step_input (DAG), döngü kontrolü (recursive CTE)
-├── request/       veri talebi linki + girişsiz /public/requests/{token}
+├── request/       veri talebi linki + girişsiz /public/request (token X-Request-Token başlığında, K21), adım geçmişi
 ├── document/      yükleme, AI çıkarım sonucu, onay
 ├── ai/            AiClient arayüzü, GeminiAiClient, prompt'lar, JSON şemaları
 ├── validation/    kural tabanlı + AI tutarlılık kontrolleri

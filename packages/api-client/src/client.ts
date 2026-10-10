@@ -16,6 +16,11 @@ export const ProblemTypes = {
   gtinLocked: "urn:tekpas:problem:gtin-locked",
   invalidCredentials: "urn:tekpas:problem:invalid-credentials",
   invalidRefreshToken: "urn:tekpas:problem:invalid-refresh-token",
+  /** A data request link that is unknown (404, reason LINK_INVALID). */
+  linkInvalid: "urn:tekpas:problem:link-invalid",
+  /** A data request link that expired, was revoked or was used (410, with `link`). */
+  linkGone: "urn:tekpas:problem:link-gone",
+  tooManyRequests: "urn:tekpas:problem:too-many-requests",
   internal: "urn:tekpas:problem:internal",
 } as const;
 

@@ -5,5 +5,9 @@ tekpas:
     cookie-secure: false
   cors:
     allowed-origins: http://localhost:3000
+  # As in production (one proxy after Vercel): tests give each public request its own client IP in
+  # X-Forwarded-For ("<client>, <proxy>"), so the per-IP rate limits do not leak between tests.
+  client-ip:
+    trusted-proxies: 1
   demo:
     password: test-demo-password

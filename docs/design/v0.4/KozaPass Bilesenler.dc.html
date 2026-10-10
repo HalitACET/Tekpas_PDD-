@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#FCFBF9;color:#1C1B19;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#8C2F4B}a:hover{color:#6E2239}*{box-sizing:border-box}input{font:inherit}@keyframes kp-spin{to{transform:rotate(360deg)}}@keyframes kp-pulse{50%{opacity:.5}}</style>
+</helmet>
+<div lang="tr" style="max-width:1320px;margin:0 auto;padding:48px 32px 24px;display:flex;flex-wrap:wrap;align-items:baseline;gap:16px">
+  <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#8C2F4B">E</span>
+  <h1 style="margin:0;font-size:28px;font-weight:600;letter-spacing:-0.025em">Bileşenler</h1>
+  <p style="margin:0;font-size:14px;color:#6B665E;max-width:620px">Tüm bileşenler yalnızca CSS değişkenlerini okur; aşağıdaki iki blok aynı işaretleme, farklı tema. shadcn/ui primitive'lerine birebir karşılık gelir.</p>
+  <a href="KozaPass Marka.dc.html" style="margin-left:auto;font-size:13px">← Marka ve token'lar</a>
+</div>
+
+<div style="--radius:8px;--silk:#EFE6D8;--status-pending:#8A857C;--status-submitted:#2F6FDB;--status-approved:#22945A;--status-rejected:#D92D20;--status-low-confidence:#D99A06;--status-expiring:#E8680C;--background:#FCFBF9;--foreground:#1C1B19;--card:#FFFFFF;--popover:#FFFFFF;--muted:#F2F0EC;--muted-foreground:#6B665E;--primary:#1F1E1C;--primary-foreground:#FAF8F4;--primary-hover:#3D3A35;--accent:#EEEBE6;--brand:#8C2F4B;--brand-foreground:#FFFFFF;--brand-muted:#F5E8EC;--brand-text:#8C2F4B;--destructive:#B42318;--destructive-foreground:#FFFFFF;--destructive-hover:#951C13;--border:#E6E3DD;--input:#D2CEC6;--ring:#8C2F4B;--ring-soft:rgba(140,47,75,.18);--sidebar:#F6F4F0;--sidebar-accent:#EAE7E1;--skeleton:#ECE9E4;--shadow-xs:0 1px 2px rgba(28,27,25,.05);--shadow-sm:0 1px 3px rgba(28,27,25,.08), 0 1px 2px rgba(28,27,25,.04);--shadow-md:0 6px 16px -4px rgba(28,27,25,.12), 0 2px 4px -2px rgba(28,27,25,.06);--shadow-lg:0 20px 40px -12px rgba(28,27,25,.22), 0 4px 8px -4px rgba(28,27,25,.08);--status-pending-foreground:#57534C;--status-pending-muted:#F1EFEB;--status-submitted-foreground:#1F5BB8;--status-submitted-muted:#E8F0FB;--status-approved-foreground:#1E7042;--status-approved-muted:#E6F4EC;--status-rejected-foreground:#B42318;--status-rejected-muted:#FDECEA;--status-low-confidence-foreground:#8A5A00;--status-low-confidence-muted:#FDF3DC;--status-expiring-foreground:#B54708;--status-expiring-muted:#FEEFE3">
+<div style="background:var(--background);color:var(--foreground);padding:40px 0 64px;border-top:1px solid var(--border)">
+<div style="max-width:1320px;margin:0 auto;padding:0 32px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Açık tema</span><span style="height:1px;flex:1;background:var(--border)"></span></div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(600px,1fr));gap:16px">
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Buton</span>
+      <div style="display:grid;grid-template-columns:90px repeat(5,minmax(0,1fr));gap:10px;font-size:11px;color:var(--muted-foreground)">
+        <span></span><span>Varsayılan</span><span>Hover</span><span>Odak</span><span>Devre dışı</span><span>Yükleniyor</span>
+      </div>
+      <sc-for list="{{ buttons }}" as="b" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:90px repeat(5,minmax(0,1fr));gap:10px;align-items:center">
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted-foreground)">{{ b.name }}</span>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;cursor:pointer;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }};box-shadow:{{ b.sh }};white-space:nowrap;transition:background .12s" style-hover="background:{{ b.hv }}">{{ b.text }}</button>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ b.hv }};color:{{ b.fg }};border:1px solid {{ b.bd }};box-shadow:{{ b.sh }};white-space:nowrap">{{ b.text }}</button>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }};box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--ring);white-space:nowrap">{{ b.text }}</button>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }};opacity:.45;cursor:not-allowed;white-space:nowrap">{{ b.text }}</button>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }};opacity:.8;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap">{{ spinner }}{{ b.text }}</button>
+        </div>
+      </sc-for>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-top:8px;border-top:1px solid var(--border)">
+        <span style="font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted-foreground);width:80px">boyut</span>
+        <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">sm · 32</button>
+        <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>Yeni parti</button>
+        <button style="height:40px;padding:0 18px;border-radius:6px;font:500 14px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">lg · 40</button>
+        <button style="width:36px;height:36px;border-radius:6px;background:var(--card);color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.more }}"></path></svg></button>
+        <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--brand);color:var(--brand-foreground);border:1px solid transparent">Pasaportu yayınla</button>
+        <span style="font-size:11px;color:var(--muted-foreground)">brand: yalnızca yayınlama gibi tekil eylemler</span>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Input · Select · Checkbox</span>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Ürün adı
+          <input placeholder="örn. Organik pamuk tişört" style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)">
+          <span style="font-size:12px;font-weight:400;color:var(--muted-foreground)">Varsayılan</span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Parti no
+          <input value="KP-2026-0918-A" readonly style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--ring);background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;outline:none;box-shadow:0 0 0 3px var(--ring-soft)">
+          <span style="font-size:12px;font-weight:400;color:var(--muted-foreground)">Odak</span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">GTIN
+          <input value="086901234567" readonly style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--status-rejected);background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;outline:none;box-shadow:0 0 0 3px var(--status-rejected-muted)">
+          <span style="font-size:12px;font-weight:400;color:var(--status-rejected-foreground);display:flex;gap:4px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="{{ ic.alert }}"></path></svg>GTIN 14 haneli olmalı (12 girildi)</span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;color:var(--muted-foreground)">Tedarikçi kodu
+          <input value="TDR-0041" disabled style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:var(--muted);color:var(--muted-foreground);font:13px 'Geist Mono',monospace;cursor:not-allowed">
+          <span style="font-size:12px;font-weight:400">Devre dışı</span>
+        </label>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;position:relative">Durum
+          <div style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;box-shadow:var(--shadow-xs)"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-low-confidence)"></span>AI güveni düşük<svg width="16" height="16" viewBox="0 0 24 24" style="margin-left:auto;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+          <div style="background:var(--popover);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-md);padding:4px;display:flex;flex-direction:column;font-weight:400">
+            <sc-for list="{{ statuses }}" as="s" hint-placeholder-count="6">
+              <div style="height:30px;padding:0 8px;border-radius:4px;display:flex;align-items:center;gap:8px;font-size:13px;background:{{ s.selBg }};cursor:pointer" style-hover="background:var(--accent)"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ s.key }})"></span>{{ s.label }}<span style="margin-left:auto;display:flex;opacity:{{ s.selOp }}"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:13px">
+          <span style="font-weight:500">Checkbox</span>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:4px;border:1px solid var(--input);background:var(--card)"></span>Seçili değil</div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:4px;background:var(--primary);color:var(--primary-foreground);display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span>Beni hatırla</div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center"><span style="width:8px;height:2px;border-radius:1px;background:var(--primary-foreground)"></span></span>Kısmi (tablo başlığı)</div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:4px;border:1px solid var(--input);background:var(--card);box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--ring)"></span>Odak</div>
+          <div style="display:flex;align-items:center;gap:8px;opacity:.45"><span style="width:16px;height:16px;border-radius:4px;border:1px solid var(--input);background:var(--muted)"></span>Devre dışı</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Durum rozeti</span>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <sc-for list="{{ statuses }}" as="s" hint-placeholder-count="6">
+          <span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ s.key }}-muted);color:var(--status-{{ s.key }}-foreground);font-size:12px;font-weight:500;line-height:16px;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ s.key }})"></span>{{ s.label }}</span>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <span style="font-size:11px;color:var(--muted-foreground);width:80px">Sayaç / etiket</span>
+        <span style="font:500 11px 'Geist Mono',monospace;background:var(--muted);color:var(--muted-foreground);padding:1px 6px;border-radius:4px">12</span>
+        <span style="font:500 11px 'Geist',sans-serif;border:1px solid var(--border);color:var(--foreground);padding:2px 7px;border-radius:4px">GOTS</span>
+        <span style="font:500 11px 'Geist',sans-serif;border:1px solid var(--border);color:var(--foreground);padding:2px 7px;border-radius:4px">OEKO-TEX 100</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;font:500 11px 'Geist',sans-serif;background:var(--brand-muted);color:var(--brand-text);padding:2px 7px;border-radius:4px"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="{{ ic.sparkle }}"></path></svg>AI</span>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Toast</span>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ toasts }}" as="o" hint-placeholder-count="3">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--popover);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);max-width:420px">
+            <span style="color:var(--status-{{ o.key }});display:flex;margin-top:1px"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ o.icon }}"></path></svg></span>
+            <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0"><strong style="font-size:13px;font-weight:600">{{ o.title }}</strong><span style="font-size:12px;color:var(--muted-foreground);line-height:1.45">{{ o.body }}</span></div>
+            <button style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);white-space:nowrap">{{ o.action }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;grid-column:1/-1">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Tablo satırı — varsayılan · hover · seçili</span>
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13px">
+        <div style="display:grid;grid-template-columns:40px 170px minmax(0,1.6fr) 150px 150px 120px 40px;align-items:center;height:36px;padding:0 4px;background:var(--muted);color:var(--muted-foreground);font-size:12px;font-weight:500;border-bottom:1px solid var(--border)">
+          <span style="display:flex;justify-content:center"><span style="width:16px;height:16px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center"><span style="width:8px;height:2px;background:var(--primary-foreground)"></span></span></span>
+          <span>Parti no</span><span>Ürün</span><span>Tedarik zinciri</span><span>Durum</span><span>Güncelleme</span><span></span>
+        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:40px 170px minmax(0,1.6fr) 150px 150px 120px 40px;align-items:center;height:44px;padding:0 4px;border-bottom:1px solid var(--border);background:{{ r.bg }}" style-hover="background:var(--accent)">
+            <span style="display:flex;justify-content:center"><span style="width:16px;height:16px;border-radius:4px;border:1px solid {{ r.cbBd }};background:{{ r.cbBg }};color:var(--primary-foreground);display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:{{ r.cbOp }}"><path d="{{ ic.check }}"></path></svg></span></span>
+            <span style="font-family:'Geist Mono',monospace;font-size:12px">{{ r.id }}</span>
+            <span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.product }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ r.qty }}</span></span>
+            <span style="display:flex;align-items:center;gap:3px"><sc-for list="{{ r.steps }}" as="st" hint-placeholder-count="4"><span style="width:22px;height:6px;border-radius:2px;background:{{ st }}"></span></sc-for><span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground);margin-left:6px">{{ r.stepTxt }}</span></span>
+            <span><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ r.s }}-muted);color:var(--status-{{ r.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ r.s }})"></span>{{ r.sl }}</span></span>
+            <span style="font-size:12px;color:var(--muted-foreground);font-variant-numeric:tabular-nums">{{ r.upd }}</span>
+            <span style="display:flex;color:var(--muted-foreground)"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.more }}"></path></svg></span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;grid-column:1/-1">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">AI öneri alanı</span><span style="font-size:12px;color:var(--muted-foreground)">— güven eşiği 0,80: altı "AI güveni düşük" olarak işaretlenir · Onayla ve Düzenle çalışır</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px">
+        <sc-for list="{{ fields }}" as="f" hint-placeholder-count="3">
+          <div style="border:1px solid {{ f.border }};border-radius:8px;background:var(--card);display:flex;flex-direction:column;box-shadow:var(--shadow-xs)">
+            <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 0">
+              <span style="font-size:12px;font-weight:600">{{ f.label }}</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;font:500 11px 'Geist',sans-serif;background:var(--brand-muted);color:var(--brand-text);padding:1px 6px;border-radius:4px"><svg width="11" height="11" viewBox="0 0 24 24" style="fill:currentColor"><path d="{{ ic.sparkle }}"></path></svg>AI önerisi</span>
+              <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ f.sKey }}-muted);color:var(--status-{{ f.sKey }}-foreground);font-size:11px;font-weight:500;padding:2px 8px 2px 7px;border-radius:999px;white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:var(--status-{{ f.sKey }})"></span>{{ f.sLabel }}</span>
+            </div>
+            <div style="padding:8px 12px 10px;display:flex;flex-direction:column;gap:8px">
+              <sc-if value="{{ f.editing }}" hint-placeholder-val="{{ false }}">
+                <input value="{{ f.draft }}" onChange="{{ f.onInput }}" style="height:34px;padding:0 10px;border-radius:6px;border:1px solid var(--ring);box-shadow:0 0 0 3px var(--ring-soft);background:var(--card);color:var(--foreground);font:{{ f.font }};outline:none">
+              </sc-if>
+              <sc-if value="{{ f.viewing }}" hint-placeholder-val="{{ true }}">
+                <span style="font:{{ f.font }};color:var(--foreground);min-height:34px;display:flex;align-items:center">{{ f.value }}</span>
+              </sc-if>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="flex:1;height:4px;border-radius:2px;background:var(--muted);overflow:hidden;display:flex"><span style="width:{{ f.pct }};background:var(--status-{{ f.confKey }})"></span></span>
+                <span style="font:500 11px 'Geist Mono',monospace;color:var(--status-{{ f.confKey }}-foreground)">Güven %{{ f.conf }}</span>
+              </div>
+              <span style="font-size:11px;color:var(--muted-foreground);display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.file }}"></path></svg><span style="font-family:'Geist Mono',monospace">{{ f.src }}</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--border);min-height:45px">
+              <sc-if value="{{ f.suggesting }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ f.onApprove }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:5px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>Onayla</button>
+                <button onClick="{{ f.onEdit }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Düzenle</button>
+                <span style="margin-left:auto;font-size:11px;color:var(--muted-foreground)">{{ f.hint }}</span>
+              </sc-if>
+              <sc-if value="{{ f.editing }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ f.onSave }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;cursor:pointer">Kaydet ve onayla</button>
+                <button onClick="{{ f.onCancel }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer">Vazgeç</button>
+              </sc-if>
+              <sc-if value="{{ f.approved }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:12px;color:var(--muted-foreground)">{{ f.approvedBy }}</span>
+                <button onClick="{{ f.onReset }}" style="margin-left:auto;height:28px;padding:0 8px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--muted-foreground);border:1px solid transparent;cursor:pointer">Geri al</button>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Kart</span>
+      <div style="border:1px solid var(--border);border-radius:8px;background:var(--card);box-shadow:var(--shadow-sm);display:flex;flex-direction:column">
+        <div style="padding:14px 16px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;flex-direction:column;gap:2px;flex:1"><span style="font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">KP-2026-0918-A</span><strong style="font-size:15px;font-weight:600;letter-spacing:-0.01em">Organik pamuk tişört, ekru</strong></div>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-low-confidence-muted);color:var(--status-low-confidence-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-low-confidence)"></span>AI güveni düşük</span>
+        </div>
+        <div style="padding:14px 16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:13px">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:var(--muted-foreground)">GTIN</span><span style="font-family:'Geist Mono',monospace;font-size:12px">08690123456783</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:var(--muted-foreground)">Miktar</span><span style="font-variant-numeric:tabular-nums">2.400 adet</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:var(--muted-foreground)">Lif</span><span>%95 pamuk · %5 elastan</span></div>
+        </div>
+        <div style="padding:0 16px 14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+          <sc-for list="{{ chain }}" as="c" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="height:4px;border-radius:2px;background:var(--status-{{ c.s }})"></span><span style="font-size:12px;font-weight:500">{{ c.name }}</span><span style="font-size:11px;color:var(--muted-foreground)">{{ c.who }}</span></div>
+          </sc-for>
+        </div>
+        <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--muted);border-radius:0 0 8px 8px">
+          <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent">Belgeler</button>
+          <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">İncele</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Sol menü öğesi</span>
+      <div style="display:flex;gap:16px">
+        <div style="background:var(--sidebar);border:1px solid var(--border);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:2px;flex:1">
+          <sc-for list="{{ navDemo }}" as="n" hint-placeholder-count="5">
+            <div style="height:32px;padding:0 8px;border-radius:6px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:{{ n.w }};color:{{ n.fg }};background:{{ n.bg }};cursor:pointer;opacity:{{ n.op }}" style-hover="background:var(--sidebar-accent)">
+              <svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="{{ n.d }}"></path></svg>{{ n.label }}
+              <span style="margin-left:auto;font-size:11px;color:var(--muted-foreground)">{{ n.note }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:var(--sidebar);border:1px solid var(--border);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:2px;width:52px;align-items:center">
+          <sc-for list="{{ navDemo }}" as="n" hint-placeholder-count="5">
+            <div style="width:34px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:{{ n.fg }};background:{{ n.bg }};opacity:{{ n.op }}"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ n.d }}"></path></svg></div>
+          </sc-for>
+        </div>
+      </div>
+      <span style="font-size:11px;color:var(--muted-foreground)">Varsayılan · Hover · Aktif · Sayaçlı · Devre dışı · Daraltılmış (52 px)</span>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;grid-column:1/-1">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Üst bar</span>
+      <div style="height:52px;border:1px solid var(--border);border-radius:8px;background:var(--background);display:flex;align-items:center;gap:12px;padding:0 12px 0 16px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="width:24px;height:24px;border-radius:6px;background:var(--muted);display:flex;align-items:center;justify-content:center;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.building }}"></path></svg></span>Karaca Tekstil A.Ş.<svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+        <span style="color:var(--border)">/</span><span style="font-size:13px;color:var(--muted-foreground)">Partiler</span>
+        <div style="margin-left:auto;height:32px;width:240px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg>Ara<span style="margin-left:auto;font:11px 'Geist Mono',monospace;border:1px solid var(--border);border-radius:4px;padding:0 4px">⌘K</span></div>
+        <div style="display:flex;background:var(--muted);border-radius:6px;padding:2px;gap:2px;font:500 11px 'Geist Mono',monospace">
+          <span style="padding:5px 8px;border-radius:4px;background:var(--card);color:var(--foreground);box-shadow:var(--shadow-xs)">TR</span><span style="padding:5px 8px;color:var(--muted-foreground)">EN</span><span style="padding:5px 8px;color:var(--muted-foreground)">DE</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px"><span style="width:28px;height:28px;border-radius:50%;background:var(--silk);color:#3D3A35;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">EY</span><span style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:12px;font-weight:500">Elif Yılmaz</span><span style="font-size:11px;color:var(--muted-foreground)">Yönetici</span></span><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Boş durum</span>
+      <div style="border:1px dashed var(--input);border-radius:8px;padding:40px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px">
+        <span style="width:44px;height:44px;border-radius:10px;background:var(--muted);color:var(--muted-foreground);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.file }}"></path></svg></span>
+        <strong style="font-family:'Newsreader',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-0.01em">Henüz belge yok</strong>
+        <span style="font-size:13px;color:var(--muted-foreground);max-width:320px;line-height:1.5">Tedarikçilerinizden sertifika ve irsaliye isteyin. Yüklenen belgeleri AI okur, siz onaylarsınız.</span>
+        <span style="font-size:12px;color:var(--muted-foreground)">PDF, JPG veya PNG · dosya başına en fazla 10 MB</span>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">Belge yükle</button>
+          <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input)">Tedarikçiden iste</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Yükleniyor iskeleti</span>
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+        <div style="height:36px;background:var(--muted);border-bottom:1px solid var(--border)"></div>
+        <sc-for list="{{ skel }}" as="k" hint-placeholder-count="5">
+          <div style="height:44px;display:grid;grid-template-columns:16px 110px minmax(0,1fr) 80px;gap:16px;align-items:center;padding:0 14px;border-bottom:1px solid var(--border)">
+            <span style="height:16px;border-radius:4px;background:var(--skeleton)"></span>
+            <span style="height:10px;border-radius:3px;background:var(--skeleton)"></span>
+            <span style="height:10px;border-radius:3px;background:var(--skeleton);width:{{ k }}"></span>
+            <span style="height:18px;border-radius:999px;background:var(--skeleton)"></span>
+          </div>
+        </sc-for>
+      </div>
+      <span style="font-size:11px;color:var(--muted-foreground)">--skeleton + animate-pulse (1.6 s). 300 ms'den kısa yüklemelerde gösterilmez.</span>
+    </div>
+
+  </div>
+</div>
+</div>
+</div>
+<div style="--radius:8px;--silk:#EFE6D8;--status-pending:#8A93A3;--status-submitted:#5B8FE8;--status-approved:#3DB374;--status-rejected:#EF5B4F;--status-low-confidence:#E3AE2F;--status-expiring:#F0853A;--background:#0F1218;--foreground:#E9E7E3;--card:#151922;--popover:#1B202A;--muted:#1B202A;--muted-foreground:#9AA1AE;--primary:#E9E7E3;--primary-foreground:#151922;--primary-hover:#C9D0DC;--accent:#1F2531;--brand:#D98AA3;--brand-foreground:#1A0C12;--brand-muted:#2E1A22;--brand-text:#E6A5B9;--destructive:#C23B2F;--destructive-foreground:#FFFFFF;--destructive-hover:#A93226;--border:#262C38;--input:#303746;--ring:#D98AA3;--ring-soft:rgba(217,138,163,.22);--sidebar:#0C0F14;--sidebar-accent:#1B202A;--skeleton:#1F2531;--shadow-xs:none;--shadow-sm:none;--shadow-md:0 8px 24px -6px rgba(0,0,0,.5);--shadow-lg:0 20px 40px -12px rgba(0,0,0,.6);--status-pending-foreground:#BDB8AF;--status-pending-muted:#232833;--status-submitted-foreground:#93B8F6;--status-submitted-muted:#16233A;--status-approved-foreground:#86D3A5;--status-approved-muted:#13291D;--status-rejected-foreground:#F4A097;--status-rejected-muted:#34181A;--status-low-confidence-foreground:#F0C666;--status-low-confidence-muted:#2F2610;--status-expiring-foreground:#F6A86F;--status-expiring-muted:#35220F">
+<div style="background:var(--background);color:var(--foreground);padding:40px 0 64px;border-top:1px solid var(--border)">
+<div style="max-width:1320px;margin:0 auto;padding:0 32px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Koyu tema</span><span style="height:1px;flex:1;background:var(--border)"></span></div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(600px,1fr));gap:16px">
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Buton</span>
+      <div style="display:grid;grid-template-columns:90px repeat(5,minmax(0,1fr));gap:10px;font-size:11px;color:var(--muted-foreground)">
+        <span></span><span>Varsayılan</span><span>Hover</span><span>Odak</span><span>Devre dışı</span><span>Yükleniyor</span>
+      </div>
+      <sc-for list="{{ buttons }}" as="b" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:90px repeat(5,minmax(0,1fr));gap:10px;align-items:center">
+          <span style="font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted-foreground)">{{ b.name }}</span>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;cursor:pointer;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }};box-shadow:{{ b.sh }};white-space:nowrap;transition:background .12s" style-hover="background:{{ b.hv }}">{{ b.text }}</button>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ b.hv }};color:{{ b.fg }};border:1px solid {{ b.bd }};box-shadow:{{ b.sh }};white-space:nowrap">{{ b.text }}</button>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }};box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--ring);white-space:nowrap">{{ b.text }}</button>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }};opacity:.45;cursor:not-allowed;white-space:nowrap">{{ b.text }}</button>
+          <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ b.bg }};color:{{ b.fg }};border:1px solid {{ b.bd }};opacity:.8;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap">{{ spinner }}{{ b.text }}</button>
+        </div>
+      </sc-for>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-top:8px;border-top:1px solid var(--border)">
+        <span style="font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted-foreground);width:80px">boyut</span>
+        <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">sm · 32</button>
+        <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>Yeni parti</button>
+        <button style="height:40px;padding:0 18px;border-radius:6px;font:500 14px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">lg · 40</button>
+        <button style="width:36px;height:36px;border-radius:6px;background:var(--card);color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.more }}"></path></svg></button>
+        <button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--brand);color:var(--brand-foreground);border:1px solid transparent">Pasaportu yayınla</button>
+        <span style="font-size:11px;color:var(--muted-foreground)">brand: yalnızca yayınlama gibi tekil eylemler</span>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Input · Select · Checkbox</span>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Ürün adı
+          <input placeholder="örn. Organik pamuk tişört" style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)">
+          <span style="font-size:12px;font-weight:400;color:var(--muted-foreground)">Varsayılan</span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Parti no
+          <input value="KP-2026-0918-A" readonly style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--ring);background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;outline:none;box-shadow:0 0 0 3px var(--ring-soft)">
+          <span style="font-size:12px;font-weight:400;color:var(--muted-foreground)">Odak</span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">GTIN
+          <input value="086901234567" readonly style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--status-rejected);background:var(--card);color:var(--foreground);font:13px 'Geist Mono',monospace;outline:none;box-shadow:0 0 0 3px var(--status-rejected-muted)">
+          <span style="font-size:12px;font-weight:400;color:var(--status-rejected-foreground);display:flex;gap:4px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="{{ ic.alert }}"></path></svg>GTIN 14 haneli olmalı (12 girildi)</span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;color:var(--muted-foreground)">Tedarikçi kodu
+          <input value="TDR-0041" disabled style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:var(--muted);color:var(--muted-foreground);font:13px 'Geist Mono',monospace;cursor:not-allowed">
+          <span style="font-size:12px;font-weight:400">Devre dışı</span>
+        </label>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;position:relative">Durum
+          <div style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;box-shadow:var(--shadow-xs)"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-low-confidence)"></span>AI güveni düşük<svg width="16" height="16" viewBox="0 0 24 24" style="margin-left:auto;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+          <div style="background:var(--popover);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-md);padding:4px;display:flex;flex-direction:column;font-weight:400">
+            <sc-for list="{{ statuses }}" as="s" hint-placeholder-count="6">
+              <div style="height:30px;padding:0 8px;border-radius:4px;display:flex;align-items:center;gap:8px;font-size:13px;background:{{ s.selBg }};cursor:pointer" style-hover="background:var(--accent)"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ s.key }})"></span>{{ s.label }}<span style="margin-left:auto;display:flex;opacity:{{ s.selOp }}"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:13px">
+          <span style="font-weight:500">Checkbox</span>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:4px;border:1px solid var(--input);background:var(--card)"></span>Seçili değil</div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:4px;background:var(--primary);color:var(--primary-foreground);display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span>Beni hatırla</div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center"><span style="width:8px;height:2px;border-radius:1px;background:var(--primary-foreground)"></span></span>Kısmi (tablo başlığı)</div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:4px;border:1px solid var(--input);background:var(--card);box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--ring)"></span>Odak</div>
+          <div style="display:flex;align-items:center;gap:8px;opacity:.45"><span style="width:16px;height:16px;border-radius:4px;border:1px solid var(--input);background:var(--muted)"></span>Devre dışı</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Durum rozeti</span>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <sc-for list="{{ statuses }}" as="s" hint-placeholder-count="6">
+          <span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ s.key }}-muted);color:var(--status-{{ s.key }}-foreground);font-size:12px;font-weight:500;line-height:16px;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ s.key }})"></span>{{ s.label }}</span>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <span style="font-size:11px;color:var(--muted-foreground);width:80px">Sayaç / etiket</span>
+        <span style="font:500 11px 'Geist Mono',monospace;background:var(--muted);color:var(--muted-foreground);padding:1px 6px;border-radius:4px">12</span>
+        <span style="font:500 11px 'Geist',sans-serif;border:1px solid var(--border);color:var(--foreground);padding:2px 7px;border-radius:4px">GOTS</span>
+        <span style="font:500 11px 'Geist',sans-serif;border:1px solid var(--border);color:var(--foreground);padding:2px 7px;border-radius:4px">OEKO-TEX 100</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;font:500 11px 'Geist',sans-serif;background:var(--brand-muted);color:var(--brand-text);padding:2px 7px;border-radius:4px"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="{{ ic.sparkle }}"></path></svg>AI</span>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Toast</span>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ toasts }}" as="o" hint-placeholder-count="3">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--popover);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);max-width:420px">
+            <span style="color:var(--status-{{ o.key }});display:flex;margin-top:1px"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ o.icon }}"></path></svg></span>
+            <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0"><strong style="font-size:13px;font-weight:600">{{ o.title }}</strong><span style="font-size:12px;color:var(--muted-foreground);line-height:1.45">{{ o.body }}</span></div>
+            <button style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);white-space:nowrap">{{ o.action }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;grid-column:1/-1">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Tablo satırı — varsayılan · hover · seçili</span>
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13px">
+        <div style="display:grid;grid-template-columns:40px 170px minmax(0,1.6fr) 150px 150px 120px 40px;align-items:center;height:36px;padding:0 4px;background:var(--muted);color:var(--muted-foreground);font-size:12px;font-weight:500;border-bottom:1px solid var(--border)">
+          <span style="display:flex;justify-content:center"><span style="width:16px;height:16px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center"><span style="width:8px;height:2px;background:var(--primary-foreground)"></span></span></span>
+          <span>Parti no</span><span>Ürün</span><span>Tedarik zinciri</span><span>Durum</span><span>Güncelleme</span><span></span>
+        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:40px 170px minmax(0,1.6fr) 150px 150px 120px 40px;align-items:center;height:44px;padding:0 4px;border-bottom:1px solid var(--border);background:{{ r.bg }}" style-hover="background:var(--accent)">
+            <span style="display:flex;justify-content:center"><span style="width:16px;height:16px;border-radius:4px;border:1px solid {{ r.cbBd }};background:{{ r.cbBg }};color:var(--primary-foreground);display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:{{ r.cbOp }}"><path d="{{ ic.check }}"></path></svg></span></span>
+            <span style="font-family:'Geist Mono',monospace;font-size:12px">{{ r.id }}</span>
+            <span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.product }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ r.qty }}</span></span>
+            <span style="display:flex;align-items:center;gap:3px"><sc-for list="{{ r.steps }}" as="st" hint-placeholder-count="4"><span style="width:22px;height:6px;border-radius:2px;background:{{ st }}"></span></sc-for><span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground);margin-left:6px">{{ r.stepTxt }}</span></span>
+            <span><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ r.s }}-muted);color:var(--status-{{ r.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ r.s }})"></span>{{ r.sl }}</span></span>
+            <span style="font-size:12px;color:var(--muted-foreground);font-variant-numeric:tabular-nums">{{ r.upd }}</span>
+            <span style="display:flex;color:var(--muted-foreground)"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.more }}"></path></svg></span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;grid-column:1/-1">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">AI öneri alanı</span><span style="font-size:12px;color:var(--muted-foreground)">— güven eşiği 0,80: altı "AI güveni düşük" olarak işaretlenir · Onayla ve Düzenle çalışır</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px">
+        <sc-for list="{{ fields }}" as="f" hint-placeholder-count="3">
+          <div style="border:1px solid {{ f.border }};border-radius:8px;background:var(--card);display:flex;flex-direction:column;box-shadow:var(--shadow-xs)">
+            <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 0">
+              <span style="font-size:12px;font-weight:600">{{ f.label }}</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;font:500 11px 'Geist',sans-serif;background:var(--brand-muted);color:var(--brand-text);padding:1px 6px;border-radius:4px"><svg width="11" height="11" viewBox="0 0 24 24" style="fill:currentColor"><path d="{{ ic.sparkle }}"></path></svg>AI önerisi</span>
+              <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ f.sKey }}-muted);color:var(--status-{{ f.sKey }}-foreground);font-size:11px;font-weight:500;padding:2px 8px 2px 7px;border-radius:999px;white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:var(--status-{{ f.sKey }})"></span>{{ f.sLabel }}</span>
+            </div>
+            <div style="padding:8px 12px 10px;display:flex;flex-direction:column;gap:8px">
+              <sc-if value="{{ f.editing }}" hint-placeholder-val="{{ false }}">
+                <input value="{{ f.draft }}" onChange="{{ f.onInput }}" style="height:34px;padding:0 10px;border-radius:6px;border:1px solid var(--ring);box-shadow:0 0 0 3px var(--ring-soft);background:var(--card);color:var(--foreground);font:{{ f.font }};outline:none">
+              </sc-if>
+              <sc-if value="{{ f.viewing }}" hint-placeholder-val="{{ true }}">
+                <span style="font:{{ f.font }};color:var(--foreground);min-height:34px;display:flex;align-items:center">{{ f.value }}</span>
+              </sc-if>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="flex:1;height:4px;border-radius:2px;background:var(--muted);overflow:hidden;display:flex"><span style="width:{{ f.pct }};background:var(--status-{{ f.confKey }})"></span></span>
+                <span style="font:500 11px 'Geist Mono',monospace;color:var(--status-{{ f.confKey }}-foreground)">Güven %{{ f.conf }}</span>
+              </div>
+              <span style="font-size:11px;color:var(--muted-foreground);display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.file }}"></path></svg><span style="font-family:'Geist Mono',monospace">{{ f.src }}</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid var(--border);min-height:45px">
+              <sc-if value="{{ f.suggesting }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ f.onApprove }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:5px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>Onayla</button>
+                <button onClick="{{ f.onEdit }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Düzenle</button>
+                <span style="margin-left:auto;font-size:11px;color:var(--muted-foreground)">{{ f.hint }}</span>
+              </sc-if>
+              <sc-if value="{{ f.editing }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ f.onSave }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;cursor:pointer">Kaydet ve onayla</button>
+                <button onClick="{{ f.onCancel }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer">Vazgeç</button>
+              </sc-if>
+              <sc-if value="{{ f.approved }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:12px;color:var(--muted-foreground)">{{ f.approvedBy }}</span>
+                <button onClick="{{ f.onReset }}" style="margin-left:auto;height:28px;padding:0 8px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--muted-foreground);border:1px solid transparent;cursor:pointer">Geri al</button>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Kart</span>
+      <div style="border:1px solid var(--border);border-radius:8px;background:var(--card);box-shadow:var(--shadow-sm);display:flex;flex-direction:column">
+        <div style="padding:14px 16px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;flex-direction:column;gap:2px;flex:1"><span style="font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">KP-2026-0918-A</span><strong style="font-size:15px;font-weight:600;letter-spacing:-0.01em">Organik pamuk tişört, ekru</strong></div>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-low-confidence-muted);color:var(--status-low-confidence-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-low-confidence)"></span>AI güveni düşük</span>
+        </div>
+        <div style="padding:14px 16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:13px">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:var(--muted-foreground)">GTIN</span><span style="font-family:'Geist Mono',monospace;font-size:12px">08690123456783</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:var(--muted-foreground)">Miktar</span><span style="font-variant-numeric:tabular-nums">2.400 adet</span></div>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:var(--muted-foreground)">Lif</span><span>%95 pamuk · %5 elastan</span></div>
+        </div>
+        <div style="padding:0 16px 14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+          <sc-for list="{{ chain }}" as="c" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="height:4px;border-radius:2px;background:var(--status-{{ c.s }})"></span><span style="font-size:12px;font-weight:500">{{ c.name }}</span><span style="font-size:11px;color:var(--muted-foreground)">{{ c.who }}</span></div>
+          </sc-for>
+        </div>
+        <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--muted);border-radius:0 0 8px 8px">
+          <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent">Belgeler</button>
+          <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">İncele</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Sol menü öğesi</span>
+      <div style="display:flex;gap:16px">
+        <div style="background:var(--sidebar);border:1px solid var(--border);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:2px;flex:1">
+          <sc-for list="{{ navDemo }}" as="n" hint-placeholder-count="5">
+            <div style="height:32px;padding:0 8px;border-radius:6px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:{{ n.w }};color:{{ n.fg }};background:{{ n.bg }};cursor:pointer;opacity:{{ n.op }}" style-hover="background:var(--sidebar-accent)">
+              <svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="{{ n.d }}"></path></svg>{{ n.label }}
+              <span style="margin-left:auto;font-size:11px;color:var(--muted-foreground)">{{ n.note }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:var(--sidebar);border:1px solid var(--border);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:2px;width:52px;align-items:center">
+          <sc-for list="{{ navDemo }}" as="n" hint-placeholder-count="5">
+            <div style="width:34px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:{{ n.fg }};background:{{ n.bg }};opacity:{{ n.op }}"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ n.d }}"></path></svg></div>
+          </sc-for>
+        </div>
+      </div>
+      <span style="font-size:11px;color:var(--muted-foreground)">Varsayılan · Hover · Aktif · Sayaçlı · Devre dışı · Daraltılmış (52 px)</span>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;grid-column:1/-1">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Üst bar</span>
+      <div style="height:52px;border:1px solid var(--border);border-radius:8px;background:var(--background);display:flex;align-items:center;gap:12px;padding:0 12px 0 16px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="width:24px;height:24px;border-radius:6px;background:var(--muted);display:flex;align-items:center;justify-content:center;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.building }}"></path></svg></span>Karaca Tekstil A.Ş.<svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+        <span style="color:var(--border)">/</span><span style="font-size:13px;color:var(--muted-foreground)">Partiler</span>
+        <div style="margin-left:auto;height:32px;width:240px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg>Ara<span style="margin-left:auto;font:11px 'Geist Mono',monospace;border:1px solid var(--border);border-radius:4px;padding:0 4px">⌘K</span></div>
+        <div style="display:flex;background:var(--muted);border-radius:6px;padding:2px;gap:2px;font:500 11px 'Geist Mono',monospace">
+          <span style="padding:5px 8px;border-radius:4px;background:var(--card);color:var(--foreground);box-shadow:var(--shadow-xs)">TR</span><span style="padding:5px 8px;color:var(--muted-foreground)">EN</span><span style="padding:5px 8px;color:var(--muted-foreground)">DE</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px"><span style="width:28px;height:28px;border-radius:50%;background:var(--silk);color:#3D3A35;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">EY</span><span style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:12px;font-weight:500">Elif Yılmaz</span><span style="font-size:11px;color:var(--muted-foreground)">Yönetici</span></span><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Boş durum</span>
+      <div style="border:1px dashed var(--input);border-radius:8px;padding:40px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px">
+        <span style="width:44px;height:44px;border-radius:10px;background:var(--muted);color:var(--muted-foreground);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.file }}"></path></svg></span>
+        <strong style="font-family:'Newsreader',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-0.01em">Henüz belge yok</strong>
+        <span style="font-size:13px;color:var(--muted-foreground);max-width:320px;line-height:1.5">Tedarikçilerinizden sertifika ve irsaliye isteyin. Yüklenen belgeleri AI okur, siz onaylarsınız.</span>
+        <span style="font-size:12px;color:var(--muted-foreground)">PDF, JPG veya PNG · dosya başına en fazla 10 MB</span>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent">Belge yükle</button>
+          <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input)">Tedarikçiden iste</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Yükleniyor iskeleti</span>
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+        <div style="height:36px;background:var(--muted);border-bottom:1px solid var(--border)"></div>
+        <sc-for list="{{ skel }}" as="k" hint-placeholder-count="5">
+          <div style="height:44px;display:grid;grid-template-columns:16px 110px minmax(0,1fr) 80px;gap:16px;align-items:center;padding:0 14px;border-bottom:1px solid var(--border)">
+            <span style="height:16px;border-radius:4px;background:var(--skeleton)"></span>
+            <span style="height:10px;border-radius:3px;background:var(--skeleton)"></span>
+            <span style="height:10px;border-radius:3px;background:var(--skeleton);width:{{ k }}"></span>
+            <span style="height:18px;border-radius:999px;background:var(--skeleton)"></span>
+          </div>
+        </sc-for>
+      </div>
+      <span style="font-size:11px;color:var(--muted-foreground)">--skeleton + animate-pulse (1.6 s). 300 ms'den kısa yüklemelerde gösterilmez.</span>
+    </div>
+
+  </div>
+</div>
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { fields: [
+    { label: 'Lif bileşimi', value: '%95 Organik pamuk, %5 Elastan', conf: 94, src: 'kumas_teknik_foy_0918.pdf · s.1', mono: false, mode: 'suggest' },
+    { label: 'GOTS sertifika no', value: 'CU-1O43927', conf: 61, src: 'gots_sertifika_2026.pdf · s.1', mono: true, mode: 'suggest', hint: '"O" harfi mi, "0" rakamı mı?' },
+    { label: 'Boyahane', value: 'Çınar Boya Apre San. — Denizli', conf: 88, src: 'irsaliye_44871.pdf · s.2', mono: false, mode: 'approved' },
+  ], drafts: {} };
+  setMode(i, mode, patch) { this.setState(s => ({ fields: s.fields.map((f, j) => j === i ? { ...f, mode, ...(patch || {}) } : f) })); }
+  renderVals() {
+    const ic = {
+      check: 'M20 6 9 17l-5-5', chev: 'm6 9 6 6 6-6', plus: 'M12 5v14M5 12h14',
+      search: 'M3 11a8 8 0 1 0 16 0a8 8 0 1 0-16 0M21 21l-4.3-4.3',
+      sparkle: 'M12 2l2.2 6.3L20.5 10.5l-6.3 2.2L12 19l-2.2-6.3L3.5 10.5l6.3-2.2Z',
+      file: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7ZM14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8',
+      alert: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 8v4M12 16h.01',
+      checkCircle: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M9 12l2 2 4-4',
+      more: 'M11 12a1 1 0 1 0 2 0a1 1 0 1 0-2 0M18 12a1 1 0 1 0 2 0a1 1 0 1 0-2 0M4 12a1 1 0 1 0 2 0a1 1 0 1 0-2 0',
+      building: 'M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18ZM6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4',
+      layers: 'M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83ZM22 17.65l-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65M22 12.65l-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65',
+      package: 'M7.5 4.27l9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16ZM3.3 7l8.7 5 8.7-5M12 22V12',
+      factory: 'M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2ZM17 18h1M12 18h1M7 18h1',
+      upload: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12',
+    };
+    const base = {
+      '--radius': '8px', '--silk': '#EFE6D8',
+      '--status-pending': '#8A857C', '--status-submitted': '#2F6FDB', '--status-approved': '#22945A', '--status-rejected': '#D92D20', '--status-low-confidence': '#D99A06', '--status-expiring': '#E8680C',
+    };
+    const light = { ...base,
+      '--background': '#FCFBF9', '--foreground': '#1C1B19', '--card': '#FFFFFF', '--popover': '#FFFFFF', '--muted': '#F2F0EC', '--muted-foreground': '#6B665E',
+      '--primary': '#1F1E1C', '--primary-foreground': '#FAF8F4', '--primary-hover': '#3D3A35', '--accent': '#EEEBE6', '--brand': '#8C2F4B', '--brand-foreground': '#FFFFFF', '--brand-muted': '#F5E8EC', '--brand-text': '#8C2F4B',
+      '--destructive': '#B42318', '--destructive-foreground': '#FFFFFF', '--destructive-hover': '#951C13', '--border': '#E6E3DD', '--input': '#D2CEC6', '--ring': '#8C2F4B', '--ring-soft': 'rgba(140,47,75,.18)',
+      '--sidebar': '#F6F4F0', '--sidebar-accent': '#EAE7E1', '--skeleton': '#ECE9E4',
+      '--shadow-xs': '0 1px 2px rgba(28,27,25,.05)', '--shadow-sm': '0 1px 3px rgba(28,27,25,.08), 0 1px 2px rgba(28,27,25,.04)', '--shadow-md': '0 6px 16px -4px rgba(28,27,25,.12), 0 2px 4px -2px rgba(28,27,25,.06)', '--shadow-lg': '0 20px 40px -12px rgba(28,27,25,.22), 0 4px 8px -4px rgba(28,27,25,.08)',
+      '--status-pending-foreground': '#57534C', '--status-pending-muted': '#F1EFEB', '--status-submitted-foreground': '#1F5BB8', '--status-submitted-muted': '#E8F0FB', '--status-approved-foreground': '#1E7042', '--status-approved-muted': '#E6F4EC', '--status-rejected-foreground': '#B42318', '--status-rejected-muted': '#FDECEA', '--status-low-confidence-foreground': '#8A5A00', '--status-low-confidence-muted': '#FDF3DC', '--status-expiring-foreground': '#B54708', '--status-expiring-muted': '#FEEFE3',
+    };
+    const dark = { ...base,
+      '--background': '#0F1218', '--foreground': '#E9E7E3', '--card': '#151922', '--popover': '#1B202A', '--muted': '#1B202A', '--muted-foreground': '#9AA1AE',
+      '--primary': '#E9E7E3', '--primary-foreground': '#151922', '--primary-hover': '#C9D0DC', '--accent': '#1F2531', '--brand': '#D98AA3', '--brand-foreground': '#1A0C12', '--brand-muted': '#2E1A22', '--brand-text': '#E6A5B9',
+      '--destructive': '#C23B2F', '--destructive-foreground': '#FFFFFF', '--destructive-hover': '#A93226', '--border': '#262C38', '--input': '#303746', '--ring': '#D98AA3', '--ring-soft': 'rgba(217,138,163,.22)',
+      '--sidebar': '#0C0F14', '--sidebar-accent': '#1B202A', '--skeleton': '#1F2531',
+      '--shadow-xs': 'none', '--shadow-sm': 'none', '--shadow-md': '0 8px 24px -6px rgba(0,0,0,.5)', '--shadow-lg': '0 20px 40px -12px rgba(0,0,0,.6)',
+      '--status-pending': '#8A93A3', '--status-submitted': '#5B8FE8', '--status-approved': '#3DB374', '--status-rejected': '#EF5B4F', '--status-low-confidence': '#E3AE2F', '--status-expiring': '#F0853A',
+      '--status-pending-foreground': '#BDB8AF', '--status-pending-muted': '#232833', '--status-submitted-foreground': '#93B8F6', '--status-submitted-muted': '#16233A', '--status-approved-foreground': '#86D3A5', '--status-approved-muted': '#13291D', '--status-rejected-foreground': '#F4A097', '--status-rejected-muted': '#34181A', '--status-low-confidence-foreground': '#F0C666', '--status-low-confidence-muted': '#2F2610', '--status-expiring-foreground': '#F6A86F', '--status-expiring-muted': '#35220F',
+    };
+    const themes = [{ label: 'Açık tema', vars: light }, { label: 'Koyu tema', vars: dark }];
+    const buttons = [
+      { name: 'primary', text: 'Onayla', bg: 'var(--primary)', fg: 'var(--primary-foreground)', bd: 'transparent', hv: 'var(--primary-hover)', sh: 'none' },
+      { name: 'secondary', text: 'Taslak kaydet', bg: 'var(--card)', fg: 'var(--foreground)', bd: 'var(--input)', hv: 'var(--accent)', sh: 'var(--shadow-xs)' },
+      { name: 'ghost', text: 'Vazgeç', bg: 'transparent', fg: 'var(--foreground)', bd: 'transparent', hv: 'var(--accent)', sh: 'none' },
+      { name: 'destructive', text: 'Partiyi sil', bg: 'var(--destructive)', fg: 'var(--destructive-foreground)', bd: 'transparent', hv: 'var(--destructive-hover)', sh: 'none' },
+    ];
+    const spinner = React.createElement('span', { style: { width: 12, height: 12, borderRadius: '50%', border: '1.5px solid currentColor', borderRightColor: 'transparent', animation: 'kp-spin .7s linear infinite', flex: 'none' } });
+    const statuses = [['pending', 'Beklemede'], ['submitted', 'Gönderildi'], ['approved', 'Onaylandı'], ['rejected', 'Reddedildi'], ['low-confidence', 'AI güveni düşük'], ['expiring', 'Süresi doluyor']]
+      .map(([key, label]) => ({ key, label, selBg: key === 'low-confidence' ? 'var(--accent)' : 'transparent', selOp: key === 'low-confidence' ? 1 : 0 }));
+    const toasts = [
+      { key: 'approved', icon: ic.checkCircle, title: 'Parti onaylandı', body: 'KP-2026-0918-A pasaportu yayına hazır.', action: 'Pasaportu gör' },
+      { key: 'rejected', icon: ic.alert, title: 'Belge yüklenemedi', body: 'gots_2026.pdf 10 MB sınırını aşıyor.', action: 'Tekrar dene' },
+      { key: 'low-confidence', icon: ic.sparkle, title: '3 belge okundu', body: '1 alan düşük güvenle çıkarıldı, kontrolünüzü bekliyor.', action: 'İncele' },
+    ];
+    const seg = s => `var(--status-${s})`, E = 'var(--muted)';
+    const rows = [
+      { id: 'KP-2026-0918-A', product: 'Organik pamuk tişört, ekru', qty: '2.400 adet', steps: [seg('approved'), seg('approved'), seg('low-confidence'), E], stepTxt: '2/4', s: 'low-confidence', sl: 'AI güveni düşük', upd: '14:32', bg: 'transparent', cbBd: 'var(--input)', cbBg: 'var(--card)', cbOp: 0 },
+      { id: 'KP-2026-0917-C', product: 'Keten gömlek, lacivert', qty: '1.150 adet', steps: [seg('approved'), seg('approved'), seg('approved'), seg('submitted')], stepTxt: '3/4', s: 'submitted', sl: 'Gönderildi', upd: 'Dün', bg: 'var(--accent)', cbBd: 'var(--input)', cbBg: 'var(--card)', cbOp: 0 },
+      { id: 'KP-2026-0912-B', product: 'Denim pantolon, taşlanmış', qty: '3.800 adet', steps: [seg('approved'), seg('approved'), seg('approved'), seg('approved')], stepTxt: '4/4', s: 'approved', sl: 'Onaylandı', upd: '12 Eyl', bg: 'var(--brand-muted)', cbBd: 'transparent', cbBg: 'var(--primary)', cbOp: 1 },
+    ];
+    const chain = [{ name: 'İplik', who: 'Bursa', s: 'approved' }, { name: 'Kumaş', who: 'Denizli', s: 'approved' }, { name: 'Boya', who: 'Denizli', s: 'low-confidence' }, { name: 'Konfeksiyon', who: 'İzmir', s: 'pending' }];
+    const navDemo = [
+      { label: 'Ürünler', d: ic.package, fg: 'var(--muted-foreground)', bg: 'transparent', w: 500, op: 1, note: '' },
+      { label: 'Partiler', d: ic.layers, fg: 'var(--foreground)', bg: 'var(--sidebar-accent)', w: 600, op: 1, note: '' },
+      { label: 'Tedarikçiler', d: ic.factory, fg: 'var(--foreground)', bg: 'var(--accent)', w: 500, op: 1, note: 'hover' },
+      { label: 'Belgeler', d: ic.file, fg: 'var(--muted-foreground)', bg: 'transparent', w: 500, op: 1, note: '12' },
+      { label: 'İçe aktarma', d: ic.upload, fg: 'var(--muted-foreground)', bg: 'transparent', w: 500, op: 0.45, note: '' },
+    ];
+    const fields = this.state.fields.map((f, i) => {
+      const low = f.conf < 80, ap = f.mode === 'approved';
+      return { ...f,
+        draft: this.state.drafts[i] ?? f.value,
+        font: f.mono ? "14px 'Geist Mono',monospace" : "500 14px 'Geist',sans-serif",
+        pct: f.conf + '%', confKey: low ? 'low-confidence' : 'approved',
+        sKey: ap ? 'approved' : low ? 'low-confidence' : 'pending', sLabel: ap ? 'Onaylandı' : low ? 'AI güveni düşük' : 'Onay bekliyor',
+        border: !ap && low ? 'var(--status-low-confidence)' : 'var(--border)',
+        suggesting: f.mode === 'suggest', editing: f.mode === 'edit', viewing: f.mode !== 'edit', approved: ap,
+        hint: f.hint || '', approvedBy: f.editedBy ? 'Düzenlendi · Elif Y. · şimdi' : 'Elif Y. · 14:32',
+        onApprove: () => this.setMode(i, 'approved'), onEdit: () => this.setMode(i, 'edit'),
+        onCancel: () => this.setMode(i, 'suggest'), onReset: () => this.setMode(i, 'suggest', { editedBy: false }),
+        onSave: () => this.setMode(i, 'approved', { value: this.state.drafts[i] ?? f.value, editedBy: true }),
+        onInput: e => { const v = e.target.value; this.setState(s => ({ drafts: { ...s.drafts, [i]: v } })); },
+      };
+    });
+    return { ic, themes, buttons, spinner, statuses, toasts, rows, chain, navDemo, fields, skel: ['70%', '55%', '82%', '48%', '64%'] };
+  }
+}
+</script>
+</body>
+</html>

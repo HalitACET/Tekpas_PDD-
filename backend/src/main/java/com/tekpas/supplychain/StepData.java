@@ -1,5 +1,6 @@
 package com.tekpas.supplychain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tekpas.product.Fiber;
 import com.tekpas.product.FiberShare;
@@ -18,6 +19,7 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,15 +38,19 @@ import org.jspecify.annotations.Nullable;
  * @param quantityKg FIBER: lot size in kg
  * @param energyKwhPerKg YARN, FABRIC: energy use per kg of output
  * @param energyKwhPerPiece SEWING: energy use per garment
- * @param deliveredKg YARN: delivered to the next step, in kg
+ * @param deliveredKg YARN, FABRIC: delivered to the next step; DYEING: processed ("İşlenen miktar"), in kg
  * @param yarnCount YARN: e.g. "Ne 30/1"
  * @param fabricType FABRIC: e.g. "Süprem"
  * @param gsm FABRIC: grams per m²
- * @param process DYEING: e.g. "Reaktif boya, ekru"
- * @param chemicalCompliance DYEING: e.g. "ZDHC MRSL 3.1"
+ * @param dyeProcess DYEING: the process (design v0.4 41)
+ * @param dyeProcessOther DYEING: required when {@code dyeProcess} is OTHER, otherwise not set
+ * @param shade DYEING: colour or shade, e.g. "Ekru"
+ * @param chemicalStandards DYEING: all that apply; NONE alone means "none of these"
  * @param waterLPerKg DYEING: water use per kg
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+// Data written before a field was renamed (V6: process, chemicalCompliance) must still read.
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record StepData(
         @Nullable Fiber fiberType,
         @Schema(example = "TR") @Nullable @Pattern(regexp = "^[A-Z]{2}$") String originCountry,
@@ -60,12 +66,14 @@ public record StepData(
         @Nullable YarnProcess yarnProcess,
         @Nullable @Size(max = 100) String fabricType,
         @Nullable @Positive @Digits(integer = 5, fraction = 2) BigDecimal gsm,
-        @Nullable @Size(max = 200) String process,
-        @Nullable @Size(max = 200) String chemicalCompliance,
+        @Nullable DyeProcess dyeProcess,
+        @Nullable @Size(max = 80) String dyeProcessOther,
+        @Nullable @Size(max = 100) String shade,
+        @Nullable List<ChemicalStandard> chemicalStandards,
         @Nullable @Positive @Digits(integer = 6, fraction = 3) BigDecimal waterLPerKg) {
 
     public static final StepData EMPTY = new StepData(null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null);
+            null, null, null, null, null, null, null, null);
 
     private static final Set<StepType> FIBER = EnumSet.of(StepType.FIBER);
     private static final Set<StepType> MAKERS = EnumSet.of(StepType.YARN, StepType.FABRIC, StepType.DYEING,
@@ -84,16 +92,68 @@ public record StepData(
             Map.entry("energyKwhPerKg", new Field(StepData::energyKwhPerKg, EnumSet.of(StepType.YARN,
                     StepType.FABRIC, StepType.DYEING))),
             Map.entry("energyKwhPerPiece", new Field(StepData::energyKwhPerPiece, EnumSet.of(StepType.SEWING))),
-            Map.entry("deliveredKg", new Field(StepData::deliveredKg, EnumSet.of(StepType.YARN, StepType.FABRIC))),
+            Map.entry("deliveredKg", new Field(StepData::deliveredKg, EnumSet.of(StepType.YARN, StepType.FABRIC,
+                    StepType.DYEING))),
             Map.entry("yarnCount", new Field(StepData::yarnCount, EnumSet.of(StepType.YARN))),
             Map.entry("yarnProcess", new Field(StepData::yarnProcess, EnumSet.of(StepType.YARN))),
             Map.entry("fabricType", new Field(StepData::fabricType, EnumSet.of(StepType.FABRIC))),
             Map.entry("gsm", new Field(StepData::gsm, EnumSet.of(StepType.FABRIC))),
-            Map.entry("process", new Field(StepData::process, EnumSet.of(StepType.DYEING))),
-            Map.entry("chemicalCompliance", new Field(StepData::chemicalCompliance, EnumSet.of(StepType.DYEING))),
+            Map.entry("dyeProcess", new Field(StepData::dyeProcess, EnumSet.of(StepType.DYEING))),
+            Map.entry("dyeProcessOther", new Field(StepData::dyeProcessOther, EnumSet.of(StepType.DYEING))),
+            Map.entry("shade", new Field(StepData::shade, EnumSet.of(StepType.DYEING))),
+            Map.entry("chemicalStandards", new Field(StepData::chemicalStandards, EnumSet.of(StepType.DYEING))),
             Map.entry("waterLPerKg", new Field(StepData::waterLPerKg, EnumSet.of(StepType.DYEING))));
 
     private record Field(Function<StepData, @Nullable Object> value, Set<StepType> types) {
+    }
+
+    /**
+     * What the supplier must fill before submitting (PLAN M4): besides these, every field is optional. For a
+     * list "filled" means at least one entry.
+     */
+    private static final Map<StepType, List<String>> REQUIRED = Map.of(
+            StepType.YARN, List.of("fiberComposition", "originCountry"),
+            StepType.FABRIC, List.of("fiberComposition", "fabricType"),
+            StepType.DYEING, List.of("dyeProcess", "chemicalStandards"),
+            StepType.SEWING, List.of("originCountry"));
+
+    /** Field names a step type has (whitelist for the fields of a correction request). */
+    public static List<String> fieldsOf(StepType type) {
+        return FIELDS.entrySet().stream().filter(e -> e.getValue().types().contains(type)).map(Map.Entry::getKey)
+                .sorted().toList();
+    }
+
+    /** Required fields of the step type that are empty, in the order of {@link #REQUIRED}. */
+    public List<String> missingFor(StepType type) {
+        return REQUIRED.getOrDefault(type, List.of()).stream().filter(name -> {
+            Object value = FIELDS.get(name).value().apply(this);
+            return value == null || (value instanceof String text && text.isBlank())
+                    || (value instanceof List<?> list && list.isEmpty());
+        }).toList();
+    }
+
+    /**
+     * Rules between fields that bean validation cannot express per field, as (field, code) pairs:
+     * {@code dyeProcessOther} NotBlank for OTHER and NotApplicable otherwise; {@code chemicalStandards}
+     * Duplicate, and NoneExclusive when NONE comes with another standard.
+     */
+    public List<Map.Entry<String, String>> ruleViolations() {
+        List<Map.Entry<String, String>> violations = new ArrayList<>();
+        boolean other = dyeProcess == DyeProcess.OTHER;
+        boolean described = dyeProcessOther != null && !dyeProcessOther.isBlank();
+        if (other && !described) {
+            violations.add(Map.entry("dyeProcessOther", "NotBlank"));
+        } else if (!other && dyeProcessOther != null) {
+            violations.add(Map.entry("dyeProcessOther", "NotApplicable"));
+        }
+        if (chemicalStandards != null) {
+            if (new HashSet<>(chemicalStandards).size() < chemicalStandards.size()) {
+                violations.add(Map.entry("chemicalStandards", "Duplicate"));
+            } else if (chemicalStandards.contains(ChemicalStandard.NONE) && chemicalStandards.size() > 1) {
+                violations.add(Map.entry("chemicalStandards", "NoneExclusive"));
+            }
+        }
+        return violations;
     }
 
     /** Names of the fields that are set but do not belong to this step type, sorted. */

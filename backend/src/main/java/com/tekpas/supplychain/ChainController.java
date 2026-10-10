@@ -2,10 +2,12 @@ package com.tekpas.supplychain;
 
 import com.tekpas.common.security.CurrentUser;
 import com.tekpas.common.security.ReadAccess;
+import com.tekpas.common.security.ReviewAccess;
 import com.tekpas.common.security.WriteAccess;
 import com.tekpas.supplychain.dto.ChainPreviewResponse;
 import com.tekpas.supplychain.dto.ChainResponse;
 import com.tekpas.supplychain.dto.StepCreateRequest;
+import com.tekpas.supplychain.dto.StepRejectRequest;
 import com.tekpas.supplychain.dto.StepUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,10 +33,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChainController {
 
     private final ChainService service;
+    private final StepReviewService review;
     private final CurrentUser currentUser;
 
-    public ChainController(ChainService service, CurrentUser currentUser) {
+    public ChainController(ChainService service, StepReviewService review, CurrentUser currentUser) {
         this.service = service;
+        this.review = review;
         this.currentUser = currentUser;
     }
 
@@ -92,6 +96,33 @@ public class ChainController {
     @ApiResponse(responseCode = "409", description = "The step is approved (reason STEP_APPROVED)")
     public ChainResponse updateStep(@PathVariable UUID id, @Valid @RequestBody StepUpdateRequest request) {
         return service.updateStep(currentUser.companyId(), id, request);
+    }
+
+    @PostMapping("/steps/{id}/approve")
+    @ReviewAccess
+    @Operation(operationId = "approveStep", summary = "Approve the data a supplier submitted",
+            description = "SUBMITTED → APPROVED. Once every step is approved the batch becomes READY.")
+    @ApiResponse(responseCode = "200", description = "The chain after the approval")
+    @ApiResponse(responseCode = "403", description = "Only OWNER and ADMIN review steps")
+    @ApiResponse(responseCode = "404", description = "No such step in this company")
+    @ApiResponse(responseCode = "409", description = "The step is not submitted (reason STEP_NOT_SUBMITTED)")
+    public ChainResponse approveStep(@PathVariable UUID id) {
+        UUID batchId = review.approve(currentUser.companyId(), currentUser.userId(), id);
+        return service.chain(currentUser.companyId(), batchId);
+    }
+
+    @PostMapping(path = "/steps/{id}/reject", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ReviewAccess
+    @Operation(operationId = "rejectStep", summary = "Ask the supplier for a correction",
+            description = "SUBMITTED → REJECTED with the reason and the fields to mark; then a new link is sent.")
+    @ApiResponse(responseCode = "200", description = "The chain after the rejection")
+    @ApiResponse(responseCode = "400", description = "No reason, or a field the step type does not have (fields)")
+    @ApiResponse(responseCode = "403", description = "Only OWNER and ADMIN review steps")
+    @ApiResponse(responseCode = "404", description = "No such step in this company")
+    @ApiResponse(responseCode = "409", description = "The step is not submitted (reason STEP_NOT_SUBMITTED)")
+    public ChainResponse rejectStep(@PathVariable UUID id, @Valid @RequestBody StepRejectRequest request) {
+        UUID batchId = review.reject(currentUser.companyId(), currentUser.userId(), id, request);
+        return service.chain(currentUser.companyId(), batchId);
     }
 
     @DeleteMapping("/steps/{id}")

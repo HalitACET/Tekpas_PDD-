@@ -22,6 +22,11 @@ public interface SupplyStepRepository extends JpaRepository<SupplyStep, UUID> {
             """)
     Optional<SupplyStep> lockForUpdate(UUID id, UUID companyId);
 
+    /** For the public link: the request already proves which step; no company filter applies. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select s from SupplyStep s where s.id = :id")
+    Optional<SupplyStep> lockById(UUID id);
+
     /** Whether the company's own chains use this supplier (a link that is in use cannot be removed). */
     @Query("""
             select count(s) > 0 from SupplyStep s, Batch b

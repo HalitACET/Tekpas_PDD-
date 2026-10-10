@@ -86,6 +86,8 @@ function StepPanel({ step }: { step: ChainStep }) {
   const tFiber = useTranslations("enums.fiber");
   const tEnergy = useTranslations("enums.energySource");
   const tYarn = useTranslations("enums.yarnProcess");
+  const tDye = useTranslations("enums.dyeProcess");
+  const tChemical = useTranslations("enums.chemicalStandard");
   const locale = useLocale();
   const fiber = step.stepType === "FIBER";
   const name = step.supplier?.name ?? (step.data.fiberType ? tFiber(step.data.fiberType) : tChain("originMissing"));
@@ -95,6 +97,8 @@ function StepPanel({ step }: { step: ChainStep }) {
     fiber: (f) => tFiber(f),
     energySource: (s) => tEnergy(s),
     yarnProcess: (p) => tYarn(p),
+    dyeProcess: (p) => tDye(p),
+    chemicalStandard: (c) => tChemical(c),
     country: (code) => regions.of(code) ?? code,
     unit: (unit, value) => t(`units.${unit}`, { value }),
   });

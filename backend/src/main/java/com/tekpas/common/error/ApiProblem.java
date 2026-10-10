@@ -1,5 +1,6 @@
 package com.tekpas.common.error;
 
+import com.tekpas.request.dto.LinkContext;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
@@ -20,5 +21,7 @@ public record ApiProblem(
         @Schema(description = "Conflicts that are not about one field, e.g. PRODUCT_HAS_BATCHES, GTIN_LOCKED",
                 example = "PRODUCT_HAS_BATCHES") @Nullable String reason,
         @Schema(description = "Id of the request, also in the X-Request-Id header and the server log",
-                example = "ab12-cd34") @Nullable String requestId) {
+                example = "ab12-cd34") @Nullable String requestId,
+        @Schema(description = "A closed data request link (urn:tekpas:problem:link-gone): what its holder may "
+                + "still see") @Nullable LinkContext link) {
 }

@@ -9,7 +9,7 @@ Kök `CLAUDE.md` kuralları burada da geçerli.
 ## Kimin için
 
 Üreticinin ofisteki ekibi: **yönetim paneli.** Ayrıca iki girişsiz, herkese açık sayfa var:
-1. **Tedarikçi veri giriş sayfası** `/r/[token]`: Telefon tarayıcısında kusursuz çalışmalı, mobil öncelikli tasarlanır.
+1. **Tedarikçi veri giriş sayfası** `/r#<token>` (PLAN K21): Token adresin `#` kısmındadır, sunucuya ve log'lara gitmez; sayfa onu okuyup API'ye `X-Request-Token` başlığıyla gönderir. Telefon tarayıcısında kusursuz çalışmalı, mobil öncelikli tasarlanır. Sayfada `Referrer-Policy: no-referrer`.
 2. **Pasaport sayfası** `/01/[gtin]/10/[batch]`: GS1 Digital Link yolu birebir. QR okutulunca açılır. SSR ile render edilir, hızlı ve SEO dostu olmalı, çok dilli (`?lang=` ve `Accept-Language`).
 
 ## Yapı
@@ -19,7 +19,7 @@ app/
 ├── (auth)/login/
 ├── (dashboard)/            giriş gerekli, sol menü + üst bar
 │   ├── products/  batches/  batches/[id]/  suppliers/  documents/  imports/  users/  settings/
-├── r/[token]/              tedarikçi (girişsiz)
+├── r/                      tedarikçi (girişsiz, token `#` kısmında)
 └── 01/[gtin]/10/[batch]/   pasaport (girişsiz)
 components/ui/              shadcn bileşenleri (CLI ile eklenir)
 components/<feature>/       özelliğe özel bileşenler

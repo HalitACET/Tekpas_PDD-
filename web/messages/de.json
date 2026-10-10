@@ -290,6 +290,20 @@
       "CARDED": "kardiert",
       "OPEN_END": "Open-End",
       "OTHER": "sonstige"
+    },
+    "dyeProcess": {
+      "REACTIVE": "Reaktivfärbung",
+      "DISPERSE": "Dispersionsfärbung",
+      "VAT": "Küpenfärbung",
+      "PIGMENT": "Pigmentfärbung",
+      "OTHER": "Sonstiges"
+    },
+    "chemicalStandard": {
+      "ZDHC_MRSL": "ZDHC MRSL",
+      "OEKO_TEX_ECO_PASSPORT": "OEKO-TEX ECO PASSPORT",
+      "BLUESIGN": "bluesign",
+      "GOTS_APPROVED": "GOTS-zugelassene Chemikalien",
+      "NONE": "Keine"
     }
   },
   "errors": {
@@ -315,7 +329,9 @@
       "Cycle": "Diese Verknüpfung würde eine Schleife in der Kette erzeugen.",
       "EnergyTotal": "Die Energiequellen müssen zusammen 100 % ergeben (aktuell {total} %).",
       "EnergyDuplicate": "Dieselbe Energiequelle wurde mehrfach eingegeben.",
-      "City": "Wählen Sie eine Provinz aus der Liste."
+      "City": "Wählen Sie eine Provinz aus der Liste.",
+      "NoneExclusive": "„Keine“ kann nicht mit anderen Optionen kombiniert werden.",
+      "Duplicate": "Dieselbe Option ist doppelt ausgewählt."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "Dieses Produkt hat Chargen. Löschen Sie zuerst die Chargen, um das Produkt zu löschen.",
@@ -327,7 +343,11 @@
       "STEP_NOT_PENDING": "Nur Schritte, die noch auf Daten warten, können entfernt werden.",
       "SUPPLIER_NOT_EDITABLE": "Name, Typ und Ort dieses Unternehmens können nicht geändert werden, nur die Kontaktdaten.",
       "SUPPLIER_IN_USE": "Dieser Lieferant wird in der Kette einer Charge verwendet.",
-      "SUPPLIER_TYPE_IN_USE": "Dieser Lieferant wird in einer Lieferkette verwendet, daher kann sein Typ nicht geändert werden."
+      "SUPPLIER_TYPE_IN_USE": "Dieser Lieferant wird in einer Lieferkette verwendet, daher kann sein Typ nicht geändert werden.",
+      "STEP_HAS_NO_SUPPLIER": "Ordnen Sie dem Schritt zuerst einen Lieferanten zu, um Daten anzufordern.",
+      "STEP_NOT_OPEN": "Die Daten dieses Schritts wurden bereits gesendet.",
+      "REQUEST_NOT_OPEN": "Dieser Link ist nicht mehr offen.",
+      "STEP_NOT_SUBMITTED": "Nur gesendete Daten können freigegeben oder zur Korrektur zurückgegeben werden."
     }
   },
   "products": {
@@ -542,9 +562,11 @@
           "energySources": "Energiequelle",
           "energyUse": "Energieverbrauch",
           "delivered": "Geliefert",
-          "process": "Verfahren",
-          "chemicalCompliance": "Chemikalienkonformität",
-          "waterLPerKg": "Wasserverbrauch"
+          "waterLPerKg": "Wasserverbrauch",
+          "dyeProcess": "Verfahren",
+          "shade": "Farbe / Ton",
+          "chemicalStandards": "Chemikalienkonformität",
+          "processed": "Verarbeitete Menge"
         },
         "units": {
           "kg": "{value} kg",

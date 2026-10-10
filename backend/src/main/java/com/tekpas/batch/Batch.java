@@ -120,6 +120,11 @@ public class Batch {
         return status;
     }
 
+    /** Set by {@code BatchProgress} from the chain (M4); a published batch keeps its status. */
+    public void setStatus(BatchStatus status) {
+        this.status = status;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }

@@ -5,6 +5,8 @@ const text: StepDataText = {
   fiber: (f) => ({ COTTON: "Pamuk", POLYESTER: "Polyester", ORGANIC_COTTON: "Organik pamuk" })[f as string] ?? f,
   energySource: (s) => ({ GRID: "Şebeke", SOLAR: "GES" })[s as string] ?? s,
   yarnProcess: (p) => ({ CARDED: "karde" })[p as string] ?? p,
+  dyeProcess: (p) => ({ REACTIVE: "Reaktif boyama", OTHER: "Diğer" })[p as string] ?? p,
+  chemicalStandard: (c) => ({ ZDHC_MRSL: "ZDHC MRSL", OEKO_TEX_ECO_PASSPORT: "OEKO-TEX ECO PASSPORT" })[c as string] ?? c,
   country: (c) => (c === "TR" ? "Türkiye" : c),
   unit: (unit, value) => `${value} ${{ kg: "kg", kwhPerKg: "kWh/kg", kwhPerPiece: "kWh/adet", lPerKg: "L/kg", gsm: "g/m²" }[unit]}`,
 };
@@ -43,12 +45,30 @@ describe("stepDataRows", () => {
 
   it("lists the fields of the step type even when nothing was entered yet", () => {
     expect(stepDataRows("DYEING", {}, "tr", text)).toEqual([
-      { field: "process", value: null },
-      { field: "chemicalCompliance", value: null },
+      { field: "dyeProcess", value: null },
+      { field: "shade", value: null },
+      { field: "chemicalStandards", value: null },
+      { field: "processed", value: null },
+      { field: "waterLPerKg", value: null },
       { field: "energySources", value: null },
       { field: "energyUse", value: null },
-      { field: "waterLPerKg", value: null },
     ]);
+  });
+
+  it("shows a dyeing step as the form of v0.4 41 (another process by its description)", () => {
+    const rows = stepDataRows(
+      "DYEING",
+      { dyeProcess: "REACTIVE", shade: "Ekru", chemicalStandards: ["ZDHC_MRSL", "OEKO_TEX_ECO_PASSPORT"], deliveredKg: 1150 },
+      "tr",
+      text,
+    );
+    expect(rows.slice(0, 4)).toEqual([
+      { field: "dyeProcess", value: "Reaktif boyama" },
+      { field: "shade", value: "Ekru" },
+      { field: "chemicalStandards", value: "ZDHC MRSL · OEKO-TEX ECO PASSPORT" },
+      { field: "processed", value: "1.150 kg" },
+    ]);
+    expect(stepDataRows("DYEING", { dyeProcess: "OTHER", dyeProcessOther: "Batik" }, "tr", text)[0].value).toBe("Batik");
   });
 
   it("uses the per-piece energy for sewing and the origin fields for fibre", () => {
