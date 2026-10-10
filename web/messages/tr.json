@@ -107,7 +107,8 @@
     "collapse": "Menüyü daralt",
     "open": "Menüyü aç",
     "close": "Menüyü kapat",
-    "expand": "Menüyü genişlet"
+    "expand": "Menüyü genişlet",
+    "tasksCount": "{count} bekleyen görev"
   },
   "shell": {
     "skipToContent": "İçeriğe geç",
@@ -331,7 +332,8 @@
       "EnergyDuplicate": "Aynı enerji kaynağı birden fazla kez girilmiş.",
       "City": "Listeden bir il seçin.",
       "NoneExclusive": "\"Hiçbiri\" başka bir seçenekle birlikte seçilemez.",
-      "Duplicate": "Aynı seçenek iki kez seçilmiş."
+      "Duplicate": "Aynı seçenek iki kez seçilmiş.",
+      "OneOf": "Seçeneklerden birini seçin."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "Bu ürünün partileri var. Ürünü silmek için önce partilerini silin.",
@@ -347,7 +349,9 @@
       "STEP_HAS_NO_SUPPLIER": "Veri talep etmek için önce adıma bir tedarikçi atayın.",
       "STEP_NOT_OPEN": "Bu adımın verisi zaten gönderildi.",
       "REQUEST_NOT_OPEN": "Bu bağlantı artık açık değil.",
-      "STEP_NOT_SUBMITTED": "Yalnızca gönderilmiş veriler onaylanabilir veya düzeltmeye gönderilebilir."
+      "STEP_NOT_SUBMITTED": "Yalnızca gönderilmiş veriler onaylanabilir veya düzeltmeye gönderilebilir.",
+      "DEADLINE_PASSED": "Bu son tarih geçmişte kalıyor; daha uzun bir süre seçin.",
+      "BATCH_PUBLISHED": "Parti yayınlandı; zinciri değiştirilemez."
     }
   },
   "products": {
@@ -578,7 +582,43 @@
         "requestData": "Veri talep et",
         "requestFix": "Düzeltme iste",
         "approve": "Adımı onayla",
-        "nextVersion": "Bir sonraki sürümde"
+        "review": {
+          "title": "Tedarikçi verilerini gönderdi · inceleme bekliyor",
+          "body": "{who} · KozaPass bağlantısıyla. Değerleri kontrol edip adımı onaylayın ya da gerekçeyle düzeltme isteyin."
+        },
+        "declared": "Üretici beyanı · {date}",
+        "rejected": {
+          "title": "Düzeltme istendi · {date}",
+          "fields": "İşaretli alan: {fields}",
+          "next": "Tedarikçiye yeni bir bağlantı gönderin."
+        },
+        "fix": {
+          "title": "Düzeltme iste",
+          "reason": "Gerekçe",
+          "placeholder": "Tedarikçiye neyi düzeltmesi gerektiğini yazın",
+          "hint": "Gerekçe tedarikçiye iletilir ve parti geçmişine kaydedilir.",
+          "cancel": "Vazgeç",
+          "send": "Düzeltme talebini gönder",
+          "sent": "Düzeltme talebi kaydedildi; adım \"Reddedildi\" olarak işaretlendi. Tedarikçiye yeni bir bağlantı gönderin.",
+          "failed": "Düzeltme talebi gönderilemedi",
+          "presets": {
+            "FIBER_MISMATCH": "Lif oranı uyuşmuyor"
+          }
+        },
+        "approveFailed": "Adım onaylanamadı",
+        "origin": {
+          "title": "Lif ve menşe",
+          "sub": "Bu partide kullanılan lifin türü ve menşei. Kaydedince adım onaylanır; parti yayınlanana kadar değiştirilebilir.",
+          "optional": "İsteğe bağlı",
+          "fiberPlaceholder": "Lif seçin",
+          "countryPlaceholder": "Ülke seçin",
+          "regionPlaceholder": "örn. Harran, Şanlıurfa",
+          "save": "Kaydet",
+          "edit": "Düzenle",
+          "cancel": "Vazgeç",
+          "failed": "Menşe kaydedilemedi",
+          "locked": "Parti yayınlandı; menşe değiştirilemez."
+        }
       },
       "assign": {
         "title": "Tedarikçi ata",
@@ -596,6 +636,37 @@
         "failed": "Tedarikçi atanamadı",
         "listError": "Tedarikçiler yüklenemedi",
         "retry": "Tekrar dene"
+      },
+      "request": {
+        "title": "Veri talep et",
+        "sub": "{supplier} · {step} adımı · {batchNo}",
+        "noPhone": "Telefon yok",
+        "deadline": "Son tarih",
+        "days": "{count} gün",
+        "deadlineHint": "Bağlantı bu tarihte kendiliğinden kapanır. Tedarikçi yalnızca bu adımın formunu görür.",
+        "link": "Bağlantı",
+        "created": "Oluşturuldu {date}",
+        "opened": "{count, plural, =0 {henüz açılmadı} other {# kez açıldı}}",
+        "revokedMeta": "Geri alındı · şimdi · tedarikçi formu açamaz",
+        "hidden": "Bağlantı yalnızca oluşturulduğu anda gösterilir. Yeniden paylaşmanız gerekiyorsa yeni bir bağlantı oluşturun; eskisi geri alınır.",
+        "copy": "Linki kopyala",
+        "copied": "Kopyalandı",
+        "revokedBadge": "Geri alındı",
+        "message": "WhatsApp mesajı",
+        "preview": "Önizleme",
+        "text": "Merhaba, {company} olarak {batchNo} partisi ({product}) için {step} verilerinizi rica ediyoruz. Formu {deadline} tarihine kadar bu bağlantıdan doldurabilirsiniz:",
+        "signoff": "Teşekkürler, {name}",
+        "revoke": "Bağlantıyı geri al",
+        "revokeTitle": "Bağlantı geri alınsın mı?",
+        "revokeBody": "{supplier} bağlantıyı açtığında “Bu bağlantı geri alındı” mesajını görür ve form gönderilemez.",
+        "cancel": "Vazgeç",
+        "renew": "Yeni bağlantı oluştur",
+        "close": "Kapat",
+        "whatsapp": "WhatsApp'ta paylaş",
+        "creating": "Bağlantı oluşturuluyor…",
+        "createFailed": "Bağlantı oluşturulamadı",
+        "revokeFailed": "Bağlantı geri alınamadı",
+        "deadlineFailed": "Son tarih değiştirilemedi"
       }
     }
   },
@@ -672,5 +743,66 @@
       "confirm": "Bağı kaldır",
       "failed": "Bağ kaldırılamadı"
     }
+  },
+  "tasks": {
+    "sub": "Onayınızı bekleyen veriler, takip bekleyen talepler ve eksik adımlar.",
+    "summary": "{count} görev · {date}",
+    "loadError": "Görevler yüklenemedi",
+    "groups": {
+      "review": {
+        "title": "Onay bekleyen veriler",
+        "desc": "Tedarikçi gönderdi, incelemeniz bekleniyor"
+      },
+      "followUp": {
+        "title": "Takip bekleyen talepler",
+        "desc": "Son tarihi yaklaşan, süresi dolan veya düzeltme istenen talepler"
+      },
+      "incomplete": {
+        "title": "Eksik adımlar",
+        "desc": "Tedarikçisi atanmamış veya bilgisi girilmemiş adımlar"
+      }
+    },
+    "stepData": "{supplier} · {step} verileri",
+    "kinds": {
+      "STEP_SUBMITTED": {
+        "label": "Gönderildi",
+        "sub": "{name} gönderdi · {count} alan",
+        "cta": "İncele"
+      },
+      "CORRECTION_NO_LINK": {
+        "label": "Reddedildi",
+        "sub": "Düzeltme istendi · yeni bağlantı gönderilmedi",
+        "cta": "Yeni bağlantı"
+      },
+      "LINK_EXPIRED": {
+        "label": "Süresi doldu",
+        "cta": "Yeni bağlantı"
+      },
+      "LINK_EXPIRING": {
+        "label": "Beklemede",
+        "cta": "Hatırlat"
+      },
+      "STEP_UNASSIGNED": {
+        "label": "Atanmadı",
+        "title": "{step} adımı",
+        "cta": "Tedarikçi ata"
+      },
+      "ORIGIN_MISSING": {
+        "label": "Menşe yok",
+        "title": "Lif adımı · menşe girilmedi",
+        "cta": "Menşe gir"
+      },
+      "NO_CHAIN": {
+        "label": "Zincir yok",
+        "title": "Tedarik zinciri oluşturulmadı · 5 adım",
+        "cta": "Zinciri oluştur"
+      }
+    },
+    "opened": "{count, plural, =0 {Bağlantı hiç açılmadı} other {Bağlantı # kez açıldı, form gönderilmedi}}",
+    "daysLeft": "{date} · {days} gün",
+    "reminder": "Merhaba, {company} olarak {batchNo} partisi için {step} verilerinizi bekliyoruz. Size gönderdiğimiz bağlantı {deadline} tarihinde kapanacak. Teşekkürler, {name}",
+    "emptyTitle": "Bekleyen görev yok",
+    "emptyBody": "Bir tedarikçi veri gönderdiğinde, bir talebin süresi yaklaştığında veya bir adım tedarikçisiz kaldığında burada görünür.",
+    "goBatches": "Partilere git"
   }
 }

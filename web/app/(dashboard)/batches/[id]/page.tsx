@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import { BatchDetailPage } from "@/components/batches/batch-detail-page";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -10,5 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <BatchDetailPage id={id} />;
+  // ?step= and &open= (from the tasks page) are read with useSearchParams, which needs a boundary.
+  return (
+    <Suspense>
+      <BatchDetailPage id={id} />
+    </Suspense>
+  );
 }

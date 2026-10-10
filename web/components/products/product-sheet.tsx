@@ -3,12 +3,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProblemTypes } from "@tekpas/api-client";
 import { FIBERS, PRODUCT_CATEGORIES } from "@tekpas/shared";
-import { Check, ChevronDown, CircleAlert, Lock, Plus, Trash2 } from "lucide-react";
+import { Check, CircleAlert, Lock, Plus, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useId, useState } from "react";
 import { type FieldPath, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { showErrorToast } from "@/components/common/error-toast";
 import { Button } from "@/components/ui/button";
+import { NativeSelect } from "@/components/common/native-select";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -426,32 +427,6 @@ function FieldError({ children, className = "" }: { children: ReactNode; classNa
       <CircleAlert className="mt-px size-3.5 flex-none" strokeWidth={2} aria-hidden />
       {children}
     </p>
-  );
-}
-
-/** The design's selects are native: chevron on the right, same border and surface as inputs. */
-function NativeSelect({
-  compact,
-  className = "",
-  children,
-  ...props
-}: React.ComponentProps<"select"> & { compact?: boolean }) {
-  return (
-    <span className="relative flex items-center">
-      <select
-        className={`flex-1 cursor-pointer appearance-none rounded-md border border-input bg-card pr-[30px] pl-2.5 text-[13px] text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring-soft ${
-          compact ? "h-[34px]" : "h-9 shadow-xs"
-        } ${className}`}
-        {...props}
-      >
-        {children}
-      </select>
-      <ChevronDown
-        className={`pointer-events-none absolute size-4 text-muted-foreground ${compact ? "right-2" : "right-2.5"}`}
-        strokeWidth={1.75}
-        aria-hidden
-      />
-    </span>
   );
 }
 

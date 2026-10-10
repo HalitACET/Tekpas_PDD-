@@ -16,7 +16,7 @@ export interface NavGroup {
 
 const item = (key: PageKey, icon: LucideIcon): NavItem => ({ key, href: `/${key}`, icon });
 
-/** Menu of design G. The tasks counter comes with /tasks in M4 and is hidden until then. */
+/** Menu of design G; the tasks item shows the open task count (TasksBadge, v0.4 48a). */
 export const NAV: NavGroup[] = [
   { items: [item("tasks", Inbox)] },
   { title: "passport", items: [item("products", Package), item("batches", Layers)] },

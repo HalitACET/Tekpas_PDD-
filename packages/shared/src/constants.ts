@@ -66,6 +66,16 @@ export type EnergySource = (typeof ENERGY_SOURCES)[number];
 export const YARN_PROCESSES = ["COMBED", "CARDED", "OPEN_END", "OTHER"] as const;
 export type YarnProcess = (typeof YARN_PROCESSES)[number];
 
+/**
+ * Countries a fibre or a step usually comes from (ISO 3166-1 alpha-2, the API's `originCountry`). The UI names
+ * them with Intl.DisplayNames and sorts them by that name; the API accepts any two-letter code.
+ */
+export const ORIGIN_COUNTRIES = [
+  "TR", "US", "IN", "CN", "PK", "UZ", "TM", "TJ", "KZ", "AZ", "EG", "SY", "IR", "GR", "ES", "PT", "IT", "FR",
+  "DE", "NL", "BE", "BG", "RO", "BR", "AR", "PE", "AU", "NZ", "ZA", "BD", "VN", "ID", "TH", "KR", "JP", "TW",
+  "MX", "BF", "ML", "BJ", "CI", "TZ", "ZW",
+] as const;
+
 /** Dyeing process (design v0.4 41); OTHER needs `dyeProcessOther`. */
 export const DYE_PROCESSES = ["REACTIVE", "DISPERSE", "VAT", "PIGMENT", "OTHER"] as const;
 export type DyeProcess = (typeof DYE_PROCESSES)[number];
