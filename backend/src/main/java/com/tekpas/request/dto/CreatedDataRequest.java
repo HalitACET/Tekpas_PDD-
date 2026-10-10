@@ -9,5 +9,6 @@ import java.util.UUID;
  *
  * @param code "Gönderim no", e.g. KP-R-7HQ2
  */
-public record CreatedDataRequest(UUID id, String code, String token, Instant expiresAt) {
+public record CreatedDataRequest(UUID id, String code, String token, Instant createdAt, Instant expiresAt,
+        int validDays) {
 }

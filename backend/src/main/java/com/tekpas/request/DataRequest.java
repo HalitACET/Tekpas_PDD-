@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -37,7 +38,7 @@ public class DataRequest {
     @Column(nullable = false, length = 20)
     private RequestStatus status;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Instant expiresAt;
 
     private @Nullable Instant openedAt;
@@ -142,6 +143,15 @@ public class DataRequest {
         completedAt = now;
         submitterName = name;
         submitterRole = role;
+    }
+
+    /** Days from creation to the deadline (3, 7 or 14). */
+    public int validDays() {
+        return (int) Duration.between(createdAt, expiresAt).toDays();
+    }
+
+    public void changeDeadline(Instant expiresAt) {
+        this.expiresAt = expiresAt;
     }
 
     public void revoke(UUID userId, Instant now) {
