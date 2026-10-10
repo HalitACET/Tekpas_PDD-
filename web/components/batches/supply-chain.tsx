@@ -3,7 +3,7 @@
 import "@xyflow/react/dist/base.css";
 import type { Fiber, StepStatus, StepType } from "@tekpas/shared";
 import { type Edge, type EdgeProps, Handle, type Node, type NodeProps, Position, ReactFlow } from "@xyflow/react";
-import { FileText, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { StepStatusBadge } from "@/components/common/step-status-badge";
@@ -29,7 +29,6 @@ export interface ChainNodeStep extends LayoutStep {
   status: StepStatus;
   name?: string;
   city?: string;
-  documentCount: number;
 }
 
 export function toNodeStep(step: ChainStep, fiberName: (fiber: Fiber) => string): ChainNodeStep {
@@ -44,7 +43,6 @@ export function toNodeStep(step: ChainStep, fiberName: (fiber: Fiber) => string)
     filled: name !== undefined,
     name,
     city,
-    documentCount: step.documentCount,
   };
 }
 
@@ -110,14 +108,8 @@ function StepNodeView({ data: { step } }: NodeProps<StepNode>) {
       }`}
     >
       {handles}
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">{label}</span>
-        <span className="flex items-center gap-[3px] font-mono text-[11px] text-muted-foreground">
-          <FileText className="size-3" strokeWidth={1.75} aria-hidden />
-          <span aria-hidden>{step.documentCount}</span>
-          <span className="sr-only">{t("documents", { count: step.documentCount })}</span>
-        </span>
-      </div>
+      {/* The design's document count (top right) arrives with documents (M5). */}
+      <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">{label}</span>
       <strong className="mt-1 truncate text-sm font-semibold tracking-[-0.01em]">{step.name}</strong>
       {step.city && <span className="truncate text-xs text-muted-foreground">{step.city}</span>}
       <span className="mt-auto">

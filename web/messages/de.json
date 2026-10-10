@@ -497,7 +497,6 @@
     "chain": {
       "label": "Lieferkette",
       "legend": "Schrittstatus",
-      "documents": "{count} Dokumente",
       "emptyNode": "Lieferant zuordnen",
       "emptyNodeBody": "Schritt {step} ist leer",
       "loadError": "Die Lieferkette konnte nicht geladen werden",

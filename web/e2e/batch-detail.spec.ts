@@ -77,7 +77,8 @@ test("09: the chain in five columns, with the origin, the suppliers, an empty st
   const nodes = chain(page).locator(".react-flow__node");
   await expect(nodes).toHaveCount(6);
   await expect(nodes.nth(0)).toContainText("Lif");
-  await expect(nodes.nth(0)).toContainText("0 belge");
+  // No document count until documents exist (M5).
+  await expect(nodes.nth(0)).not.toContainText("belge");
   await expect(nodes.nth(0)).toContainText("Organik pamukHarran, Şanlıurfa");
   await expect(nodes.nth(1)).toContainText("Bursa İplik San.");
   await expect(nodes.nth(1)).toContainText("Onaylandı");

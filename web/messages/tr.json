@@ -497,7 +497,6 @@
     "chain": {
       "label": "Tedarik zinciri",
       "legend": "Adım durumları",
-      "documents": "{count} belge",
       "emptyNode": "Tedarikçi ata",
       "emptyNodeBody": "{step} adımı boş",
       "loadError": "Tedarik zinciri yüklenemedi",

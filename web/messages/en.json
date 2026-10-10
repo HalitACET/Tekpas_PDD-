@@ -497,7 +497,6 @@
     "chain": {
       "label": "Supply chain",
       "legend": "Step statuses",
-      "documents": "{count} documents",
       "emptyNode": "Assign supplier",
       "emptyNodeBody": "The {step} step is empty",
       "loadError": "The supply chain could not be loaded",
