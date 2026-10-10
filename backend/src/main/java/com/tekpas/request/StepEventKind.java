@@ -8,5 +8,6 @@ public enum StepEventKind {
     SUBMITTED,
     APPROVED,
     REJECTED,
-    ORIGIN_RECORDED
+    /** The manufacturer entered the data itself (FIBER origin): a manufacturer's declaration. */
+    MANUFACTURER_ENTERED
 }

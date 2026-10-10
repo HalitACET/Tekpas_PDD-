@@ -3,6 +3,7 @@ package com.tekpas.supplychain;
 import com.tekpas.batch.Batch;
 import com.tekpas.batch.BatchProgress;
 import com.tekpas.batch.BatchRepository;
+import com.tekpas.batch.BatchStatus;
 import com.tekpas.batch.dto.ChainSummary;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
@@ -16,6 +17,8 @@ import com.tekpas.request.DataRequest;
 import com.tekpas.request.DataRequestRepository;
 import com.tekpas.request.RequestStatus;
 import com.tekpas.request.RequestTokens;
+import com.tekpas.request.StepEventKind;
+import com.tekpas.request.StepEvents;
 import com.tekpas.request.dto.DataRequestSummary;
 import com.tekpas.supplychain.dto.ChainPreviewResponse;
 import com.tekpas.supplychain.dto.ChainResponse;
@@ -66,12 +69,14 @@ public class ChainService {
     private final SupplierService suppliers;
     private final DataRequestRepository requests;
     private final BatchProgress progress;
+    private final StepEvents events;
     private final JdbcTemplate jdbc;
     private final Clock clock;
 
     public ChainService(SupplyStepRepository steps, ChainLinks links, BatchRepository batches,
             ProductRepository products, CompanyRepository companies, SupplierService suppliers,
-            DataRequestRepository requests, BatchProgress progress, JdbcTemplate jdbc, Clock clock) {
+            DataRequestRepository requests, BatchProgress progress, StepEvents events, JdbcTemplate jdbc,
+            Clock clock) {
         this.steps = steps;
         this.links = links;
         this.batches = batches;
@@ -80,6 +85,7 @@ public class ChainService {
         this.suppliers = suppliers;
         this.requests = requests;
         this.progress = progress;
+        this.events = events;
         this.jdbc = jdbc;
         this.clock = clock;
     }
@@ -153,9 +159,16 @@ public class ChainService {
     }
 
     @Transactional
-    public ChainResponse updateStep(UUID companyId, UUID stepId, StepUpdateRequest request) {
+    public ChainResponse updateStep(UUID companyId, UUID userId, UUID stepId, StepUpdateRequest request) {
         SupplyStep step = steps.lockForUpdate(stepId, companyId).orElseThrow(ChainService::stepNotFound);
-        if (step.getStatus() == StepStatus.APPROVED) {
+        // FIBER is the manufacturer's own declaration (PLAN M4): approved on saving, editable until the batch
+        // is published. Every other step is fixed once approved.
+        boolean fiber = step.getStepType() == StepType.FIBER;
+        if (fiber && batches.findById(step.getBatchId()).map(b -> b.getStatus() == BatchStatus.PUBLISHED)
+                .orElse(false)) {
+            throw ConflictException.state("BATCH_PUBLISHED", "The batch is published; its chain cannot change");
+        }
+        if (step.getStatus() == StepStatus.APPROVED && !fiber) {
             throw ConflictException.state("STEP_APPROVED", "An approved step cannot change");
         }
         if (request.supplierId() != null) {
@@ -165,8 +178,15 @@ public class ChainService {
         }
         if (request.data() != null) {
             StepData data = request.data().orElse(StepData.EMPTY);
-            StepDataRules.check(step.getStepType(), data);
-            step.replaceData(data);
+            if (fiber) {
+                StepDataRules.checkSubmission(StepType.FIBER, data);
+                step.replaceData(data);
+                step.approve(userId, clock.instant());
+                events.record(step.getId(), null, StepEventKind.MANUFACTURER_ENTERED, userId, null, null);
+            } else {
+                StepDataRules.check(step.getStepType(), data);
+                step.replaceData(data);
+            }
         }
         if (request.inputStepIds() != null) {
             List<UUID> inputs = request.inputStepIds().orElseThrow();
@@ -182,6 +202,7 @@ public class ChainService {
         }
         step.touch(clock.instant());
         steps.saveAndFlush(step);
+        progress.refresh(step.getBatchId());
         return chainOf(step.getBatchId());
     }
 
