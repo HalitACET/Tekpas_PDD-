@@ -1,6 +1,7 @@
 package com.tekpas.batch;
 
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
@@ -20,6 +21,8 @@ public interface BatchRepository extends JpaRepository<Batch, UUID> {
     Optional<Batch> lockForUpdate(UUID id, UUID companyId);
 
     long countByProductId(UUID productId);
+
+    List<Batch> findByCompanyIdAndStatusNot(UUID companyId, BatchStatus status);
 
     @Query("""
             select new com.tekpas.batch.BatchRow(b.id, b.batchNo, p.id, p.name, p.gtin, b.productionOrderNo,
