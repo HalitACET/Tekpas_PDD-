@@ -17,6 +17,9 @@
           "instance" : {
             "type" : [ "string", "null" ]
           },
+          "link" : {
+            "$ref" : "#/components/schemas/LinkContext"
+          },
           "reason" : {
             "description" : "Conflicts that are not about one field, e.g. PRODUCT_HAS_BATCHES, GTIN_LOCKED",
             "example" : "PRODUCT_HAS_BATCHES",
@@ -231,6 +234,10 @@
       },
       "ChainStepResponse" : {
         "properties" : {
+          "approvedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
           "data" : {
             "$ref" : "#/components/schemas/StepData"
           },
@@ -249,6 +256,12 @@
             },
             "type" : "array"
           },
+          "rejection" : {
+            "$ref" : "#/components/schemas/StepRejection"
+          },
+          "request" : {
+            "$ref" : "#/components/schemas/DataRequestSummary"
+          },
           "sortOrder" : {
             "format" : "int32",
             "type" : "integer"
@@ -258,6 +271,9 @@
           },
           "stepType" : {
             "$ref" : "#/components/schemas/StepType"
+          },
+          "submission" : {
+            "$ref" : "#/components/schemas/StepSubmission"
           },
           "submittedAt" : {
             "format" : "date-time",
@@ -294,6 +310,10 @@
         "required" : [ "approvedSteps", "stepStatuses", "totalSteps" ],
         "type" : "object"
       },
+      "ChemicalStandard" : {
+        "enum" : [ "ZDHC_MRSL", "OEKO_TEX_ECO_PASSPORT", "BLUESIGN", "GOTS_APPROVED", "NONE" ],
+        "type" : "string"
+      },
       "CompanySummary" : {
         "properties" : {
           "id" : {
@@ -310,6 +330,66 @@
         },
         "required" : [ "id", "name", "type" ],
         "type" : "object"
+      },
+      "CreatedDataRequest" : {
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "expiresAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "token" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "expiresAt", "id", "token" ],
+        "type" : "object"
+      },
+      "DataRequestSummary" : {
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "completedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "expiresAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "openCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "openedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/RequestStatus"
+          }
+        },
+        "required" : [ "code", "createdAt", "expiresAt", "id", "openCount", "status" ],
+        "type" : "object"
+      },
+      "DyeProcess" : {
+        "enum" : [ "REACTIVE", "DISPERSE", "VAT", "PIGMENT", "OTHER" ],
+        "type" : "string"
       },
       "EnergyShare" : {
         "properties" : {
@@ -370,6 +450,35 @@
           }
         },
         "required" : [ "code", "field" ]
+      },
+      "LinkContext" : {
+        "description" : "A closed data request link (urn:tekpas:problem:link-gone): what its holder may still see",
+        "properties" : {
+          "code" : {
+            "type" : [ "string", "null" ]
+          },
+          "expiresAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "manufacturerName" : {
+            "type" : "string"
+          },
+          "requesterName" : {
+            "type" : "string"
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "submittedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "submitterName" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "expiresAt", "manufacturerName", "requesterName", "stepType" ]
       },
       "LoginRequest" : {
         "properties" : {
@@ -683,6 +792,97 @@
         },
         "type" : "object"
       },
+      "PublicRejection" : {
+        "properties" : {
+          "at" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "byName" : {
+            "type" : "string"
+          },
+          "fields" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "reason" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "at", "byName", "fields", "reason" ],
+        "type" : "object"
+      },
+      "PublicRequestView" : {
+        "properties" : {
+          "batchNo" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/StepData"
+          },
+          "expiresAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "manufacturerName" : {
+            "type" : "string"
+          },
+          "productName" : {
+            "type" : "string"
+          },
+          "rejection" : {
+            "$ref" : "#/components/schemas/PublicRejection"
+          },
+          "requesterName" : {
+            "type" : "string"
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          }
+        },
+        "required" : [ "batchNo", "code", "data", "expiresAt", "manufacturerName", "productName", "requesterName", "stepType" ],
+        "type" : "object"
+      },
+      "PublicSubmitRequest" : {
+        "properties" : {
+          "data" : {
+            "$ref" : "#/components/schemas/StepData"
+          },
+          "submitterName" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "submitterRole" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "data", "submitterName" ],
+        "type" : "object"
+      },
+      "PublicSubmitResponse" : {
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "manufacturerName" : {
+            "type" : "string"
+          },
+          "submittedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "manufacturerName", "submittedAt" ],
+        "type" : "object"
+      },
       "RefreshRequest" : {
         "properties" : {
           "refreshToken" : {
@@ -691,6 +891,10 @@
         },
         "required" : [ "refreshToken" ],
         "type" : "object"
+      },
+      "RequestStatus" : {
+        "enum" : [ "SENT", "OPENED", "COMPLETED", "EXPIRED", "REVOKED" ],
+        "type" : "string"
       },
       "StepCreateRequest" : {
         "properties" : {
@@ -721,14 +925,23 @@
       },
       "StepData" : {
         "properties" : {
-          "chemicalCompliance" : {
-            "maxLength" : 200,
-            "minLength" : 0,
-            "type" : [ "string", "null" ]
+          "chemicalStandards" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ChemicalStandard"
+            },
+            "type" : [ "array", "null" ]
           },
           "deliveredKg" : {
             "exclusiveMinimum" : 0,
             "type" : [ "number", "null" ]
+          },
+          "dyeProcess" : {
+            "$ref" : "#/components/schemas/DyeProcess"
+          },
+          "dyeProcessOther" : {
+            "maxLength" : 80,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
           },
           "energyKwhPerKg" : {
             "exclusiveMinimum" : 0,
@@ -778,14 +991,14 @@
             "minLength" : 0,
             "type" : [ "string", "null" ]
           },
-          "process" : {
-            "maxLength" : 200,
-            "minLength" : 0,
-            "type" : [ "string", "null" ]
-          },
           "quantityKg" : {
             "exclusiveMinimum" : 0,
             "type" : [ "number", "null" ]
+          },
+          "shade" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
           },
           "waterLPerKg" : {
             "exclusiveMinimum" : 0,
@@ -803,9 +1016,64 @@
         },
         "type" : "object"
       },
+      "StepRejectRequest" : {
+        "properties" : {
+          "fields" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "reason" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "reason" ],
+        "type" : "object"
+      },
+      "StepRejection" : {
+        "properties" : {
+          "at" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "fields" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "reason" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "at", "fields", "reason" ],
+        "type" : "object"
+      },
       "StepStatus" : {
         "enum" : [ "PENDING", "SUBMITTED", "APPROVED", "REJECTED" ],
         "type" : "string"
+      },
+      "StepSubmission" : {
+        "properties" : {
+          "at" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "at", "code", "name" ],
+        "type" : "object"
       },
       "StepSupplier" : {
         "properties" : {
@@ -2135,6 +2403,194 @@
         "tags" : [ "supply-chain" ]
       }
     },
+    "/api/v1/public/request" : {
+      "get" : {
+        "description" : "Counts the opening. Unknown token: 404 LINK_INVALID. Expired, revoked or submitted: 410 with reason LINK_EXPIRED, LINK_REVOKED or ALREADY_SUBMITTED and the link's context.",
+        "operationId" : "openPublicRequest",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Request-Token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicRequestView"
+                }
+              }
+            },
+            "description" : "The step to fill"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Unknown link (LINK_INVALID)"
+          },
+          "410" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED)"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many requests (Retry-After)"
+          }
+        },
+        "summary" : "What the link holder sees",
+        "tags" : [ "public-requests" ]
+      }
+    },
+    "/api/v1/public/request/submit" : {
+      "post" : {
+        "description" : "Required besides the submitter's name: YARN fiberComposition, originCountry; FABRIC fiberComposition, fabricType; DYEING dyeProcess, chemicalStandards; SEWING originCountry.",
+        "operationId" : "submitPublicRequest",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Request-Token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PublicSubmitRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicSubmitResponse"
+                }
+              }
+            },
+            "description" : "Submitted (design v0.4 43)"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed (NotNull, NotApplicable, NoneExclusive, ...)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Unknown link (LINK_INVALID)"
+          },
+          "410" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED)"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many requests (Retry-After)"
+          }
+        },
+        "summary" : "Submit the step's data, once",
+        "tags" : [ "public-requests" ]
+      }
+    },
+    "/api/v1/requests/{id}/revoke" : {
+      "post" : {
+        "description" : "The supplier then sees that the link was revoked and cannot submit.",
+        "operationId" : "revokeDataRequest",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Revoked"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such link in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The link is no longer open (REQUEST_NOT_OPEN)"
+          }
+        },
+        "summary" : "Revoke a link",
+        "tags" : [ "data-requests" ]
+      }
+    },
     "/api/v1/steps/{id}" : {
       "delete" : {
         "operationId" : "deleteStep",
@@ -2260,6 +2716,203 @@
         },
         "summary" : "Assign a supplier, set the data or the inputs of a step",
         "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/steps/{id}/approve" : {
+      "post" : {
+        "description" : "SUBMITTED → APPROVED. Once every step is approved the batch becomes READY.",
+        "operationId" : "approveStep",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChainResponse"
+                }
+              }
+            },
+            "description" : "The chain after the approval"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN review steps"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such step in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The step is not submitted (reason STEP_NOT_SUBMITTED)"
+          }
+        },
+        "summary" : "Approve the data a supplier submitted",
+        "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/steps/{id}/reject" : {
+      "post" : {
+        "description" : "SUBMITTED → REJECTED with the reason and the fields to mark; then a new link is sent.",
+        "operationId" : "rejectStep",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StepRejectRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChainResponse"
+                }
+              }
+            },
+            "description" : "The chain after the rejection"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No reason, or a field the step type does not have (fields)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN review steps"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such step in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The step is not submitted (reason STEP_NOT_SUBMITTED)"
+          }
+        },
+        "summary" : "Ask the supplier for a correction",
+        "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/steps/{id}/requests" : {
+      "post" : {
+        "description" : "Valid for 7 days. The token is in this answer only; the web builds {origin}/r#<token>.",
+        "operationId" : "createDataRequest",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CreatedDataRequest"
+                }
+              }
+            },
+            "description" : "The link, once"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such step in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No supplier assigned (STEP_HAS_NO_SUPPLIER), or the data is already submitted or approved (STEP_NOT_OPEN)"
+          }
+        },
+        "summary" : "Create the step's link (revokes its open one)",
+        "tags" : [ "data-requests" ]
       }
     },
     "/api/v1/suppliers" : {
@@ -2583,6 +3236,12 @@
   }, {
     "description" : "Production batches of the current company; a passport is published per batch",
     "name" : "batches"
+  }, {
+    "description" : "The supplier's side of a data request link (no account)",
+    "name" : "public-requests"
+  }, {
+    "description" : "Links that let a supplier fill a step without an account (K14, K21)",
+    "name" : "data-requests"
   }, {
     "description" : "Product models (one GTIN each) of the current company",
     "name" : "products"
