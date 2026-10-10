@@ -27,8 +27,8 @@ test("lists the batches with product, quantity, chain and status", async ({ page
   const row = page.getByRole("row", { name: /KP-2026-0918-A/ });
   await expect(row).toContainText("Organik pamuk tişört, ekru");
   await expect(row).toContainText("2.400 adet · ÜE-2026-0441");
-  await expect(row).toContainText("1/5");
-  await expect(row.getByRole("img", { name: "1 / 5 adım onaylı" })).toBeVisible();
+  await expect(row).toContainText("2/6");
+  await expect(row.getByRole("img", { name: "2 / 6 adım onaylı" })).toBeVisible();
   await expect(row).toContainText("Veri toplanıyor");
   await expect(page.getByRole("row", { name: /KP-2026-0927-A/ })).toContainText("Taslak");
   await expect(page.getByRole("row", { name: /KP-2026-0828-A/ })).toContainText("Yayında");
@@ -105,6 +105,9 @@ test("creates a batch", async ({ page }) => {
   await expect(form.getByRole("button", { name: "Üretim başlangıcı" })).toHaveText("05.10.2026");
   await expect(form.getByRole("button", { name: "Üretim bitişi" })).toHaveText("20.10.2026");
   await expect(form.getByText("Ürün ve miktar gerekli")).toBeHidden();
+  // v0.3 08: the steps come from the product's last batch (KP-2026-0917-C).
+  await expect(form.getByText("Tedarik zinciri adımları ürünün son partisinden kopyalanır.")).toBeVisible();
+  await expect(form.getByText("Tedarik zinciri: 5 adım kopyalanacak")).toBeVisible();
   const sent = page.waitForRequest((r) => r.url().endsWith("/api/v1/batches") && r.method() === "POST");
   await create.click();
   expect((await sent).postDataJSON()).toMatchObject({ producedFrom: "2026-10-05", producedTo: "2026-10-20" });

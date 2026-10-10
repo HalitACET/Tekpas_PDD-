@@ -83,6 +83,23 @@ function listItem(product: MockProduct) {
   return item;
 }
 
+type StepStatus = "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED";
+type StepType = "FIBER" | "YARN" | "FABRIC" | "DYEING" | "SEWING";
+
+/** ChainStepResponse; the supplier is one of designSuppliers(), FIBER records an origin instead. */
+export interface MockStep {
+  id: string;
+  stepType: StepType;
+  status: StepStatus;
+  supplier: { id: string; name: string; city: string | null; type: string } | null;
+  sortOrder: number;
+  inputStepIds: string[];
+  data: Record<string, unknown>;
+  documentCount: number;
+  submittedAt: string | null;
+  updatedAt: string;
+}
+
 export interface MockBatch {
   id: string;
   batchNo: string;
@@ -92,12 +109,92 @@ export interface MockBatch {
   quantity: number;
   producedFrom: string | null;
   producedTo: string | null;
-  chain: { totalSteps: number; approvedSteps: number };
+  /** Mock only: the chain (the API sends its summary with the batch, the steps from /chain). */
+  steps: MockStep[];
   createdAt: string;
   updatedAt: string;
 }
 
-/** The design's sample batches (v0.3.1 22: stages and chain progress as there). */
+const STEP_ORDER: StepType[] = ["FIBER", "YARN", "FABRIC", "DYEING", "SEWING"];
+const SUPPLIER_TYPE: Record<StepType, string> = {
+  FIBER: "",
+  YARN: "YARN",
+  FABRIC: "FABRIC",
+  DYEING: "DYEHOUSE",
+  SEWING: "SEWING",
+};
+
+/** One step of mockChain: type, status, supplier name (FIBER: the fibre) and data. */
+export type StepSpec = [StepType, StepStatus, string?, Record<string, unknown>?];
+
+/**
+ * A chain in the API's order; every step takes the steps of the previous type as inputs (as the design's two
+ * yarns both feed the fabric).
+ */
+export function mockChain(batch: number, specs: StepSpec[]): MockStep[] {
+  const suppliers = designSuppliers();
+  const steps: MockStep[] = specs.map(([stepType, status, who, data = {}], i) => {
+    const supplier = stepType === "FIBER" || !who ? undefined : suppliers.find((s) => s.name === who);
+    return {
+      id: `40000000-0000-4000-8000-0000000${String(batch).padStart(2, "0")}${String(i).padStart(3, "0")}`,
+      stepType,
+      status,
+      supplier: supplier ? { id: supplier.id, name: supplier.name, city: supplier.city, type: SUPPLIER_TYPE[stepType] } : null,
+      sortOrder: i,
+      inputStepIds: [],
+      data: stepType === "FIBER" && who ? { fiberType: who, ...data } : data,
+      documentCount: 0,
+      submittedAt: status === "PENDING" ? null : at(8, 20),
+      updatedAt: at(8, 20),
+    };
+  });
+  for (const step of steps) {
+    const previous = STEP_ORDER[STEP_ORDER.indexOf(step.stepType) - 1];
+    step.inputStepIds = steps.filter((s) => s.stepType === previous).map((s) => s.id);
+  }
+  return steps;
+}
+
+/** The default chain: five steps, nobody assigned. */
+export const defaultChain = (batch: number) => mockChain(batch, STEP_ORDER.map((type): StepSpec => [type, "PENDING"]));
+
+/** The chain of design v0.3 09 (KP-2026-0918-A); v0.3.1 29 rejects the second yarn (index 2). */
+export function designChain(batch = 2): MockStep[] {
+  return mockChain(batch, [
+    ["FIBER", "APPROVED", "ORGANIC_COTTON", { originRegion: "Harran, Şanlıurfa", originCountry: "TR" }],
+    ["YARN", "APPROVED", "Bursa İplik San.", { fiberComposition: [{ fiber: "COTTON", percent: 100 }] }],
+    [
+      "YARN",
+      "SUBMITTED",
+      "Maraş Penye İplik",
+      { fiberComposition: [{ fiber: "COTTON", percent: 80 }, { fiber: "POLYESTER", percent: 20 }] },
+    ],
+    ["FABRIC", "SUBMITTED", "Denizli Örme Tekstil"],
+    ["DYEING", "PENDING", "Çınar Boya Apre"],
+    ["SEWING", "PENDING"],
+  ]);
+}
+
+/** Five steps with suppliers, statuses in chain order. */
+const fiveSteps = (batch: number, statuses: StepStatus[], sewing = "Lale Konfeksiyon") =>
+  mockChain(batch, [
+    ["FIBER", statuses[0], "COTTON", { originRegion: "Söke, Aydın", originCountry: "TR" }],
+    ["YARN", statuses[1], "Bursa İplik San.", { fiberComposition: [{ fiber: "COTTON", percent: 100 }] }],
+    ["FABRIC", statuses[2], "Denizli Örme Tekstil"],
+    ["DYEING", statuses[3], "Çınar Boya Apre"],
+    ["SEWING", statuses[4], sewing],
+  ]);
+
+/** BatchResponse.chain: counts and the statuses in chain order (v0.3.1 22). */
+export function chainSummary(steps: MockStep[]) {
+  return {
+    totalSteps: steps.length,
+    approvedSteps: steps.filter((s) => s.status === "APPROVED").length,
+    stepStatuses: steps.map((s) => s.status),
+  };
+}
+
+/** The design's sample batches (v0.3.1 22: stages as there; 0918-A has the chain of 09, 0927-A none, 26). */
 export function designBatches(): MockBatch[] {
   const b = (
     n: number,
@@ -106,9 +203,9 @@ export function designBatches(): MockBatch[] {
     quantity: number,
     order: string,
     status: MockBatch["status"],
-    total: number,
-    approved: number,
+    steps: MockStep[],
     updatedAt: string,
+    produced: [string, string] | null = null,
   ): MockBatch => ({
     id: `30000000-0000-4000-8000-00000000000${n}`,
     batchNo,
@@ -116,20 +213,21 @@ export function designBatches(): MockBatch[] {
     productionOrderNo: order,
     status,
     quantity,
-    producedFrom: null,
-    producedTo: null,
-    chain: { totalSteps: total, approvedSteps: approved },
+    producedFrom: produced?.[0] ?? null,
+    producedTo: produced?.[1] ?? null,
+    steps,
     createdAt: at(7, 1),
     updatedAt,
   });
+  const [A, S, P, R]: StepStatus[] = ["APPROVED", "SUBMITTED", "PENDING", "REJECTED"];
   return [
-    b(1, "KP-2026-0927-A", 1, 1800, "ÜE-2026-0452", "DRAFT", 5, 0, at(9, 3, 10, 5)),
-    b(2, "KP-2026-0918-A", 1, 2400, "ÜE-2026-0441", "COLLECTING", 5, 1, at(9, 3, 9, 32)),
-    b(3, "KP-2026-0917-C", 2, 1150, "ÜE-2026-0437", "COLLECTING", 5, 3, at(9, 2, 16, 0)),
-    b(4, "KP-2026-0912-B", 3, 3800, "ÜE-2026-0429", "PUBLISHED", 5, 5, at(8, 12)),
-    b(5, "KP-2026-0909-A", 6, 2000, "ÜE-2026-0421", "COLLECTING", 5, 2, at(8, 9)),
-    b(6, "KP-2026-0904-B", 4, 600, "ÜE-2026-0415", "READY", 5, 4, at(8, 4)),
-    b(7, "KP-2026-0828-A", 3, 4200, "ÜE-2026-0398", "PUBLISHED", 5, 5, at(7, 28)),
+    b(1, "KP-2026-0927-A", 1, 1800, "ÜE-2026-0452", "DRAFT", [], at(9, 3, 10, 5), ["2026-09-29", "2026-10-17"]),
+    b(2, "KP-2026-0918-A", 1, 2400, "ÜE-2026-0441", "COLLECTING", designChain(2), at(9, 3, 9, 32), ["2026-09-02", "2026-09-20"]),
+    b(3, "KP-2026-0917-C", 2, 1150, "ÜE-2026-0437", "COLLECTING", fiveSteps(3, [A, A, A, S, P], "Gökçe Konfeksiyon"), at(9, 2, 16, 0)),
+    b(4, "KP-2026-0912-B", 3, 3800, "ÜE-2026-0429", "PUBLISHED", fiveSteps(4, [A, A, A, A, A]), at(8, 12)),
+    b(5, "KP-2026-0909-A", 6, 2000, "ÜE-2026-0421", "COLLECTING", fiveSteps(5, [A, A, R, P, P]), at(8, 9)),
+    b(6, "KP-2026-0904-B", 4, 600, "ÜE-2026-0415", "READY", fiveSteps(6, [A, A, A, S, A]), at(8, 4)),
+    b(7, "KP-2026-0828-A", 3, 4200, "ÜE-2026-0398", "PUBLISHED", fiveSteps(7, [A, A, A, A, A], "Yıldız Fason Dikim"), at(7, 28)),
   ];
 }
 
@@ -296,13 +394,58 @@ export async function mockCatalogApi(
 
   const batchResponse = (batch: MockBatch) => {
     const product = store.find((p) => p.id === batch.productId)!;
-    const response: Partial<MockBatch> & { product: unknown } = {
+    const response: Partial<MockBatch> & { product: unknown; chain: unknown } = {
       ...batch,
       product: { id: product.id, name: product.name, gtin: product.gtin },
+      chain: chainSummary(batch.steps),
     };
     delete response.productId;
+    delete response.steps;
     return response;
   };
+  const chainResponse = (batch: MockBatch) => ({
+    batchId: batch.id,
+    steps: batch.steps,
+    summary: chainSummary(batch.steps),
+    unassignedStepTypes: [...new Set(batch.steps.filter((s) => s.stepType !== "FIBER" && !s.supplier).map((s) => s.stepType))],
+  });
+  const notFound = (route: Route) => problem(route, 404, { type: "urn:tekpas:problem:not-found", title: "Not found" });
+  const idBefore = (route: Route, suffix: string) => {
+    const path = new URL(route.request().url()).pathname;
+    return path.slice(0, path.length - suffix.length).split("/").pop();
+  };
+
+  await page.route(/\/api\/v1\/batches\/[0-9a-f-]{36}$/, (route) => {
+    const batch = batches.find((b) => b.id === idBefore(route, ""));
+    if (!batch) return notFound(route);
+    if (route.request().method() === "GET") return route.fulfill({ json: batchResponse(batch) });
+    return route.fallback();
+  });
+
+  await page.route(/\/api\/v1\/batches\/[0-9a-f-]{36}\/chain$/, (route) => {
+    const batch = batches.find((b) => b.id === idBefore(route, "/chain"));
+    if (!batch) return notFound(route);
+    if (route.request().method() === "GET") return route.fulfill({ json: chainResponse(batch) });
+    if (route.request().method() === "POST") {
+      if (batch.steps.length > 0) {
+        return problem(route, 409, { type: "urn:tekpas:problem:conflict", title: "Conflict", reason: "CHAIN_EXISTS" });
+      }
+      batch.steps = defaultChain(90);
+      return route.fulfill({ json: chainResponse(batch) });
+    }
+    return route.fallback();
+  });
+
+  await page.route(/\/api\/v1\/products\/[0-9a-f-]{36}\/chain-preview$/, (route) => {
+    const id = idBefore(route, "/chain-preview");
+    if (!store.some((p) => p.id === id)) return notFound(route);
+    const last = batches
+      .filter((b) => b.productId === id && b.steps.length > 0)
+      .sort((a, z) => z.createdAt.localeCompare(a.createdAt) || z.batchNo.localeCompare(a.batchNo))[0];
+    return route.fulfill({
+      json: last ? { stepCount: last.steps.length, sourceBatchNo: last.batchNo } : { stepCount: 5, sourceBatchNo: null },
+    });
+  });
 
   await page.route(/\/api\/v1\/batches\/next-batch-no$/, (route) => route.fulfill({ json: { batchNo: NEXT_BATCH_NO } }));
 
@@ -364,7 +507,7 @@ export async function mockCatalogApi(
         quantity: body.quantity,
         producedFrom: body.producedFrom ?? null,
         producedTo: body.producedTo ?? null,
-        chain: { totalSteps: 0, approvedSteps: 0 },
+        steps: defaultChain(91),
         createdAt: now,
         updatedAt: now,
       };
