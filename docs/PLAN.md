@@ -29,6 +29,7 @@ Bütçe: **sıfır** — her servis ücretsiz katmanda.
 | K18 | Web → API erişimi | Web, API'ye kendi origin'i üzerinden proxy ile erişir (Next.js rewrites, `/api/v1/*`) | Refresh cookie birinci taraf olur (SameSite=Strict çalışır), web için CORS gerekmez |
 | K19 | Neon bağlantısı | Pooler yok: uygulama ve Flyway tek bir doğrudan bağlantı (`DATABASE_URL`, `sslmode=require`) kullanır | PgBouncer transaction modu ile pgjdbc/Hibernate prepared statement'ları arasında sadece canlıda görülen sorun riski; tek uygulama ve en fazla 5 bağlantı için pooler gereksiz |
 | K20 | Marka | Kullanıcıya görünen ad **KozaPass**, kod adı `tekpas` (repo, paketler, `com.tekpas`, Render servisi) | Bursa ipekçiliği / koza hikâyesi; kod adını değiştirmek gereksiz churn |
+| K21 | Tedarikçi linki | `/r#<token>`: token adresin `#` kısmında, API'ye `X-Request-Token` başlığıyla gider; DB'de yalnızca SHA-256 | `#` kısmı sunucuya gitmez: token Vercel/Render istek log'larına ve Referer'a düşmez. Erişim log maskelemesi ikinci savunma hattı olarak kalır |
 
 ### Ücretsiz katman notları
 - **Alan adı yok:** QR'lar `https://kozapass.vercel.app` adresine gider. `PUBLIC_BASE_URL` config'te, ileride tek satır değişir. Gerçek etikete basılmaz.
@@ -70,7 +71,7 @@ SUPPLIER sadece `supplier_company_id`'si kendi firması olan adımları görür.
 | QR okutma | – | ✓ |
 | Hızlı onay / red | ✓ | ✓ |
 | Push bildirim | – | ✓ |
-| Tedarikçi linki `/r/[token]` | ✓ mobil uyumlu | – |
+| Tedarikçi linki `/r#<token>` (K21) | ✓ mobil uyumlu | – |
 | Herkese açık pasaport | ✓ SSR | web'i açar |
 
 ---
@@ -85,9 +86,9 @@ SUPPLIER sadece `supplier_company_id`'si kendi firması olan adımları görür.
 | Ürün | `GET/POST /products` · `GET/PATCH/DELETE /products/{id}` · `GET /products/{id}/chain-preview` |
 | Parti | `GET/POST /batches` · `GET/PATCH /batches/{id}` · `GET/POST /batches/{id}/chain` · `GET /batches/{id}/score` |
 | Zincir adımı | `POST /batches/{id}/steps` · `PATCH/DELETE /steps/{id}` · `POST /steps/{id}/approve` · `POST /steps/{id}/reject` |
-| Görevler | `GET /tasks` (rolüne göre bekleyenler; mobil ana ekran) |
-| Veri talebi | `POST /steps/{id}/requests` (ham link sadece bir kez döner) · `POST /requests/{id}/revoke` |
-| Tedarikçi (girişsiz) | `GET /public/requests/{token}` · `PUT /public/requests/{token}/data` · `POST /public/requests/{token}/documents` · `POST /public/requests/{token}/submit` |
+| Görevler | `GET /tasks` (rolüne göre bekleyenler ve rozet sayısı; mobil ana ekran) |
+| Veri talebi | `POST /steps/{id}/requests` (ham token sadece bu cevapta, bir kez) · `POST /requests/{id}/revoke` |
+| Tedarikçi (girişsiz, token `X-Request-Token` başlığında, K21) | `GET /public/request` · `POST /public/request/submit` · `POST /public/request/documents` (M5) |
 | Belge + AI | `POST /documents` (202, AI kuyruğa) · `GET /documents/{id}` · `POST /documents/{id}/verify` · `GET /documents/expiring?days=30` |
 | Tutarlılık | `POST /batches/{id}/validate` · `GET /batches/{id}/issues` · `POST /issues/{id}/resolve` |
 | Pasaport | `POST /batches/{id}/passports` · `GET /batches/{id}/passports` · `POST /passports/{id}/withdraw` · `GET /passports/{id}/qr.png` |
@@ -159,11 +160,21 @@ _Tamamlandı: 10.10.2026 (PR #18–#26). Özet: `docs/haftalik/03-tedarik-zincir
 **Kabul:** Bir parti için İplik → Kumaş → Boya → Dikim zinciri çizilir, düğüm renkleri durumu gösterir.
 
 ### M4 — Veri talebi ve tedarikçi sayfası
-- [ ] Veri talebi oluştur (token hash), geri al, süre dolumu
-- [ ] Girişsiz `/r/[token]` sayfası (mobil öncelikli): adım tipine göre form (lif bileşimi vb.)
-- [ ] Gönder → SUBMITTED; üretici onay / red (gerekçeli)
-- [ ] "Linki kopyala" + "WhatsApp'ta paylaş"
-- [ ] `GET /tasks`
+Tasarım: `docs/design/v0.4/` (39–45 tedarikçi sayfası, 46–48 panel). PR sırası: backend (V6, linkler, public uçlar, onay/red, rate limit) → `GET /tasks` → web (a) panel 46/47/48 + rozet → web (b) `/r` sayfası 39–45.
+
+- [ ] **V6:** `data_request`: `sent_to_email` kalkar; `revoked_at`, `revoked_by`, `open_count`, `submitter_name`, `submitter_role` eklenir; adım başına tek açık link (kısmi unique index, `SENT`/`OPENED`). `supply_step`: `rejection_reason`, `rejection_fields` (JSONB), `rejected_at`, `rejected_by`. Yeni `step_event` (istendi, açıldı, gönderildi, onaylandı, reddedildi, geri alındı, menşe girildi; kim, ne zaman): 47a'daki "Selin A. · 17 Eyl" ve M12 denetim izi
+- [ ] **Link:** 32 bayt SecureRandom, base64url; DB'de yalnızca SHA-256 hex. Ham token yalnızca oluşturma cevabında (46a o an); sonra panelde "Yeni link oluştur" (eskiyi geri alır). Geçerlilik 7 gün, süre dolumu okunurken (`expires_at < now`). Link web'de kurulur: `{origin}/r#<token>`. "Gönderim no" `data_request` id'sinden türeyen kısa kod (`KP-R-XXXX`)
+- [ ] **Link oluştur / geri al:** `POST /steps/{id}/requests` (OWNER, ADMIN, EDITOR; adım PENDING veya REJECTED, tedarikçi atanmış, FIBER değil), `POST /requests/{id}/revoke`. Zincir cevabında linkin özeti (durum, son tarih, açılma sayısı; token yok)
+- [ ] **Public:** `GET /public/request` (görünüm; açılma sayısını artırır), `POST /public/request/submit` (tek gönderim; satır kilidi, ikinci gönderim 410). Link sahibi yalnızca kendi adımını görür: üretici firma adı, talebi açan kişinin adı (telefon yok), ürün adı, parti no, adım tipi, son tarih, red gerekçesi ve işaretli alanlar, kendi adımının verisi. Zincirin geri kalanı, diğer tedarikçiler, adım id'leri, GTIN, miktar asla (izinli alan listesi testi). Bilinmeyen token 404; süresi dolmuş / geri alınmış / gönderilmiş 410 + `LINK_EXPIRED` / `LINK_REVOKED` / `ALREADY_SUBMITTED` (44). `Cache-Control: no-store`, `X-Robots-Tag: noindex`, sayfada `Referrer-Policy: no-referrer`
+- [ ] **Gönderim:** çok kez açılır, tek gönderim, taslak yok. Zorunlu: "Gönderen ad soyad" ve adım tipine göre İplik: lif bileşimi, menşe ülke; Kumaş: lif bileşimi, kumaş tipi; Boya: işlem, kimyasal uyumu; Konfeksiyon: menşe ülke. Diğerleri isteğe bağlı (formda "İsteğe bağlı" etiketi, "aksi belirtilmedikçe zorunlu" kalıbı). Adım SUBMITTED, link COMPLETED
+- [ ] **Boya alanları (41, API tasarıma uyar):** `dyeProcess` (REACTIVE, DISPERSE, VAT, PIGMENT, OTHER; OTHER ise `dyeProcessOther` zorunlu, en fazla 80), `shade` (isteğe bağlı), `chemicalStandards` (ZDHC_MRSL, OEKO_TEX_ECO_PASSPORT, BLUESIGN, GOTS_APPROVED, NONE; en az biri, NONE diğerleriyle birlikte seçilemez), boya için `deliveredKg` ("İşlenen miktar"). `process` ve `chemicalCompliance` kalkar; eski anahtarları okuyan kod kalmaz, okuyucu bilinmeyen eski anahtarlarda patlamaz (test), seed güncellenir. Enum çevirileri tr/en/de (pasaportta da kullanılacak)
+- [ ] **Onay / red:** `POST /steps/{id}/approve`, `POST /steps/{id}/reject` (OWNER, ADMIN; yalnızca SUBMITTED). Red: gerekçe zorunlu, isteğe bağlı `fields` (adım tipinin alan adlarıyla whitelist, bilinmeyen alan 400). 47b'deki hazır seçim → alan eşlemesi `packages/shared`'de tek yerde ("Lif oranı uyuşmuyor" → `fiberComposition`; "Belge okunaksız", "Sertifika süresi dolmuş" M5'e kadar gizli). Red → REJECTED → üretici yeni link oluşturur; 45'te gerekçe üstte, önceki veri dolu, işaretli bölüm açılışta görünür (oraya kaydırılır)
+- [ ] **Parti durumu otomatik:** ilk link → COLLECTING; tüm adımlar APPROVED → READY
+- [ ] **Lif menşei (FIBER):** üretici düğüm panelinden girer (40a'daki "Lif bileşimi + menşe" bölüm bileşenleri panelde; tasarım borcu), link gönderilmez
+- [ ] **Rate limit** (uygulama içi, tek instance): public uçlarda IP başına dakikada 30, geçersiz token IP başına dakikada 10, gönderim token başına saatte 10; 429 + `Retry-After`. İstemci IP'si: istemci → Vercel → Render zincirinde Render'ın gördüğü `X-Forwarded-For`'da Vercel'in eklediği hop'tan alınır; istemcinin gönderdiği XFF'ye güvenilmez. Canlıda doğrulanır (en fazla 30 dk); doğrulanamazsa token + genel sayaç
+- [ ] **`GET /tasks`** + rozet sayısı. Gruplar (48a, başlıklar içeriğe uyduruldu): "Onay bekleyen veriler" (SUBMITTED; OWNER, ADMIN), "Takip bekleyen talepler" (son tarihe 2 günden az kalan, süresi dolup gönderilmemiş, düzeltme istenip yeni linki olmayan; açılma sayısı, "Hatırlat" = link içermeyen hazır WhatsApp metni; düzeltme istenen ve süresi dolanlar en üstte), "Eksik adımlar" (tedarikçisi atanmamış adım, menşesi girilmemiş Lif, zinciri olmayan parti). Sertifika süresi M7
+- [ ] **Web (a):** 46a/b/c link kartı ("Linki kopyala", "WhatsApp'ta paylaş": numara varsa `wa.me/<telefon>?text=`), 47a/b inceleme + onay/red, 48a/b Görevler, menü rozeti
+- [ ] **Web (b):** `/r` sayfası 39–45 (mobil öncelikli, 40c masaüstü)
 
 **Kabul:** Üretici link paylaşır, tedarikçi telefondan girişsiz veri girer, üretici onaylar, düğüm yeşile döner.
 
@@ -268,11 +279,16 @@ _Tamamlandı: 10.10.2026 (PR #18–#26). Özet: `docs/haftalik/03-tedarik-zincir
 
 - [ ] Flaky test: `web/e2e/keyboard.spec.ts` "mobile panel (390 × 800) › drawer and user menu…" tam e2e paketi çalışırken bir kez odak çekmece dışına çıktı (satır 142); tek başına 3/3 geçiyor. Ayrı bakılacak (PR 3 dışında).
 
+- [ ] **v0.4 40a → panel**, M4. Lif menşeini üretici düğüm panelinden girer: 40a'daki "Lif bileşimi + menşe" bölüm bileşenleri panelde kullanılır; panel için ayrı tasarım yok.
+- [ ] **v0.4 48a**, M4. Grup başlıkları içeriğe uyduruldu: "Süresi yaklaşan talepler" → "Takip bekleyen talepler" ("Son tarihi yaklaşan, süresi dolan veya düzeltme istenen talepler"), "Atanmamış adımlar" → "Eksik adımlar" ("Tedarikçisi atanmamış veya bilgisi girilmemiş adımlar"). Eşik 7 gün değil 2 gün (linkler 7 gün geçerli).
+- [ ] **v0.4 düzeltmeleri**, M4: 46a link alanı `kozapass.vercel.app/r#…`; 44'te `destek@kozapass.com` yok; 39 iletişim kartında yalnızca isim, telefon / WhatsApp düğmeleri M12'ye (ayarlar) kadar gizli; 47a'da "Etiket beyanıyla uyumlu", "önceki partiler ortalaması" (M7) ve "Belgelerden okunan alanlar" (M5) gizli; 48a'da sertifika süresi satırı M7; 47b'de belge hazır seçimleri M5'e kadar gizli.
+- [ ] **v0.4 Kumaş ve Konfeksiyon formları**, M4. Tasarımda yalnızca İplik (40) ve Boya (41) var; diğerleri aynı iskeletle, adım tipinin alanlarından kurulur ("aynı iskelet, farklı bölümler").
+
 **Ertelenenler** (tasarımda var, verisi sonraki kilometre taşında gelecek):
 - [ ] Menüdeki "Görevler" rozeti (bekleyen görev sayısı): M4'te, `GET /tasks` gelince. O zamana kadar gizli.
 
 **Tasarım sapması** (tasarım yanlış, uygulama farklı yapacak):
-- [ ] Tasarım v0.3 ekran 10 ("Düğüm paneli — Maraş Penye İplik, veri talep bağlantısı"): tedarikçi veri talebi linki `kozapass.com/v/…` görünüyor. Bu yazı `docs/design/v0.3/KozaPassPanel.dc.html` bileşenindeki örnek `url` sabitinden geliyor, koda taşınmaz. Uygulamada link `https://kozapass.vercel.app/r/{token}` olur (K14). Herkese açık pasaport ise GS1 yolunda kalır: `https://kozapass.vercel.app/01/{gtin}/10/{batch}` (K13).
+- [ ] Tasarım v0.3 ekran 10 ("Düğüm paneli — Maraş Penye İplik, veri talep bağlantısı"): tedarikçi veri talebi linki `kozapass.com/v/…` görünüyor. Bu yazı `docs/design/v0.3/KozaPassPanel.dc.html` bileşenindeki örnek `url` sabitinden geliyor, koda taşınmaz. Uygulamada link `https://kozapass.vercel.app/r#<token>` olur (K14, K21). Herkese açık pasaport ise GS1 yolunda kalır: `https://kozapass.vercel.app/01/{gtin}/10/{batch}` (K13).
 
 
 - [x] Demo kullanıcılarının gerçek BCrypt hash'i (M1, `DemoDataSeeder`)
