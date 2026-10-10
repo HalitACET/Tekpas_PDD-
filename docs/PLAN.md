@@ -209,6 +209,8 @@ Backend kuralları (M2):
 - [ ] Gerçekçi demo verisi (3 ürün, 5 parti, farklı tamamlanma seviyeleri, 1 süresi dolmak üzere sertifika)
 - [ ] Görsel cila, boş durumlar, yükleniyor durumları
 - [ ] Sunucu uyanık, APK hazır, 5 dakikalık demo senaryosu yazılı ve prova edilmiş
+- [ ] e2e testleri CI'da çalışsın (şu an yalnızca yerelde; `pnpm --filter web exec playwright test`)
+- [ ] Açılışı hızlandırma / Render araştırması: soğuk başlangıç 100–150 sn ("Started TekpasApplication in" 75–83 sn). Render'da önce/sonra ölç: lazy init, gereksiz auto-config, Flyway validate. Prod'a lazy init kullanıcı onayıyla. Uyuyan sunucuda erken kesilen isteğin uyanmayı iptal edip etmediği canlıda ölçülemedi (cron gün içinde uyanık tutuyor); burada bak.
 
 **Kabul:** Demo senaryosu baştan sona hatasız, internet yavaşken bile çalışıyor.
 
