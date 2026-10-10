@@ -160,6 +160,15 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `09-${scheme}`);
     });
 
+    test("10 step panel (documents' fields and M4 actions wait, as in v0.3.1 30)", async ({ page }) => {
+      await openBatches(page, scheme);
+      await page.getByRole("link", { name: "KP-2026-0918-A partisini aç" }).click();
+      await page.getByRole("button", { name: "İplik adımı: Maraş Penye İplik" }).click();
+      await expect(page.getByRole("dialog", { name: "Maraş Penye İplik" })).toBeVisible();
+      await page.mouse.move(0, 0);
+      await shoot(page, `10-${scheme}`);
+    });
+
     test("14 suppliers list", async ({ page }) => {
       await openSuppliers(page, scheme);
       await shoot(page, `14-${scheme}`);

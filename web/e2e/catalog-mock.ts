@@ -163,14 +163,33 @@ export function designChain(batch = 2): MockStep[] {
   return mockChain(batch, [
     ["FIBER", "APPROVED", "ORGANIC_COTTON", { originRegion: "Harran, Şanlıurfa", originCountry: "TR" }],
     ["YARN", "APPROVED", "Bursa İplik San.", { fiberComposition: [{ fiber: "COTTON", percent: 100 }] }],
+    // The data of design 10 and v0.3.1 30.
     [
       "YARN",
       "SUBMITTED",
       "Maraş Penye İplik",
-      { fiberComposition: [{ fiber: "COTTON", percent: 80 }, { fiber: "POLYESTER", percent: 20 }] },
+      {
+        fiberComposition: [{ fiber: "COTTON", percent: 80 }, { fiber: "POLYESTER", percent: 20 }],
+        originCountry: "TR",
+        energySources: [{ source: "GRID", percent: 60 }, { source: "SOLAR", percent: 40 }],
+        energyKwhPerKg: 3.4,
+        deliveredKg: 640,
+        yarnCount: "Ne 30/1",
+        yarnProcess: "CARDED",
+      },
     ],
     ["FABRIC", "SUBMITTED", "Denizli Örme Tekstil"],
-    ["DYEING", "PENDING", "Çınar Boya Apre"],
+    [
+      "DYEING",
+      "SUBMITTED",
+      "Çınar Boya Apre",
+      {
+        process: "Reaktif boya, ekru",
+        chemicalCompliance: "ZDHC MRSL 3.1",
+        energySources: [{ source: "NATURAL_GAS", percent: 80 }, { source: "SOLAR", percent: 20 }],
+        waterLPerKg: 62,
+      },
+    ],
     ["SEWING", "PENDING"],
   ]);
 }
@@ -239,6 +258,7 @@ export interface MockSupplier {
   phone: string | null;
   batchCount: number;
   latestStepStatus: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED" | null;
+  latestStepAt: string | null;
   editable: boolean;
   linkedAt: string;
   /** Mock only: the design batches (by number) whose chain uses this supplier. */
@@ -249,6 +269,8 @@ export interface MockSupplier {
  * The design's suppliers (v0.3.1 27/28). Phone numbers are from the unassigned 0224 000 exchange, never the
  * design's sample numbers. "Ekin Aksesuar" has its own account (not editable).
  */
+const LATEST_DAY: Record<number, number> = { 1: 16, 2: 16, 3: 15, 4: 19, 5: 8, 6: 14, 7: 2, 9: 10, 10: 1 };
+
 export function designSuppliers(): MockSupplier[] {
   const s = (
     n: number,
@@ -267,6 +289,8 @@ export function designSuppliers(): MockSupplier[] {
     phone: `+90224000${String(n).padStart(4, "0")}`,
     batchCount,
     latestStepStatus,
+    // September, as in v0.3.1 25 ("Son durum · 14 Eyl").
+    latestStepAt: latestStepStatus ? at(8, LATEST_DAY[n] ?? 1, 10) : null,
     editable,
     linkedAt: at(6, n),
     batchNos,
@@ -436,6 +460,28 @@ export async function mockCatalogApi(
     return route.fallback();
   });
 
+  // v0.3.1 25: assign a supplier of the network whose type fits the step.
+  await page.route(/\/api\/v1\/steps\/[0-9a-f-]{36}$/, (route) => {
+    if (route.request().method() !== "PATCH") return route.fallback();
+    const id = idBefore(route, "");
+    const batch = batches.find((b) => b.steps.some((s) => s.id === id));
+    const step = batch?.steps.find((s) => s.id === id);
+    if (!batch || !step) return notFound(route);
+    const { supplierId } = route.request().postDataJSON();
+    const supplier = suppliers.find((x) => x.id === supplierId);
+    if (!supplier) return notFound(route);
+    if (supplier.type !== SUPPLIER_TYPE[step.stepType]) {
+      return problem(route, 400, {
+        type: "urn:tekpas:problem:validation",
+        title: "Bad Request",
+        errors: [{ field: "supplierId", code: "SupplierType", message: "The supplier's type does not fit the step" }],
+      });
+    }
+    step.supplier = { id: supplier.id, name: supplier.name, city: supplier.city, type: supplier.type };
+    supplier.batchCount += 1;
+    return route.fulfill({ json: chainResponse(batch) });
+  });
+
   await page.route(/\/api\/v1\/products\/[0-9a-f-]{36}\/chain-preview$/, (route) => {
     const id = idBefore(route, "/chain-preview");
     if (!store.some((p) => p.id === id)) return notFound(route);
@@ -550,6 +596,7 @@ export async function mockCatalogApi(
         phone: body.phone ?? null,
         batchCount: 0,
         latestStepStatus: null,
+        latestStepAt: null,
         editable: true,
         linkedAt: new Date().toISOString(),
         batchNos: [],
