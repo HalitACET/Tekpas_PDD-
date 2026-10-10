@@ -26,7 +26,7 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 
 1. **Ürün:** Üretici ürününü GTIN, kategori ve etiketteki lif bileşimiyle tanımlar. GTIN'in GS1 kontrol hanesi ve lif toplamının %100 olması doğrulanır.
 2. **Parti:** Her üretim emri için bir parti açılır. Pasaport parti düzeyindedir, çünkü her partinin tedarik zinciri farklı olabilir.
-3. **Tedarik zinciri:** İplik → kumaş → boya → dikim adımları kurulur. Tedarikçiler veriyi girişsiz, tek kullanımlık bir bağlantıdan girer.
+3. **Tedarik zinciri:** Üretici tedarikçi ağını (iplikçi, kumaşçı, boyahane, konfeksiyon) kurar. Her partinin zinciri lif → iplik → kumaş → boya → konfeksiyon adımlarıyla çizilir; yeni parti zincirini ürünün son partisinden kopyalar, adımlara ağdaki tedarikçiler atanır ve düğümün rengi adımın durumunu gösterir. Tedarikçiler veriyi girişsiz, tek kullanımlık bir bağlantıdan girecek (M4).
 4. **Belge ve AI:** Sertifikalar (OEKO-TEX, GOTS…) yüklenir, AI alanları okur ve tutarlılığı kontrol eder. AI önerir, insan onaylar.
 5. **QR pasaport:** Onaylanan parti için GS1 Digital Link QR'lı, çok dilli ve herkese açık bir pasaport yayınlanır. Yayınlanan sürüm değişmez; değişiklik yeni sürüm demektir.
 
@@ -38,7 +38,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | --- | --- | :-: |
 | M1 | Temel altyapı: monorepo, JWT, API sözleşmesi, CI, canlıya çıkış, giriş ve panel | ✅ |
 | M2 | Ürün ve parti: GTIN doğrulaması, ürün ve parti ekranları | ✅ |
-| M3 | Tedarik zinciri: tedarikçi ağı, zincir ağacı, parti detayı | ⬜ |
+| M3 | Tedarik zinciri: tedarikçi ağı, zincir (DAG), parti detayı | ✅ |
 | M4 | Veri talebi ve tedarikçi sayfası | ⬜ |
 | M5 | Belge ve AI çıkarımı | ⬜ |
 | M6 | Pasaport ve QR | ⬜ |
@@ -52,7 +52,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 
 ## Ekran görüntüleri
 
-Tasarım Claude Design v0.3'tür; tasarımla yan yana karşılaştırmalar [docs/design/impl-v0.3](docs/design/impl-v0.3).
+Tasarım Claude Design v0.3 (ve ek çerçeveleri v0.3.1, v0.3.2) ile yapıldı; tasarımla yan yana karşılaştırmalar [docs/design/impl-v0.3](docs/design/impl-v0.3), [impl-v0.3.1](docs/design/impl-v0.3.1) ve [impl-v0.3.2](docs/design/impl-v0.3.2).
 
 | Açık tema | Koyu tema |
 | --- | --- |
@@ -62,6 +62,10 @@ Tasarım Claude Design v0.3'tür; tasarımla yan yana karşılaştırmalar [docs
 | **05 Ürün silinemez:** partisi var<br><img src="docs/design/impl-v0.3/05-light.png" alt="Ürün silinemez diyaloğu, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3/05-dark.png" alt="Ürün silinemez diyaloğu, koyu tema" width="440"> |
 | **07 Partiler**<br><img src="docs/design/impl-v0.3/07-light.png" alt="Parti listesi, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3/07-dark.png" alt="Parti listesi, koyu tema" width="440"> |
 | **08 Yeni parti:** ürün araması açık<br><img src="docs/design/impl-v0.3/08-light.png" alt="Yeni parti diyaloğu, ürün araması açık, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3/08-dark.png" alt="Yeni parti diyaloğu, ürün araması açık, koyu tema" width="440"> |
+| **09 Parti detayı:** tedarik zinciri<br><img src="docs/design/impl-v0.3/09-light.png" alt="Parti detayı: beş sütunlu tedarik zinciri, iki iplik düğümü ve boş konfeksiyon adımı, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3/09-dark.png" alt="Parti detayı: beş sütunlu tedarik zinciri, koyu tema" width="440"> |
+| **10 Adım paneli:** tedarikçinin girdiği veriler<br><img src="docs/design/impl-v0.3/10-light.png" alt="İplik adımı paneli: lif bileşimi, menşe, enerji ve teslim bilgileri, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3/10-dark.png" alt="İplik adımı paneli, koyu tema" width="440"> |
+| **25 Tedarikçi ata**<br><img src="docs/design/impl-v0.3.1/25-light.png" alt="Tedarikçi ata paneli: konfeksiyon tedarikçileri, son durumları ve seçili tedarikçi, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3.1/25-dark.png" alt="Tedarikçi ata paneli, koyu tema" width="440"> |
+| **14 Tedarikçiler**<br><img src="docs/design/impl-v0.3/14-light.png" alt="Tedarikçi listesi: tip, şehir, telefon, parti sayısı ve son durum, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3/14-dark.png" alt="Tedarikçi listesi, koyu tema" width="440"> |
 
 ## Mimari
 
