@@ -54,3 +54,21 @@ export function formatPhone(phone: string | null | undefined): string {
   const national = nationalFromPhone(phone);
   return national === phone ? phone : `+90 ${national}`;
 }
+
+/**
+ * The number for "wa.me/<number>" from whatever was saved or typed: "0532 123 45 67", "+90 532 123 45 67",
+ * "532 123 45 67", "0(532)123-45-67" → "905321234567". Numbers with a country code ("+" or "00") keep it.
+ * Anything that is not a plausible number → null (WhatsApp then opens without a recipient).
+ */
+export function whatsAppNumber(phone: string | null | undefined): string | null {
+  if (!phone) return null;
+  const text = phone.trim();
+  if (!/^[+\d\s().-]+$/.test(text)) return null;
+  const digits = text.replace(/\D/g, "");
+  if (text.startsWith("+") || text.startsWith("00")) {
+    const international = text.startsWith("+") ? digits : digits.slice(2);
+    return /^[1-9]\d{7,14}$/.test(international) ? international : null;
+  }
+  const national = /^0\d{10}$/.test(digits) ? digits.slice(1) : digits;
+  return /^[1-9]\d{9}$/.test(national) ? `90${national}` : null;
+}

@@ -38,6 +38,7 @@
       "body": "Die Liste füllt sich von selbst, sobald er bereit ist.",
       "elapsed": "{elapsed} · meist 1–2 Min.",
       "sessionBody": "Das Panel öffnet sich von selbst, sobald er bereit ist.",
+      "formBody": "Das Formular öffnet sich von selbst, sobald der Server bereit ist.",
       "gaveUpTitle": "Der Server war nach 3 Minuten nicht bereit.",
       "gaveUpBody": "Sie bleiben angemeldet. Der Server startet möglicherweise noch; beim nächsten Versuch ist er sehr wahrscheinlich bereit.",
       "networkTitle": "Der Server war nicht erreichbar.",
@@ -805,5 +806,230 @@
     "emptyTitle": "Keine offenen Aufgaben",
     "emptyBody": "Aufgaben erscheinen hier, wenn ein Lieferant Daten sendet, eine Anfrage kurz vor der Frist steht oder ein Schritt keinen Lieferanten hat.",
     "goBatches": "Zu den Chargen"
+  },
+  "supplier": {
+    "meta": {
+      "title": "Dateneingabe"
+    },
+    "secure": "Sichere Verbindung",
+    "footer": {
+      "tagline": "KozaPass · Digitaler Produktpass",
+      "kvkk": "KVKK",
+      "privacy": "Datenschutz"
+    },
+    "loading": "Ihr Link wird geöffnet…",
+    "wake": {
+      "gaveUpTitle": "Der Server war nach 3 Minuten nicht bereit.",
+      "gaveUpBody": "Der Server startet möglicherweise noch. Tippen Sie in einigen Minuten erneut auf denselben Link oder versuchen Sie es unten noch einmal.",
+      "retry": "Erneut versuchen"
+    },
+    "loadError": {
+      "title": "Die Seite konnte nicht geöffnet werden",
+      "body": "Der Server ist nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "retry": "Erneut versuchen"
+    },
+    "rateLimited": {
+      "title": "Zu viele Versuche",
+      "body": "Warten Sie einige Minuten und tippen Sie erneut auf denselben Link.",
+      "retry": "Erneut versuchen"
+    },
+    "daysLeft": "{days, plural, one {Noch # Tag} other {Noch # Tage}}",
+    "hoursLeft": "Weniger als 24 Stunden übrig",
+    "welcome": {
+      "asksYou": "bittet Sie um Daten",
+      "title": "Wir warten auf Ihre Angaben zum Schritt {step}.",
+      "body": "Ihre Angaben erscheinen im digitalen Produktpass dieses Produkts als Schritt {step}.",
+      "product": "Produkt",
+      "batch": "Charge",
+      "step": "Schritt",
+      "deadline": "Frist",
+      "remaining": "Verbleibende Zeit",
+      "asksTitle": "Was wir von Ihnen brauchen",
+      "asks": {
+        "fibers": "Faserzusammensetzung und Herkunftsland",
+        "origin": "Herkunftsland",
+        "energy": "Energiequellen und Verbrauch",
+        "deliveryKg": "Gelieferte Menge",
+        "deliveryYarn": "Garnnummer und Spinnart",
+        "fabric": "Stoffart, Gewicht und gelieferte Menge",
+        "dye": "Färbeverfahren und Chemikalienkonformität",
+        "quantity": "Verarbeitete Menge und Wasserverbrauch"
+      },
+      "time": "Dauert etwa 5 Minuten. Dokumente brauchen Sie nicht.",
+      "start": "Formular starten",
+      "secureTitle": "Sichere Verbindung mit KozaPass.",
+      "secureBody": "Dieser Link gilt nur für Sie und diesen Schritt. Ihre Angaben sieht nur {manufacturer}.",
+      "question": "Fragen?",
+      "contact": "{name} · {manufacturer}",
+      "contactAria": "Kontakt"
+    },
+    "form": {
+      "title": "Daten zu {step}",
+      "titleFix": "Daten zu {step} korrigieren",
+      "allRequired": "Alle Felder sind Pflicht, sofern nicht anders angegeben.",
+      "optional": "Optional",
+      "deadlineShort": "Frist",
+      "errorSummary": "{count, plural, one {# Feld enthält} other {# Felder enthalten}} Fehler.",
+      "errorSummaryGo": "Zum ersten Fehler gesprungen.",
+      "fix": {
+        "title": "{manufacturer} bittet um Korrektur",
+        "by": "{name} · {when}",
+        "body": "Korrigieren Sie das markierte Feld und senden Sie erneut. Ihre frühere Meldung bleibt gespeichert; die anderen Felder bleiben unverändert.",
+        "flag": "Zu korrigierendes Feld"
+      },
+      "submit": "Senden",
+      "submitFix": "Korrigierte Daten senden",
+      "submitting": "Wird gesendet…",
+      "after": "Nach dem Senden können Sie die Angaben nicht mehr ändern. Ist eine Korrektur nötig, öffnet {manufacturer} das Formular erneut.",
+      "submitFailed": "Senden nicht möglich. Ihre Angaben bleiben im Formular; versuchen Sie es gleich noch einmal.",
+      "serverFields": "Der Server hat einige Felder nicht akzeptiert; prüfen Sie die markierten.",
+      "total": "Summe {value}",
+      "pickCountry": "Land wählen",
+      "none": "Keine",
+      "remove": "Zeile löschen",
+      "percent": "Prozent",
+      "sections": {
+        "fibers": {
+          "title": "Faserzusammensetzung",
+          "sub": {
+            "YARN": "Faseranteile des gelieferten Garns",
+            "FABRIC": "Faseranteile des gelieferten Stoffs"
+          },
+          "fiber": "Faser",
+          "add": "Faser hinzufügen"
+        },
+        "origin": {
+          "title": "Produktionsort",
+          "label": "Herkunftsland",
+          "hint": {
+            "YARN": "Das Land, in dem die Baumwolle angebaut wurde",
+            "FABRIC": "Das Land, in dem der Stoff hergestellt wurde",
+            "SEWING": "Das Land, in dem genäht wurde",
+            "OTHER": "Das Land der Produktion"
+          }
+        },
+        "energy": {
+          "title": "Energie",
+          "sub": "Ihre Energiequellen im Zeitraum dieser Arbeit",
+          "source": "Energiequelle",
+          "add": "Quelle hinzufügen",
+          "kwh": "Energieverbrauch",
+          "perKg": "Verbrauchter Strom und Wärme pro Kilogramm",
+          "perPiece": "Verbrauchter Strom und Wärme pro Kleidungsstück",
+          "unitKg": "kWh/kg",
+          "unitPiece": "kWh/Stück"
+        },
+        "delivery": {
+          "title": "Lieferung und Garn",
+          "delivered": "Geliefert",
+          "count": "Garnnummer",
+          "spinning": "Spinnart"
+        },
+        "fabric": {
+          "title": "Stoff und Lieferung",
+          "type": "Stoffart",
+          "typePlaceholder": "z. B. Single Jersey",
+          "gsm": "Gewicht",
+          "delivered": "Geliefert"
+        },
+        "dye": {
+          "title": "Färbeverfahren",
+          "process": "Verfahren",
+          "pick": "Verfahren wählen",
+          "other": "Anderes Verfahren",
+          "otherPlaceholder": "z. B. Bleichen",
+          "shade": "Farbe / Farbton",
+          "shadePlaceholder": "z. B. Ecru",
+          "chemicals": "Chemikalienkonformität",
+          "chemicalsHint": "Alles Zutreffende wählen"
+        },
+        "quantity": {
+          "title": "Menge und Wasser",
+          "processed": "Verarbeitete Menge",
+          "water": "Wasserverbrauch"
+        },
+        "documents": {
+          "title": "Dokumente",
+          "soon": "Bald",
+          "lead": "Das Hochladen von Zertifikaten und technischen Datenblättern folgt mit einem späteren Update.",
+          "body": "Sie können das Formular ohne Dokumente senden. Wird eines benötigt, fragt {manufacturer} gesondert nach.",
+          "upload": "Dokument hochladen",
+          "formats": "GOTS · OEKO-TEX · Datenblatt · PDF, JPG, PNG · höchstens 10 MB"
+        },
+        "sender": {
+          "title": "Absender",
+          "name": "Vor- und Nachname",
+          "namePlaceholder": "z. B. Ahmet Kaya",
+          "role": "Ihre Funktion",
+          "rolePlaceholder": "z. B. Qualitätsverantwortlicher"
+        }
+      }
+    },
+    "errors": {
+      "OriginRequired": "Herkunftsland wählen",
+      "YarnCount": "Nummer im Format 30/1 schreiben",
+      "FabricType": "Stoffart eintragen",
+      "DyeProcess": "Verfahren wählen",
+      "DyeProcessOther": "Verfahren kurz beschreiben",
+      "Chemicals": "Mindestens eines wählen; trifft nichts zu, „Keine“ wählen",
+      "NameRequired": "Vor- und Nachnamen eintragen",
+      "NameShort": "Der Name muss mindestens 3 Zeichen haben"
+    },
+    "done": {
+      "title": "Ihre Daten wurden an {manufacturer} übermittelt",
+      "thanks": "{when} · vielen Dank.",
+      "summary": "{step} · Zusammenfassung",
+      "code": "Meldung Nr. {code}",
+      "rows": {
+        "fibers": "Faserzusammensetzung",
+        "origin": "Herkunftsland",
+        "energy": "Energie",
+        "kwh": "Energieverbrauch",
+        "delivered": "Geliefert",
+        "yarn": "Garn",
+        "fabricType": "Stoffart",
+        "gsm": "Gewicht",
+        "process": "Verfahren",
+        "chemicals": "Chemikalienkonformität",
+        "processed": "Verarbeitete Menge",
+        "water": "Wasserverbrauch",
+        "sender": "Absender"
+      },
+      "nextTitle": "Wie es weitergeht",
+      "next": "{manufacturer} prüft und bestätigt Ihre Angaben. Ist eine Korrektur nötig, erhalten Sie eine neue WhatsApp-Nachricht und dieses Formular öffnet sich erneut.",
+      "close": "Sie können diese Seite schließen."
+    },
+    "closed": {
+      "EXPIRED": {
+        "title": "Dieser Link ist abgelaufen",
+        "body": "{manufacturer} wollte dieses Formular bis zum {date} ausgefüllt haben. Für einen neuen Link wenden Sie sich an die Person unten.",
+        "who": "Für einen neuen Link",
+        "code": "Hata: LINK_EXPIRED"
+      },
+      "REVOKED": {
+        "title": "Dieser Link wurde zurückgezogen",
+        "body": "{manufacturer} hat diesen Link storniert. Möglicherweise wurde Ihnen ein neuer Link geschickt; prüfen Sie Ihre WhatsApp-Nachrichten.",
+        "who": "Für Auskünfte",
+        "code": "Hata: LINK_REVOKED"
+      },
+      "SUBMITTED": {
+        "title": "Dieses Formular wurde bereits gesendet",
+        "body": "Gesendete Daten lassen sich nicht ändern. Stimmt etwas nicht, sagen Sie {manufacturer} Bescheid; dort kann das Formular zur Korrektur wieder geöffnet werden.",
+        "who": "Wenn eine Änderung nötig ist",
+        "code": "Durum: ALREADY_SUBMITTED"
+      },
+      "INVALID": {
+        "title": "Der Link ist ungültig",
+        "body": "Die Adresse ist möglicherweise unvollständig oder falsch kopiert. Tippen Sie direkt auf den Link in der Nachricht.",
+        "who": "Wen Sie kontaktieren",
+        "hint": "Schreiben Sie der Person, die Ihnen den Link per WhatsApp geschickt hat, und bitten Sie um einen neuen.",
+        "code": "Hata: LINK_INVALID"
+      },
+      "step": "Schritt",
+      "deadline": "Frist",
+      "sender": "Absender",
+      "sentAt": "Gesendet",
+      "code": "Meldung Nr."
+    }
   }
 }

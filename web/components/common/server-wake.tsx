@@ -83,8 +83,8 @@ export function ServerWakeStrip({
   body = "body",
 }: {
   startedAt: number;
-  /** What happens when the server is ready: the list fills in, or the panel opens. */
-  body?: "body" | "sessionBody";
+  /** What happens when the server is ready: the list fills in, the panel or the supplier's form opens. */
+  body?: "body" | "sessionBody" | "formBody";
 }) {
   const t = useTranslations("common.serverWake");
   const [now, setNow] = useState(startedAt);

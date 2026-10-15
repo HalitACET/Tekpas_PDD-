@@ -1,6 +1,6 @@
 "use client";
 
-import { formatPhone } from "@tekpas/shared";
+import { formatPhone, whatsAppNumber } from "@tekpas/shared";
 import { AlertCircle, Check, Copy, Link2, MessageCircle, RefreshCw, Unlink } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -26,8 +26,7 @@ export function linkFor(token: string): string {
 
 /** "wa.me/<number>?text=…": straight to the supplier when its phone is known (PLAN M4). */
 export function whatsAppUrl(text: string, phone?: string | null): string {
-  const number = phone ? phone.replace(/\D/g, "") : "";
-  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+  return `https://wa.me/${whatsAppNumber(phone) ?? ""}?text=${encodeURIComponent(text)}`;
 }
 
 type Link = Pick<CreatedDataRequest, "id" | "createdAt" | "expiresAt" | "validDays"> & {

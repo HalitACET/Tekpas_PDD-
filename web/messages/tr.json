@@ -38,6 +38,7 @@
       "body": "Hazır olunca liste kendiliğinden dolar.",
       "elapsed": "{elapsed} · genellikle 1–2 dk",
       "sessionBody": "Hazır olunca panel kendiliğinden açılır.",
+      "formBody": "Hazır olunca form kendiliğinden açılır.",
       "gaveUpTitle": "Sunucu 3 dakikada hazır olmadı.",
       "gaveUpBody": "Oturumunuz korunuyor. Sunucu hâlâ açılıyor olabilir; tekrar denediğinizde büyük ihtimalle hazır olacak.",
       "networkTitle": "Sunucuya bağlanılamadı.",
@@ -805,5 +806,230 @@
     "emptyTitle": "Bekleyen görev yok",
     "emptyBody": "Bir tedarikçi veri gönderdiğinde, bir talebin süresi yaklaştığında veya bir adım tedarikçisiz kaldığında burada görünür.",
     "goBatches": "Partilere git"
+  },
+  "supplier": {
+    "meta": {
+      "title": "Veri girişi"
+    },
+    "secure": "Güvenli bağlantı",
+    "footer": {
+      "tagline": "KozaPass · Dijital Ürün Pasaportu",
+      "kvkk": "KVKK",
+      "privacy": "Gizlilik"
+    },
+    "loading": "Bağlantınız açılıyor…",
+    "wake": {
+      "gaveUpTitle": "Sunucu 3 dakikada hazır olmadı.",
+      "gaveUpBody": "Sunucu hâlâ açılıyor olabilir. Birkaç dakika sonra aynı bağlantıya tekrar dokunun ya da aşağıdan tekrar deneyin.",
+      "retry": "Tekrar dene"
+    },
+    "loadError": {
+      "title": "Sayfa açılamadı",
+      "body": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+      "retry": "Tekrar dene"
+    },
+    "rateLimited": {
+      "title": "Çok fazla deneme yapıldı",
+      "body": "Birkaç dakika bekleyip aynı bağlantıya tekrar dokunun.",
+      "retry": "Tekrar dene"
+    },
+    "daysLeft": "{days} gün kaldı",
+    "hoursLeft": "24 saatten az kaldı",
+    "welcome": {
+      "asksYou": "sizden veri istiyor",
+      "title": "{step} adımı için bilgilerinizi bekliyoruz.",
+      "body": "Bilgileriniz bu ürünün dijital ürün pasaportunda, {stepLower} adımı olarak yer alacak.",
+      "product": "Ürün",
+      "batch": "Parti",
+      "step": "Adım",
+      "deadline": "Son tarih",
+      "remaining": "Kalan süre",
+      "asksTitle": "Sizden istenenler",
+      "asks": {
+        "fibers": "Lif bileşimi ve menşe ülke",
+        "origin": "Menşe ülke",
+        "energy": "Enerji kaynakları ve tüketimi",
+        "deliveryKg": "Teslim edilen miktar",
+        "deliveryYarn": "İplik numarası ve eğirme tipi",
+        "fabric": "Kumaş tipi, gramaj ve teslim edilen miktar",
+        "dye": "Boya işlemi ve kimyasal uyumu",
+        "quantity": "İşlenen miktar ve su tüketimi"
+      },
+      "time": "Yaklaşık 5 dakika sürer. Belgeleriniz gerekmez.",
+      "start": "Forma başla",
+      "secureTitle": "KozaPass ile güvenli bağlantı.",
+      "secureBody": "Bu bağlantı yalnızca size ve bu adıma özeldir. Girdiğiniz bilgileri yalnızca {manufacturer} görür.",
+      "question": "Sorunuz mu var?",
+      "contact": "{name} · {manufacturer}",
+      "contactAria": "İletişim"
+    },
+    "form": {
+      "title": "{step} verileri",
+      "titleFix": "{step} verilerini düzeltin",
+      "allRequired": "Tüm alanlar zorunludur, aksi belirtilmedikçe.",
+      "optional": "İsteğe bağlı",
+      "deadlineShort": "Son tarih",
+      "errorSummary": "{count} alanda hata var.",
+      "errorSummaryGo": "İlk hatalı alana gidildi.",
+      "fix": {
+        "title": "{manufacturer} düzeltme istedi",
+        "by": "{name} · {when}",
+        "body": "İşaretli alanı düzeltip yeniden gönderin. Önceki gönderiminiz kayıtlı kalır; diğer alanlar aynen duruyor.",
+        "flag": "Düzeltme istenen alan"
+      },
+      "submit": "Gönder",
+      "submitFix": "Düzeltilmiş verileri gönder",
+      "submitting": "Gönderiliyor…",
+      "after": "Gönderdikten sonra bilgileri değiştiremezsiniz. Düzeltme gerekirse {manufacturer} formu size yeniden açar.",
+      "submitFailed": "Gönderilemedi. Bilgileriniz formda duruyor; birazdan tekrar deneyin.",
+      "serverFields": "Sunucu bazı alanları kabul etmedi; işaretli alanları kontrol edin.",
+      "total": "Toplam {value}",
+      "pickCountry": "Ülke seçin",
+      "none": "Hiçbiri",
+      "remove": "Satırı sil",
+      "percent": "Yüzde",
+      "sections": {
+        "fibers": {
+          "title": "Lif bileşimi",
+          "sub": {
+            "YARN": "Teslim ettiğiniz ipliğin lif oranları",
+            "FABRIC": "Teslim ettiğiniz kumaşın lif oranları"
+          },
+          "fiber": "Lif",
+          "add": "Lif ekle"
+        },
+        "origin": {
+          "title": "Üretim yeri",
+          "label": "Menşe ülke",
+          "hint": {
+            "YARN": "Pamuğun yetiştirildiği ülke",
+            "FABRIC": "Kumaşın üretildiği ülke",
+            "SEWING": "Dikimin yapıldığı ülke",
+            "OTHER": "Üretimin yapıldığı ülke"
+          }
+        },
+        "energy": {
+          "title": "Enerji",
+          "sub": "Bu işi yaptığınız dönemdeki enerji kaynaklarınız",
+          "source": "Enerji kaynağı",
+          "add": "Kaynak ekle",
+          "kwh": "Enerji tüketimi",
+          "perKg": "Bir kilogram için harcanan elektrik ve ısı",
+          "perPiece": "Bir parça için harcanan elektrik ve ısı",
+          "unitKg": "kWh/kg",
+          "unitPiece": "kWh/adet"
+        },
+        "delivery": {
+          "title": "Teslimat ve iplik",
+          "delivered": "Teslim edilen",
+          "count": "İplik numarası",
+          "spinning": "Eğirme"
+        },
+        "fabric": {
+          "title": "Kumaş ve teslimat",
+          "type": "Kumaş tipi",
+          "typePlaceholder": "örn. Süprem",
+          "gsm": "Gramaj",
+          "delivered": "Teslim edilen"
+        },
+        "dye": {
+          "title": "Boya işlemi",
+          "process": "İşlem",
+          "pick": "İşlem seçin",
+          "other": "Diğer işlem",
+          "otherPlaceholder": "örn. Ağartma",
+          "shade": "Renk / ton",
+          "shadePlaceholder": "örn. Ekru",
+          "chemicals": "Kimyasal uyumu",
+          "chemicalsHint": "Geçerli olanların hepsini seçin"
+        },
+        "quantity": {
+          "title": "Miktar ve su",
+          "processed": "İşlenen miktar",
+          "water": "Su tüketimi"
+        },
+        "documents": {
+          "title": "Belgeler",
+          "soon": "Yakında",
+          "lead": "Sertifika ve teknik föy yükleme bir sonraki güncellemede açılacak.",
+          "body": "Formu belgesiz gönderebilirsiniz. Belge gerekirse {manufacturer} sizden ayrıca ister.",
+          "upload": "Belge yükle",
+          "formats": "GOTS · OEKO-TEX · teknik föy · PDF, JPG, PNG · en fazla 10 MB"
+        },
+        "sender": {
+          "title": "Gönderen",
+          "name": "Ad soyad",
+          "namePlaceholder": "örn. Ahmet Kaya",
+          "role": "Göreviniz",
+          "rolePlaceholder": "örn. Kalite sorumlusu"
+        }
+      }
+    },
+    "errors": {
+      "OriginRequired": "Menşe ülkeyi seçin",
+      "YarnCount": "Numarayı 30/1 biçiminde yazın",
+      "FabricType": "Kumaş tipini yazın",
+      "DyeProcess": "İşlem tipini seçin",
+      "DyeProcessOther": "İşlemi kısaca yazın",
+      "Chemicals": "En az birini seçin; hiçbiri yoksa \"Hiçbiri\"ni seçin",
+      "NameRequired": "Adınızı ve soyadınızı yazın",
+      "NameShort": "Ad soyad en az 3 karakter olmalı"
+    },
+    "done": {
+      "title": "Verileriniz {manufacturer} firmasına iletildi",
+      "thanks": "{when} · teşekkür ederiz.",
+      "summary": "{step} · özet",
+      "code": "Gönderim no {code}",
+      "rows": {
+        "fibers": "Lif bileşimi",
+        "origin": "Menşe ülke",
+        "energy": "Enerji",
+        "kwh": "Enerji tüketimi",
+        "delivered": "Teslim edilen",
+        "yarn": "İplik",
+        "fabricType": "Kumaş tipi",
+        "gsm": "Gramaj",
+        "process": "İşlem",
+        "chemicals": "Kimyasal uyumu",
+        "processed": "İşlenen miktar",
+        "water": "Su tüketimi",
+        "sender": "Gönderen"
+      },
+      "nextTitle": "Bundan sonra",
+      "next": "{manufacturer} verilerinizi inceleyip onaylayacak. Düzeltme gerekirse size WhatsApp'tan yeni bir mesaj gelir ve bu form tekrar açılır.",
+      "close": "Bu sayfayı kapatabilirsiniz."
+    },
+    "closed": {
+      "EXPIRED": {
+        "title": "Bu bağlantının süresi doldu",
+        "body": "{manufacturer} bu formun {date} tarihine kadar doldurulmasını istemişti. Yeni bir bağlantı için aşağıdaki kişiye ulaşın.",
+        "who": "Yeni bağlantı için",
+        "code": "Hata: LINK_EXPIRED"
+      },
+      "REVOKED": {
+        "title": "Bu bağlantı geri alındı",
+        "body": "{manufacturer} bu bağlantıyı iptal etti. Size yeni bir bağlantı gönderilmiş olabilir; WhatsApp mesajlarınızı kontrol edin.",
+        "who": "Bilgi almak için",
+        "code": "Hata: LINK_REVOKED"
+      },
+      "SUBMITTED": {
+        "title": "Bu form zaten gönderildi",
+        "body": "Gönderilen veriler değiştirilemez. Bir bilgi yanlışsa {manufacturer} firmasına haber verin; düzeltme için formu size yeniden açabilirler.",
+        "who": "Değişiklik gerekiyorsa",
+        "code": "Durum: ALREADY_SUBMITTED"
+      },
+      "INVALID": {
+        "title": "Bağlantı geçersiz",
+        "body": "Adres eksik ya da hatalı kopyalanmış olabilir. Mesajdaki bağlantıya doğrudan dokunarak tekrar açmayı deneyin.",
+        "who": "Kime ulaşmalı",
+        "hint": "Bağlantıyı WhatsApp'tan size gönderen kişiye yazın ve yeni bir bağlantı isteyin.",
+        "code": "Hata: LINK_INVALID"
+      },
+      "step": "Adım",
+      "deadline": "Son tarih",
+      "sender": "Gönderen",
+      "sentAt": "Gönderim",
+      "code": "Gönderim no"
+    }
   }
 }

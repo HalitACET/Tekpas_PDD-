@@ -43,6 +43,10 @@ export const queryKeys = {
   tasks: {
     all: ["tasks"] as const,
   },
+  /** GET /public/request: the supplier's page (design v0.4 39–45), opened once per visit. */
+  publicRequest: {
+    view: ["public-request"] as const,
+  },
   suppliers: {
     all: ["suppliers"] as const,
     lists: () => [...queryKeys.suppliers.all, "list"] as const,
