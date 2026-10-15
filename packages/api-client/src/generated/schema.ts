@@ -977,6 +977,7 @@ export interface components {
             stepType?: components["schemas"]["StepType"];
             submitterName?: string | null;
             supplierName?: string | null;
+            supplierPhone?: string | null;
         };
         /** @enum {string} */
         TaskKind: "STEP_SUBMITTED" | "CORRECTION_NO_LINK" | "LINK_EXPIRED" | "LINK_EXPIRING" | "STEP_UNASSIGNED" | "ORIGIN_MISSING" | "NO_CHAIN";

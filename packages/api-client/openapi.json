@@ -1268,6 +1268,9 @@
           },
           "supplierName" : {
             "type" : [ "string", "null" ]
+          },
+          "supplierPhone" : {
+            "type" : [ "string", "null" ]
           }
         },
         "required" : [ "batchId", "batchNo", "kind", "productName" ],

@@ -10,6 +10,7 @@ import com.tekpas.support.TestFixtures.Tenant;
 import com.tekpas.support.TestFixtures.TenantPair;
 import com.tekpas.support.TestGtins;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -58,6 +59,14 @@ class TaskApiTest {
     String assign(Tenant tenant, String stepId, String type) {
         String supplierId = fixtures.body(fixtures.post(tenant, "/api/v1/suppliers", Map.of("name", type + " "
                 + UUID.randomUUID().toString().substring(0, 4), "type", type, "city", "Bursa"))).path("id").asString();
+        assertThat(fixtures.patch(tenant, "/api/v1/steps/" + stepId, Map.of("supplierId", supplierId))).hasStatusOk();
+        return supplierId;
+    }
+
+    String assignWithPhone(Tenant tenant, String stepId, String type, String phone) {
+        String supplierId = fixtures.body(fixtures.post(tenant, "/api/v1/suppliers", Map.of("name", type + " "
+                + UUID.randomUUID().toString().substring(0, 4), "type", type, "city", "Bursa", "phone", phone)))
+                .path("id").asString();
         assertThat(fixtures.patch(tenant, "/api/v1/steps/" + stepId, Map.of("supplierId", supplierId))).hasStatusOk();
         return supplierId;
     }
@@ -158,6 +167,27 @@ class TaskApiTest {
         assertThat(kinds(followUp)).containsExactly("LINK_EXPIRED");
         assertThat(followUp.get(0).path("stepType").asString()).isEqualTo("YARN");
         assertThat(followUp.get(0).path("openCount").asInt()).isZero();
+    }
+
+    @Test
+    void aTaskCarriesTheSuppliersPhoneOfThisManufacturerWhenKnown() {
+        Tenant tenant = fixtures.tenant();
+        String batchId = batch(tenant);
+        String yarn = step(tenant, batchId, "YARN");
+        String fabric = step(tenant, batchId, "FABRIC");
+        assignWithPhone(tenant, yarn, "YARN", "+902240000000");
+        assign(tenant, fabric, "FABRIC");
+        token(tenant, yarn);
+        token(tenant, fabric);
+        clock.advance(Duration.ofDays(6).plusHours(1));
+
+        Map<String, String> phones = new HashMap<>();
+        tasks(fresh(tenant)).path("followUp").forEach(t -> phones.put(t.path("stepType").asString(),
+                t.path("supplierPhone").isNull() ? null : t.path("supplierPhone").asString()));
+        assertThat(phones).containsEntry("YARN", "+902240000000").containsEntry("FABRIC", null);
+
+        // Another company sees none of it: it has neither the step nor the supplier link.
+        assertThat(tasks(fixtures.tenant()).path("followUp")).isEmpty();
     }
 
     @Test
