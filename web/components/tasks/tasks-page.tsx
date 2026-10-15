@@ -165,7 +165,7 @@ function TaskRow({ task, now }: { task: TaskItem; now: Date }) {
     const company = session.status === "authenticated" ? session.user.company.name : "";
     const name = session.status === "authenticated" ? session.user.fullName : "";
     const text = t("reminder", { company, batchNo: task.batchNo, step: stepInText, deadline: task.deadline ? date(task.deadline) : "", name });
-    window.open(whatsAppUrl(text), "_blank", "noopener");
+    window.open(whatsAppUrl(text, task.supplierPhone), "_blank", "noopener");
   };
 
   return (

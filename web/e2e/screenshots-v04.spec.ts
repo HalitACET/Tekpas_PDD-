@@ -96,6 +96,19 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `47b-${scheme}`);
     });
 
+    test("47b sent, with the new-link button (no design frame)", async ({ page }) => {
+      await prepare(page, scheme);
+      await page.goto(`/batches/${BATCH_0918}`);
+      await chain(page).getByRole("button", { name: "İplik adımı: Maraş Penye İplik" }).click();
+      const panel = page.getByRole("dialog", { name: "Maraş Penye İplik" });
+      await panel.getByRole("button", { name: "Düzeltme iste" }).click();
+      await panel.getByRole("button", { name: "Lif oranı uyuşmuyor" }).click();
+      await panel.getByRole("button", { name: "Düzeltme talebini gönder" }).click();
+      await expect(panel.getByRole("button", { name: "Yeni bağlantı oluştur" })).toBeVisible();
+      await page.mouse.move(0, 0);
+      await shoot(page, `47b-sent-${scheme}`);
+    });
+
     test("48a tasks", async ({ page }) => {
       await prepare(page, scheme);
       await page.goto("/tasks");

@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { mockAuthApi } from "./api-mock";
-import { mockCatalogApi, NOW } from "./catalog-mock";
+import { designTasks, mockCatalogApi, NOW } from "./catalog-mock";
 
 /** M4 on the panel side (design v0.4 46–48): links, review, the fibre origin and the tasks page. */
 
@@ -141,8 +141,14 @@ test("47b: a correction with a preset marks its field and sends the reason", asy
 
   await expect(panel.getByRole("status")).toContainText("adım \"Reddedildi\" olarak işaretlendi");
   await expect(panel).toContainText("Reddedildi");
-  // A new link can be sent now.
+  // A new link can be sent now, right from the note.
   await expect(panel.getByRole("button", { name: "Veri talep et" })).toBeEnabled();
+  const created = page.waitForRequest((r) => r.url().endsWith("/requests") && r.method() === "POST");
+  await panel.getByRole("button", { name: "Yeni bağlantı oluştur" }).click();
+  await created;
+  const dialog = page.getByRole("dialog", { name: "Veri talep et" });
+  await expect(dialog).toContainText("Maraş Penye İplik");
+  await expect(dialog.getByText(/^localhost:\d+\/r#tok/)).toBeVisible();
 });
 
 test("editors send links but do not review; viewers do neither", async ({ page }) => {
@@ -204,9 +210,10 @@ test("48a: the tasks page lists the three groups and the menu shows the count", 
   await expect(followUp.getByRole("listitem").nth(1)).toContainText("Bağlantı 3 kez açıldı, form gönderilmedi");
   await expect(followUp.getByRole("listitem").nth(1)).toContainText("05.10.2026 · 2 gün");
 
-  // "Hatırlat": a ready WhatsApp text without the link.
+  // "Hatırlat": a ready WhatsApp text without the link, straight to the supplier's number.
   await followUp.getByRole("button", { name: "Hatırlat" }).click();
   const [url] = await opened(page);
+  expect(url).toMatch(/^https:\/\/wa\.me\/902241112233\?text=/);
   const text = decodeURIComponent(url.split("text=")[1]);
   expect(text).toContain("KP-2026-0917-C partisi için konfeksiyon verilerinizi bekliyoruz");
   expect(text).not.toContain("/r#");
@@ -214,6 +221,17 @@ test("48a: the tasks page lists the three groups and the menu shows the count", 
   const incomplete = page.getByRole("region", { name: "Eksik adımlar" });
   await expect(incomplete.getByRole("link", { name: "Tedarikçi ata" })).toHaveAttribute("href", /open=assign$/);
   await expect(incomplete.getByRole("link", { name: "Zinciri oluştur" })).toHaveAttribute("href", `/batches/${BATCH_0927}`);
+});
+
+test("48a: 'Hatırlat' opens WhatsApp without a number when the supplier's phone is unknown", async ({ page }) => {
+  const tasks = designTasks();
+  tasks.followUp[1] = { ...tasks.followUp[1], supplierPhone: null };
+  await open(page, "/tasks", { tasks });
+
+  await page.getByRole("region", { name: "Takip bekleyen talepler" }).getByRole("button", { name: "Hatırlat" }).click();
+  const [url] = await opened(page);
+  expect(url).toMatch(/^https:\/\/wa\.me\/\?text=/);
+  expect(decodeURIComponent(url)).not.toContain("/r#");
 });
 
 test("48a → 25: a task's button opens the batch with the right panel", async ({ page }) => {

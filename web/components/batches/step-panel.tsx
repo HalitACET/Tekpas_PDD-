@@ -129,7 +129,15 @@ export function StepPanel({
             {fixSent && (
               <div role="status" className="flex gap-2.5 rounded-lg bg-status-submitted-muted p-3 text-[13px] leading-[1.45] text-status-submitted-foreground">
                 <CheckCircle2 className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />
-                <span>{t("fix.sent")}</span>
+                <span className="flex flex-col items-start gap-2.5">
+                  <span>{t("fix.sent")}</span>
+                  {canRequest && canWrite && (
+                    <Button type="button" variant="secondary" size="sm" onClick={() => setRequesting(true)}>
+                      <Link2 className="size-3.5" strokeWidth={1.75} aria-hidden />
+                      {t("fix.newLink")}
+                    </Button>
+                  )}
+                </span>
               </div>
             )}
           </SheetBody>

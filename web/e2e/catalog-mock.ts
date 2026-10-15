@@ -803,6 +803,7 @@ const task = (kind: string, batch: number, extra: Record<string, unknown>) => ({
   stepId: null,
   stepType: null,
   supplierName: null,
+  supplierPhone: null,
   at: null,
   deadline: null,
   openCount: null,
@@ -821,7 +822,7 @@ export function designTasks() {
   ];
   const followUp = [
     task("CORRECTION_NO_LINK", 5, { stepId: step(5, 2), stepType: "FABRIC", supplierName: "Denizli Örme Tekstil", at: at(9, 1, 14, 5) }),
-    task("LINK_EXPIRING", 3, { stepId: step(3, 4), stepType: "SEWING", supplierName: "Gökçe Konfeksiyon", deadline: at(9, 5, 10, 0), openCount: 3 }),
+    task("LINK_EXPIRING", 3, { stepId: step(3, 4), stepType: "SEWING", supplierName: "Gökçe Konfeksiyon", supplierPhone: "+902241112233", deadline: at(9, 5, 10, 0), openCount: 3 }),
   ];
   const incomplete = [
     task("STEP_UNASSIGNED", 2, { stepId: step(2, 5), stepType: "SEWING" }),

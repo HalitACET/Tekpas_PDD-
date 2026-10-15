@@ -600,6 +600,7 @@
           "cancel": "Abbrechen",
           "send": "Korrekturanfrage senden",
           "sent": "Korrektur angefordert; der Schritt ist als „Abgelehnt“ markiert. Senden Sie dem Lieferanten einen neuen Link.",
+          "newLink": "Neuen Link erstellen",
           "failed": "Die Korrekturanfrage konnte nicht gesendet werden",
           "presets": {
             "FIBER_MISMATCH": "Faseranteil stimmt nicht"

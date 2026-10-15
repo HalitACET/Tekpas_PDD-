@@ -600,6 +600,7 @@
           "cancel": "Cancel",
           "send": "Send the correction request",
           "sent": "Correction requested; the step is marked \"Rejected\". Send the supplier a new link.",
+          "newLink": "Create a new link",
           "failed": "The correction request could not be sent",
           "presets": {
             "FIBER_MISMATCH": "Fibre ratio does not match"

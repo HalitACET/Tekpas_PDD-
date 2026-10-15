@@ -600,6 +600,7 @@
           "cancel": "Vazgeç",
           "send": "Düzeltme talebini gönder",
           "sent": "Düzeltme talebi kaydedildi; adım \"Reddedildi\" olarak işaretlendi. Tedarikçiye yeni bir bağlantı gönderin.",
+          "newLink": "Yeni bağlantı oluştur",
           "failed": "Düzeltme talebi gönderilemedi",
           "presets": {
             "FIBER_MISMATCH": "Lif oranı uyuşmuyor"
