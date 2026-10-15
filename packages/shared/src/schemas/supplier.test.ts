@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { TR_PROVINCES } from "../constants";
-import { formatPhone, nationalFromPhone, phoneFromNational, supplierSchema } from "./supplier";
+import { formatPhone, nationalFromPhone, phoneFromNational, supplierSchema, whatsAppNumber } from "./supplier";
 
 const valid = { name: "Aras Örme Konfeksiyon", type: "SEWING", city: "İzmir", phone: "+902240000000" };
 
@@ -50,4 +50,25 @@ describe("phone helpers", () => {
     expect(formatPhone("+4930123456")).toBe("+4930123456");
     expect(formatPhone(null)).toBe("");
   });
+});
+
+describe("whatsAppNumber", () => {
+  it.each(["0532 123 45 67", "+90 532 123 45 67", "532 123 45 67", "0(532)123-45-67", "+905321234567", "00905321234567"])(
+    "turns %j into 905321234567",
+    (input) => {
+      expect(whatsAppNumber(input)).toBe("905321234567");
+    },
+  );
+
+  it("keeps the country code of foreign numbers", () => {
+    expect(whatsAppNumber("+49 30 123456")).toBe("4930123456");
+    expect(whatsAppNumber("0049 30 123456")).toBe("4930123456");
+  });
+
+  it.each([null, undefined, "", "   ", "abc", "532 123 45", "0532 123 45 678", "+90", "+1", "05321234567x"])(
+    "returns null for %j so WhatsApp opens without a recipient",
+    (input) => {
+      expect(whatsAppNumber(input)).toBeNull();
+    },
+  );
 });
