@@ -11,16 +11,18 @@ import org.jspecify.annotations.Nullable;
  * A step's latest link as the panel shows it (46, 48a), without the token. An open link past its deadline is
  * EXPIRED here even before anyone reads it.
  *
+ * @param validDays the chosen validity, 3, 7 or 14 days from creation
  * @param openCount how often the supplier opened it ("3 kez açıldı")
  */
 public record DataRequestSummary(UUID id, String code, RequestStatus status, Instant createdAt, Instant expiresAt,
-        int openCount, @Nullable Instant openedAt, @Nullable Instant completedAt) {
+        int validDays, int openCount, @Nullable Instant openedAt, @Nullable Instant completedAt) {
 
     public static DataRequestSummary of(DataRequest request, Instant now) {
         RequestStatus status = request.getStatus().isOpen() && !now.isBefore(request.getExpiresAt())
                 ? RequestStatus.EXPIRED : request.getStatus();
         return new DataRequestSummary(request.getId(), RequestTokens.code(request.getId()), status,
-                request.getCreatedAt(), request.getExpiresAt(), request.getOpenCount(), request.getOpenedAt(),
+                request.getCreatedAt(), request.getExpiresAt(), request.validDays(), request.getOpenCount(),
+                request.getOpenedAt(),
                 request.getCompletedAt());
     }
 }

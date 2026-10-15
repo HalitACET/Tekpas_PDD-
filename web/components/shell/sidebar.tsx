@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogoMark } from "@/components/brand/logo";
 import { NAV } from "@/lib/nav";
+import { TasksBadge } from "./tasks-badge";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -57,6 +58,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     >
                       <Icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden />
                       {!collapsed && label}
+                      {!collapsed && key === "tasks" && <TasksBadge />}
                     </Link>
                   </li>
                 );

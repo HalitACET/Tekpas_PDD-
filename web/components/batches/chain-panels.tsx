@@ -1,9 +1,9 @@
 "use client";
 
 import type { StepType, SupplierType } from "@tekpas/shared";
-import { Check, Link2, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { type ComponentProps, useState } from "react";
+import { useState } from "react";
 import { showErrorToast } from "@/components/common/error-toast";
 import { GuardedButton } from "@/components/common/guarded-button";
 import { StepStatusBadge } from "@/components/common/step-status-badge";
@@ -11,18 +11,19 @@ import { type SupplierDialogState, SupplierDialog } from "@/components/suppliers
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetBody, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { type ChainStep, useAssignSupplier } from "@/lib/api/batches";
+import { type PanelBatch, StepLine, StepPanel } from "./step-panel";
 import { type SupplierResponse, useSuppliers } from "@/lib/api/suppliers";
 import { canWriteCatalog } from "@/lib/auth/permissions";
 import { useSession } from "@/lib/auth/use-session";
-import { DRAWN_STEP_TYPES } from "@/lib/batches/chain-layout";
-import { stepDataRows } from "@/lib/batches/step-data";
 import { formatUpdated } from "@/lib/format";
 import type { ChainNodeStep } from "./supply-chain";
 
-/** Which panel is open over the chain: a step's details (10/30) or "Tedarikçi ata" for an empty step (25). */
-export type ChainPanel = { kind: "step" | "assign"; stepId: string } | undefined;
+/**
+ * Which panel is open over the chain: a step's details (10, v0.4 47) or "Tedarikçi ata" for an empty step (25).
+ * `request` opens "Veri talep et" (46) right away, from the tasks page.
+ */
+export type ChainPanel = { kind: "step" | "assign"; stepId: string; request?: boolean } | undefined;
 
 /** The supplier type that fits a step (backend StepType.supplierType); FIBER has none. */
 const SUPPLIER_TYPE: Partial<Record<StepType, SupplierType>> = {
@@ -40,141 +41,36 @@ export function panelFor(step: ChainNodeStep): NonNullable<ChainPanel> {
 }
 
 export function ChainPanels({
-  batchId,
+  batch,
   panel,
   steps,
   onClose,
 }: {
-  batchId: string;
+  batch: PanelBatch;
   panel: ChainPanel;
   steps: readonly ChainStep[];
   onClose: () => void;
 }) {
   const t = useTranslations("batches.chain.panel");
+  const session = useSession();
+  const role = session.status === "authenticated" ? session.user.role : undefined;
   const step = panel && steps.find((s) => s.id === panel.stepId);
   return (
     <Sheet open={step !== undefined} onOpenChange={(open) => !open && onClose()}>
       <SheetContent closeLabel={t("close")} className="max-w-[480px]">
-        {step && panel?.kind === "step" && <StepPanel step={step} />}
-        {step && panel?.kind === "assign" && <AssignSupplierPanel batchId={batchId} step={step} onDone={onClose} />}
+        {step && panel?.kind === "step" && (
+          <StepPanel
+            key={step.id}
+            batch={batch}
+            step={step}
+            reviewer={role === "OWNER" || role === "ADMIN"}
+            canWrite={role !== undefined && canWriteCatalog(role)}
+            requestOnOpen={panel.request}
+          />
+        )}
+        {step && panel?.kind === "assign" && <AssignSupplierPanel batchId={batch.id} step={step} onDone={onClose} />}
       </SheetContent>
     </Sheet>
-  );
-}
-
-function StepLine({ type }: { type: StepType }) {
-  const t = useTranslations("batches.chain.panel");
-  const tStep = useTranslations("enums.stepType");
-  return (
-    <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">
-      {t("stepLine", {
-        step: tStep(type),
-        n: DRAWN_STEP_TYPES.indexOf(type as (typeof DRAWN_STEP_TYPES)[number]) + 1,
-        total: DRAWN_STEP_TYPES.length,
-      })}
-    </span>
-  );
-}
-
-/**
- * Design v0.3 10 as v0.3.1 30 shows it for M3: the step's data without the documents' fields (M5); the header
- * names only the date, not who entered it. The M4 actions are visible but disabled.
- */
-function StepPanel({ step }: { step: ChainStep }) {
-  const t = useTranslations("batches.chain.panel");
-  const tChain = useTranslations("batches.chain");
-  const tFiber = useTranslations("enums.fiber");
-  const tEnergy = useTranslations("enums.energySource");
-  const tYarn = useTranslations("enums.yarnProcess");
-  const tDye = useTranslations("enums.dyeProcess");
-  const tChemical = useTranslations("enums.chemicalStandard");
-  const locale = useLocale();
-  const fiber = step.stepType === "FIBER";
-  const name = step.supplier?.name ?? (step.data.fiberType ? tFiber(step.data.fiberType) : tChain("originMissing"));
-  const city = step.supplier ? step.supplier.city : step.data.originRegion;
-  const regions = new Intl.DisplayNames([locale], { type: "region" });
-  const rows = stepDataRows(step.stepType, step.data, locale, {
-    fiber: (f) => tFiber(f),
-    energySource: (s) => tEnergy(s),
-    yarnProcess: (p) => tYarn(p),
-    dyeProcess: (p) => tDye(p),
-    chemicalStandard: (c) => tChemical(c),
-    country: (code) => regions.of(code) ?? code,
-    unit: (unit, value) => t(`units.${unit}`, { value }),
-  });
-  const entered =
-    step.submittedAt &&
-    new Intl.DateTimeFormat(locale, {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(step.submittedAt));
-
-  return (
-    <>
-      <SheetHeader className="gap-1.5 pt-[18px]">
-        <StepLine type={step.stepType} />
-        <SheetTitle>{name}</SheetTitle>
-        <div className="flex items-center gap-2.5 text-[13px] text-muted-foreground">
-          {city}
-          <StepStatusBadge status={step.status} />
-        </div>
-      </SheetHeader>
-      <SheetBody className="gap-[22px]">
-        <section className="flex flex-col gap-2.5" aria-labelledby="step-data-title">
-          <div className="flex items-baseline justify-between gap-3">
-            <h3 id="step-data-title" className="text-[13px] font-semibold">
-              {fiber ? t("originData") : t("supplierData")}
-            </h3>
-            {entered && <span className="text-[11px] text-muted-foreground">{entered}</span>}
-          </div>
-          <dl className="rounded-lg border">
-            {rows.map((row) => (
-              <div
-                key={row.field}
-                className="grid grid-cols-[140px_minmax(0,1fr)] gap-3 border-b px-3 py-2.5 text-[13px] last:border-b-0"
-              >
-                <dt className="text-muted-foreground">{t(`fields.${row.field}`)}</dt>
-                <dd className={row.value ? "font-medium" : "text-muted-foreground"}>{row.value ?? "—"}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      </SheetBody>
-      <SheetFooter>
-        <NextVersionButton variant="secondary" className="px-3">
-          <Link2 className="size-3.5" strokeWidth={1.75} aria-hidden />
-          {t("requestData")}
-        </NextVersionButton>
-        <NextVersionButton variant="secondary" className="px-3">
-          {t("requestFix")}
-        </NextVersionButton>
-        <span className="ml-auto flex">
-          <NextVersionButton align="end" className="px-4">
-            <Check className="size-3.5" strokeWidth={2} aria-hidden />
-            {t("approve")}
-          </NextVersionButton>
-        </span>
-      </SheetFooter>
-    </>
-  );
-}
-
-/** An M4 action: disabled but focusable, "Bir sonraki sürümde" on hover and focus (v0.3.1 30). */
-function NextVersionButton({
-  align = "start",
-  ...props
-}: ComponentProps<typeof Button> & { align?: "start" | "end" }) {
-  const t = useTranslations("batches.chain.panel");
-  return (
-    <Tooltip>
-      <TooltipTrigger render={<Button {...props} disabled focusableWhenDisabled aria-description={t("nextVersion")} />} />
-      <TooltipContent side="top" align={align}>
-        {t("nextVersion")}
-      </TooltipContent>
-    </Tooltip>
   );
 }
 

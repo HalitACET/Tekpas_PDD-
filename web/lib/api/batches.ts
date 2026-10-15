@@ -11,6 +11,9 @@ export type BatchCreateRequest = components["schemas"]["BatchCreateRequest"];
 export type BatchStatusCounts = components["schemas"]["BatchStatusCounts"];
 export type ChainResponse = components["schemas"]["ChainResponse"];
 export type ChainStep = components["schemas"]["ChainStepResponse"];
+export type CreatedDataRequest = components["schemas"]["CreatedDataRequest"];
+export type DataRequestSummary = components["schemas"]["DataRequestSummary"];
+export type StepData = components["schemas"]["StepData"];
 
 /** Like the product list: no paging in the design, one page of up to 100 batches, newest change first. */
 export const BATCH_PAGE_SIZE = 100;
@@ -95,8 +98,9 @@ export function useCreateDefaultChain(id: string) {
     mutationFn: () => unwrap(api.POST("/api/v1/batches/{id}/chain", { params: { path: { id } } })),
     onSuccess: (chain) => {
       queryClient.setQueryData(queryKeys.batches.chain(id), chain);
-      // The list's chain bar and the batch itself (its summary) change too.
+      // The list's chain bar, the batch itself (its summary) and the tasks change too.
       void queryClient.invalidateQueries({ queryKey: queryKeys.batches.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
     },
   });
 }
@@ -120,8 +124,82 @@ export function useAssignSupplier(batchId: string) {
     onSuccess: (chain) => {
       queryClient.setQueryData(queryKeys.batches.chain(batchId), chain);
       void queryClient.invalidateQueries({ queryKey: queryKeys.batches.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
       // The supplier list counts batches per supplier.
       void queryClient.invalidateQueries({ queryKey: queryKeys.suppliers.all });
     },
   });
 }
+
+/**
+ * After a change to a step: the chain answer replaces the cached one; the batch (stage, list bar) and the
+ * tasks follow from the server.
+ */
+function useChainChanged(batchId: string) {
+  const queryClient = useQueryClient();
+  return (chain?: ChainResponse) => {
+    if (chain) queryClient.setQueryData(queryKeys.batches.chain(batchId), chain);
+    void queryClient.invalidateQueries({ queryKey: queryKeys.batches.all });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+  };
+}
+
+/** v0.4 46a: a link for the step (its open one is revoked); the token is only in this answer. */
+export function useCreateDataRequest(batchId: string) {
+  const changed = useChainChanged(batchId);
+  return useMutation({
+    mutationFn: ({ stepId, validDays }: { stepId: string; validDays?: number }) =>
+      unwrap(api.POST("/api/v1/steps/{id}/requests", { params: { path: { id: stepId } }, body: { validDays } })),
+    onSuccess: () => changed(),
+  });
+}
+
+/** v0.4 46a: another deadline, 3, 7 or 14 days from the link's creation. */
+export function useChangeDeadline(batchId: string) {
+  const changed = useChainChanged(batchId);
+  return useMutation({
+    mutationFn: ({ requestId, validDays }: { requestId: string; validDays: number }) =>
+      unwrap(api.PATCH("/api/v1/requests/{id}", { params: { path: { id: requestId } }, body: { validDays } })),
+    onSuccess: () => changed(),
+  });
+}
+
+/** v0.4 46b/c. */
+export function useRevokeDataRequest(batchId: string) {
+  const changed = useChainChanged(batchId);
+  return useMutation({
+    mutationFn: (requestId: string) =>
+      unwrap(api.POST("/api/v1/requests/{id}/revoke", { params: { path: { id: requestId } } })),
+    onSuccess: () => changed(),
+  });
+}
+
+/** v0.4 47a "Adımı onayla". */
+export function useApproveStep(batchId: string) {
+  const changed = useChainChanged(batchId);
+  return useMutation({
+    mutationFn: (stepId: string) => unwrap(api.POST("/api/v1/steps/{id}/approve", { params: { path: { id: stepId } } })),
+    onSuccess: (chain) => changed(chain),
+  });
+}
+
+/** v0.4 47b "Düzeltme talebini gönder": reason and the fields to mark on the supplier's form. */
+export function useRejectStep(batchId: string) {
+  const changed = useChainChanged(batchId);
+  return useMutation({
+    mutationFn: ({ stepId, reason, fields }: { stepId: string; reason: string; fields: string[] }) =>
+      unwrap(api.POST("/api/v1/steps/{id}/reject", { params: { path: { id: stepId } }, body: { reason, fields } })),
+    onSuccess: (chain) => changed(chain),
+  });
+}
+
+/** The fibre origin, the manufacturer's own declaration: approved on saving (PLAN M4). */
+export function useSaveOrigin(batchId: string) {
+  const changed = useChainChanged(batchId);
+  return useMutation({
+    mutationFn: ({ stepId, data }: { stepId: string; data: StepData }) =>
+      unwrap(api.PATCH("/api/v1/steps/{id}", { params: { path: { id: stepId } }, body: { data } })),
+    onSuccess: (chain) => changed(chain),
+  });
+}
+

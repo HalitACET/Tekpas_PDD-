@@ -39,6 +39,10 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.batches.all, "detail", id] as const,
     chain: (id: string) => [...queryKeys.batches.all, "chain", id] as const,
   },
+  /** GET /tasks (design v0.4 48): the page and the menu badge share it. */
+  tasks: {
+    all: ["tasks"] as const,
+  },
   suppliers: {
     all: ["suppliers"] as const,
     lists: () => [...queryKeys.suppliers.all, "list"] as const,

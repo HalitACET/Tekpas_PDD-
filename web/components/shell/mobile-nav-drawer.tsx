@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { Logo } from "@/components/brand/logo";
 import type { SessionUser } from "@/lib/auth/session";
 import { NAV } from "@/lib/nav";
+import { TasksBadge } from "./tasks-badge";
 import { cn } from "@/lib/utils";
 
 interface MobileNavDrawerProps {
@@ -67,6 +68,7 @@ export function MobileNavDrawer({ open, onOpenChange, user }: MobileNavDrawerPro
                         >
                           <Icon className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />
                           {t(`items.${key}`)}
+                          {key === "tasks" && <TasksBadge />}
                         </Link>
                       </li>
                     );

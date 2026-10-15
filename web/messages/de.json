@@ -107,7 +107,8 @@
     "collapse": "Menü einklappen",
     "open": "Menü öffnen",
     "close": "Menü schließen",
-    "expand": "Menü ausklappen"
+    "expand": "Menü ausklappen",
+    "tasksCount": "{count} offene Aufgaben"
   },
   "shell": {
     "skipToContent": "Zum Inhalt springen",
@@ -331,7 +332,8 @@
       "EnergyDuplicate": "Dieselbe Energiequelle wurde mehrfach eingegeben.",
       "City": "Wählen Sie eine Provinz aus der Liste.",
       "NoneExclusive": "„Keine“ kann nicht mit anderen Optionen kombiniert werden.",
-      "Duplicate": "Dieselbe Option ist doppelt ausgewählt."
+      "Duplicate": "Dieselbe Option ist doppelt ausgewählt.",
+      "OneOf": "Wählen Sie eine der Optionen."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "Dieses Produkt hat Chargen. Löschen Sie zuerst die Chargen, um das Produkt zu löschen.",
@@ -347,7 +349,9 @@
       "STEP_HAS_NO_SUPPLIER": "Ordnen Sie dem Schritt zuerst einen Lieferanten zu, um Daten anzufordern.",
       "STEP_NOT_OPEN": "Die Daten dieses Schritts wurden bereits gesendet.",
       "REQUEST_NOT_OPEN": "Dieser Link ist nicht mehr offen.",
-      "STEP_NOT_SUBMITTED": "Nur gesendete Daten können freigegeben oder zur Korrektur zurückgegeben werden."
+      "STEP_NOT_SUBMITTED": "Nur gesendete Daten können freigegeben oder zur Korrektur zurückgegeben werden.",
+      "DEADLINE_PASSED": "Diese Frist ist bereits abgelaufen; wählen Sie einen längeren Zeitraum.",
+      "BATCH_PUBLISHED": "Die Charge ist veröffentlicht; ihre Kette kann nicht geändert werden."
     }
   },
   "products": {
@@ -578,7 +582,44 @@
         "requestData": "Daten anfordern",
         "requestFix": "Korrektur anfordern",
         "approve": "Schritt freigeben",
-        "nextVersion": "In der nächsten Version"
+        "review": {
+          "title": "Der Lieferant hat die Daten gesendet · Prüfung ausstehend",
+          "body": "{who} · über den KozaPass-Link. Prüfen Sie die Werte und geben Sie den Schritt frei oder fordern Sie mit Begründung eine Korrektur an."
+        },
+        "declared": "Herstellerangabe · {date}",
+        "rejected": {
+          "title": "Korrektur angefordert · {date}",
+          "fields": "Markiertes Feld: {fields}",
+          "next": "Senden Sie dem Lieferanten einen neuen Link."
+        },
+        "fix": {
+          "title": "Korrektur anfordern",
+          "reason": "Begründung",
+          "placeholder": "Schreiben Sie dem Lieferanten, was zu korrigieren ist",
+          "hint": "Die Begründung geht an den Lieferanten und in den Verlauf der Charge.",
+          "cancel": "Abbrechen",
+          "send": "Korrekturanfrage senden",
+          "sent": "Korrektur angefordert; der Schritt ist als „Abgelehnt“ markiert. Senden Sie dem Lieferanten einen neuen Link.",
+          "newLink": "Neuen Link erstellen",
+          "failed": "Die Korrekturanfrage konnte nicht gesendet werden",
+          "presets": {
+            "FIBER_MISMATCH": "Faseranteil stimmt nicht"
+          }
+        },
+        "approveFailed": "Der Schritt konnte nicht freigegeben werden",
+        "origin": {
+          "title": "Faser und Herkunft",
+          "sub": "Die Faser dieser Charge und ihre Herkunft. Beim Speichern wird der Schritt freigegeben; bis zur Veröffentlichung der Charge bleibt er änderbar.",
+          "optional": "Optional",
+          "fiberPlaceholder": "Faser wählen",
+          "countryPlaceholder": "Land wählen",
+          "regionPlaceholder": "z. B. Harran, Şanlıurfa",
+          "save": "Speichern",
+          "edit": "Bearbeiten",
+          "cancel": "Abbrechen",
+          "failed": "Die Herkunft konnte nicht gespeichert werden",
+          "locked": "Die Charge ist veröffentlicht; die Herkunft kann nicht geändert werden."
+        }
       },
       "assign": {
         "title": "Lieferant zuordnen",
@@ -596,6 +637,37 @@
         "failed": "Der Lieferant konnte nicht zugeordnet werden",
         "listError": "Die Lieferanten konnten nicht geladen werden",
         "retry": "Erneut versuchen"
+      },
+      "request": {
+        "title": "Daten anfordern",
+        "sub": "{supplier} · Schritt {step} · {batchNo}",
+        "noPhone": "Kein Telefon",
+        "deadline": "Frist",
+        "days": "{count} Tage",
+        "deadlineHint": "Der Link schließt sich an diesem Datum von selbst. Der Lieferant sieht nur das Formular dieses Schritts.",
+        "link": "Link",
+        "created": "Erstellt {date}",
+        "opened": "{count, plural, =0 {noch nicht geöffnet} one {einmal geöffnet} other {# Mal geöffnet}}",
+        "revokedMeta": "Widerrufen · gerade eben · der Lieferant kann das Formular nicht öffnen",
+        "hidden": "Der Link wird nur beim Erstellen angezeigt. Um ihn erneut zu teilen, erstellen Sie einen neuen Link; der alte wird widerrufen.",
+        "copy": "Link kopieren",
+        "copied": "Kopiert",
+        "revokedBadge": "Widerrufen",
+        "message": "WhatsApp-Nachricht",
+        "preview": "Vorschau",
+        "text": "Guten Tag, {company} bittet um Ihre Daten zum Schritt {step} für die Charge {batchNo} ({product}). Sie können das Formular bis zum {deadline} über diesen Link ausfüllen:",
+        "signoff": "Vielen Dank, {name}",
+        "revoke": "Link widerrufen",
+        "revokeTitle": "Link widerrufen?",
+        "revokeBody": "Wenn {supplier} den Link öffnet, erscheint „Dieser Link wurde widerrufen“ und das Formular kann nicht gesendet werden.",
+        "cancel": "Abbrechen",
+        "renew": "Neuen Link erstellen",
+        "close": "Schließen",
+        "whatsapp": "Auf WhatsApp teilen",
+        "creating": "Link wird erstellt…",
+        "createFailed": "Der Link konnte nicht erstellt werden",
+        "revokeFailed": "Der Link konnte nicht widerrufen werden",
+        "deadlineFailed": "Die Frist konnte nicht geändert werden"
       }
     }
   },
@@ -672,5 +744,66 @@
       "confirm": "Verknüpfung entfernen",
       "failed": "Die Verknüpfung konnte nicht entfernt werden"
     }
+  },
+  "tasks": {
+    "sub": "Daten zur Freigabe, nachzuverfolgende Anfragen und unvollständige Schritte.",
+    "summary": "{count, plural, one {# Aufgabe} other {# Aufgaben}} · {date}",
+    "loadError": "Die Aufgaben konnten nicht geladen werden",
+    "groups": {
+      "review": {
+        "title": "Daten zur Freigabe",
+        "desc": "Vom Lieferanten gesendet, wartet auf Ihre Prüfung"
+      },
+      "followUp": {
+        "title": "Nachzuverfolgende Anfragen",
+        "desc": "Anfragen kurz vor der Frist, abgelaufen oder zur Korrektur zurückgegeben"
+      },
+      "incomplete": {
+        "title": "Unvollständige Schritte",
+        "desc": "Schritte ohne Lieferanten oder ohne Angaben"
+      }
+    },
+    "stepData": "{supplier} · Daten {step}",
+    "kinds": {
+      "STEP_SUBMITTED": {
+        "label": "Gesendet",
+        "sub": "Gesendet von {name} · {count, plural, one {# Feld} other {# Felder}}",
+        "cta": "Prüfen"
+      },
+      "CORRECTION_NO_LINK": {
+        "label": "Abgelehnt",
+        "sub": "Korrektur angefordert · kein neuer Link gesendet",
+        "cta": "Neuer Link"
+      },
+      "LINK_EXPIRED": {
+        "label": "Abgelaufen",
+        "cta": "Neuer Link"
+      },
+      "LINK_EXPIRING": {
+        "label": "Ausstehend",
+        "cta": "Erinnern"
+      },
+      "STEP_UNASSIGNED": {
+        "label": "Nicht zugeordnet",
+        "title": "Schritt {step}",
+        "cta": "Lieferant zuordnen"
+      },
+      "ORIGIN_MISSING": {
+        "label": "Keine Herkunft",
+        "title": "Faserschritt · keine Herkunft",
+        "cta": "Herkunft eingeben"
+      },
+      "NO_CHAIN": {
+        "label": "Keine Kette",
+        "title": "Noch keine Lieferkette · 5 Schritte",
+        "cta": "Kette anlegen"
+      }
+    },
+    "opened": "{count, plural, =0 {Der Link wurde nie geöffnet} one {Der Link wurde einmal geöffnet, kein Formular gesendet} other {Der Link wurde # Mal geöffnet, kein Formular gesendet}}",
+    "daysLeft": "{date} · {days, plural, one {# Tag} other {# Tage}}",
+    "reminder": "Guten Tag, {company} wartet noch auf Ihre Daten zum Schritt {step} für die Charge {batchNo}. Der Link, den wir Ihnen gesendet haben, schließt sich am {deadline}. Vielen Dank, {name}",
+    "emptyTitle": "Keine offenen Aufgaben",
+    "emptyBody": "Aufgaben erscheinen hier, wenn ein Lieferant Daten sendet, eine Anfrage kurz vor der Frist steht oder ein Schritt keinen Lieferanten hat.",
+    "goBatches": "Zu den Chargen"
   }
 }

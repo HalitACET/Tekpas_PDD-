@@ -230,6 +230,54 @@ class DataRequestApiTest {
         }
 
         @Test
+        void theValidityIsThreeSevenOrFourteenDaysAndCanBeChangedWhileOpen() {
+            Setup s = setup(fixtures.tenant());
+            MvcTestResult created = fixtures.post(s.tenant(), "/api/v1/steps/" + s.yarnStep() + "/requests",
+                    Map.of("validDays", 3));
+            assertThat(created).hasStatus(201);
+            JsonNode link = fixtures.body(created);
+            Instant createdAt = Instant.parse(link.path("createdAt").asString());
+            assertThat(link.path("validDays").asInt()).isEqualTo(3);
+            assertThat(Instant.parse(link.path("expiresAt").asString())).isEqualTo(createdAt.plus(Duration.ofDays(3)));
+            assertFieldError(fixtures.post(s.tenant(), "/api/v1/steps/" + s.yarnStep() + "/requests",
+                    Map.of("validDays", 5)), "validDays", "OneOf");
+            String uri = "/api/v1/requests/" + link.path("id").asString();
+
+            MvcTestResult changed = fixtures.patch(s.tenant(), uri, Map.of("validDays", 14));
+
+            assertThat(changed).hasStatusOk();
+            assertThat(Instant.parse(fixtures.body(changed).path("expiresAt").asString()))
+                    .isEqualTo(createdAt.plus(Duration.ofDays(14)));
+            assertThat(fixtures.body(changed).path("validDays").asInt()).isEqualTo(14);
+            // The token stays the same.
+            assertThat(open(link.path("token").asString())).hasStatusOk();
+            assertThat(jdbc.queryForObject("SELECT count(*) FROM step_event WHERE request_id = ?::uuid AND kind = "
+                    + "'REQUEST_DEADLINE_CHANGED'", Integer.class, link.path("id").asString())).isEqualTo(1);
+            assertThat(fixtures.patch(fixtures.member(s.tenant(), UserRole.VIEWER), uri, Map.of("validDays", 7)))
+                    .hasStatus(403);
+            assertThat(fixtures.patch(fixtures.tenant(), uri, Map.of("validDays", 7))).hasStatus(404);
+        }
+
+        @Test
+        void aDeadlineCannotMoveIntoThePastNorChangeOnAClosedLink() {
+            Tenant tenant = fixtures.tenant();
+            Setup s = setup(tenant);
+            JsonNode link = link(tenant, s.yarnStep());
+            String uri = "/api/v1/requests/" + link.path("id").asString();
+            clock.advance(Duration.ofDays(4));
+            Tenant later = fixtures.member(tenant, UserRole.OWNER);
+
+            MvcTestResult past = fixtures.patch(later, uri, Map.of("validDays", 3));
+            assertThat(past).hasStatus(409);
+            assertThat(fixtures.body(past).path("reason").asString()).isEqualTo("DEADLINE_PASSED");
+
+            assertThat(fixtures.post(later, uri + "/revoke", Map.of())).hasStatus(204);
+            MvcTestResult closed = fixtures.patch(later, uri, Map.of("validDays", 14));
+            assertThat(closed).hasStatus(409);
+            assertThat(fixtures.body(closed).path("reason").asString()).isEqualTo("REQUEST_NOT_OPEN");
+        }
+
+        @Test
         void aRevokedLinkIsClosedAndCannotBeRevokedTwice() {
             Setup s = setup(fixtures.tenant());
             JsonNode created = link(s.tenant(), s.yarnStep());

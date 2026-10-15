@@ -107,7 +107,8 @@
     "collapse": "Collapse menu",
     "open": "Open menu",
     "close": "Close menu",
-    "expand": "Expand menu"
+    "expand": "Expand menu",
+    "tasksCount": "{count} open tasks"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -331,7 +332,8 @@
       "EnergyDuplicate": "The same energy source is entered more than once.",
       "City": "Choose a province from the list.",
       "NoneExclusive": "\"None\" cannot be combined with other options.",
-      "Duplicate": "The same option is selected twice."
+      "Duplicate": "The same option is selected twice.",
+      "OneOf": "Choose one of the options."
     },
     "conflict": {
       "PRODUCT_HAS_BATCHES": "This product has batches. Delete its batches first to delete the product.",
@@ -347,7 +349,9 @@
       "STEP_HAS_NO_SUPPLIER": "Assign a supplier to the step before requesting data.",
       "STEP_NOT_OPEN": "The data of this step was already submitted.",
       "REQUEST_NOT_OPEN": "This link is no longer open.",
-      "STEP_NOT_SUBMITTED": "Only submitted data can be approved or sent back for correction."
+      "STEP_NOT_SUBMITTED": "Only submitted data can be approved or sent back for correction.",
+      "DEADLINE_PASSED": "That deadline is already over; choose a longer period.",
+      "BATCH_PUBLISHED": "The batch is published; its chain cannot change."
     }
   },
   "products": {
@@ -578,7 +582,44 @@
         "requestData": "Request data",
         "requestFix": "Request a correction",
         "approve": "Approve step",
-        "nextVersion": "In the next version"
+        "review": {
+          "title": "The supplier sent the data · awaiting review",
+          "body": "{who} · through the KozaPass link. Check the values, then approve the step or ask for a correction with a reason."
+        },
+        "declared": "Manufacturer's declaration · {date}",
+        "rejected": {
+          "title": "Correction requested · {date}",
+          "fields": "Marked field: {fields}",
+          "next": "Send the supplier a new link."
+        },
+        "fix": {
+          "title": "Request a correction",
+          "reason": "Reason",
+          "placeholder": "Tell the supplier what to correct",
+          "hint": "The reason goes to the supplier and into the batch history.",
+          "cancel": "Cancel",
+          "send": "Send the correction request",
+          "sent": "Correction requested; the step is marked \"Rejected\". Send the supplier a new link.",
+          "newLink": "Create a new link",
+          "failed": "The correction request could not be sent",
+          "presets": {
+            "FIBER_MISMATCH": "Fibre ratio does not match"
+          }
+        },
+        "approveFailed": "The step could not be approved",
+        "origin": {
+          "title": "Fibre and origin",
+          "sub": "The fibre used in this batch and where it comes from. Saving approves the step; it can be changed until the batch is published.",
+          "optional": "Optional",
+          "fiberPlaceholder": "Choose a fibre",
+          "countryPlaceholder": "Choose a country",
+          "regionPlaceholder": "e.g. Harran, Şanlıurfa",
+          "save": "Save",
+          "edit": "Edit",
+          "cancel": "Cancel",
+          "failed": "The origin could not be saved",
+          "locked": "The batch is published; the origin cannot change."
+        }
       },
       "assign": {
         "title": "Assign supplier",
@@ -596,6 +637,37 @@
         "failed": "The supplier could not be assigned",
         "listError": "The suppliers could not be loaded",
         "retry": "Try again"
+      },
+      "request": {
+        "title": "Request data",
+        "sub": "{supplier} · {step} step · {batchNo}",
+        "noPhone": "No phone",
+        "deadline": "Deadline",
+        "days": "{count} days",
+        "deadlineHint": "The link closes by itself on this date. The supplier only sees this step's form.",
+        "link": "Link",
+        "created": "Created {date}",
+        "opened": "{count, plural, =0 {not opened yet} one {opened once} other {opened # times}}",
+        "revokedMeta": "Revoked · just now · the supplier cannot open the form",
+        "hidden": "The link is only shown when it is created. To share it again, create a new link; the old one is revoked.",
+        "copy": "Copy link",
+        "copied": "Copied",
+        "revokedBadge": "Revoked",
+        "message": "WhatsApp message",
+        "preview": "Preview",
+        "text": "Hello, {company} would like to ask for your {step} data for batch {batchNo} ({product}). You can fill in the form until {deadline} through this link:",
+        "signoff": "Thank you, {name}",
+        "revoke": "Revoke link",
+        "revokeTitle": "Revoke the link?",
+        "revokeBody": "When {supplier} opens the link, they see “This link was revoked” and cannot send the form.",
+        "cancel": "Cancel",
+        "renew": "Create a new link",
+        "close": "Close",
+        "whatsapp": "Share on WhatsApp",
+        "creating": "Creating the link…",
+        "createFailed": "The link could not be created",
+        "revokeFailed": "The link could not be revoked",
+        "deadlineFailed": "The deadline could not be changed"
       }
     }
   },
@@ -672,5 +744,66 @@
       "confirm": "Remove link",
       "failed": "The link could not be removed"
     }
+  },
+  "tasks": {
+    "sub": "Data waiting for your approval, requests to follow up and incomplete steps.",
+    "summary": "{count, plural, one {# task} other {# tasks}} · {date}",
+    "loadError": "The tasks could not be loaded",
+    "groups": {
+      "review": {
+        "title": "Data awaiting approval",
+        "desc": "Sent by the supplier, waiting for your review"
+      },
+      "followUp": {
+        "title": "Requests to follow up",
+        "desc": "Requests close to their deadline, expired or sent back for correction"
+      },
+      "incomplete": {
+        "title": "Incomplete steps",
+        "desc": "Steps without a supplier or without their information"
+      }
+    },
+    "stepData": "{supplier} · {step} data",
+    "kinds": {
+      "STEP_SUBMITTED": {
+        "label": "Submitted",
+        "sub": "Sent by {name} · {count, plural, one {# field} other {# fields}}",
+        "cta": "Review"
+      },
+      "CORRECTION_NO_LINK": {
+        "label": "Rejected",
+        "sub": "Correction requested · no new link sent",
+        "cta": "New link"
+      },
+      "LINK_EXPIRED": {
+        "label": "Expired",
+        "cta": "New link"
+      },
+      "LINK_EXPIRING": {
+        "label": "Pending",
+        "cta": "Remind"
+      },
+      "STEP_UNASSIGNED": {
+        "label": "Unassigned",
+        "title": "{step} step",
+        "cta": "Assign supplier"
+      },
+      "ORIGIN_MISSING": {
+        "label": "No origin",
+        "title": "Fibre step · no origin yet",
+        "cta": "Enter origin"
+      },
+      "NO_CHAIN": {
+        "label": "No chain",
+        "title": "No supply chain yet · 5 steps",
+        "cta": "Create chain"
+      }
+    },
+    "opened": "{count, plural, =0 {The link was never opened} one {The link was opened once, no form sent} other {The link was opened # times, no form sent}}",
+    "daysLeft": "{date} · {days, plural, one {# day} other {# days}}",
+    "reminder": "Hello, {company} is still waiting for your {step} data for batch {batchNo}. The link we sent you closes on {deadline}. Thank you, {name}",
+    "emptyTitle": "No open tasks",
+    "emptyBody": "Tasks appear here when a supplier sends data, when a request is close to its deadline or when a step has no supplier.",
+    "goBatches": "Go to batches"
   }
 }

@@ -179,7 +179,7 @@ test("22: the list's chain bar is coloured step by step", async ({ page }) => {
 
 const panel = (page: Page, name: string) => page.getByRole("dialog", { name });
 
-test("10/30: a step opens its panel with the supplier's data; the M4 actions are disabled", async ({ page }) => {
+test("10/47a: a step opens its panel with the supplier's data and who sent it", async ({ page }) => {
   await openDetail(page, BATCH_0918);
   await expect(page.getByText("Ayrıntı için bir adıma tıklayın")).toBeVisible();
 
@@ -191,7 +191,7 @@ test("10/30: a step opens its panel with the supplier's data; the M4 actions are
   await expect(sheet).toContainText("Kahramanmaraş");
   await expect(sheet).toContainText("Gönderildi");
   await expect(sheet.getByRole("heading", { name: "Tedarikçinin girdiği veriler" })).toBeVisible();
-  await expect(sheet).toContainText("20 Eyl 2026 09:00");
+  await expect(sheet).toContainText("Ahmet K. · 16 Eyl 2026 11:04");
   await expect(sheet.locator("dl > div")).toHaveText([
     "Lif bileşimi%80 pamuk · %20 polyester",
     "Menşe ülkeTürkiye",
@@ -202,11 +202,10 @@ test("10/30: a step opens its panel with the supplier's data; the M4 actions are
   // The documents' fields (M5) stay out.
   await expect(sheet).not.toContainText("Belgelerden okunan alanlar");
 
-  for (const name of ["Veri talep et", "Düzeltme iste", "Adımı onayla"]) {
-    await expect(sheet.getByRole("button", { name })).toBeDisabled();
-  }
-  await sheet.getByRole("button", { name: "Adımı onayla" }).hover();
-  await expect(page.locator("[data-slot=tooltip-content][data-open]")).toHaveText("Bir sonraki sürümde");
+  // Submitted data: reviewed, not requested again.
+  await expect(sheet.getByRole("button", { name: "Veri talep et" })).toBeDisabled();
+  await expect(sheet.getByRole("button", { name: "Düzeltme iste" })).toBeEnabled();
+  await expect(sheet.getByRole("button", { name: "Adımı onayla" })).toBeEnabled();
 
   // The open step is marked on the canvas (behind the modal sheet, so out of the accessibility tree).
   await expect(page.locator(".react-flow__node button").nth(2)).toHaveClass(/border-ring/);
@@ -214,20 +213,15 @@ test("10/30: a step opens its panel with the supplier's data; the M4 actions are
   await expect(sheet).toBeHidden();
 });
 
-test("an empty fibre step opens the origin panel, not 'Tedarikçi ata'", async ({ page }) => {
+test("an empty fibre step opens the origin form, not 'Tedarikçi ata'", async ({ page }) => {
   await openDetail(page, BATCH_0927);
   await page.getByRole("button", { name: "Varsayılan zinciri oluştur" }).click();
 
   await chain(page).getByRole("button", { name: /Menşe girilmedi/ }).click();
   const sheet = panel(page, "Menşe girilmedi");
-  await expect(sheet.getByRole("heading", { name: "Menşe bilgileri" })).toBeVisible();
-  await expect(sheet.locator("dl > div")).toHaveText([
-    "Lif türü—",
-    "Bölge—",
-    "Menşe ülke—",
-    "Hasat yılı—",
-    "Lot miktarı—",
-  ]);
+  // The manufacturer enters it (m4-panel.spec.ts covers the form).
+  await expect(sheet.getByRole("heading", { name: "Lif ve menşe" })).toBeVisible();
+  await expect(sheet.getByRole("button", { name: "Tedarikçi ata" })).toHaveCount(0);
 });
 
 test("25: an empty step gets a supplier of the step's type", async ({ page }) => {

@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +30,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,15 +50,17 @@ public class TaskService {
     private final SupplyStepRepository steps;
     private final CompanyRepository companies;
     private final DataRequestRepository requests;
+    private final NamedParameterJdbcTemplate jdbc;
     private final Clock clock;
 
     public TaskService(BatchRepository batches, ProductRepository products, SupplyStepRepository steps,
-            CompanyRepository companies, DataRequestRepository requests, Clock clock) {
+            CompanyRepository companies, DataRequestRepository requests, NamedParameterJdbcTemplate jdbc, Clock clock) {
         this.batches = batches;
         this.products = products;
         this.steps = steps;
         this.companies = companies;
         this.requests = requests;
+        this.jdbc = jdbc;
         this.clock = clock;
     }
 
@@ -75,6 +80,7 @@ public class TaskService {
                 .collect(Collectors.toSet());
         Map<UUID, String> supplierName = companies.findAllById(supplierIds).stream()
                 .collect(Collectors.toMap(Company::getId, Company::getName));
+        Map<UUID, String> supplierPhone = phones(companyId, supplierIds);
         Map<UUID, List<DataRequest>> requestsByStep = requests
                 .findByStepIdInOrderByCreatedAtDesc(chainSteps.stream().map(SupplyStep::getId).toList()).stream()
                 .collect(Collectors.groupingBy(DataRequest::getStepId));
@@ -89,7 +95,8 @@ public class TaskService {
             String supplier = step.getSupplierCompanyId() == null ? null : supplierName.get(step.getSupplierCompanyId());
             List<DataRequest> stepRequests = requestsByStep.getOrDefault(step.getId(), List.of());
             DataRequest latest = stepRequests.isEmpty() ? null : stepRequests.getFirst();
-            Item item = new Item(batch, product, step, supplier);
+            String phone = step.getSupplierCompanyId() == null ? null : supplierPhone.get(step.getSupplierCompanyId());
+            Item item = new Item(batch, product, step, supplier, phone);
 
             switch (step.getStatus()) {
                 case SUBMITTED -> {
@@ -125,7 +132,7 @@ public class TaskService {
         batchById.values().stream().filter(b -> !withChain.contains(b.getId()))
                 .sorted(Comparator.comparing(Batch::getBatchNo))
                 .forEach(b -> incomplete.add(new TaskItem(TaskKind.NO_CHAIN, b.getId(), b.getBatchNo(),
-                        productName.get(b.getProductId()), null, null, null, null, null, null, null, null)));
+                        productName.get(b.getProductId()), null, null, null, null, null, null, null, null, null)));
 
         review.sort(Comparator.comparing(TaskItem::at, Comparator.nullsLast(Comparator.naturalOrder())));
         overdue.sort(Comparator.comparing(t -> t.at() != null ? t.at() : t.deadline(),
@@ -134,6 +141,22 @@ public class TaskService {
         List<TaskItem> followUp = new ArrayList<>(overdue);
         followUp.addAll(expiring);
         return new TasksResponse(review.size() + followUp.size() + incomplete.size(), review, followUp, incomplete);
+    }
+
+    /** The phone is the manufacturer's own note on the supplier link (company_supplier), never the supplier's. */
+    private Map<UUID, String> phones(UUID companyId, Set<UUID> supplierIds) {
+        if (supplierIds.isEmpty()) {
+            return Map.of();
+        }
+        Map<UUID, String> phones = new HashMap<>();
+        jdbc.query("""
+                SELECT supplier_id, phone FROM company_supplier
+                WHERE manufacturer_id = :me AND supplier_id IN (:suppliers) AND phone IS NOT NULL
+                """, new MapSqlParameterSource().addValue("me", companyId).addValue("suppliers", supplierIds),
+                rs -> {
+                    phones.put(rs.getObject("supplier_id", UUID.class), rs.getString("phone"));
+                });
+        return phones;
     }
 
     /** An expired link without a submission, or one whose deadline is near. */
@@ -149,12 +172,13 @@ public class TaskService {
         }
     }
 
-    private record Item(Batch batch, String product, SupplyStep step, @Nullable String supplier) {
+    private record Item(Batch batch, String product, SupplyStep step, @Nullable String supplier,
+            @Nullable String phone) {
 
         TaskItem of(TaskKind kind, @Nullable Instant at, @Nullable Instant deadline, @Nullable Integer openCount,
                 @Nullable String submitterName, @Nullable Integer filledFields) {
             return new TaskItem(kind, batch.getId(), batch.getBatchNo(), product, step.getId(), step.getStepType(),
-                    supplier, at, deadline, openCount, submitterName, filledFields);
+                    supplier, phone, at, deadline, openCount, submitterName, filledFields);
         }
     }
 }

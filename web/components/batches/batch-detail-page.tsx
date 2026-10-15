@@ -4,6 +4,7 @@ import type { Fiber, StepStatus } from "@tekpas/shared";
 import { Layers, Lock, MoveRight, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { showErrorToast } from "@/components/common/error-toast";
 import { GuardedButton } from "@/components/common/guarded-button";
@@ -11,6 +12,7 @@ import { EmptyState, ListError } from "@/components/common/list-states";
 import { ServerWakeStrip, useListWake } from "@/components/common/server-wake";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   type BatchResponse,
@@ -50,7 +52,7 @@ export function BatchDetailPage({ id }: { id: string }) {
   if (batch.isError && batch.error instanceof ApiError && batch.error.status === 404) {
     return (
       <EmptyState icon={Layers} title={t("notFoundTitle")} body={t("notFoundBody")}>
-        <Link href="/batches" className={buttonVariants({ variant: "secondary" })}>
+        <Link href="/batches" className={cn(buttonVariants({ variant: "secondary" }))}>
           {t("back")}
         </Link>
       </EmptyState>
@@ -317,14 +319,34 @@ function ChainView({
   steps: ChainNodeStep[];
   statuses: StepStatus[];
 }) {
-  const [panel, setPanel] = useState<ChainPanel>();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  // From the tasks page: ?step=<id> opens the step's panel, &open=request its "Veri talep et", &open=assign
+  // "Tedarikçi ata".
+  const [panel, setPanel] = useState<ChainPanel>(() => {
+    const stepId = searchParams.get("step");
+    const step = stepId ? steps.find((s) => s.id === stepId) : undefined;
+    if (!step) return undefined;
+    const action = searchParams.get("open");
+    return action === "assign" ? { kind: "assign", stepId: step.id } : { ...panelFor(step), request: action === "request" };
+  });
   const open = useCallback((step: ChainNodeStep) => setPanel(panelFor(step)), []);
+  const close = () => {
+    setPanel(undefined);
+    if (searchParams.has("step")) router.replace(pathname, { scroll: false });
+  };
   return (
     <div className="flex flex-col gap-3">
       <ChainLegend statuses={statuses} />
       <SupplyChainCanvas steps={steps} selectedId={panel?.stepId} onOpen={open} />
       {steps.some((s) => s.filled) && <Declarations batch={batch} chain={chain} />}
-      <ChainPanels batchId={batch.id} panel={panel} steps={chain.steps} onClose={() => setPanel(undefined)} />
+      <ChainPanels
+        batch={{ id: batch.id, batchNo: batch.batchNo, productName: batch.product.name, published: batch.status === "PUBLISHED" }}
+        panel={panel}
+        steps={chain.steps}
+        onClose={close}
+      />
     </div>
   );
 }

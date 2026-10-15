@@ -98,6 +98,23 @@ export interface MockStep {
   documentCount: number;
   submittedAt: string | null;
   updatedAt: string;
+  /** M4: the latest link (no token), the last submission, the correction asked for, the approval. */
+  request?: MockRequest | null;
+  submission?: { name: string; role: string | null; at: string; code: string } | null;
+  rejection?: { reason: string; fields: string[]; at: string } | null;
+  approvedAt?: string | null;
+}
+
+export interface MockRequest {
+  id: string;
+  code: string;
+  status: "SENT" | "OPENED" | "COMPLETED" | "EXPIRED" | "REVOKED";
+  createdAt: string;
+  expiresAt: string;
+  validDays: number;
+  openCount: number;
+  openedAt: string | null;
+  completedAt: string | null;
 }
 
 export interface MockBatch {
@@ -178,7 +195,20 @@ export function designChain(batch = 2): MockStep[] {
         yarnProcess: "CARDED",
       },
     ],
-    ["FABRIC", "SUBMITTED", "Denizli Örme Tekstil"],
+    // The data of design v0.4 47a.
+    [
+      "FABRIC",
+      "SUBMITTED",
+      "Denizli Örme Tekstil",
+      {
+        fabricType: "Süprem",
+        gsm: 180,
+        fiberComposition: [{ fiber: "COTTON", percent: 95 }, { fiber: "ELASTANE", percent: 5 }],
+        originCountry: "TR",
+        energySources: [{ source: "GRID", percent: 100 }],
+        energyKwhPerKg: 1.8,
+      },
+    ],
     [
       "DYEING",
       "SUBMITTED",
@@ -194,6 +224,33 @@ export function designChain(batch = 2): MockStep[] {
     ],
     ["SEWING", "PENDING"],
   ]);
+}
+
+/** Who sent the submitted steps of designChain (v0.4 47a "Selin A. · 17 Eyl 2026 15:40", 48a). */
+export function withSubmissions(steps: MockStep[]): MockStep[] {
+  const who: Record<string, [string, string | null, string]> = {
+    "Maraş Penye İplik": ["Ahmet Kaya", "Kalite sorumlusu", at(8, 16, 11, 4)],
+    "Denizli Örme Tekstil": ["Selin Arslan", null, at(8, 17, 15, 40)],
+    "Çınar Boya Apre": ["Kerem Çınar", "Boyahane şefi", at(8, 19, 10, 22)],
+  };
+  for (const step of steps) {
+    const sender = step.supplier && step.status === "SUBMITTED" ? who[step.supplier.name] : undefined;
+    if (!sender) continue;
+    step.submittedAt = sender[2];
+    step.submission = { name: sender[0], role: sender[1], at: sender[2], code: `KP-R-${step.id.slice(-4).toUpperCase()}` };
+    step.request = {
+      id: `50000000-0000-4000-8000-${step.id.slice(-12)}`,
+      code: step.submission.code,
+      status: "COMPLETED",
+      createdAt: at(8, 10),
+      expiresAt: at(8, 17),
+      validDays: 7,
+      openCount: 2,
+      openedAt: at(8, 11),
+      completedAt: sender[2],
+    };
+  }
+  return steps;
 }
 
 /** Five steps with suppliers, statuses in chain order. */
@@ -243,7 +300,7 @@ export function designBatches(): MockBatch[] {
   const [A, S, P, R]: StepStatus[] = ["APPROVED", "SUBMITTED", "PENDING", "REJECTED"];
   return [
     b(1, "KP-2026-0927-A", 1, 1800, "ÜE-2026-0452", "DRAFT", [], at(9, 3, 10, 5), ["2026-09-29", "2026-10-17"]),
-    b(2, "KP-2026-0918-A", 1, 2400, "ÜE-2026-0441", "COLLECTING", designChain(2), at(9, 3, 9, 32), ["2026-09-02", "2026-09-20"]),
+    b(2, "KP-2026-0918-A", 1, 2400, "ÜE-2026-0441", "COLLECTING", withSubmissions(designChain(2)), at(9, 3, 9, 32), ["2026-09-02", "2026-09-20"]),
     b(3, "KP-2026-0917-C", 2, 1150, "ÜE-2026-0437", "COLLECTING", fiveSteps(3, [A, A, A, S, P], "Gökçe Konfeksiyon"), at(9, 2, 16, 0)),
     b(4, "KP-2026-0912-B", 3, 3800, "ÜE-2026-0429", "PUBLISHED", fiveSteps(4, [A, A, A, A, A]), at(8, 12)),
     b(5, "KP-2026-0909-A", 6, 2000, "ÜE-2026-0421", "COLLECTING", fiveSteps(5, [A, A, R, P, P]), at(8, 9)),
@@ -315,6 +372,8 @@ export function designSuppliers(): MockSupplier[] {
 export const NEXT_BATCH_NO = "KP-2026-1003-A";
 
 interface CatalogOptions {
+  /** GET /tasks; the design's seven tasks of v0.4 48a unless given. */
+  tasks?: unknown;
   products?: MockProduct[];
   batches?: MockBatch[];
   /** GTINs (14 digits) that belong to another company: a save answers 409 without naming it. */
@@ -333,6 +392,7 @@ export async function mockCatalogApi(
     foreignGtins = [],
     failLists = false,
     suppliers = designSuppliers(),
+    tasks = designTasks(),
   }: CatalogOptions = {},
 ) {
   const store = products;
@@ -469,7 +529,24 @@ export async function mockCatalogApi(
     const batch = batches.find((b) => b.steps.some((s) => s.id === id));
     const step = batch?.steps.find((s) => s.id === id);
     if (!batch || !step) return notFound(route);
-    const { supplierId } = route.request().postDataJSON();
+    const body = route.request().postDataJSON();
+    if (body.data !== undefined) {
+      const missing = step.stepType === "FIBER" ? ["fiberType", "originCountry"].filter((f) => !body.data[f]) : [];
+      if (missing.length > 0) {
+        return problem(route, 400, {
+          type: "urn:tekpas:problem:validation",
+          title: "Bad Request",
+          errors: missing.map((f) => ({ field: `data.${f}`, code: "NotNull", message: "Required" })),
+        });
+      }
+      step.data = Object.fromEntries(Object.entries(body.data).filter(([, v]) => v !== null && v !== undefined));
+      if (step.stepType === "FIBER") {
+        step.status = "APPROVED";
+        step.approvedAt = new Date().toISOString();
+      }
+      return route.fulfill({ json: chainResponse(batch) });
+    }
+    const { supplierId } = body;
     const supplier = suppliers.find((x) => x.id === supplierId);
     if (!supplier) return notFound(route);
     if (supplier.type !== SUPPLIER_TYPE[step.stepType]) {
@@ -483,6 +560,84 @@ export async function mockCatalogApi(
     supplier.batchCount += 1;
     return route.fulfill({ json: chainResponse(batch) });
   });
+
+  const stepOf = (id: string | undefined) => {
+    const batch = batches.find((b) => b.steps.some((s) => s.id === id));
+    return { batch, step: batch?.steps.find((s) => s.id === id) };
+  };
+  let links = 0;
+
+  // M4 46: a link per step; the token is only in this answer.
+  await page.route(/\/api\/v1\/steps\/[0-9a-f-]{36}\/requests$/, (route) => {
+    const { batch, step } = stepOf(idBefore(route, "/requests"));
+    if (!batch || !step) return notFound(route);
+    if (!step.supplier) {
+      return problem(route, 409, { type: "urn:tekpas:problem:conflict", title: "Conflict", reason: "STEP_HAS_NO_SUPPLIER" });
+    }
+    const validDays = route.request().postDataJSON()?.validDays ?? 7;
+    // The tests' clock (the browser's is installed at NOW).
+    const createdAt = NOW.toISOString();
+    links += 1;
+    const id = `60000000-0000-4000-8000-${String(links).padStart(12, "0")}`;
+    step.request = {
+      id,
+      code: `KP-R-${String(links).padStart(4, "0")}`,
+      status: "SENT",
+      createdAt,
+      expiresAt: new Date(Date.parse(createdAt) + validDays * 86_400_000).toISOString(),
+      validDays,
+      openCount: 0,
+      openedAt: null,
+      completedAt: null,
+    };
+    if (batch.status === "DRAFT") batch.status = "COLLECTING";
+    const token = `tok${String(links).padStart(4, "0")}`.padEnd(43, "x");
+    return route.fulfill({ status: 201, json: { id, code: step.request.code, token, createdAt, expiresAt: step.request.expiresAt, validDays } });
+  });
+
+  const requestOf = (id: string | undefined) => {
+    for (const batch of batches) {
+      const step = batch.steps.find((s) => s.request?.id === id);
+      if (step) return step;
+    }
+    return undefined;
+  };
+  await page.route(/\/api\/v1\/requests\/[0-9a-f-]{36}$/, (route) => {
+    const step = requestOf(idBefore(route, ""));
+    if (!step?.request) return notFound(route);
+    const { validDays } = route.request().postDataJSON();
+    step.request.validDays = validDays;
+    step.request.expiresAt = new Date(Date.parse(step.request.createdAt) + validDays * 86_400_000).toISOString();
+    return route.fulfill({ json: step.request });
+  });
+  await page.route(/\/api\/v1\/requests\/[0-9a-f-]{36}\/revoke$/, (route) => {
+    const step = requestOf(idBefore(route, "/revoke"));
+    if (!step?.request) return notFound(route);
+    step.request.status = "REVOKED";
+    return route.fulfill({ status: 204 });
+  });
+
+  // M4 47: review of submitted data.
+  await page.route(/\/api\/v1\/steps\/[0-9a-f-]{36}\/(approve|reject)$/, (route) => {
+    const path = new URL(route.request().url()).pathname;
+    const approve = path.endsWith("/approve");
+    const { batch, step } = stepOf(idBefore(route, approve ? "/approve" : "/reject"));
+    if (!batch || !step) return notFound(route);
+    if (step.status !== "SUBMITTED") {
+      return problem(route, 409, { type: "urn:tekpas:problem:conflict", title: "Conflict", reason: "STEP_NOT_SUBMITTED" });
+    }
+    if (approve) {
+      step.status = "APPROVED";
+      step.approvedAt = new Date().toISOString();
+    } else {
+      const { reason, fields } = route.request().postDataJSON();
+      step.status = "REJECTED";
+      step.rejection = { reason, fields: fields ?? [], at: new Date().toISOString() };
+    }
+    return route.fulfill({ json: chainResponse(batch) });
+  });
+
+  await page.route(/\/api\/v1\/tasks$/, (route) => route.fulfill({ json: tasks }));
 
   await page.route(/\/api\/v1\/products\/[0-9a-f-]{36}\/chain-preview$/, (route) => {
     const id = idBefore(route, "/chain-preview");
@@ -639,3 +794,40 @@ export async function mockCatalogApi(
 
   return store;
 }
+
+const task = (kind: string, batch: number, extra: Record<string, unknown>) => ({
+  kind,
+  batchId: `30000000-0000-4000-8000-00000000000${batch}`,
+  batchNo: ({ 1: "KP-2026-0927-A", 2: "KP-2026-0918-A", 3: "KP-2026-0917-C", 5: "KP-2026-0909-A" } as Record<number, string>)[batch],
+  productName: ({ 1: "Organik pamuk tişört, ekru", 2: "Organik pamuk tişört, ekru", 3: "Keten gömlek, lacivert", 5: "Pamuklu sweatshirt, gri melanj" } as Record<number, string>)[batch],
+  stepId: null,
+  stepType: null,
+  supplierName: null,
+  supplierPhone: null,
+  at: null,
+  deadline: null,
+  openCount: null,
+  submitterName: null,
+  filledFields: null,
+  ...extra,
+});
+
+/** The tasks of design v0.4 48a (certificates join with M7), on the design batches. */
+export function designTasks() {
+  const step = (batch: number, i: number) => `40000000-0000-4000-8000-0000000${String(batch).padStart(2, "0")}${String(i).padStart(3, "0")}`;
+  const review = [
+    task("STEP_SUBMITTED", 2, { stepId: step(2, 2), stepType: "YARN", supplierName: "Maraş Penye İplik", at: at(8, 16, 11, 4), submitterName: "Ahmet Kaya", filledFields: 7 }),
+    task("STEP_SUBMITTED", 2, { stepId: step(2, 3), stepType: "FABRIC", supplierName: "Denizli Örme Tekstil", at: at(8, 17, 15, 40), submitterName: "Selin Arslan", filledFields: 5 }),
+    task("STEP_SUBMITTED", 3, { stepId: step(3, 3), stepType: "DYEING", supplierName: "Çınar Boya Apre", at: at(9, 2, 16, 20), submitterName: "Kerem Çınar", filledFields: 4 }),
+  ];
+  const followUp = [
+    task("CORRECTION_NO_LINK", 5, { stepId: step(5, 2), stepType: "FABRIC", supplierName: "Denizli Örme Tekstil", at: at(9, 1, 14, 5) }),
+    task("LINK_EXPIRING", 3, { stepId: step(3, 4), stepType: "SEWING", supplierName: "Gökçe Konfeksiyon", supplierPhone: "+902241112233", deadline: at(9, 5, 10, 0), openCount: 3 }),
+  ];
+  const incomplete = [
+    task("STEP_UNASSIGNED", 2, { stepId: step(2, 5), stepType: "SEWING" }),
+    task("NO_CHAIN", 1, {}),
+  ];
+  return { total: review.length + followUp.length + incomplete.length, review, followUp, incomplete };
+}
+

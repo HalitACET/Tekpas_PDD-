@@ -141,15 +141,15 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `25-${scheme}`);
     });
 
-    test("30 step panel, M4 actions in the next version", async ({ page }) => {
+    // M4 opened the actions of 30 ("Bir sonraki sürümde"): the panel is now design v0.4 47a (impl-v0.4/47a-*).
+    test("30 step panel (actions open since M4, see v0.4 47a)", async ({ page }) => {
       await prepare(page, scheme);
       await mockAuthApi(page, { signedIn: true });
       await mockCatalogApi(page);
       await page.goto("/batches/30000000-0000-4000-8000-000000000002");
       await page.getByRole("button", { name: "Boya adımı: Çınar Boya Apre" }).click();
-      const sheet = page.getByRole("dialog", { name: "Çınar Boya Apre" });
-      await sheet.getByRole("button", { name: "Veri talep et" }).hover();
-      await expect(page.locator("[data-slot=tooltip-content][data-open]")).toBeVisible();
+      await expect(page.getByRole("dialog", { name: "Çınar Boya Apre" })).toContainText("inceleme bekliyor");
+      await page.mouse.move(0, 0);
       await shoot(page, `30-${scheme}`);
     });
 

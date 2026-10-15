@@ -305,6 +305,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change an open link's deadline
+         * @description 3, 7 or 14 days from the link's creation (design v0.4 46a); the token stays the same.
+         */
+        patch: operations["changeDataRequestDeadline"];
+        trace?: never;
+    };
     "/api/v1/requests/{id}/revoke": {
         parameters: {
             query?: never;
@@ -616,10 +636,18 @@ export interface components {
         CreatedDataRequest: {
             code: string;
             /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
             expiresAt: string;
             /** Format: uuid */
             id: string;
             token: string;
+            /** Format: int32 */
+            validDays: number;
+        };
+        DataRequestOptions: {
+            /** Format: int32 */
+            validDays?: number | null;
         };
         DataRequestSummary: {
             code: string;
@@ -636,6 +664,8 @@ export interface components {
             /** Format: date-time */
             openedAt?: string | null;
             status: components["schemas"]["RequestStatus"];
+            /** Format: int32 */
+            validDays: number;
         };
         /** @enum {string} */
         DyeProcess: "REACTIVE" | "DISPERSE" | "VAT" | "PIGMENT" | "OTHER";
@@ -947,6 +977,7 @@ export interface components {
             stepType?: components["schemas"]["StepType"];
             submitterName?: string | null;
             supplierName?: string | null;
+            supplierPhone?: string | null;
         };
         /** @enum {string} */
         TaskKind: "STEP_SUBMITTED" | "CORRECTION_NO_LINK" | "LINK_EXPIRED" | "LINK_EXPIRING" | "STEP_UNASSIGNED" | "ORIGIN_MISSING" | "NO_CHAIN";
@@ -1986,6 +2017,68 @@ export interface operations {
             };
         };
     };
+    changeDataRequestDeadline: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DataRequestOptions"];
+            };
+        };
+        responses: {
+            /** @description The link after the change */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataRequestSummary"];
+                };
+            };
+            /** @description validDays is not 3, 7 or 14 (OneOf) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such link in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The link is no longer open (REQUEST_NOT_OPEN), or the new deadline is already over (DEADLINE_PASSED) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     revokeDataRequest: {
         parameters: {
             query?: never;
@@ -2262,7 +2355,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DataRequestOptions"];
+            };
+        };
         responses: {
             /** @description The link, once */
             201: {
@@ -2271,6 +2368,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CreatedDataRequest"];
+                };
+            };
+            /** @description validDays is not 3, 7 or 14 (OneOf) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
                 };
             };
             /** @description Read-only or supplier user */

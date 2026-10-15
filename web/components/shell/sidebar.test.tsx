@@ -6,6 +6,8 @@ import { useSidebarCollapsed } from "./app-shell";
 import { Sidebar } from "./sidebar";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/batches" }));
+// The task count has its own test (tasks-badge.test.tsx).
+vi.mock("./tasks-badge", () => ({ TasksBadge: () => null }));
 
 beforeEach(() => localStorage.clear());
 
