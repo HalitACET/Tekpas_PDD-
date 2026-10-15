@@ -181,6 +181,37 @@ for (const scheme of ["light", "dark"] as const) {
   });
 }
 
+// Fabric and sewing have no frame in the design (PLAN design debt); same pieces, light theme only.
+test.describe("fabric and sewing forms", () => {
+  test.use({ colorScheme: "light" });
+
+  test("fabric form, filled in", async ({ page }) => {
+    await prepare(page, "light");
+    await openForm(page, publicView("FABRIC"));
+    await page.getByLabel("Yüzde").first().fill("95");
+    await page.getByRole("button", { name: "Lif ekle" }).click();
+    await page.getByLabel("Yüzde").nth(1).fill("5");
+    await page.getByLabel("Menşe ülke").selectOption("TR");
+    await page.getByLabel("Yüzde").nth(2).fill("100");
+    await page.getByLabel("Enerji tüketimi").fill("2,8");
+    await page.getByLabel("Kumaş tipi").fill("Süprem");
+    await page.getByLabel("Gramaj").fill("180");
+    await page.getByLabel("Teslim edilen").fill("1.150");
+    await page.getByLabel("Ad soyad").fill("Selin Arslan");
+    await shoot(page, "fabric-light");
+  });
+
+  test("sewing form, filled in", async ({ page }) => {
+    await prepare(page, "light");
+    await openForm(page, publicView("SEWING"));
+    await page.getByLabel("Menşe ülke").selectOption("TR");
+    await page.getByLabel("Yüzde").first().fill("100");
+    await page.getByLabel("Enerji tüketimi").fill("0,9");
+    await page.getByLabel("Ad soyad").fill("Gül Aydın");
+    await shoot(page, "sewing-light");
+  });
+});
+
 test.describe("design references", () => {
   // The design canvas (third-party support.js) sometimes never lays out a frame; a fresh page fixes it.
   test.describe.configure({ retries: 2 });

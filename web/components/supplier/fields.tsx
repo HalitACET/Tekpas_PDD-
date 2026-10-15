@@ -395,7 +395,7 @@ export function Segmented<T extends string>({
               aria-checked={on}
               onClick={() => onChange(on ? "" : option)}
               className={cn(
-                "h-11 min-w-0 flex-1 rounded-lg px-0.5 text-sm font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft",
+                "h-11 min-w-0 flex-1 rounded-lg px-0.5 text-sm font-medium whitespace-nowrap outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft",
                 on ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
               )}
             >

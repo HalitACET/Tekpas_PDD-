@@ -286,9 +286,15 @@ function FixSection({
   const reject = useRejectStep(batchId);
   const presets = CORRECTION_PRESETS.filter((p) => (p.stepTypes as readonly StepType[]).includes(step.stepType));
 
+  const isOn = (preset: (typeof presets)[number]) => preset.fields.every((f) => fields.includes(f));
+  // A preset marks its fields and adds its sentence once; tapping it again takes the mark back (the text stays).
   const pick = (preset: (typeof presets)[number]) => {
-    const text = t(`presets.${preset.key}`);
-    setReason((r) => (r.trim() ? `${r.trim()} ${text}.` : `${text}.`));
+    if (isOn(preset)) {
+      setFields((f) => f.filter((x) => !(preset.fields as readonly string[]).includes(x)));
+      return;
+    }
+    const text = `${t(`presets.${preset.key}`)}.`;
+    setReason((r) => (r.includes(text) ? r : r.trim() ? `${r.trim()} ${text}` : text));
     setFields((f) => [...new Set([...f, ...preset.fields])]);
   };
   const send = () =>
@@ -304,16 +310,23 @@ function FixSection({
       </h3>
       {presets.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {presets.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              onClick={() => pick(p)}
-              className="h-7 cursor-pointer rounded-full border border-input bg-card px-2.5 text-xs font-medium outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
-            >
-              {t(`presets.${p.key}`)}
-            </button>
-          ))}
+          {presets.map((p) => {
+            const on = isOn(p);
+            return (
+              <button
+                key={p.key}
+                type="button"
+                aria-pressed={on}
+                onClick={() => pick(p)}
+                className={`flex h-7 cursor-pointer items-center gap-1 rounded-full border px-2.5 text-xs font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft ${
+                  on ? "border-transparent bg-primary text-primary-foreground hover:bg-primary-hover" : "border-input bg-card hover:bg-accent"
+                }`}
+              >
+                {on && <Check className="size-3" strokeWidth={2.4} aria-hidden />}
+                {t(`presets.${p.key}`)}
+              </button>
+            );
+          })}
         </div>
       )}
       <label htmlFor={`${id}-reason`} className="flex flex-col gap-1.5 text-[13px] font-medium">

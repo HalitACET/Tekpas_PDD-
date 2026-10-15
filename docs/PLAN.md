@@ -225,6 +225,7 @@ Tasarım: `docs/design/v0.4/` (39–45 tedarikçi sayfası, 46–48 panel). PR s
 - [ ] Sunucu uyanık, APK hazır, 5 dakikalık demo senaryosu yazılı ve prova edilmiş
 - [ ] e2e testleri CI'da çalışsın (şu an yalnızca yerelde; `pnpm --filter web exec playwright test`)
 - [ ] Genel 600/dk sayacı kasıtlı doldurulursa herkes 1 dk etkilenir; Vercel IP başlığı doğrulanınca IP bazlıya dönülecek (aşağıdaki madde).
+- [ ] Düzeltme formunda (v0.4 45) gönderen ad ve görev önceki gönderimden dolsun (`PublicRequestView`'a alanlar eklenecek; şimdi boş açılıyor).
 - [ ] Tedarikçiye isteğe bağlı "ilgili kişi" alanı (v0.4 46a'daki "Ahmet Kaya" kartı, WhatsApp mesajında adıyla hitap): backend, 15'teki diyalog, 14'teki liste. Şimdilik kartta firma adı, mesaj "Merhaba," ile başlar.
 - [ ] Public rate limit için gerçek istemci IP'si: Vercel'in kendi başlığı (`x-real-ip` veya `x-vercel-forwarded-for`) Render'a ulaşıyor mu, canlıda doğrula; ulaşıyorsa `ClientIp` onu okusun ve IP başına sınırlar (M4) yeniden açılsın. Şimdilik genel sayaç + token başına sayaç.
 - [ ] Açılışı hızlandırma / Render araştırması: soğuk başlangıç 100–150 sn ("Started TekpasApplication in" 75–83 sn). Render'da önce/sonra ölç: lazy init, gereksiz auto-config, Flyway validate. Prod'a lazy init kullanıcı onayıyla. Uyuyan sunucuda erken kesilen isteğin uyanmayı iptal edip etmediği canlıda ölçülemedi (cron gün içinde uyanık tutuyor); burada bak.

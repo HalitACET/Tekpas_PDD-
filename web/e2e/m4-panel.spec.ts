@@ -132,7 +132,15 @@ test("47b: a correction with a preset marks its field and sends the reason", asy
   await expect(fix.getByRole("button", { name: "Düzeltme talebini gönder" })).toBeDisabled();
   // The documents' presets wait for M5.
   await expect(fix.getByRole("button", { name: "Belge okunaksız" })).toHaveCount(0);
-  await fix.getByRole("button", { name: "Lif oranı uyuşmuyor" }).click();
+  const preset = fix.getByRole("button", { name: "Lif oranı uyuşmuyor" });
+  await expect(preset).toHaveAttribute("aria-pressed", "false");
+  await preset.click();
+  // The chosen preset shows as chosen; tapping it again takes the mark back and adds no second sentence.
+  await expect(preset).toHaveAttribute("aria-pressed", "true");
+  await preset.click();
+  await expect(preset).toHaveAttribute("aria-pressed", "false");
+  await preset.click();
+  await expect(preset).toHaveAttribute("aria-pressed", "true");
   await expect(fix.getByLabel("Gerekçe")).toHaveValue("Lif oranı uyuşmuyor.");
   await expect(fix).toContainText("Gerekçe tedarikçiye iletilir ve parti geçmişine kaydedilir.");
   const rejected = page.waitForRequest((r) => r.url().endsWith("/reject"));

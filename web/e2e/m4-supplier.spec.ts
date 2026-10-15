@@ -376,3 +376,24 @@ test("after 3 minutes without the server the page says so and offers 'Tekrar den
   await page.getByRole("button", { name: "Tekrar dene" }).click();
   await expect(heading(page)).toHaveText("İplik adımı için bilgilerinizi bekliyoruz.", { timeout: 15_000 });
 });
+
+for (const width of [390, 360]) {
+  test(`the spinning options stay on one line at ${width} px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await mockPublicRequest(page, { view: publicView("YARN") });
+    await openLink(page);
+    await start(page);
+    const options = page.getByRole("radio");
+    await expect(options).toHaveText(["Penye", "Karde", "Open-end", "Diğer"]);
+    for (const option of await options.all()) {
+      const lines = await option.evaluate((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+      });
+      expect(lines).toBe(1);
+      expect(await option.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}
