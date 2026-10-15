@@ -38,6 +38,7 @@
       "body": "The list fills in by itself once it is ready.",
       "elapsed": "{elapsed} · usually 1–2 min",
       "sessionBody": "The panel opens by itself once it is ready.",
+      "formBody": "The form opens by itself when it is ready.",
       "gaveUpTitle": "The server was not ready within 3 minutes.",
       "gaveUpBody": "You are still signed in. The server may still be starting; it will most likely be ready when you try again.",
       "networkTitle": "The server could not be reached.",
@@ -805,5 +806,230 @@
     "emptyTitle": "No open tasks",
     "emptyBody": "Tasks appear here when a supplier sends data, when a request is close to its deadline or when a step has no supplier.",
     "goBatches": "Go to batches"
+  },
+  "supplier": {
+    "meta": {
+      "title": "Data entry"
+    },
+    "secure": "Secure connection",
+    "footer": {
+      "tagline": "KozaPass · Digital Product Passport",
+      "kvkk": "KVKK",
+      "privacy": "Privacy"
+    },
+    "loading": "Opening your link…",
+    "wake": {
+      "gaveUpTitle": "The server was not ready within 3 minutes.",
+      "gaveUpBody": "The server may still be starting. Tap the same link again in a few minutes, or try again below.",
+      "retry": "Try again"
+    },
+    "loadError": {
+      "title": "The page could not be opened",
+      "body": "The server could not be reached. Check your connection and try again.",
+      "retry": "Try again"
+    },
+    "rateLimited": {
+      "title": "Too many attempts",
+      "body": "Wait a few minutes and tap the same link again.",
+      "retry": "Try again"
+    },
+    "daysLeft": "{days, plural, one {# day left} other {# days left}}",
+    "hoursLeft": "Less than 24 hours left",
+    "welcome": {
+      "asksYou": "is asking you for data",
+      "title": "We are waiting for your {stepLower} step.",
+      "body": "Your details will appear in this product's digital product passport as the {stepLower} step.",
+      "product": "Product",
+      "batch": "Batch",
+      "step": "Step",
+      "deadline": "Deadline",
+      "remaining": "Time left",
+      "asksTitle": "What we ask of you",
+      "asks": {
+        "fibers": "Fibre composition and country of origin",
+        "origin": "Country of origin",
+        "energy": "Energy sources and consumption",
+        "deliveryKg": "Quantity delivered",
+        "deliveryYarn": "Yarn count and spinning type",
+        "fabric": "Fabric type, weight and quantity delivered",
+        "dye": "Dyeing process and chemical compliance",
+        "quantity": "Quantity processed and water use"
+      },
+      "time": "Takes about 5 minutes. You do not need any documents.",
+      "start": "Start the form",
+      "secureTitle": "Secure connection with KozaPass.",
+      "secureBody": "This link is only for you and this step. Only {manufacturer} sees what you enter.",
+      "question": "Questions?",
+      "contact": "{name} · {manufacturer}",
+      "contactAria": "Contact"
+    },
+    "form": {
+      "title": "{step} data",
+      "titleFix": "Correct your {stepLower} data",
+      "allRequired": "All fields are required unless marked otherwise.",
+      "optional": "Optional",
+      "deadlineShort": "Deadline",
+      "errorSummary": "{count, plural, one {# field has} other {# fields have}} errors.",
+      "errorSummaryGo": "Jumped to the first one.",
+      "fix": {
+        "title": "{manufacturer} asked for a correction",
+        "by": "{name} · {when}",
+        "body": "Correct the marked field and send it again. Your earlier submission stays on record; the other fields are unchanged.",
+        "flag": "Field to correct"
+      },
+      "submit": "Send",
+      "submitFix": "Send corrected data",
+      "submitting": "Sending…",
+      "after": "You cannot change the data after sending. If a correction is needed, {manufacturer} reopens the form for you.",
+      "submitFailed": "Could not send. Your data is still in the form; try again in a moment.",
+      "serverFields": "The server did not accept some fields; check the marked ones.",
+      "total": "Total {value}",
+      "pickCountry": "Select a country",
+      "none": "None",
+      "remove": "Remove row",
+      "percent": "Percent",
+      "sections": {
+        "fibers": {
+          "title": "Fibre composition",
+          "sub": {
+            "YARN": "Fibre shares of the yarn you deliver",
+            "FABRIC": "Fibre shares of the fabric you deliver"
+          },
+          "fiber": "Fibre",
+          "add": "Add fibre"
+        },
+        "origin": {
+          "title": "Place of production",
+          "label": "Country of origin",
+          "hint": {
+            "YARN": "The country the cotton was grown in",
+            "FABRIC": "The country the fabric was made in",
+            "SEWING": "The country the sewing was done in",
+            "OTHER": "The country of production"
+          }
+        },
+        "energy": {
+          "title": "Energy",
+          "sub": "Your energy sources over the period of this work",
+          "source": "Energy source",
+          "add": "Add source",
+          "kwh": "Energy use",
+          "perKg": "Electricity and heat used per kilogram",
+          "perPiece": "Electricity and heat used per garment",
+          "unitKg": "kWh/kg",
+          "unitPiece": "kWh/piece"
+        },
+        "delivery": {
+          "title": "Delivery and yarn",
+          "delivered": "Delivered",
+          "count": "Yarn count",
+          "spinning": "Spinning"
+        },
+        "fabric": {
+          "title": "Fabric and delivery",
+          "type": "Fabric type",
+          "typePlaceholder": "e.g. Single jersey",
+          "gsm": "Weight",
+          "delivered": "Delivered"
+        },
+        "dye": {
+          "title": "Dyeing process",
+          "process": "Process",
+          "pick": "Select a process",
+          "other": "Other process",
+          "otherPlaceholder": "e.g. Bleaching",
+          "shade": "Colour / shade",
+          "shadePlaceholder": "e.g. Ecru",
+          "chemicals": "Chemical compliance",
+          "chemicalsHint": "Select all that apply"
+        },
+        "quantity": {
+          "title": "Quantity and water",
+          "processed": "Quantity processed",
+          "water": "Water use"
+        },
+        "documents": {
+          "title": "Documents",
+          "soon": "Soon",
+          "lead": "Uploading certificates and technical sheets opens in a later update.",
+          "body": "You can send the form without documents. If one is needed, {manufacturer} will ask you separately.",
+          "upload": "Upload document",
+          "formats": "GOTS · OEKO-TEX · technical sheet · PDF, JPG, PNG · 10 MB at most"
+        },
+        "sender": {
+          "title": "Sender",
+          "name": "Full name",
+          "namePlaceholder": "e.g. Ahmet Kaya",
+          "role": "Your role",
+          "rolePlaceholder": "e.g. Quality manager"
+        }
+      }
+    },
+    "errors": {
+      "OriginRequired": "Select the country of origin",
+      "YarnCount": "Write the count as 30/1",
+      "FabricType": "Write the fabric type",
+      "DyeProcess": "Select the process",
+      "DyeProcessOther": "Describe the process briefly",
+      "Chemicals": "Select at least one; if none applies, select \"None\"",
+      "NameRequired": "Write your first and last name",
+      "NameShort": "The name must have at least 3 characters"
+    },
+    "done": {
+      "title": "Your data was sent to {manufacturer}",
+      "thanks": "{when} · thank you.",
+      "summary": "{step} · summary",
+      "code": "Submission no. {code}",
+      "rows": {
+        "fibers": "Fibre composition",
+        "origin": "Country of origin",
+        "energy": "Energy",
+        "kwh": "Energy use",
+        "delivered": "Delivered",
+        "yarn": "Yarn",
+        "fabricType": "Fabric type",
+        "gsm": "Weight",
+        "process": "Process",
+        "chemicals": "Chemical compliance",
+        "processed": "Quantity processed",
+        "water": "Water use",
+        "sender": "Sender"
+      },
+      "nextTitle": "What happens next",
+      "next": "{manufacturer} will review and approve your data. If a correction is needed, you get a new WhatsApp message and this form opens again.",
+      "close": "You can close this page."
+    },
+    "closed": {
+      "EXPIRED": {
+        "title": "This link has expired",
+        "body": "{manufacturer} asked for this form to be filled in by {date}. For a new link, contact the person below.",
+        "who": "For a new link",
+        "code": "Hata: LINK_EXPIRED"
+      },
+      "REVOKED": {
+        "title": "This link was withdrawn",
+        "body": "{manufacturer} cancelled this link. A new link may have been sent to you; check your WhatsApp messages.",
+        "who": "For information",
+        "code": "Hata: LINK_REVOKED"
+      },
+      "SUBMITTED": {
+        "title": "This form was already sent",
+        "body": "Submitted data cannot be changed. If something is wrong, tell {manufacturer}; they can reopen the form for you to correct it.",
+        "who": "If a change is needed",
+        "code": "Durum: ALREADY_SUBMITTED"
+      },
+      "INVALID": {
+        "title": "The link is not valid",
+        "body": "The address may be incomplete or copied wrongly. Try tapping the link in the message directly.",
+        "who": "Who to contact",
+        "hint": "Write to the person who sent you the link on WhatsApp and ask for a new one.",
+        "code": "Hata: LINK_INVALID"
+      },
+      "step": "Step",
+      "deadline": "Deadline",
+      "sender": "Sender",
+      "sentAt": "Sent",
+      "code": "Submission no."
+    }
   }
 }
