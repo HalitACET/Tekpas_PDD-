@@ -26,9 +26,10 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 
 1. **Ürün:** Üretici ürününü GTIN, kategori ve etiketteki lif bileşimiyle tanımlar. GTIN'in GS1 kontrol hanesi ve lif toplamının %100 olması doğrulanır.
 2. **Parti:** Her üretim emri için bir parti açılır. Pasaport parti düzeyindedir, çünkü her partinin tedarik zinciri farklı olabilir.
-3. **Tedarik zinciri:** Üretici tedarikçi ağını (iplikçi, kumaşçı, boyahane, konfeksiyon) kurar. Her partinin zinciri lif → iplik → kumaş → boya → konfeksiyon adımlarıyla çizilir; yeni parti zincirini ürünün son partisinden kopyalar, adımlara ağdaki tedarikçiler atanır ve düğümün rengi adımın durumunu gösterir. Tedarikçiler veriyi girişsiz, tek kullanımlık bir bağlantıdan girecek (M4).
-4. **Belge ve AI:** Sertifikalar (OEKO-TEX, GOTS…) yüklenir, AI alanları okur ve tutarlılığı kontrol eder. AI önerir, insan onaylar.
-5. **QR pasaport:** Onaylanan parti için GS1 Digital Link QR'lı, çok dilli ve herkese açık bir pasaport yayınlanır. Yayınlanan sürüm değişmez; değişiklik yeni sürüm demektir.
+3. **Tedarik zinciri:** Üretici tedarikçi ağını (iplikçi, kumaşçı, boyahane, konfeksiyon) kurar. Her partinin zinciri lif → iplik → kumaş → boya → konfeksiyon adımlarıyla çizilir; yeni parti zincirini ürünün son partisinden kopyalar, adımlara ağdaki tedarikçiler atanır ve düğümün rengi adımın durumunu gösterir. Üretici bir adım için veri talep eder; bağlantıyı WhatsApp'tan paylaşır.
+4. **Tedarikçi sayfası:** Tedarikçi, telefondan hesapsız açtığı bağlantıdaki formu doldurur ve tek seferde gönderir. Üretici gelen veriyi panelde inceler, onaylar ya da hazır bir seçimle alanı işaretleyip düzeltme ister; "Görevler" sayfası bekleyen işleri ve süresi dolan bağlantıları toplar. Bağlantının gizli kısmı yalnızca adreste durur (sunucuya ve log'lara gitmez).
+5. **Belge ve AI:** Sertifikalar (OEKO-TEX, GOTS…) yüklenir, AI alanları okur ve tutarlılığı kontrol eder. AI önerir, insan onaylar.
+6. **QR pasaport:** Onaylanan parti için GS1 Digital Link QR'lı, çok dilli ve herkese açık bir pasaport yayınlanır. Yayınlanan sürüm değişmez; değişiklik yeni sürüm demektir.
 
 ## Kilometre taşları
 
@@ -39,7 +40,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M1 | Temel altyapı: monorepo, JWT, API sözleşmesi, CI, canlıya çıkış, giriş ve panel | ✅ |
 | M2 | Ürün ve parti: GTIN doğrulaması, ürün ve parti ekranları | ✅ |
 | M3 | Tedarik zinciri: tedarikçi ağı, zincir (DAG), parti detayı | ✅ |
-| M4 | Veri talebi ve tedarikçi sayfası | ⬜ |
+| M4 | Veri talebi ve tedarikçi sayfası: bağlantı, gönderim, onay ve red, görevler | ✅ |
 | M5 | Belge ve AI çıkarımı | ⬜ |
 | M6 | Pasaport ve QR | ⬜ |
 | M7 | Tutarlılık kontrolü ve sertifika takibi | ⬜ |
@@ -52,7 +53,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 
 ## Ekran görüntüleri
 
-Tasarım Claude Design v0.3 (ve ek çerçeveleri v0.3.1, v0.3.2) ile yapıldı; tasarımla yan yana karşılaştırmalar [docs/design/impl-v0.3](docs/design/impl-v0.3), [impl-v0.3.1](docs/design/impl-v0.3.1) ve [impl-v0.3.2](docs/design/impl-v0.3.2).
+Tasarım Claude Design v0.3 (ve ek çerçeveleri v0.3.1, v0.3.2, v0.4) ile yapıldı; tasarımla yan yana karşılaştırmalar [docs/design/impl-v0.3](docs/design/impl-v0.3), [impl-v0.3.1](docs/design/impl-v0.3.1), [impl-v0.3.2](docs/design/impl-v0.3.2) ve [impl-v0.4](docs/design/impl-v0.4).
 
 | Açık tema | Koyu tema |
 | --- | --- |
@@ -66,6 +67,12 @@ Tasarım Claude Design v0.3 (ve ek çerçeveleri v0.3.1, v0.3.2) ile yapıldı; 
 | **10 Adım paneli:** tedarikçinin girdiği veriler<br><img src="docs/design/impl-v0.3/10-light.png" alt="İplik adımı paneli: lif bileşimi, menşe, enerji ve teslim bilgileri, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3/10-dark.png" alt="İplik adımı paneli, koyu tema" width="440"> |
 | **25 Tedarikçi ata**<br><img src="docs/design/impl-v0.3.1/25-light.png" alt="Tedarikçi ata paneli: konfeksiyon tedarikçileri, son durumları ve seçili tedarikçi, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3.1/25-dark.png" alt="Tedarikçi ata paneli, koyu tema" width="440"> |
 | **14 Tedarikçiler**<br><img src="docs/design/impl-v0.3/14-light.png" alt="Tedarikçi listesi: tip, şehir, telefon, parti sayısı ve son durum, açık tema" width="440"> | <br><img src="docs/design/impl-v0.3/14-dark.png" alt="Tedarikçi listesi, koyu tema" width="440"> |
+| **46a Veri talep et:** bağlantı oluşturuldu<br><img src="docs/design/impl-v0.4/46a-light.png" alt="Veri talep et paneli: bağlantı, son tarih seçimi ve WhatsApp mesajı, açık tema" width="440"> | <br><img src="docs/design/impl-v0.4/46a-dark.png" alt="Veri talep et paneli, koyu tema" width="440"> |
+| **47a Gelen veri:** inceleme ve onay<br><img src="docs/design/impl-v0.4/47a-light.png" alt="Tedarikçinin gönderdiği veri: inceleme bandı, onayla ve düzeltme iste düğmeleri, açık tema" width="440"> | <br><img src="docs/design/impl-v0.4/47a-dark.png" alt="Gelen veri incelemesi, koyu tema" width="440"> |
+| **48a Görevler**<br><img src="docs/design/impl-v0.4/48a-light.png" alt="Görevler: onay bekleyenler, takip bekleyen talepler ve eksik adımlar, açık tema" width="440"> | <br><img src="docs/design/impl-v0.4/48a-dark.png" alt="Görevler sayfası, koyu tema" width="440"> |
+| **39 Tedarikçi sayfası:** karşılama (telefon)<br><img src="docs/design/impl-v0.4/39-light.png" alt="Tedarikçi sayfası karşılama ekranı: kim istiyor, ne isteniyor, son tarih, açık tema" width="300"> | <br><img src="docs/design/impl-v0.4/39-dark.png" alt="Tedarikçi sayfası karşılama ekranı, koyu tema" width="300"> |
+| **40b Tedarikçi formu:** alan hataları<br><img src="docs/design/impl-v0.4/40b-light.png" alt="İplik formu: lif ve enerji toplamı %100 değil, iplik numarası ve ad soyad hatalı, açık tema" width="300"> | <br><img src="docs/design/impl-v0.4/40b-dark.png" alt="İplik formu alan hataları, koyu tema" width="300"> |
+| **45 Düzeltme istendi:** gerekçe üstte, alan işaretli<br><img src="docs/design/impl-v0.4/45-light.png" alt="Yeniden açılan form: düzeltme gerekçesi, işaretli lif bileşimi bölümü ve önceki veriler, açık tema" width="300"> | <br><img src="docs/design/impl-v0.4/45-dark.png" alt="Yeniden açılan form, koyu tema" width="300"> |
 
 ## Mimari
 
@@ -118,7 +125,7 @@ flowchart LR
 | Klasör | İçerik |
 | --- | --- |
 | `backend/` | Spring Boot API, Flyway migration'ları, testler |
-| `web/` | Next.js paneli; ileride herkese açık pasaport ve tedarikçi sayfaları |
+| `web/` | Next.js paneli ve tedarikçinin girişsiz sayfası (`/r`); ileride herkese açık pasaport |
 | `mobile/` | Expo uygulaması |
 | `packages/api-client/` | OpenAPI'den üretilen TS client (`openapi.json`, `src/generated/` elle düzenlenmez) |
 | `packages/shared/` | Ortak Zod şemaları, sabitler, GTIN test örnekleri |
