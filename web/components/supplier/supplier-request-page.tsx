@@ -66,7 +66,7 @@ function Notice({ title, body, onRetry }: { title: string; body: string; onRetry
   );
 }
 
-type Screen = { name: "welcome" } | { name: "form" } | { name: "done"; response: PublicSubmitResponse; values: SubmissionValues };
+type Screen = { name: "welcome" } | { name: "form" } | { name: "done"; response: PublicSubmitResponse; values: SubmissionValues; documents: string[] };
 
 /**
  * /r#<token> (design v0.4 39–45): opens the link once, then welcome → form → confirmation; a link that is
@@ -115,7 +115,7 @@ export function SupplierRequestPage() {
     if (screen.name === "done") {
       return (
         <SupplierFrame>
-          <Confirmation view={view} response={screen.response} values={screen.values} stepName={stepName} />
+          <Confirmation view={view} response={screen.response} values={screen.values} documents={screen.documents} stepName={stepName} />
         </SupplierFrame>
       );
     }
@@ -128,7 +128,7 @@ export function SupplierRequestPage() {
             view={view}
             token={token}
             stepName={stepName}
-            onSent={(response, values) => setScreen({ name: "done", response, values })}
+            onSent={(response, values, documents) => setScreen({ name: "done", response, values, documents })}
             onClosed={setClosed}
           />
         ) : (

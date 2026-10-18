@@ -132,6 +132,13 @@ Uygulama kuralları:
 - Tasarımdaki "bitince Görevler'de görünür" cümlesi çıkarıldı (Görevler sayfası okuma sonucunu listelemiyor). Belge silme tasarımda yok, arayüzde de yok (uç duruyor).
 - Ekran görüntüleri `docs/design/impl-v0.5/<çerçeve>-<tema>.png` (üretici: `web/e2e/screenshots-v05.spec.ts`; `-de-1024` ekleri en uzun çeviri + en dar genişlikte kırpılma kontrolü). Üretimdeki PDF görüntüleyicisi ve Supabase imzalı bağlantısının CORS'u canlıda doğrulanmadı.
 
+**T8 (web b, `/r`) uygulama notları:**
+- Belgeler bölümü artık hep açık (eski "Yakında" durumu kalktı). Durum `useSupplierDocuments` kancasında (`components/supplier/documents-section.tsx`); form bunu gönderme öncesi bekleme ve onay ekranındaki belge adları için kullanır. Arayüz yalnızca `documents[]` ve `aiReading` alanlarını okur.
+- Yükleme `XMLHttpRequest` ile (`uploadPublicDocument`); token yalnızca `X-Request-Token` başlığında. Dosyalar sırayla gider (0,1 CPU'lu sunucu, telefon bağlantısı). İstemci önceden eler: biçim, 10 MB, boş dosya, aynı ad+boyut, 5 sınırı (sıradakiler dahil); kalanını sunucu söyler (`FileEncrypted/Corrupt`, `FilePages`, `FileDimensions`, 409'lar, 429, 5xx). Sunucu sayfa sayısını döndürmediği için "PDF 34 sayfa" yerine "PDF 20 sayfadan uzun" yazılır.
+- Tasarımda olmayan eklemeler: belge yüklenirken "Gönder" kapalı + "Belge yükleniyor. Bitince gönderebilirsiniz." (yükleme gönderimden sonra 410 alırdı); depolama hatası ve boş dosya satırları (panelin metinleriyle aynı); kaldırma başarısız olursa satırda uyarı.
+- Düzeltme: `rejection.fields` içinde `documents` varsa bölüm işaretlenir ve oraya kaydırılır; yalnızca `documents` ise başlık "Belgelerinizi güncelleyin" olur (55a/55b). `previous=true` belgeler kilitli, sayaca girmez.
+- Ekran görüntüleri `docs/design/impl-v0.5/<kare>-<tema>.png` (49–55b; `design-*` tasarım kareleri); üretici `web/e2e/screenshots-v05-supplier.spec.ts`.
+
 ## 10. M10 listesi (M5'ten devredilenler)
 
 - **pdf.js ile metin işaretleme:** inceleme penceresinde kanıt satırına tıklayınca yalnızca sayfa değişiyor; pdf.js ile belgedeki metnin işaretlenmesi (yeni bağımlılık, kullanıcı onayı gerekir).

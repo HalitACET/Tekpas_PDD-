@@ -118,7 +118,7 @@ export function FactList({
   title,
   trailing,
 }: {
-  rows: { label: string; value: ReactNode; mono?: boolean }[];
+  rows: { label: string; value: ReactNode; mono?: boolean; /** A list of several lines: the label sits at the top. */ top?: boolean }[];
   title?: ReactNode;
   trailing?: ReactNode;
 }) {
@@ -134,10 +134,14 @@ export function FactList({
         {rows.map((row, i) => (
           <div
             key={row.label}
-            className={cn("flex items-baseline justify-between gap-4 px-4 py-[11px]", i < rows.length - 1 && "border-b border-border")}
+            className={cn(
+              "flex justify-between gap-4 px-4 py-[11px]",
+              row.top ? "items-start" : "items-baseline",
+              i < rows.length - 1 && "border-b border-border",
+            )}
           >
             <dt className="flex-none text-sm text-muted-foreground">{row.label}</dt>
-            <dd className={cn("text-right text-sm font-medium", row.mono && "font-mono")}>{row.value}</dd>
+            <dd className={cn("min-w-0 text-right text-sm font-medium", row.mono && "font-mono")}>{row.value}</dd>
           </div>
         ))}
       </dl>

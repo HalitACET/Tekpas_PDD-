@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CHEMICAL_STANDARDS,
+  DOCUMENTS_FIELD,
   type DyeProcess,
   DYE_PROCESSES,
   ENERGY_SOURCES,
@@ -12,7 +13,7 @@ import {
   type StepType,
   YARN_PROCESSES,
 } from "@tekpas/shared";
-import { CircleAlert, Lock, Upload } from "lucide-react";
+import { CircleAlert, Lock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm, useFormContext, useWatch } from "react-hook-form";
@@ -48,6 +49,7 @@ import {
   useFieldError,
   useFormInfo,
 } from "./fields";
+import { DocumentsSection, useSupplierDocuments } from "./documents-section";
 import { ContactLine, FirmTile, useDates } from "./frame";
 import { DaysLeftPill } from "./welcome";
 
@@ -352,40 +354,6 @@ function QuantitySection({ number, flagged }: { number: string; flagged: boolean
   );
 }
 
-/** Design 40/42: the documents' place. Uploading is M5; until then the section says so and does nothing. */
-function DocumentsSection({ number, manufacturer }: { number: string; manufacturer: string }) {
-  const t = useTranslations("supplier.form.sections.documents");
-  const tForm = useTranslations("supplier.form");
-  return (
-    <section aria-labelledby="documents-title" className="flex flex-col gap-3 rounded-xl border border-dashed border-input p-4">
-      <div className="flex items-center gap-2">
-        <span className="font-mono text-xs font-medium text-muted-foreground">{number}</span>
-        <h2 id="documents-title" className="text-base font-semibold">
-          {t("title")}
-        </h2>
-        <span className="text-[13px] text-muted-foreground">{tForm("optional")}</span>
-        <span className="ml-auto rounded-sm bg-muted px-2 py-[3px] text-[11px] font-medium tracking-[0.04em] text-muted-foreground uppercase">
-          {t("soon")}
-        </span>
-      </div>
-      <div aria-disabled="true" className="flex flex-col items-center gap-2 rounded-[10px] bg-muted px-4 py-5 text-center text-muted-foreground">
-        <Upload className="size-6" strokeWidth={1.5} aria-hidden />
-        <p className="text-sm leading-normal text-pretty text-foreground">{t("lead")}</p>
-        <p className="text-[13px] leading-normal text-pretty">{t("body", { manufacturer })}</p>
-        <button
-          type="button"
-          disabled
-          className="mt-1 flex h-11 cursor-not-allowed items-center gap-1.5 rounded-lg border border-input bg-card px-4 text-sm font-medium opacity-60"
-        >
-          <Lock className="size-3.5" strokeWidth={1.75} aria-hidden />
-          {t("upload")}
-        </button>
-        <p className="font-mono text-xs">{t("formats")}</p>
-      </div>
-    </section>
-  );
-}
-
 function SenderSection({ number }: { number: string }) {
   const t = useTranslations("supplier.form.sections.sender");
   return (
@@ -412,7 +380,7 @@ export function RequestForm({
   view: PublicRequestView;
   token: string;
   stepName: string;
-  onSent: (response: PublicSubmitResponse, values: SubmissionValues) => void;
+  onSent: (response: PublicSubmitResponse, values: SubmissionValues, documents: string[]) => void;
   onClosed: (error: ApiError) => void;
 }) {
   const t = useTranslations("supplier.form");
@@ -421,6 +389,10 @@ export function RequestForm({
   const type = view.stepType;
   const rejection = view.rejection;
   const flagged = useMemo(() => new Set(rejection?.fields ?? []), [rejection]);
+  // "Belge okunaksız" / "Sertifika süresi dolmuş": the manufacturer asks for new documents, nothing else.
+  const documentsFlagged = flagged.has(DOCUMENTS_FIELD);
+  const documentsOnly = documentsFlagged && flagged.size === 1;
+  const docs = useSupplierDocuments({ token, initial: view.documents, onClosed });
   const sections = sectionsFor(type);
   const form = useForm<SubmissionValues>({
     resolver: zodResolver(submissionSchema(type)) as never,
@@ -433,7 +405,7 @@ export function RequestForm({
 
   // A correction opens on the section to correct.
   useEffect(() => {
-    const first = sections.find(sectionFlagged);
+    const first = sections.find(sectionFlagged) ?? (documentsFlagged ? "documents" : undefined);
     if (!first) return;
     const frame = requestAnimationFrame(() => document.getElementById(`section-${first}`)?.scrollIntoView?.({ block: "center" }));
     return () => cancelAnimationFrame(frame);
@@ -456,7 +428,7 @@ export function RequestForm({
         submitterRole: values.submitterRole.trim() || null,
       },
       {
-        onSuccess: (response) => onSent(response, values),
+        onSuccess: (response) => onSent(response, values, docs.uploadedNames),
         onError: (error) => {
           if (error instanceof ApiError && (error.status === 410 || error.status === 404)) return onClosed(error);
           if (error instanceof ApiError && error.status === 429) return setBanner("rateLimited");
@@ -511,13 +483,13 @@ export function RequestForm({
               <blockquote className="rounded-lg border border-border bg-card px-3.5 py-3 text-[15px] leading-[1.55] text-foreground">
                 “{rejection.reason}”
               </blockquote>
-              <p className="text-[13px] leading-normal">{t("fix.body")}</p>
+              <p className="text-[13px] leading-normal">{documentsOnly ? t("fix.bodyDocuments") : t("fix.body")}</p>
             </div>
           )}
 
           <div className="flex flex-col gap-1.5 pt-1">
             <h1 className="font-serif text-[30px] leading-[1.1] font-normal tracking-[-0.02em]">
-              {rejection ? t("titleFix", { step: stepName }) : t("title", { step: stepName })}
+              {documentsOnly ? t("titleFixDocuments") : rejection ? t("titleFix", { step: stepName }) : t("title", { step: stepName })}
             </h1>
             <p className="text-sm text-muted-foreground">{t("allRequired")}</p>
           </div>
@@ -550,7 +522,7 @@ export function RequestForm({
                 return <QuantitySection key={id} {...props} />;
             }
           })}
-          <DocumentsSection number={number()} manufacturer={view.manufacturerName} />
+          <DocumentsSection number={number()} docs={docs} aiReading={view.aiReading} flagged={documentsFlagged} />
           <SenderSection number={number()} />
 
           <div className="flex flex-col gap-2.5 pt-1">
@@ -561,9 +533,14 @@ export function RequestForm({
                 </ErrorLine>
               </div>
             )}
-            <Button type="submit" size="xl" className="w-full" disabled={send.isPending}>
+            <Button type="submit" size="xl" className="w-full" disabled={send.isPending || docs.busy} aria-describedby={docs.busy ? "uploads-pending" : undefined}>
               {send.isPending ? t("submitting") : rejection ? t("submitFix") : t("submit")}
             </Button>
+            {docs.busy && (
+              <p id="uploads-pending" role="status" className="text-center text-[13px] leading-normal text-pretty text-muted-foreground">
+                {t("uploadsPending")}
+              </p>
+            )}
             <p className="text-center text-[13px] leading-normal text-pretty text-muted-foreground">
               {t("after", { manufacturer: view.manufacturerName })}
             </p>
