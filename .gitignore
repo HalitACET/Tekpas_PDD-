@@ -35,3 +35,6 @@ Thumbs.db
 # Local Claude Code / tooling
 .claude/launch.json
 .claude/settings.local.json
+
+# Local file storage (STORAGE_PROVIDER=local)
+backend/.storage/

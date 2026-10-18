@@ -185,6 +185,27 @@ Bir ayda backend'e 200 deploy yapılmayacağı için bütçe rahat. Web, mobil v
 2. Geçici olarak `autoDeployTrigger: off` yapıp elle deploy et (Render → **Manual Deploy**), sadece gerektiğinde.
 3. CDS eğitim koşusu her build'e ~10 sn ekler; son çare olarak Dockerfile'dan çıkarılabilir (açılış ~60 sn → ~130 sn olur).
 
+## 9. Supabase Storage (belge deposu, M5)
+
+Belgeler (sertifika, teknik föy) Supabase Storage'da durur; backend ona REST ile bağlanır (S3 protokolü ve SDK yok). **Proje açılana kadar bu bölüm uygulanmaz:** `STORAGE_PROVIDER` boşken backend normal açılır, belge yükleme uçları (M5 T2) 503 verir. Render'a değişkenleri girmeden önce yeni bir deploy gerekmez.
+
+1. https://supabase.com → ücretsiz proje aç (bölge: Render'a yakın, Frankfurt). Veritabanı parolasını sadece parola yöneticine kaydet; bu projede veritabanı kullanılmıyor (veri Neon'da).
+2. **Storage → New bucket:** ad `tekpas-docs`, **Public bucket kapalı**, dosya boyutu sınırı **10 MB**, izinli MIME türleri `application/pdf, image/jpeg, image/png`.
+3. **Project Settings → API:** proje URL'sini (`https://<ref>.supabase.co`) ve **service_role** anahtarını al. Anahtar RLS'i aşar: yalnızca Render'a girilir; koda, repoya, dokümana, sohbete, web'e (Vercel) yazılmaz.
+4. Render → tekpas-api → Environment (`sync: false` değişkenleri gibi elle, `render.yaml`'a yazılmaz):
+
+   | Anahtar | Değer |
+   | --- | --- |
+   | `STORAGE_PROVIDER` | `supabase` |
+   | `STORAGE_SUPABASE_URL` | `https://<ref>.supabase.co` (`https://` zorunlu, yoksa açılış durur) |
+   | `STORAGE_SUPABASE_SERVICE_KEY` | service_role anahtarı |
+   | `STORAGE_BUCKET` | `tekpas-docs` |
+
+   Eksik değişken, `https` olmayan URL veya geçersiz bucket adı **açılışta** hata verir (mesaj değeri yazmaz, değişkenin adını yazar).
+5. Doğrulama: M5 T2'den sonra panelden küçük bir belge yükle, Supabase → Storage → `tekpas-docs` içinde `docs/<firma>/<belge>` nesnesini gör. Anahtarın yeni "secret key" biçimi değil klasik `service_role` olması beklenir; yükleme 4xx/401 verirse log'daki `Storage upload failed (HTTP …)` durum koduna bak.
+
+**Duraklama:** ücretsiz Supabase projesi, 7 günlük kayan pencerede çok az kullanıcı isteği alırsa duraklatılır (resmi doküman: supabase.com/docs/guides/platform/free-project-pausing). Etkinlik olarak veritabanı sorguları, API çağrıları ve Dashboard ziyareti sayılır; **Storage isteklerinin sayılıp sayılmadığı belgede yazmıyor**, bu yüzden cron'a veya storage trafiğine güvenme. Demo haftasında Dashboard'u her 5 günde bir aç. Duraklarsa: Dashboard → organizasyon → proje → **Resume project** (1 yıl içinde geri alınır). Demo öncesi kontrol listesi: `docs/m5-plan.md` §8.
+
 ## Sorun giderme
 
 | Belirti | Sebep / çözüm |

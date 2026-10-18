@@ -154,7 +154,7 @@ Her komut repo kökünden çalıştırılır:
 ```bash
 cp .env.example .env                               # değerleri gerekirse düzenle; .env asla commit edilmez
 pnpm install
-docker compose -f infra/docker-compose.yml up -d   # Postgres :5433, MinIO :9000 (konsol :9001)
+docker compose -f infra/docker-compose.yml up -d   # Postgres :5433
 cd backend && ./mvnw spring-boot:run               # API :8080, Swagger: /swagger-ui.html
 pnpm --filter web dev                              # web :3000, dil ?lang=tr|en|de
 pnpm --filter mobile start                         # Expo; QR'ı Expo Go ile okut

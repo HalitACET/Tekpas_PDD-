@@ -16,3 +16,7 @@ tekpas:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:}
   demo:
     password: ${DEMO_PASSWORD:demo1234}
+  storage:
+    # Files stay on disk (backend/.storage, ignored by git) so uploads work without a Supabase project.
+    provider: ${STORAGE_PROVIDER:local}
+    local-dir: ${STORAGE_LOCAL_DIR:.storage}
