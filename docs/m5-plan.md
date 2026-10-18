@@ -102,3 +102,15 @@ Sonuç: `docker-compose.yml`'deki MinIO ve `S3_*` ortam değişkenleri artık ku
 - [ ] Sentetik belge seti hazır: metinli OEKO-TEX, GOTS, GRS; taranmış PDF; elle giriş için okunamaz örnek.
 - [ ] Gemini model adı `GEMINI_MODEL`'de, o günkü AI Studio listesiyle doğrulanmış; günlük kota bakıldı.
 - [ ] 10 MB sınırı canlıda denenmiş (Vercel → Render yolu).
+
+## 9. Uygulama notları (tasarım v0.5, 49–61)
+
+Tasarım `docs/design/impl-v0.5/` (ana dosya `KozaPass_v0.5.dc.html`, inceleme penceresi `KozaPassBelgeInceleme.dc.html`). 18.10.2026'da kaynak dosyalarından doğrulandı: tedarikçi 49–55b (9 çerçeve), panel 56a–61 (inceleme 57a–57i dahil), brifteki tüm durumlar var. Çerçeveler tarayıcı önizlemesinde çizilemedi (bileşen çalışma zamanı dosya adresinden yüklenmiyor), bu yüzden görsel kontrol web PR'larında ekran görüntüsüyle yapılır.
+
+Uygulama kuralları:
+- **Panel inceleme penceresinin altındaki yardım metni sığmalı, kırpılmamalı.** Tasarımda düz 13 px metin (`overflow:hidden`/`nowrap` yok; yalnızca durum çipinde ve belge önizlemesinde var). Uygulamada tek satıra zorlamayın: `truncate`, `line-clamp`, sabit yükseklik yok; dar genişlikte alta sarar. En uzun çeviriyle (de) ve 1024 px genişlikte ekran görüntüsüyle kontrol edilir.
+- **Teknik neden kodları küçük "Teknik ayrıntı" olarak kalır.** `NO_TEXT_LAYER`, `EXTRACT_TIMEOUT` ve istek no (`X-Request-Id`, ör. `3c1e-77a0`) nedenin altında tek küçük, soluk, tek aralıklı satırdır (tasarımda "Neden: … · istek …"; etiket "Teknik ayrıntı" olur, çeviri anahtarı). Ana metin kod içermez, kullanıcı dilinde açıklama verir. Kod değerleri çevrilmez.
+- **Tedarikçi ekranlarında okuma sonucu asla gösterilmez.** Okuma durumu, belge türü önerisi, alan değeri, güven yüzdesi, "AI" rozeti ve neden kodu tedarikçi API cevaplarında da yoktur (`PublicDocument` yalnızca id, dosya adı, boyut, yüklenme zamanı, önceki gönderimden mi). Tedarikçinin gördüğü tek durum "Yüklendi"; kaynak dosyada (`KozaPassSupplier.dc.html`) okuma sözcüğü yok (tek geçen "güvenli bağlantı").
+- 53a'daki hata satırları (biçim, 10 MB, aynı belge, şifreli/bozuk, 20 sayfa) sunucunun yükleme reddinin cevabıdır; sunucuda belge kaydı oluşmaz, satırda yalnızca "Kaldır" (istemci tarafı) vardır. Alan hatası kodları: `FileTooLarge` (413), `FileType` (415), `FileEmpty`, `FileEncrypted`, `FileCorrupt`, `FilePages`, `FileDimensions` (400); çakışmalar 409 `DUPLICATE_DOCUMENT`, `DOCUMENT_LIMIT`.
+- 55'teki "Önceki gönderim" belgeleri salt okunur: `PublicDocument.previous = true`. Yeni linkle yüklenenler silinebilir (gönderimden önce).
+- Not: dizin adı `impl-v0.5` tasarım dışa aktarımını içeriyor (önceki sürümlerde tasarım `v0.4/`, ekran görüntüleri `impl-v0.4/`). Web PR'larında ekran görüntüleri `impl-v0.5/` yerine `impl-v0.5-shots/` gibi ayrı bir yere konabilir; karar kullanıcıda.
