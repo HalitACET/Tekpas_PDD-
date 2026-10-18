@@ -20,6 +20,7 @@ import com.tekpas.supplychain.SupplyStepRepository;
 import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -145,6 +146,18 @@ public class DocumentService {
         String certNo = DocumentText.clean(request.certNo());
         String holder = DocumentText.clean(request.holderName());
         String issuer = DocumentText.clean(request.issuer());
+        if (request.docType().isCertificate()) {
+            List<String> missing = new ArrayList<>();
+            if (certNo == null) {
+                missing.add("certNo");
+            }
+            if (request.validUntil() == null) {
+                missing.add("validUntil");
+            }
+            if (!missing.isEmpty()) {
+                throw new IncompleteCertificateException(missing);
+            }
+        }
         Extraction proposal = d.getExtraction();
         Extraction.Fields fields = proposal == null ? Extraction.Fields.none() : proposal.fields();
         DocType detected = proposal == null || proposal.detectedType() == DocType.UNKNOWN ? null

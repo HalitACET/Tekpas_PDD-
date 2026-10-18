@@ -32,7 +32,7 @@ Render diski geçici, kalıcı disk ücretli → elendi. **Tavsiye: A.** B yaln�
 **Okuma sonucu şeması** (`document.extraction`, okumadan sonra değişmez):
 `{ detectedType, method, fields: { certNo | holderName | issuer | validFrom | validUntil: { value, confidence, source, evidence: { page, snippet ≤120 } } }, warnings[] }`
 
-**Onay (T6):** `verify` gövdesindeki değerler asıl kolonlara yazılır; `document.verification` alan başına (`docType`, `certNo`, `holderName`, `issuer`, `validFrom`, `validUntil`) `ACCEPTED | EDITED | ADDED` tutar. Öneri varken kullanıcı alanı boşaltırsa EDITED. Onaylı belge değişmez ve silinemez (409 `DOCUMENT_VERIFIED`); onay için okumanın bitmiş olması gerekir (409 `DOCUMENT_NOT_READ`).
+**Onay (T6):** `verify` gövdesindeki değerler asıl kolonlara yazılır; `document.verification` alan başına (`docType`, `certNo`, `holderName`, `issuer`, `validFrom`, `validUntil`) `ACCEPTED | EDITED | ADDED` tutar. Öneri varken kullanıcı alanı boşaltırsa EDITED. Onaylı belge değişmez ve silinemez (409 `DOCUMENT_VERIFIED`); onay için okumanın bitmiş olması gerekir (409 `DOCUMENT_NOT_READ`). **Zorunlu alanlar türe göre (karar 6):** sertifika türlerinde (`OEKO_TEX`, `GOTS`, `GRS`, `BCI`, `OCS`, `BLUESIGN`; `DocType.isCertificate()`) sertifika no ve bitiş tarihi zorunlu, eksikse **422** ve eksik alan başına bir `NotNull` hatası (`errors[].field` = `certNo` / `validUntil`); teknik föy, laboratuvar raporu, SDS, fatura ve `OTHER` için ikisi de zorunlu değil. Sahibi, veren kuruluş ve başlangıç her türde isteğe bağlı. Boşluk ve görünmez karakterden oluşan değer boş sayılır.
 
 ## 3. Okuma hattı
 
@@ -88,6 +88,10 @@ PR'lar: backend (a) T1+T2, (b) T3+T4+T5, (c) T6; web (a) T7, (b) T8. Her backend
 3. **OCR M5'te yok**; tarayıcıda OCR (tesseract.js) araştırması M10 notunda.
 4. **LLM kapısı prod'da varsayılan kapalı** (`tekpas.ai.llm.enabled=false`). Demo planı: kural yolu tek başına çalışır; LLM yalnızca taranmış belge gösteriminde açılır; çalışmazsa elle giriş akışı (bkz. §8).
 5. **Sınırlar:** link başına 5 belge, PDF 20 sayfa, gönderilmeyen belgeler 7 gün sonra silinir.
+6. **Onayda zorunlu alanlar türe göre (T6 incelemesi, 18.10.2026):** sertifika türlerinde sertifika no ve bitiş tarihi zorunlu, eksikse 422; teknik föy ve diğer sertifika olmayan türlerde zorunlu değil (bkz. §2 "Onay"). Not: bu kural **422** döner; aynı uçtaki diğer doğrulama hataları (tür `UNKNOWN`, `DateRange`, uzunluk) Bean Validation / mevcut düzen gereği 400'dür.
+7. **"Tekrar oku" ucu T7 içinde**, ayrı bir commit olarak yapılır (hata durumundaki belgeyi yeniden kuyruğa alır; tasarım brifi B2e). T6'da yok.
+8. **`unreviewedDocumentCount` = onaylanmamış her belge** (okunamayan ve hata verenler dahil), zincir düğümündeki nokta için (tasarım brifi B4). "Okuması süren" belge sayısı değil.
+9. **Tedarikçiler (14) "Sertifikalar" sütunu T7'de ayrı bir PR'dır** (brif B6: onaylı ve geçerli sertifika türleri çip, süresi dolmuş kırmızı).
 
 Sonuç: `docker-compose.yml`'deki MinIO ve `S3_*` ortam değişkenleri artık kullanılmaz; kaldırılması ve yerine `STORAGE_*` gelmesi T1 kapsamında.
 

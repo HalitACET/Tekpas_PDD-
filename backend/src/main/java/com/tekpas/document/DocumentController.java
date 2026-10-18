@@ -131,6 +131,8 @@ public class DocumentController {
     @ApiResponse(responseCode = "200", description = "The document, now VERIFIED")
     @ApiResponse(responseCode = "400", description = "Validation failed (docType OneOf when UNKNOWN, validUntil "
             + "DateRange)")
+    @ApiResponse(responseCode = "422", description = "A certificate (OEKO_TEX, GOTS, GRS, BCI, OCS, BLUESIGN) needs "
+            + "certNo and validUntil: one NotNull error per missing field. Other types need neither.")
     @ApiResponse(responseCode = "403", description = "Not OWNER or ADMIN")
     @ApiResponse(responseCode = "404", description = "No such document in this company")
     @ApiResponse(responseCode = "409", description = "DOCUMENT_VERIFIED, DOCUMENT_NOT_READ (still being read) or "

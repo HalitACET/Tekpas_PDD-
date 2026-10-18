@@ -2052,6 +2052,15 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ApiProblem"];
                 };
             };
+            /** @description A certificate (OEKO_TEX, GOTS, GRS, BCI, OCS, BLUESIGN) needs certNo and validUntil: one NotNull error per missing field. Other types need neither. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
         };
     };
     listProducts: {

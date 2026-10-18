@@ -2657,6 +2657,16 @@
               }
             },
             "description" : "DOCUMENT_VERIFIED, DOCUMENT_NOT_READ (still being read) or BATCH_PUBLISHED"
+          },
+          "422" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "A certificate (OEKO_TEX, GOTS, GRS, BCI, OCS, BLUESIGN) needs certNo and validUntil: one NotNull error per missing field. Other types need neither."
           }
         },
         "summary" : "Confirm what was read from a document",

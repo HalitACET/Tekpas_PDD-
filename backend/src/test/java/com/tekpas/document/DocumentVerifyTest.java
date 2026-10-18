@@ -104,6 +104,15 @@ class DocumentVerifyTest {
                 "Demo Textile Testing Institute (fictional)", "2026-04-01", "2027-03-31");
     }
 
+    /** 422: well formed, but a certificate without these cannot be confirmed; one NotNull error per field. */
+    private void assertRequired(MvcTestResult result, String... fields) {
+        assertThat(result).hasStatus(422);
+        JsonNode problem = fixtures.body(result);
+        assertThat(problem.path("errors").valueStream().map(e -> e.path("field").asString()))
+                .containsExactlyInAnyOrder(fields);
+        assertThat(problem.path("errors").valueStream().map(e -> e.path("code").asString())).containsOnly("NotNull");
+    }
+
     private void assertField(MvcTestResult result, String field, String code) {
         assertThat(result).hasStatus(400);
         assertThat(fixtures.body(result).path("errors").valueStream()).anySatisfy(e -> {
@@ -198,9 +207,11 @@ class DocumentVerifyTest {
         drain();
 
         // Nothing is taken from the proposal on the person's behalf: the body is the whole truth.
-        JsonNode doc = fixtures.body(verify(owner, id, values("OEKO_TEX", null, null, null, null, null)));
+        JsonNode doc = fixtures.body(verify(owner, id, values("TECH_SHEET", null, null, null, null, null)));
 
         assertThat(doc.path("reviewStatus").asString()).isEqualTo("VERIFIED");
+        assertThat(doc.path("docType").asString()).isEqualTo("TECH_SHEET");
+        assertThat(doc.path("verification").path("docType").asString()).isEqualTo("EDITED");
         assertThat(doc.path("certNo").isNull()).isTrue();
         assertThat(doc.path("validUntil").isNull()).isTrue();
         assertThat(doc.path("verification").path("certNo").asString()).isEqualTo("EDITED");
@@ -352,13 +363,61 @@ class DocumentVerifyTest {
         String id = upload(owner, s.yarnStep(), "scanned-oekotex.pdf");
         drain();
 
-        JsonNode doc = fixtures.body(verify(owner, id, values("GOTS", "  GOTS‮-55\u0000821  ",
-                "Karaca​   Tekstil\n Ltd.", "   ", null, null)));
+        JsonNode doc = fixtures.body(verify(owner, id, values("GOTS", "  GOTS\u202e-55\u0000821  ",
+                "Karaca\u200b   Tekstil\n Ltd.", "   ", null, "2027-01-14")));
 
         assertThat(doc.path("certNo").asString()).isEqualTo("GOTS-55821");
         assertThat(doc.path("holderName").asString()).isEqualTo("Karaca Tekstil Ltd.");
         assertThat(doc.path("issuer").isNull()).isTrue();
         assertThat(doc.path("verification").path("issuer").isNull()).isTrue();
+    }
+
+    @Test
+    void aCertificateNeedsItsNumberAndItsEndOfValidity() throws IOException {
+        Tenant owner = fixtures.tenant();
+        Setup s = t.setup(owner);
+        String id = upload(owner, s.yarnStep(), "scanned-oekotex.pdf");
+        drain();
+
+        for (String type : List.of("OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN")) {
+            MvcTestResult none = verify(owner, id, values(type, null, "Ornek A.S.", null, "2026-01-01", null));
+            assertRequired(none, "certNo", "validUntil");
+        }
+        assertRequired(verify(owner, id, values("GOTS", "GOTS-1", null, null, null, null)), "validUntil");
+        assertRequired(verify(owner, id, values("GOTS", null, null, null, null, "2027-01-01")), "certNo");
+        // Blank is empty, whatever the spaces and invisible characters.
+        assertRequired(verify(owner, id, values("GRS", " \u200b  ", null, null, null, "2027-01-01")), "certNo");
+        assertThat(jdbc.queryForObject("SELECT review_status FROM document WHERE id = ?::uuid", String.class, id))
+                .isEqualTo("UNREVIEWED");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM step_event WHERE step_id = ?::uuid "
+                + "AND kind = 'DOCUMENT_VERIFIED'", Integer.class, s.yarnStep())).isZero();
+
+        // With both, the same call goes through; the holder, issuer and start stay optional.
+        assertThat(verify(owner, id, values("GOTS", "DEMO-GOTS-1", null, null, null, "2027-01-14")))
+                .hasStatusOk();
+    }
+
+    @Test
+    void otherTypesNeedNeitherANumberNorAValidity() throws IOException {
+        Tenant owner = fixtures.tenant();
+        Setup s = t.setup(owner);
+        for (String type : List.of("TECH_SHEET", "LAB_REPORT", "SDS", "INVOICE", "OTHER")) {
+            String id = upload(owner, s.yarnStep(), type.equals("TECH_SHEET") ? "technical-sheet.pdf"
+                    : type.equals("LAB_REPORT") ? "unknown-letter.pdf" : type.equals("SDS") ? "oekotex-partial.pdf"
+                    : type.equals("INVOICE") ? "gots-scope-certificate.pdf" : "oekotex-expired.pdf");
+            drain();
+
+            JsonNode doc = fixtures.body(verify(owner, id, values(type, null, null, null, null, null)));
+
+            assertThat(doc.path("reviewStatus").asString()).as(type).isEqualTo("VERIFIED");
+            assertThat(doc.path("docType").asString()).isEqualTo(type);
+        }
+    }
+
+    @Test
+    void everyDocumentTypeIsEitherACertificateOrNot() {
+        assertThat(java.util.Arrays.stream(DocType.values()).filter(DocType::isCertificate).map(Enum::name))
+                .containsExactlyInAnyOrder("OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN");
     }
 
     @Test
