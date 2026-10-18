@@ -39,6 +39,6 @@ public final class RequestTokens {
 
     /** "Gönderim no" (design v0.4 43, 44): a short code derived from the request id, for reference only. */
     public static String code(UUID requestId) {
-        return "KP-R-" + requestId.toString().substring(0, 4).toUpperCase();
+        return "KP-R-" + requestId.toString().substring(0, 4).toUpperCase(java.util.Locale.ROOT);
     }
 }

@@ -10,6 +10,7 @@ import com.tekpas.document.ExtractionMethod;
 import com.tekpas.document.ExtractionStatus;
 import com.tekpas.document.reading.CertificateRules.Key;
 import java.io.IOException;
+import java.text.Normalizer;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -57,12 +58,18 @@ public class DocumentReader {
         if (!"application/pdf".equals(mimeType)) {
             return new ReadResult(ExtractionStatus.UNREADABLE, ExtractionMethod.NONE, ReadResult.NO_TEXT_LAYER, null);
         }
-        List<String> pages = PdfText.pages(bytes);
+        return readPages(PdfText.pages(bytes));
+    }
+
+    /** The reading of the text already taken from the document, page by page. */
+    ReadResult readPages(List<String> rawPages) {
+        // Composed form first: "I" + combining dot above (how some PDFs and macOS write it) becomes "İ".
+        List<String> pages = rawPages.stream().map(p -> Normalizer.normalize(p, Normalizer.Form.NFC)).toList();
         String all = String.join("\n", pages);
         if (all.codePoints().filter(Character::isLetterOrDigit).count() < MIN_TEXT) {
             return new ReadResult(ExtractionStatus.UNREADABLE, ExtractionMethod.NONE, ReadResult.NO_TEXT_LAYER, null);
         }
-        DocType type = CertificateRules.classify(all);
+        DocType type = CertificateRules.classify(Folding.fold(all));
         Map<Key, Field> found = fields(pages, CertificateRules.labels(type));
         List<String> warnings = new ArrayList<>();
         checkDates(found, warnings);
@@ -90,20 +97,21 @@ public class DocumentReader {
         Map<Key, Pattern> ownLine = new EnumMap<>(Key.class);
         labels.forEach((key, list) -> {
             String alternatives = list.stream().map(l -> "(?:" + l + ")").collect(Collectors.joining("|"));
-            sameLine.put(key, Pattern.compile("^\\s*(?:" + alternatives + ")\\s*[:：]\\s*(\\S.*)$",
-                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
-            ownLine.put(key, Pattern.compile("^\\s*(?:" + alternatives + ")\\s*[:：]?\\s*$",
-                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
+            // Matched against the folded line (see Folding): no flags, no default-locale case rules.
+            sameLine.put(key, Pattern.compile("^\\s*(?:" + alternatives + ")\\s*[:：]\\s*(\\S.*)$"));
+            ownLine.put(key, Pattern.compile("^\\s*(?:" + alternatives + ")\\s*[:：]?\\s*$"));
         });
         Map<Key, Field> found = new EnumMap<>(Key.class);
         for (int p = 0; p < pages.size(); p++) {
             String[] lines = pages.get(p).split("\\R");
             for (int i = 0; i < lines.length; i++) {
+                String folded = Folding.fold(lines[i]);
                 for (Key key : Key.values()) {
-                    Matcher same = sameLine.get(key).matcher(lines[i]);
+                    Matcher same = sameLine.get(key).matcher(folded);
                     if (same.matches()) {
-                        accept(found, key, same.group(1).strip(), SAME_LINE, p + 1, lines[i]);
-                    } else if (ownLine.get(key).matcher(lines[i]).matches()) {
+                        // Same offsets in the folded and the original line: the value keeps its case and dots.
+                        accept(found, key, lines[i].substring(same.start(1)).strip(), SAME_LINE, p + 1, lines[i]);
+                    } else if (ownLine.get(key).matcher(folded).matches()) {
                         String next = nextNonEmpty(lines, i);
                         if (next != null) {
                             accept(found, key, next.strip(), NEXT_LINE, p + 1, lines[i].strip() + " / " + next.strip());

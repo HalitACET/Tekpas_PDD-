@@ -1,0 +1,57 @@
+{
+  "status" : "READ",
+  "method" : "TEXT_RULES",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "OEKO_TEX",
+    "method" : "TEXT_RULES",
+    "fields" : {
+      "certNo" : {
+        "value" : "DEMO-OT-TR-0731",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "SERTİFİKA NO: DEMO-OT-TR-0731"
+        }
+      },
+      "holderName" : {
+        "value" : "ÖRNEK İPLİK SANAYİ VE TİCARET A.Ş., İSTANBUL",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "SERTİFİKA SAHİBİ: ÖRNEK İPLİK SANAYİ VE TİCARET A.Ş., İSTANBUL"
+        }
+      },
+      "issuer" : {
+        "value" : "DEMO TEKSTİL TEST ENSTİTÜSÜ (KURGUSAL)",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "VEREN KURULUŞ: DEMO TEKSTİL TEST ENSTİTÜSÜ (KURGUSAL)"
+        }
+      },
+      "validFrom" : {
+        "value" : "2026-04-01",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "GEÇERLİLİK SÜRESİ: 01 NİSAN 2026 – 31 MART 2027"
+        }
+      },
+      "validUntil" : {
+        "value" : "2027-03-31",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "GEÇERLİLİK SÜRESİ: 01 NİSAN 2026 – 31 MART 2027"
+        }
+      }
+    },
+    "warnings" : [ ]
+  }
+}
