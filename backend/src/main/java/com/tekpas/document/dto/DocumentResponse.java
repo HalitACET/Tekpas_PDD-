@@ -24,6 +24,8 @@ import org.jspecify.annotations.Nullable;
  * @param certNo the confirmed values (null until a person confirmed the document, or when left empty)
  * @param verifiedByName the panel user who confirmed it
  * @param verification per field: accepted as proposed, edited, or added by hand (docType included)
+ * @param rereadable whether "Tekrar oku" works now: a failed reading always, an unreadable one only while the LLM
+ *     gate is open for the company (the LLM may read what the rules could not); never a confirmed document
  */
 public record DocumentResponse(UUID id, @Nullable UUID stepId, DocType docType, String originalName, String mimeType,
         long sizeBytes, @Nullable Integer pageCount, ExtractionStatus extractionStatus, ReviewStatus reviewStatus,
@@ -31,13 +33,13 @@ public record DocumentResponse(UUID id, @Nullable UUID stepId, DocType docType, 
         @Nullable Extraction extraction, @Nullable ExtractionMethod extractionMethod, @Nullable Instant extractedAt,
         @Nullable String certNo, @Nullable String holderName, @Nullable String issuer, @Nullable LocalDate validFrom,
         @Nullable LocalDate validUntil, @Nullable String verifiedByName, @Nullable Instant verifiedAt,
-        @Nullable Verification verification) {
+        @Nullable Verification verification, boolean rereadable) {
 
-    public static DocumentResponse from(Document d, @Nullable String verifiedByName) {
+    public static DocumentResponse from(Document d, @Nullable String verifiedByName, boolean llmOpen) {
         return new DocumentResponse(d.getId(), d.getStepId(), d.getDocType(), d.getOriginalName(), d.getMimeType(),
                 d.getSizeBytes(), d.getPageCount(), d.getExtractionStatus(), d.getReviewStatus(), d.getFailureCode(),
                 d.source(), d.getUploadedByName(), d.getCreatedAt(), d.getExtraction(), d.getExtractionMethod(),
                 d.getExtractedAt(), d.getCertNo(), d.getHolderName(), d.getIssuer(), d.getValidFrom(),
-                d.getValidUntil(), verifiedByName, d.getVerifiedAt(), d.getVerification());
+                d.getValidUntil(), verifiedByName, d.getVerifiedAt(), d.getVerification(), d.rereadable(llmOpen));
     }
 }

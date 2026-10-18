@@ -47,6 +47,14 @@ export const queryKeys = {
   publicRequest: {
     view: ["public-request"] as const,
   },
+  documents: {
+    all: ["documents"] as const,
+    /** GET /steps/{id}/documents: the cards of a step's panel. */
+    ofStep: (stepId: string) => [...queryKeys.documents.all, "step", stepId] as const,
+    detail: (id: string) => [...queryKeys.documents.all, "detail", id] as const,
+    /** The file's bytes, for the review dialog's preview. */
+    file: (id: string) => [...queryKeys.documents.all, "file", id] as const,
+  },
   suppliers: {
     all: ["suppliers"] as const,
     lists: () => [...queryKeys.suppliers.all, "list"] as const,

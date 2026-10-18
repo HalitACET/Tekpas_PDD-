@@ -3,7 +3,7 @@
 import "@xyflow/react/dist/base.css";
 import type { Fiber, StepStatus, StepType } from "@tekpas/shared";
 import { type Edge, type EdgeProps, Handle, type Node, type NodeProps, Position, ReactFlow } from "@xyflow/react";
-import { Plus } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { StepStatusBadge } from "@/components/common/step-status-badge";
@@ -29,6 +29,9 @@ export interface ChainNodeStep extends LayoutStep {
   status: StepStatus;
   name?: string;
   city?: string;
+  /** Documents of the step, and whether any still waits for a person (design v0.5 59). */
+  documentCount: number;
+  unreviewedDocumentCount: number;
 }
 
 export function toNodeStep(step: ChainStep, fiberName: (fiber: Fiber) => string): ChainNodeStep {
@@ -43,6 +46,8 @@ export function toNodeStep(step: ChainStep, fiberName: (fiber: Fiber) => string)
     filled: name !== undefined,
     name,
     city,
+    documentCount: step.documentCount,
+    unreviewedDocumentCount: step.unreviewedDocumentCount,
   };
 }
 
@@ -130,8 +135,24 @@ function StepNodeView({ data: { step, selected, onOpen } }: NodeProps<StepNode>)
       }`}
     >
       {handles}
-      {/* The design's document count (top right) arrives with documents (M5). */}
-      <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">{label}</span>
+      <span className="flex items-center justify-between">
+        <span className="text-[11px] font-semibold tracking-[0.06em] text-muted-foreground uppercase">{label}</span>
+        <span
+          className="flex items-center gap-[3px] font-mono text-[11px] text-muted-foreground"
+          aria-label={t("documentCount", { count: step.documentCount })}
+        >
+          <FileText className="size-3" strokeWidth={1.75} aria-hidden />
+          {step.documentCount}
+          {step.unreviewedDocumentCount > 0 && (
+            <span
+              role="img"
+              aria-label={t("documentsPending")}
+              title={t("documentsPending")}
+              className="ml-0.5 size-[7px] rounded-full bg-brand"
+            />
+          )}
+        </span>
+      </span>
       <strong className="mt-1 truncate text-sm font-semibold tracking-[-0.01em]">{step.name}</strong>
       {step.city && <span className="truncate text-xs text-muted-foreground">{step.city}</span>}
       <span className="mt-auto">

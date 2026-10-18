@@ -78,3 +78,21 @@ export function formatDateRange(from: string | null | undefined, to: string | nu
   const start = from.slice(0, 4) === to.slice(0, 4) ? withoutYear(date(from)) : full.format(date(from));
   return `${start} – ${full.format(date(to))}`;
 }
+
+/** A file's size as the design shows it: "1,4 MB" (tr/de comma, en dot); small files in KB. */
+export function formatFileSize(bytes: number, locale: string): string {
+  if (bytes < 100 * 1024) return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Math.max(1, Math.round(bytes / 1024)))} KB`;
+  return `${new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(bytes / 1024 / 1024)} MB`;
+}
+
+/** "17 Eki 09:14", with the year when it is not this year. */
+export function formatWhen(iso: string, now: Date, locale: string): string {
+  const date = new Date(iso);
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+    ...(date.getFullYear() === now.getFullYear() ? {} : { year: "numeric" }),
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}

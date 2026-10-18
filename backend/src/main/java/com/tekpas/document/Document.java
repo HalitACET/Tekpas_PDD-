@@ -233,6 +233,25 @@ public class Document {
         this.extractedAt = now;
     }
 
+    /**
+     * Whether the reading can be run again: it failed, or the rules found nothing and the LLM, which may, is open for
+     * the company now. A confirmed document is final.
+     */
+    public boolean rereadable(boolean llmOpen) {
+        return reviewStatus != ReviewStatus.VERIFIED && (extractionStatus == ExtractionStatus.FAILED
+                || (extractionStatus == ExtractionStatus.UNREADABLE && llmOpen));
+    }
+
+    /** A reading that can be run again goes back in the queue, as freshly uploaded. */
+    public void requeueReading() {
+        this.extractionStatus = ExtractionStatus.QUEUED;
+        this.extractionMethod = null;
+        this.failureCode = null;
+        this.extraction = null;
+        this.extractionModel = null;
+        this.extractedAt = null;
+    }
+
     public @Nullable String getCertNo() {
         return certNo;
     }

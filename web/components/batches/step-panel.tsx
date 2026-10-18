@@ -1,9 +1,9 @@
 "use client";
 
-import { CORRECTION_PRESETS, FIBERS, type Fiber, ORIGIN_COUNTRIES, type StepType } from "@tekpas/shared";
-import { Check, CheckCircle2, CircleAlert, Inbox, Link2 } from "lucide-react";
+import { CORRECTION_PRESETS, DOCUMENTS_FIELD, FIBERS, type Fiber, ORIGIN_COUNTRIES, type StepType } from "@tekpas/shared";
+import { Check, CheckCircle2, CircleAlert, FileText, Inbox, Link2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { showErrorToast } from "@/components/common/error-toast";
 import { GuardedButton } from "@/components/common/guarded-button";
 import { NativeSelect } from "@/components/common/native-select";
@@ -11,6 +11,7 @@ import { StepStatusBadge } from "@/components/common/step-status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SheetBody, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { DocumentsSection } from "@/components/documents/documents-section";
 import { Textarea } from "@/components/ui/textarea";
 import { type ChainStep, type StepData, useApproveStep, useRejectStep, useSaveOrigin } from "@/lib/api/batches";
 import { ApiError } from "@/lib/api/request";
@@ -54,7 +55,7 @@ function useDateTime() {
 
 /**
  * Design v0.4 47a/b (v0.3 10 for a step without data): the supplier's data, the review of a submission and the
- * correction request. The documents' fields (M5) and the comparisons with the label and earlier batches (M7)
+ * correction request, and the step's documents (v0.5 56). The comparisons with the label and earlier batches (M7)
  * stay out. FIBER is the manufacturer's own declaration: its origin is entered here.
  */
 export function StepPanel({
@@ -76,6 +77,7 @@ export function StepPanel({
   const t = useTranslations("batches.chain.panel");
   const tChain = useTranslations("batches.chain");
   const tFiber = useTranslations("enums.fiber");
+  const tStep = useTranslations("enums.stepType");
   const dateTime = useDateTime();
   const fiber = step.stepType === "FIBER";
   const name = step.supplier?.name ?? (step.data.fiberType ? tFiber(step.data.fiberType) : tChain("originMissing"));
@@ -100,10 +102,10 @@ export function StepPanel({
         </div>
       </SheetHeader>
       {fiber ? (
-        <OriginPanel batch={batch} step={step} canWrite={canWrite} />
+        <OriginPanel batch={batch} step={step} canWrite={canWrite} reviewer={reviewer} />
       ) : (
         <>
-          <SheetBody className="gap-[22px]">
+          <SheetBody className="gap-[22px] pb-8">
             {submitted && who && (
               <div className="flex items-start gap-2.5 rounded-lg bg-status-submitted-muted px-3.5 py-3 text-[13px] leading-[1.45] text-status-submitted-foreground">
                 <Inbox className="mt-px size-4 shrink-0" strokeWidth={1.75} aria-hidden />
@@ -115,6 +117,14 @@ export function StepPanel({
             )}
             {step.status === "REJECTED" && step.rejection && !fixSent && <RejectionBox step={step} />}
             <StepData step={step} who={who} />
+            <DocumentsSection
+              stepId={step.id}
+              stepName={tStep(step.stepType)}
+              supplierName={name}
+              published={batch.published}
+              canWrite={canWrite}
+              reviewer={reviewer}
+            />
             {fixing && (
               <FixSection
                 batchId={batch.id}
@@ -284,6 +294,13 @@ function FixSection({
   const [reason, setReason] = useState("");
   const [fields, setFields] = useState<string[]>([]);
   const reject = useRejectStep(batchId);
+  // The form opens at the end of a long panel: bring it into view, with room above the footer bar. A document
+  // preset adds a line to the form, which pushes its buttons down again: bring it back.
+  const section = useRef<HTMLElement>(null);
+  const showsDocumentsHint = fields.includes(DOCUMENTS_FIELD);
+  useEffect(() => {
+    section.current?.scrollIntoView({ block: "nearest" });
+  }, [showsDocumentsHint]);
   const presets = CORRECTION_PRESETS.filter((p) => (p.stepTypes as readonly StepType[]).includes(step.stepType));
 
   const isOn = (preset: (typeof presets)[number]) => preset.fields.every((f) => fields.includes(f));
@@ -304,7 +321,11 @@ function FixSection({
     );
 
   return (
-    <section aria-labelledby={`${id}-title`} className="flex flex-col gap-2.5 rounded-[10px] border bg-muted p-3.5">
+    <section
+      ref={section}
+      aria-labelledby={`${id}-title`}
+      className="flex scroll-mb-8 flex-col gap-2.5 rounded-[10px] border bg-muted p-3.5"
+    >
       <h3 id={`${id}-title`} className="text-[13px] font-semibold">
         {t("title")}
       </h3>
@@ -328,6 +349,12 @@ function FixSection({
             );
           })}
         </div>
+      )}
+      {showsDocumentsHint && (
+        <p className="flex items-start gap-1.5 text-xs leading-normal text-muted-foreground">
+          <FileText className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
+          {t("documentsHint")}
+        </p>
       )}
       <label htmlFor={`${id}-reason`} className="flex flex-col gap-1.5 text-[13px] font-medium">
         {t("reason")}
@@ -360,10 +387,21 @@ type OriginErrors = Partial<Record<"fiberType" | "originCountry" | "originRegion
  * The fibre origin, entered by the manufacturer (PLAN M4; the form uses the section of design v0.4 40a). Saving
  * approves the step; until the batch is published "Düzenle" opens the form again.
  */
-function OriginPanel({ batch, step, canWrite }: { batch: PanelBatch; step: ChainStep; canWrite: boolean }) {
+function OriginPanel({
+  batch,
+  step,
+  canWrite,
+  reviewer,
+}: {
+  batch: PanelBatch;
+  step: ChainStep;
+  canWrite: boolean;
+  reviewer: boolean;
+}) {
   const t = useTranslations("batches.chain.panel.origin");
   const tPanel = useTranslations("batches.chain.panel");
   const tFiber = useTranslations("enums.fiber");
+  const tStep = useTranslations("enums.stepType");
   const tField = useTranslations("errors.field");
   const locale = useLocale();
   const dateTime = useDateTime();
@@ -435,6 +473,14 @@ function OriginPanel({ batch, step, canWrite }: { batch: PanelBatch; step: Chain
         <SheetBody className="gap-[22px]">
           <StepData step={step} who={step.approvedAt ? tPanel("declared", { date: dateTime(step.approvedAt) }) : undefined} />
           {batch.published && <p className="text-xs text-muted-foreground">{t("locked")}</p>}
+          <DocumentsSection
+            stepId={step.id}
+            stepName={tStep(step.stepType)}
+            supplierName={step.data.fiberType ? tFiber(step.data.fiberType) : tPanel("fields.fiberType")}
+            published={batch.published}
+            canWrite={canWrite}
+            reviewer={reviewer}
+          />
         </SheetBody>
         <SheetFooter>
           <span className="ml-auto flex">
