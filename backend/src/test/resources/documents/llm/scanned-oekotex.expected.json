@@ -1,0 +1,42 @@
+{
+  "status" : "READ",
+  "method" : "LLM",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "UNKNOWN",
+    "method" : "LLM",
+    "fields" : {
+      "certNo" : {
+        "value" : "DEMO-OT-2026-0417",
+        "confidence" : 0.6,
+        "source" : "LLM",
+        "evidence" : null
+      },
+      "holderName" : {
+        "value" : "Ornek Iplik San. ve Tic. A.S., Bursa, Turkiye",
+        "confidence" : 0.6,
+        "source" : "LLM",
+        "evidence" : null
+      },
+      "issuer" : {
+        "value" : "Demo Textile Testing Institute (fictional)",
+        "confidence" : 0.6,
+        "source" : "LLM",
+        "evidence" : null
+      },
+      "validFrom" : {
+        "value" : "2026-04-01",
+        "confidence" : 0.6,
+        "source" : "LLM",
+        "evidence" : null
+      },
+      "validUntil" : {
+        "value" : "2027-03-31",
+        "confidence" : 0.6,
+        "source" : "LLM",
+        "evidence" : null
+      }
+    },
+    "warnings" : [ ]
+  }
+}

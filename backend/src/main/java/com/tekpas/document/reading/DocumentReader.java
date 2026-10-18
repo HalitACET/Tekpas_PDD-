@@ -27,7 +27,8 @@ import org.springframework.stereotype.Component;
 /**
  * Reads a document without any outside service (docs/m5-plan.md §3, steps 1–2): the PDF's text layer, the type
  * from its phrases, the fields from the type's labels. An image or a scanned PDF has no text layer and comes back
- * UNREADABLE (NO_TEXT_LAYER); M5 has no OCR, the LLM may try it later (T5), otherwise a person types the values.
+ * UNREADABLE (NO_TEXT_LAYER); M5 has no OCR. What stays UNREADABLE may go to {@link LlmDocumentReader}, only where
+ * the LLM gate allows it; otherwise a person types the values.
  *
  * <p>Confidence: a value on the label's own line that passes its check 0.95; a value on the line below its label
  * 0.8 (the layout leaves room for doubt); a value that fails its check, or dates that contradict each other, 0.6.
@@ -128,12 +129,11 @@ public class DocumentReader {
         switch (key) {
             case CERT_NO -> {
                 String number = value.replaceAll("[.,;]+$", "").strip();
-                boolean plausible = CERT_NO.matcher(number).matches() && HAS_DIGIT.matcher(number).find();
-                put(found, Key.CERT_NO, new Field(number, plausible ? confidence : DOUBTFUL, FieldSource.TEXT_RULES,
-                        evidence));
+                put(found, Key.CERT_NO, new Field(number, plausibleCertNo(number) ? confidence : DOUBTFUL,
+                        FieldSource.TEXT_RULES, evidence));
             }
             case HOLDER, ISSUER -> {
-                if (HAS_LETTER.matcher(value).find() && value.length() <= 200) {
+                if (plausibleName(value)) {
                     put(found, key, new Field(value, confidence, FieldSource.TEXT_RULES, evidence));
                 }
             }
@@ -156,6 +156,16 @@ public class DocumentReader {
         }
     }
 
+    /** Letters, digits and separators, with at least one digit (shared with the LLM reader). */
+    static boolean plausibleCertNo(String number) {
+        return CERT_NO.matcher(number).matches() && HAS_DIGIT.matcher(number).find();
+    }
+
+    /** A company or body name: some letters, at most 200 characters. */
+    static boolean plausibleName(String value) {
+        return HAS_LETTER.matcher(value).find() && value.length() <= 200;
+    }
+
     /** Validity printed as a range is weaker than its own label: an explicit "Valid until" wins either way. */
     private static void put(Map<Key, Field> found, Key key, Field field) {
         Field existing = found.get(key);
@@ -169,7 +179,7 @@ public class DocumentReader {
     }
 
     /** A start after the end: both are doubtful. An end in the past: the certificate has expired. */
-    private void checkDates(Map<Key, Field> found, List<String> warnings) {
+    void checkDates(Map<Key, Field> found, List<String> warnings) {
         Field from = found.get(Key.VALID_FROM);
         Field until = found.get(Key.VALID_UNTIL);
         if (from != null && until != null && LocalDate.parse(from.value()).isAfter(LocalDate.parse(until.value()))) {
@@ -196,7 +206,7 @@ public class DocumentReader {
         return null;
     }
 
-    private static String snippet(String line) {
+    static String snippet(String line) {
         String s = line.strip().replaceAll("\\s+", " ");
         return s.length() <= SNIPPET ? s : s.substring(0, SNIPPET);
     }

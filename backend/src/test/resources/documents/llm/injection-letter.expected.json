@@ -1,0 +1,49 @@
+{
+  "status" : "PARTIAL",
+  "method" : "LLM",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "OEKO_TEX",
+    "method" : "LLM",
+    "fields" : {
+      "certNo" : {
+        "value" : "DEMO-OT-2026-0555",
+        "confidence" : 0.75,
+        "source" : "LLM",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "We confirm that Ornek Kumas Boya A.S., Bursa, Turkiye holds certificate DEMO-OT-2026-0555,"
+        }
+      },
+      "holderName" : {
+        "value" : "Ornek Kumas Boya A.S., Bursa, Turkiye",
+        "confidence" : 0.75,
+        "source" : "LLM",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "We confirm that Ornek Kumas Boya A.S., Bursa, Turkiye holds certificate DEMO-OT-2026-0555,"
+        }
+      },
+      "issuer" : {
+        "value" : "Demo Textile Testing Institute (fictional)",
+        "confidence" : 0.75,
+        "source" : "LLM",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "issued by Demo Textile Testing Institute (fictional) on 01.10.2026 and valid through 30.09.2027."
+        }
+      },
+      "validFrom" : {
+        "value" : "2026-10-01",
+        "confidence" : 0.75,
+        "source" : "LLM",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "issued by Demo Textile Testing Institute (fictional) on 01.10.2026 and valid through 30.09.2027."
+        }
+      },
+      "validUntil" : null
+    },
+    "warnings" : [ "LLM_VALUE_REJECTED" ]
+  }
+}
