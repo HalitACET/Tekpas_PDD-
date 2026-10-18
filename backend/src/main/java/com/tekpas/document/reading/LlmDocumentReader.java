@@ -4,6 +4,7 @@ import com.tekpas.ai.AiClient;
 import com.tekpas.ai.AiException;
 import com.tekpas.ai.AiRequest;
 import com.tekpas.document.DocType;
+import com.tekpas.document.DocumentText;
 import com.tekpas.document.Extraction;
 import com.tekpas.document.Extraction.Evidence;
 import com.tekpas.document.Extraction.Field;
@@ -223,12 +224,10 @@ public class LlmDocumentReader {
         return new Field(value, NOT_IN_TEXT, FieldSource.LLM, null);
     }
 
-    /** Composed form, no control or format characters (bidi overrides, zero-width), single spaces. */
+    /** The text without control or direction characters ({@link DocumentText#clean}); empty when nothing is left. */
     static String clean(String value) {
-        return Normalizer.normalize(value, Normalizer.Form.NFC)
-                .replaceAll("[\\p{Cc}\\p{Cf}&&[^\\t\\n\\r]]", "")
-                .replaceAll("\\s+", " ")
-                .strip();
+        String cleaned = DocumentText.clean(value);
+        return cleaned == null ? "" : cleaned;
     }
 
     private static String squash(String text) {

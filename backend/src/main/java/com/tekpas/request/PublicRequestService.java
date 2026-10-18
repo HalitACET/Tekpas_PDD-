@@ -1,5 +1,6 @@
 package com.tekpas.request;
 
+import com.tekpas.ai.LlmGate;
 import com.tekpas.batch.Batch;
 import com.tekpas.batch.BatchProgress;
 import com.tekpas.batch.BatchRepository;
@@ -43,11 +44,12 @@ public class PublicRequestService {
     private final BatchProgress progress;
     private final StepEvents events;
     private final DocumentRepository documents;
+    private final LlmGate llmGate;
     private final Clock clock;
 
     public PublicRequestService(DataRequestRepository requests, SupplyStepRepository steps, BatchRepository batches,
             ProductRepository products, CompanyRepository companies, AppUserRepository users, BatchProgress progress,
-            StepEvents events, DocumentRepository documents, Clock clock) {
+            StepEvents events, DocumentRepository documents, LlmGate llmGate, Clock clock) {
         this.requests = requests;
         this.steps = steps;
         this.batches = batches;
@@ -57,6 +59,7 @@ public class PublicRequestService {
         this.progress = progress;
         this.events = events;
         this.documents = documents;
+        this.llmGate = llmGate;
         this.clock = clock;
     }
 
@@ -78,7 +81,8 @@ public class PublicRequestService {
                 : null;
         return new PublicRequestView(RequestTokens.code(request.getId()), link.manufacturerName(),
                 link.requesterName(), link.productName(), link.batch().getBatchNo(), step.getStepType(),
-                request.getExpiresAt(), step.getData(), rejection, documentsOf(step, request));
+                request.getExpiresAt(), step.getData(), rejection, documentsOf(step, request),
+                llmGate.opensFor(link.batch().getCompanyId()));
     }
 
     /** What an upload through the link may touch: the open link, its step (still fillable) and the owner company. */

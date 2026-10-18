@@ -15,7 +15,8 @@ import org.jspecify.annotations.Nullable;
  * @param supplier null while unassigned (the design's dashed "Tedarikçi ata" node) and always for FIBER
  * @param sortOrder order within the step type's column
  * @param inputStepIds steps whose output this step uses (edges come in from these)
- * @param documentCount documents attached to the step; 0 until M5
+ * @param documentCount documents attached to the step (panel and link uploads)
+ * @param unreviewedDocumentCount of those, how many nobody confirmed yet (the dot on the node, design v0.5 B4)
  * @param request the step's latest data request link (no token), if any
  * @param submission the last data the supplier sent, if any
  * @param rejection the correction asked for, while the step is REJECTED
@@ -29,6 +30,7 @@ public record ChainStepResponse(
         List<UUID> inputStepIds,
         StepData data,
         int documentCount,
+        int unreviewedDocumentCount,
         @Nullable Instant submittedAt,
         Instant updatedAt,
         @Nullable DataRequestSummary request,

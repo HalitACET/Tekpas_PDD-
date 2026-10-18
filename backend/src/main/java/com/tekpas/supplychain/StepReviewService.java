@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class StepReviewService {
+
+    /**
+     * Not a field of the step's data but the Documents section of the supplier's form (design v0.5 A7): the
+     * presets "Belge okunaksız" and "Sertifika süresi dolmuş" mark it. Allowed on every step type.
+     */
+    public static final String DOCUMENTS_FIELD = "documents";
 
     private final SupplyStepRepository steps;
     private final BatchProgress progress;
@@ -47,7 +54,8 @@ public class StepReviewService {
     @Transactional
     public UUID reject(UUID companyId, UUID userId, UUID stepId, StepRejectRequest request) {
         SupplyStep step = submitted(companyId, stepId);
-        List<String> allowed = StepData.fieldsOf(step.getStepType());
+        List<String> allowed = Stream.concat(StepData.fieldsOf(step.getStepType()).stream(), Stream.of(DOCUMENTS_FIELD))
+                .toList();
         List<String> fields = List.copyOf(new LinkedHashSet<>(request.fields() == null ? List.of() : request.fields()));
         List<FieldViolation> unknown = fields.stream().filter(f -> !allowed.contains(f))
                 .map(f -> new FieldViolation("fields", "NotApplicable", f + " is not a field of a "

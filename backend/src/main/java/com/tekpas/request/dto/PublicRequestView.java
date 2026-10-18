@@ -15,8 +15,10 @@ import org.jspecify.annotations.Nullable;
  * @param data the step's current data: empty for a first request, the previous submission after a correction
  * @param rejection set when the manufacturer asked for a correction
  * @param documents what was uploaded through the step's links, oldest first (no reading result, see {@link PublicDocument})
+ * @param aiReading whether an uploaded document would be read by an outside AI service, so the page can say
+ *     "Demo ortamı: gerçek belge yüklemeyin" (design v0.5 A5). This flag and nothing else about the reading.
  */
 public record PublicRequestView(String code, String manufacturerName, String requesterName, String productName,
         String batchNo, StepType stepType, Instant expiresAt, StepData data, @Nullable PublicRejection rejection,
-        List<PublicDocument> documents) {
+        List<PublicDocument> documents, boolean aiReading) {
 }

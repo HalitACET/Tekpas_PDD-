@@ -2,12 +2,15 @@ package com.tekpas.document;
 
 import com.tekpas.common.security.CurrentUser;
 import com.tekpas.common.security.ReadAccess;
+import com.tekpas.common.security.ReviewAccess;
 import com.tekpas.common.security.WriteAccess;
 import com.tekpas.document.DocumentService.FileLink;
 import com.tekpas.document.dto.DocumentResponse;
+import com.tekpas.document.dto.VerifyDocumentRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
@@ -24,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -113,6 +117,26 @@ public class DocumentController {
         }
         return ResponseEntity.status(HttpStatus.FOUND).location(link.url()).cacheControl(CacheControl.noStore())
                 .build();
+    }
+
+    @PostMapping(path = "/documents/{id}/verify", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ReviewAccess
+    @Operation(operationId = "verifyDocument", summary = "Confirm what was read from a document",
+            description = "OWNER and ADMIN only. The values in the body (type, certificate number, holder, issuer, "
+                    + "validity) become the document's real fields; they are the person's, whether they kept the "
+                    + "proposal, corrected it or typed them. Each field is recorded as ACCEPTED, EDITED or ADDED "
+                    + "against the reading's proposal. Works the same for a document the reading could not read "
+                    + "(manual entry). Writes a DOCUMENT_VERIFIED event on the step. The reading itself is not "
+                    + "changed.")
+    @ApiResponse(responseCode = "200", description = "The document, now VERIFIED")
+    @ApiResponse(responseCode = "400", description = "Validation failed (docType OneOf when UNKNOWN, validUntil "
+            + "DateRange)")
+    @ApiResponse(responseCode = "403", description = "Not OWNER or ADMIN")
+    @ApiResponse(responseCode = "404", description = "No such document in this company")
+    @ApiResponse(responseCode = "409", description = "DOCUMENT_VERIFIED, DOCUMENT_NOT_READ (still being read) or "
+            + "BATCH_PUBLISHED")
+    public DocumentResponse verifyDocument(@PathVariable UUID id, @Valid @RequestBody VerifyDocumentRequest body) {
+        return service.verify(currentUser.companyId(), currentUser.userId(), id, body);
     }
 
     @DeleteMapping("/documents/{id}")

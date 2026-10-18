@@ -240,6 +240,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/documents/{id}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm what was read from a document
+         * @description OWNER and ADMIN only. The values in the body (type, certificate number, holder, issuer, validity) become the document's real fields; they are the person's, whether they kept the proposal, corrected it or typed them. Each field is recorded as ACCEPTED, EDITED or ADDED against the reading's proposal. Works the same for a document the reading could not read (manual entry). Writes a DOCUMENT_VERIFIED event on the step. The reading itself is not changed.
+         */
+        post: operations["verifyDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products": {
         parameters: {
             query?: never;
@@ -713,6 +733,8 @@ export interface components {
             /** Format: date-time */
             submittedAt?: string | null;
             supplier?: components["schemas"]["StepSupplier"];
+            /** Format: int32 */
+            unreviewedDocumentCount: number;
             /** Format: date-time */
             updatedAt: string;
         };
@@ -767,6 +789,7 @@ export interface components {
             validDays: number;
         };
         DocumentResponse: {
+            certNo?: string | null;
             /** Format: date-time */
             createdAt: string;
             /** @enum {string} */
@@ -779,8 +802,10 @@ export interface components {
             /** @enum {string} */
             extractionStatus: "QUEUED" | "RUNNING" | "READ" | "PARTIAL" | "UNREADABLE" | "FAILED";
             failureCode?: string | null;
+            holderName?: string | null;
             /** Format: uuid */
             id: string;
+            issuer?: string | null;
             mimeType: string;
             originalName: string;
             /** Format: int32 */
@@ -794,6 +819,14 @@ export interface components {
             /** Format: uuid */
             stepId?: string | null;
             uploadedByName?: string | null;
+            /** Format: date */
+            validFrom?: string | null;
+            /** Format: date */
+            validUntil?: string | null;
+            verification?: components["schemas"]["Verification"];
+            /** Format: date-time */
+            verifiedAt?: string | null;
+            verifiedByName?: string | null;
         };
         /** @enum {string} */
         DyeProcess: "REACTIVE" | "DISPERSE" | "VAT" | "PIGMENT" | "OTHER";
@@ -995,6 +1028,7 @@ export interface components {
             reason: string;
         };
         PublicRequestView: {
+            aiReading: boolean;
             batchNo: string;
             code: string;
             data: components["schemas"]["StepData"];
@@ -1171,6 +1205,31 @@ export interface components {
             locale: string;
             /** @enum {string} */
             role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
+        };
+        Verification: {
+            /** @enum {string|null} */
+            certNo?: "ACCEPTED" | "EDITED" | "ADDED" | null;
+            /** @enum {string|null} */
+            docType?: "ACCEPTED" | "EDITED" | "ADDED" | null;
+            /** @enum {string|null} */
+            holderName?: "ACCEPTED" | "EDITED" | "ADDED" | null;
+            /** @enum {string|null} */
+            issuer?: "ACCEPTED" | "EDITED" | "ADDED" | null;
+            /** @enum {string|null} */
+            validFrom?: "ACCEPTED" | "EDITED" | "ADDED" | null;
+            /** @enum {string|null} */
+            validUntil?: "ACCEPTED" | "EDITED" | "ADDED" | null;
+        };
+        VerifyDocumentRequest: {
+            certNo?: string | null;
+            /** @enum {string} */
+            docType: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            holderName?: string | null;
+            issuer?: string | null;
+            /** Format: date */
+            validFrom?: string | null;
+            /** Format: date */
+            validUntil?: string | null;
         };
         /** @enum {string} */
         YarnProcess: "COMBED" | "CARDED" | "OPEN_END" | "OTHER";
@@ -1924,6 +1983,68 @@ export interface operations {
             };
             /** @description File storage is not configured (STORAGE_PROVIDER) */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    verifyDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description The document, now VERIFIED */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+            /** @description Validation failed (docType OneOf when UNKNOWN, validUntil DateRange) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Not OWNER or ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such document in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description DOCUMENT_VERIFIED, DOCUMENT_NOT_READ (still being read) or BATCH_PUBLISHED */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
