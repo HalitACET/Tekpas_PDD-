@@ -463,6 +463,9 @@
             "format" : "int32",
             "type" : [ "integer", "null" ]
           },
+          "rereadable" : {
+            "type" : "boolean"
+          },
           "reviewStatus" : {
             "enum" : [ "UNREVIEWED", "VERIFIED" ],
             "type" : "string"
@@ -501,7 +504,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "createdAt", "docType", "extractionStatus", "id", "mimeType", "originalName", "reviewStatus", "sizeBytes", "source" ],
+        "required" : [ "createdAt", "docType", "extractionStatus", "id", "mimeType", "originalName", "rereadable", "reviewStatus", "sizeBytes", "source" ],
         "type" : "object"
       },
       "DyeProcess" : {
@@ -2586,7 +2589,7 @@
     },
     "/api/v1/documents/{id}/reread" : {
       "post" : {
-        "description" : "Only a reading that ended FAILED (design v0.5 57e \"Tekrar oku\"): the document goes back in the queue as if just uploaded and answers 202 with its new state (QUEUED). A reading that finished, is in progress, or a confirmed document is 409 DOCUMENT_NOT_REREADABLE.",
+        "description" : "A reading that ended FAILED (design v0.5 57e \"Tekrar oku\"), or one left UNREADABLE while the LLM gate is open for the company (the LLM may read what the rules could not): the document goes back in the queue as if just uploaded and answers 202 with its new state (QUEUED). DocumentResponse.rereadable says when this works. Anything else (read, in progress, unreadable with the gate closed, confirmed) is 409 DOCUMENT_NOT_REREADABLE.",
         "operationId" : "rereadDocument",
         "parameters" : [ {
           "in" : "path",
@@ -2649,7 +2652,7 @@
             "description" : "Too many attempts (Retry-After)"
           }
         },
-        "summary" : "Read a document again after its reading failed",
+        "summary" : "Read a document again",
         "tags" : [ "documents" ]
       }
     },

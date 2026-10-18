@@ -1,5 +1,6 @@
 package com.tekpas.document;
 
+import com.tekpas.ai.LlmGate;
 import com.tekpas.batch.BatchRepository;
 import com.tekpas.batch.BatchStatus;
 import com.tekpas.common.error.ConflictException;
@@ -60,13 +61,14 @@ public class DocumentService {
     private final FileInspector inspector;
     private final DocumentStore store;
     private final JobQueue jobs;
+    private final LlmGate gate;
     private final RateLimiter limiter;
     private final Clock clock;
     private final TransactionTemplate tx;
 
     public DocumentService(DocumentRepository documents, SupplyStepRepository steps, BatchRepository batches,
             AppUserRepository users, StepEvents events, FileStorage storage, FileInspector inspector,
-            DocumentStore store, JobQueue jobs, RateLimiter limiter, Clock clock,
+            DocumentStore store, JobQueue jobs, LlmGate gate, RateLimiter limiter, Clock clock,
             PlatformTransactionManager transactions) {
         this.documents = documents;
         this.steps = steps;
@@ -77,6 +79,7 @@ public class DocumentService {
         this.inspector = inspector;
         this.store = store;
         this.jobs = jobs;
+        this.gate = gate;
         this.limiter = limiter;
         this.clock = clock;
         this.tx = new TransactionTemplate(transactions);
@@ -98,18 +101,18 @@ public class DocumentService {
             String name = users.findById(userId).map(u -> u.getFullName()).orElse(null);
             return new Target(companyId, step.getId(), null, userId, name);
         });
-        return DocumentResponse.from(saved, null);
+        return DocumentResponse.from(saved, null, false);
     }
 
     @Transactional(readOnly = true)
     public List<DocumentResponse> list(UUID companyId, UUID stepId) {
         steps.findOfCompany(stepId, companyId).orElseThrow(() -> new NotFoundException("Step not found"));
-        return respond(documents.findByStepIdAndCompanyIdOrderByCreatedAtDesc(stepId, companyId));
+        return respond(companyId, documents.findByStepIdAndCompanyIdOrderByCreatedAtDesc(stepId, companyId));
     }
 
     @Transactional(readOnly = true)
     public DocumentResponse get(UUID companyId, UUID documentId) {
-        return respond(List.of(find(companyId, documentId))).getFirst();
+        return respond(companyId, List.of(find(companyId, documentId))).getFirst();
     }
 
     /**
@@ -184,13 +187,14 @@ public class DocumentService {
             events.record(stepId, d.getRequestId(), StepEventKind.DOCUMENT_VERIFIED, userId, name,
                     Map.of("documentId", d.getId().toString(), "docType", d.getDocType().name()));
         }
-        return DocumentResponse.from(d, name);
+        return DocumentResponse.from(d, name, false);
     }
 
     /**
-     * A reading that failed is queued again ("Tekrar oku", design v0.5 57e). Only a FAILED reading qualifies: one
-     * that finished (even with nothing found), one in progress and a confirmed document have nothing to redo. The
-     * same locks and order as {@link #verify}; a published batch is frozen.
+     * A reading is queued again ("Tekrar oku", design v0.5 57e). A FAILED reading always qualifies; an UNREADABLE one
+     * only while the {@link LlmGate} is open for the company (the LLM may read what the rules could not, e.g. once it
+     * was switched on for the demo). One that was read, one in progress and a confirmed document have nothing to
+     * redo. The same locks and order as {@link #verify}; a published batch is frozen.
      */
     @Transactional
     public DocumentResponse reread(UUID companyId, UUID documentId) {
@@ -209,12 +213,14 @@ public class DocumentService {
         }
         Document d = documents.lockByIdAndCompanyId(documentId, companyId)
                 .orElseThrow(() -> new NotFoundException("Document not found"));
-        if (d.getExtractionStatus() != ExtractionStatus.FAILED || d.getReviewStatus() == ReviewStatus.VERIFIED) {
-            throw ConflictException.state("DOCUMENT_NOT_REREADABLE", "Only a reading that failed can be tried again");
+        boolean llmOpen = d.getExtractionStatus() == ExtractionStatus.UNREADABLE && gate.opensFor(companyId);
+        if (!d.rereadable(llmOpen)) {
+            throw ConflictException.state("DOCUMENT_NOT_REREADABLE",
+                    "Only a reading that failed, or one left to manual entry while the AI reading is on, can be tried again");
         }
         d.requeueReading();
         jobs.enqueue(JobType.AI_EXTRACT_DOCUMENT, new ExtractDocument(d.getId()));
-        return DocumentResponse.from(d, null);
+        return DocumentResponse.from(d, null, false);
     }
 
     private static @Nullable String textOf(Extraction.@Nullable Field field) {
@@ -222,13 +228,16 @@ public class DocumentService {
     }
 
     /** The responses with the verifiers' names (one lookup for the whole list). */
-    private List<DocumentResponse> respond(List<Document> list) {
+    private List<DocumentResponse> respond(UUID companyId, List<Document> list) {
+        // The gate is looked up only when a document could use it (an unreadable one), and once for the list.
+        boolean llmOpen = list.stream().anyMatch(d -> d.getExtractionStatus() == ExtractionStatus.UNREADABLE)
+                && gate.opensFor(companyId);
         Set<UUID> verifierIds = list.stream().map(Document::getVerifiedBy).filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         Map<UUID, String> names = new HashMap<>();
         users.findAllById(verifierIds).forEach(u -> names.put(u.getId(), u.getFullName()));
         return list.stream().map(d -> DocumentResponse.from(d, d.getVerifiedBy() == null ? null
-                : names.get(d.getVerifiedBy()))).toList();
+                : names.get(d.getVerifiedBy()), llmOpen)).toList();
     }
 
     /** A short signed link to the file (or the file's own URI with the local provider, see the controller). */

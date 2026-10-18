@@ -90,13 +90,18 @@ class DocumentRereadTest {
         String id = upload(owner, s.yarnStep());
         drain();
         fail(id);
+        assertThat(fixtures.body(fixtures.get(owner, "/api/v1/documents/" + id)).path("rereadable").asBoolean())
+                .isTrue();
 
         MvcTestResult result = reread(owner, id);
 
         assertThat(result).hasStatus(202);
         assertThat(fixtures.body(result).path("extractionStatus").asString()).isEqualTo("QUEUED");
         assertThat(fixtures.body(result).path("failureCode").isNull()).isTrue();
+        assertThat(fixtures.body(result).path("rereadable").asBoolean()).isFalse();
         assertThat(status(id)).isEqualTo("QUEUED");
+        assertThat(fixtures.body(fixtures.get(owner, "/api/v1/documents/" + id)).path("rereadable").asBoolean())
+                .isFalse(); // queued: nothing to redo yet
 
         drain();
         assertThat(status(id)).isEqualTo("READ");
@@ -116,7 +121,9 @@ class DocumentRereadTest {
         t.assertReason(reread(owner, id), 409, "DOCUMENT_NOT_REREADABLE"); // read
 
         jdbc.update("UPDATE document SET extraction_status = 'UNREADABLE' WHERE id = ?::uuid", id);
-        t.assertReason(reread(owner, id), 409, "DOCUMENT_NOT_REREADABLE"); // nothing to find; typed by hand
+        t.assertReason(reread(owner, id), 409, "DOCUMENT_NOT_REREADABLE"); // the AI reading is off: typed by hand
+        assertThat(fixtures.body(fixtures.get(owner, "/api/v1/documents/" + id)).path("rereadable").asBoolean())
+                .isFalse();
 
         fail(id);
         jdbc.update("UPDATE document SET review_status = 'VERIFIED' WHERE id = ?::uuid", id);

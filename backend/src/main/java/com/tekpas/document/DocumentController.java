@@ -143,10 +143,12 @@ public class DocumentController {
 
     @PostMapping("/documents/{id}/reread")
     @WriteAccess
-    @Operation(operationId = "rereadDocument", summary = "Read a document again after its reading failed",
-            description = "Only a reading that ended FAILED (design v0.5 57e \"Tekrar oku\"): the document goes back in "
-                    + "the queue as if just uploaded and answers 202 with its new state (QUEUED). A reading that "
-                    + "finished, is in progress, or a confirmed document is 409 DOCUMENT_NOT_REREADABLE.")
+    @Operation(operationId = "rereadDocument", summary = "Read a document again",
+            description = "A reading that ended FAILED (design v0.5 57e \"Tekrar oku\"), or one left UNREADABLE while "
+                    + "the LLM gate is open for the company (the LLM may read what the rules could not): the document "
+                    + "goes back in the queue as if just uploaded and answers 202 with its new state (QUEUED). "
+                    + "DocumentResponse.rereadable says when this works. Anything else (read, in progress, "
+                    + "unreadable with the gate closed, confirmed) is 409 DOCUMENT_NOT_REREADABLE.")
     @ApiResponse(responseCode = "202", description = "Queued again")
     @ApiResponse(responseCode = "403", description = "Read-only or supplier user")
     @ApiResponse(responseCode = "404", description = "No such document in this company")

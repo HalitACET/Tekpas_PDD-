@@ -250,8 +250,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Read a document again after its reading failed
-         * @description Only a reading that ended FAILED (design v0.5 57e "Tekrar oku"): the document goes back in the queue as if just uploaded and answers 202 with its new state (QUEUED). A reading that finished, is in progress, or a confirmed document is 409 DOCUMENT_NOT_REREADABLE.
+         * Read a document again
+         * @description A reading that ended FAILED (design v0.5 57e "Tekrar oku"), or one left UNREADABLE while the LLM gate is open for the company (the LLM may read what the rules could not): the document goes back in the queue as if just uploaded and answers 202 with its new state (QUEUED). DocumentResponse.rereadable says when this works. Anything else (read, in progress, unreadable with the gate closed, confirmed) is 409 DOCUMENT_NOT_REREADABLE.
          */
         post: operations["rereadDocument"];
         delete?: never;
@@ -830,6 +830,7 @@ export interface components {
             originalName: string;
             /** Format: int32 */
             pageCount?: number | null;
+            rereadable: boolean;
             /** @enum {string} */
             reviewStatus: "UNREVIEWED" | "VERIFIED";
             /** Format: int64 */
