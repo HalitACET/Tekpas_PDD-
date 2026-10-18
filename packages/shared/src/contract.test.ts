@@ -33,9 +33,9 @@ describe("constants match the generated API client", () => {
     expectTypeOf<ChemicalStandard>().toEqualTypeOf<Schemas["ChemicalStandard"]>();
   });
 
-  it("correction presets mark fields of the step data", () => {
+  it("correction presets mark fields of the step data, or the documents section", () => {
     type Field = (typeof import("./constants").CORRECTION_PRESETS)[number]["fields"][number];
-    expectTypeOf<Field>().toExtend<keyof Schemas["StepData"]>();
+    expectTypeOf<Field>().toExtend<keyof Schemas["StepData"] | "documents">();
   });
 
   it("supplier types are company types", () => {

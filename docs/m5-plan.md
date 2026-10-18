@@ -32,6 +32,8 @@ Render diski geçici, kalıcı disk ücretli → elendi. **Tavsiye: A.** B yaln�
 **Okuma sonucu şeması** (`document.extraction`, okumadan sonra değişmez):
 `{ detectedType, method, fields: { certNo | holderName | issuer | validFrom | validUntil: { value, confidence, source, evidence: { page, snippet ≤120 } } }, warnings[] }`
 
+**Onay (T6):** `verify` gövdesindeki değerler asıl kolonlara yazılır; `document.verification` alan başına (`docType`, `certNo`, `holderName`, `issuer`, `validFrom`, `validUntil`) `ACCEPTED | EDITED | ADDED` tutar. Öneri varken kullanıcı alanı boşaltırsa EDITED. Onaylı belge değişmez ve silinemez (409 `DOCUMENT_VERIFIED`); onay için okumanın bitmiş olması gerekir (409 `DOCUMENT_NOT_READ`).
+
 ## 3. Okuma hattı
 
 **Arka plan işi** (K9 kuyruğu, `FOR UPDATE SKIP LOCKED`), eşzamanlı değil: Render ücretsiz paketi **0,1 CPU / 512 MB**; LLM çağrısı saniyeler sürer ve uyanan sunucu isteği kesebilir. Yükleme `202` + belge döner; iş commit sonrası hemen tetiklenir (sabit aralıklı DB yoklaması yok, Neon uyuyabilsin; tekrarlar bellekte planlanır, bkz. PLAN K9). Tek worker iş parçacığı → aynı anda tek belge (bellek güvencesi). Web 1,5 sn'de bir sorar; 30 sn sonra "Okuma sürüyor, sayfadan ayrılabilirsiniz".

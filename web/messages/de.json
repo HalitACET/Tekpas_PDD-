@@ -604,7 +604,9 @@
           "newLink": "Neuen Link erstellen",
           "failed": "Die Korrekturanfrage konnte nicht gesendet werden",
           "presets": {
-            "FIBER_MISMATCH": "Faseranteil stimmt nicht"
+            "FIBER_MISMATCH": "Faseranteil stimmt nicht",
+            "DOCUMENT_UNREADABLE": "Dokument ist unleserlich",
+            "CERTIFICATE_EXPIRED": "Zertifikat ist abgelaufen"
           }
         },
         "approveFailed": "Der Schritt konnte nicht freigegeben werden",
