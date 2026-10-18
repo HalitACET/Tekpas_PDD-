@@ -18,7 +18,7 @@ Bütçe: **sıfır** — her servis ücretsiz katmanda.
 | K7 | Mobil | React Native + Expo | Web ile aynı dil ve client, kamera/QR hazır |
 | K8 | AI | Google Gemini, `AiClient` arayüzü arkasında, model adı config'te | Ücretsiz katman, sağlayıcı değişirse tek sınıf |
 | K9 | Arka plan işleri | Postgres tabanlı kuyruk (`FOR UPDATE SKIP LOCKED`) | Ek servis yok, Render ücretsiz katmanında çalışır |
-| K10 | Dosya | S3 API: local MinIO, prod Supabase Storage (S3), backend üzerinden yükleme, max 10 MB | Tek kod yolu, demo için yeterli |
+| K10 | Dosya | `FileStorage` arayüzü: prod Supabase Storage (REST, Spring `RestClient`), local ve testlerde sahte depolama; backend üzerinden yükleme, max 10 MB (M5 kararı: AWS SDK ve MinIO yok) | Ek bağımlılık yok, başlangıç süresi kısa, demo için yeterli |
 | K11 | Pasaport seviyesi | **Parti** (üretim emri) | Her partinin gerçek zinciri farklı olabilir |
 | K12 | Pasaport değişmezliği | Yayında snapshot dondurulur, değişiklik = yeni sürüm | Denetim izi, güven |
 | K13 | QR | GS1 Digital Link: `{PUBLIC_BASE_URL}/01/{gtin}/10/{batch}` | AB'nin öne çıkardığı standart |
@@ -37,8 +37,8 @@ Bütçe: **sıfır** — her servis ücretsiz katmanda.
 - **Neon ücretsiz:** proje başına ayda 100 CU-saat (0.25 CU ile ~400 saat), 5 dk hareketsizlikte uyur (kapatılamaz). Render'ın health check'i ve cron DB'ye dokunmayan liveness'ı kullandığı için Neon sadece gerçek kullanımda uyanır; Hikari boşta bağlantı tutmaz (`minimum-idle: 0`).
 - **Render pipeline dakikaları:** workspace başına ayda 500 dk, Docker build süresi buradan düşer. Bağımlılık katmanı cache'li, `buildFilter` sadece backend değişikliklerinde build eder, `checksPass` kırmızı CI'da build etmez. İlk canlı build ~2 dk (cache yok); kod değişikliğinde ~1,5 dk beklenir → ayda ~200–330 backend deploy'a yeter. Ayrıntı ve sınıra yaklaşınca yapılacaklar: `docs/DEPLOY.md` §8.
 - **Gemini ücretsiz katmanı:** Gönderilen veri Google tarafından kullanılabilir → **sadece demo verisi.** Gerçek firmayla pilotta ücretli katman şart.
-- **Supabase ücretsiz projeleri hareketsizlikte duraklar:** uyanık tutma cron'u storage'a da küçük bir istek atmalı.
-- **MinIO topluluk imajları güncellenmiyor** (`minio/minio` artık yayınlanmıyor): local için Pigsty topluluk fork'u `pgsty/minio` sabit sürümle kullanılıyor. Sorun çıkarsa B planı: `chrislusf/seaweedfs`.
+- **Supabase ücretsiz projeleri hareketsizlikte duraklar** (resmi doküman, 18.10.2026'da doğrulandı): 7 günlük kayan pencerede çok az kullanıcı isteği alan proje duraklatılır, uyarı e-postası yaklaşık bir hafta önce gelir, 1 yıl içinde Dashboard'dan geri alınır. Etkinlik: veritabanı sorguları, API çağrıları, Dashboard ziyareti. **Storage isteklerinin sayılıp sayılmadığı belgede yok**, cron'a güvenme: demo haftasında Dashboard'u aç, demo sabahı bucket'a test yüklemesi yap (`docs/m5-plan.md` §8).
+- **MinIO** M5'te kalktı (AWS SDK S3 kullanılmıyor); `docker-compose.yml`'den çıkarılması T1'de.
 
 ---
 
@@ -182,7 +182,7 @@ Tasarım: `docs/design/v0.4/` (39–45 tedarikçi sayfası, 46–48 panel). PR s
 Plan: `docs/m5-plan.md` (depolama, V9, okuma hattı, güvenlik, test, açık kararlar). Tasarım brifi: `docs/m5-tasarim-brifi.md` → Claude Design v0.5. Okuma hibrit: PDF metin katmanı + türe göre kural → (OCR M5'te yok, gerekçe planda) → LLM son çare, yalnızca `LlmGate` izin verirse (demo firması veya ücretli katman). PR sırası: tasarım → backend (a) T1+T2 → (b) T3–T5 → (c) T6 → web (a) T7 → web (b) T8 → T9.
 
 - [ ] **T0** Tasarım brifi → Claude Design v0.5 (tedarikçi Belgeler bölümü, panel belge kartı, inceleme ve onay; tüm durumlar)
-- [ ] **T1** `FileStorage` + S3 (local MinIO, prod Supabase Storage), Supabase kurulumu `DEPLOY.md`'ye, Vercel rewrite'ın 10 MB gövdeyi geçirdiğinin denemesi (en fazla 30 dk; geçmezse imzalı PUT + karantina)
+- [ ] **T1** `FileStorage` arayüzü + `SupabaseFileStorage` (Spring `RestClient`, REST: yükleme, imzalı indirme bağlantısı, silme; AWS SDK yok) + yerel sahte depolama (MinIO ve `S3_*` kalkar, `STORAGE_*` gelir), sahte HTTP sunucusuyla test, Supabase kurulumu `DEPLOY.md`'ye, Vercel rewrite'ın 10 MB gövdeyi geçirdiğinin denemesi (en fazla 30 dk; geçmezse imzalı PUT + karantina)
 - [ ] **T2** V9 (`document`: `request_id`, `uploaded_by_name`, `TECH_SHEET`/`UNKNOWN`, yeni okuma durumları, `review_status`, `extraction_method`, `page_count`, `verification`, `UNIQUE(step_id, sha256)`; `step_event` belge olayları; `company.is_demo`; `DOCUMENT_CLEANUP` işi). Uçlar: `POST /steps/{id}/documents`, `GET /steps/{id}/documents`, `GET /documents/{id}`, `GET /documents/{id}/file` (60 sn imzalı bağlantıya 302), `DELETE /documents/{id}` (onaysızsa); public `POST /public/request/documents`, `DELETE /public/request/documents/{id}` (gönderimden önce), `GET /public/request`'te belge listesi. İçerikten biçim (magic byte), 10 MB, dosya adı temizleme, rate limit (token başına saatte 20, link başına 5 belge, firma başına saatte 60), tenant 404 testleri
 - [ ] **T3** Job worker (`FOR UPDATE SKIP LOCKED`, commit sonrası tetik + 5 sn yoklama, tek iş parçacığı, tekrar 30 sn → 2 dk → 10 dk, 5 dk'da kurtarma), gönderilmeyen belgelerin 7 gün sonra temizliği
 - [ ] **T4** Okuma: PDFBox metin (20 sayfa, 15 sn, şifreli ret), sınıflandırıcı, OEKO-TEX / GOTS / GRS kuralları, okuma sonucu şeması, sentetik belgeler + altın testler
@@ -191,8 +191,8 @@ Plan: `docs/m5-plan.md` (depolama, V9, okuma hattı, güvenlik, test, açık kar
 - [ ] **T7** Web (a) panel: belge kartları, inceleme ve onay, panelden yükleme, düğümde belge sayısı, Tedarikçiler "Sertifikalar" sütunu
 - [ ] **T8** Web (b) `/r` Belgeler bölümü (42 açılır): yükleme, ilerleme, hatalar, kaldırma, 43/45'te belgeler
 - [ ] **T9** Çeviriler en/de, haftalık not, README
-- *Not:* Testcontainers MinIO modülü varsayılan `minio/minio` ister → `DockerImageName.parse("pgsty/minio:...").asCompatibleSubstituteFor("minio/minio")` kullan
-- *Açık kararlar* (`docs/m5-plan.md` §7): tedarikçi okunan değerleri görmez; yeni bağımlılıklar (PDFBox, AWS SDK S3, Testcontainers MinIO); OCR yok; LLM kapısı; sınırlar.
+- *Kararlar* (`docs/m5-plan.md` §7, onaylı): tedarikçi okunan değerleri ve okuma durumunu görmez, yalnızca yükleme durumunu; yeni bağımlılık yalnızca PDFBox (AWS SDK S3 ve Testcontainers MinIO yok, depolama RestClient + sahte); OCR yok (M10'da tarayıcıda OCR araştırması); LLM prod'da varsayılan kapalı, kural yolu tek başına demo'yu taşır; limitler 5 belge/link, 20 sayfa, 7 gün temizlik.
+- *Demo yedek planı ve belge kontrol listesi:* `docs/m5-plan.md` §8 (kural yolu → LLM yalnızca taranmış belge gösteriminde → olmazsa elle giriş; Supabase duraklama kontrolü).
 
 **Kabul:** Örnek bir OEKO-TEX PDF'i yüklenir, sertifika no, sahibi ve geçerlilik tarihi otomatik dolar, kullanıcı onaylayınca asıl alanlara geçer. Demo olmayan bir firmanın belgesi hiçbir koşulda LLM'e gitmez (test).
 
