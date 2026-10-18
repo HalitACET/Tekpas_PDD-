@@ -110,7 +110,7 @@ class PublicDocumentApiTest {
         jdbc.update("""
                 UPDATE document SET extraction_status = 'READ', doc_type = 'OEKO_TEX', cert_no = 'DEMO-SECRET-123',
                        holder_name = 'Gizli Sahip A.S.', extraction_method = 'TEXT_RULES', failure_code = 'NO_TEXT_LAYER',
-                       extraction = '{"certNo":{"value":"DEMO-SECRET-123","confidence":0.97}}'::jsonb
+                       extraction = '{"detectedType":"OEKO_TEX","method":"TEXT_RULES","warnings":[],"fields":{"certNo":{"value":"DEMO-SECRET-123","confidence":0.97,"source":"TEXT_RULES","evidence":{"page":1,"snippet":"Certificate No.: DEMO-SECRET-123"}}}}'::jsonb
                 WHERE id = ?::uuid
                 """, id);
 

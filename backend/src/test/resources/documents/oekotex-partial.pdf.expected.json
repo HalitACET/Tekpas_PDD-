@@ -1,0 +1,33 @@
+{
+  "status" : "PARTIAL",
+  "method" : "TEXT_RULES",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "OEKO_TEX",
+    "method" : "TEXT_RULES",
+    "fields" : {
+      "certNo" : {
+        "value" : "DEMO-OT-2026-0500",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certificate No.: DEMO-OT-2026-0500"
+        }
+      },
+      "holderName" : {
+        "value" : "Ornek Iplik San. ve Tic. A.S., Bursa, Turkiye",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certificate holder: Ornek Iplik San. ve Tic. A.S., Bursa, Turkiye"
+        }
+      },
+      "issuer" : null,
+      "validFrom" : null,
+      "validUntil" : null
+    },
+    "warnings" : [ ]
+  }
+}

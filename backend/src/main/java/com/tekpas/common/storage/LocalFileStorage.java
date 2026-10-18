@@ -39,6 +39,17 @@ final class LocalFileStorage implements FileStorage {
     }
 
     @Override
+    public byte[] read(String key) {
+        try {
+            return Files.readAllBytes(pathOf(key));
+        } catch (java.nio.file.NoSuchFileException e) {
+            throw new MissingObjectException();
+        } catch (IOException e) {
+            throw new StorageException("Local storage read failed", e);
+        }
+    }
+
+    @Override
     public void delete(String key) {
         try {
             Files.deleteIfExists(pathOf(key));

@@ -418,6 +418,17 @@
             "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
             "type" : "string"
           },
+          "extractedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "extraction" : {
+            "$ref" : "#/components/schemas/Extraction"
+          },
+          "extractionMethod" : {
+            "enum" : [ "TEXT_RULES", "LLM", "NONE" ],
+            "type" : [ "string", "null" ]
+          },
           "extractionStatus" : {
             "enum" : [ "QUEUED", "RUNNING", "READ", "PARTIAL", "UNREADABLE", "FAILED" ],
             "type" : "string"
@@ -485,6 +496,42 @@
         "enum" : [ "GRID", "SOLAR", "WIND", "NATURAL_GAS", "COAL", "BIOMASS", "OTHER" ],
         "type" : "string"
       },
+      "Evidence" : {
+        "properties" : {
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "snippet" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "page", "snippet" ],
+        "type" : "object"
+      },
+      "Extraction" : {
+        "properties" : {
+          "detectedType" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : "string"
+          },
+          "fields" : {
+            "$ref" : "#/components/schemas/Fields"
+          },
+          "method" : {
+            "enum" : [ "TEXT_RULES", "LLM", "NONE" ],
+            "type" : "string"
+          },
+          "warnings" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "detectedType", "fields", "method", "warnings" ],
+        "type" : "object"
+      },
       "Fiber" : {
         "enum" : [ "COTTON", "ORGANIC_COTTON", "ELASTANE", "POLYESTER", "RECYCLED_POLYESTER", "LINEN", "WOOL", "VISCOSE", "POLYAMIDE", "LYOCELL", "RECYCLED_COTTON", "SILK", "OTHER" ],
         "type" : "string"
@@ -502,6 +549,26 @@
           }
         },
         "required" : [ "fiber", "percent" ],
+        "type" : "object"
+      },
+      "Field" : {
+        "properties" : {
+          "confidence" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "evidence" : {
+            "$ref" : "#/components/schemas/Evidence"
+          },
+          "source" : {
+            "enum" : [ "TEXT_RULES", "LLM" ],
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "confidence", "source", "value" ],
         "type" : "object"
       },
       "FieldViolation" : {
@@ -525,6 +592,26 @@
           }
         },
         "required" : [ "code", "field" ]
+      },
+      "Fields" : {
+        "properties" : {
+          "certNo" : {
+            "$ref" : "#/components/schemas/Field"
+          },
+          "holderName" : {
+            "$ref" : "#/components/schemas/Field"
+          },
+          "issuer" : {
+            "$ref" : "#/components/schemas/Field"
+          },
+          "validFrom" : {
+            "$ref" : "#/components/schemas/Field"
+          },
+          "validUntil" : {
+            "$ref" : "#/components/schemas/Field"
+          }
+        },
+        "type" : "object"
       },
       "LinkContext" : {
         "description" : "A closed data request link (urn:tekpas:problem:link-gone): what its holder may still see",

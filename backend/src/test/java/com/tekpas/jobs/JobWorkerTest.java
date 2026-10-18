@@ -22,14 +22,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * The job queue and worker (K9, PLAN M5 T3) with a test handler on RULE_VALIDATE_BATCH, a type nothing else in the
@@ -120,6 +124,18 @@ class JobWorkerTest {
 
     @Autowired
     PlatformTransactionManager transactions;
+
+    @Autowired
+    ObjectMapper json;
+
+    /**
+     * The database is shared by every test class: jobs other classes left behind (document readings) would be taken
+     * first and push this class's jobs past one run. Only this class's own job type stays.
+     */
+    @BeforeEach
+    void onlyOwnJobs() {
+        jdbc.update("UPDATE job SET status = 'DONE' WHERE status IN ('QUEUED', 'RUNNING') AND type <> 'RULE_VALIDATE_BATCH'");
+    }
 
     @AfterEach
     void cleanUp() {
@@ -333,6 +349,48 @@ class JobWorkerTest {
         clock.advance(Duration.ofHours(24));
         assertThat(queue.enqueueUnlessRecent(JobType.CERT_EXPIRY_SCAN, Map.of(), Duration.ofHours(23))).isTrue();
         jdbc.update("UPDATE job SET status = 'DONE' WHERE type = 'CERT_EXPIRY_SCAN'");
+    }
+
+    /**
+     * Render puts the instance to sleep after 15 idle minutes; a retry planned in memory does not survive that. On
+     * the next start the worker must take the overdue retry right away (no new failure, no extra wait), and a job
+     * queued afterwards must start right after its commit without a poll.
+     */
+    @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void aRetryThatFellDueWhileTheInstanceSleptRunsRightAfterItStarts() throws Exception {
+        Order overdue = Order.of("ok");
+        Instant failedAt = clock.instant().minus(Duration.ofHours(3));
+        Long id = jdbc.queryForObject("""
+                INSERT INTO job (type, payload, status, attempts, max_attempts, run_at, last_error, created_at)
+                VALUES ('RULE_VALIDATE_BATCH', CAST(? AS jsonb), 'QUEUED', 1, 3, ?, 'IllegalStateException: boom', ?)
+                RETURNING id
+                """, Long.class, json.writeValueAsString(overdue), Timestamp.from(failedAt.plusSeconds(30)),
+                Timestamp.from(failedAt));
+        ObjectProvider<JobHandler<?>> handlers = (ObjectProvider) new StaticListableBeanFactory(
+                Map.of("testHandler", handler)).getBeanProvider(JobHandler.class);
+        JobWorker started = new JobWorker(handlers, store, json, clock, true);
+        try {
+            started.start(); // what the ApplicationReadyEvent does on a cold start
+
+            awaitStatus(id, "DONE", Duration.ofSeconds(15));
+            assertThat(handler.runs(overdue)).isEqualTo(1);
+            assertThat(job(id).get("attempts")).isEqualTo(2);
+
+            Order queuedAwake = Order.of("ok");
+            long next = new JobQueue(store, started, json, clock).enqueue(JobType.RULE_VALIDATE_BATCH, queuedAwake);
+            awaitStatus(next, "DONE", Duration.ofSeconds(3));
+        } finally {
+            started.stop();
+        }
+    }
+
+    private void awaitStatus(long id, String status, Duration within) throws InterruptedException {
+        long deadline = System.nanoTime() + within.toNanos();
+        while (!status.equals(job(id).get("status")) && System.nanoTime() < deadline) {
+            Thread.sleep(100);
+        }
+        assertThat(job(id).get("status")).as("job %d within %s", id, within).isEqualTo(status);
     }
 
     @Test

@@ -66,6 +66,18 @@ public class Document {
 
     private @Nullable String failureCode;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    private @Nullable Extraction extraction;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private @Nullable ExtractionMethod extractionMethod;
+
+    /** The LLM model that read it (T5); null for the text rules. */
+    private @Nullable String extractionModel;
+
+    private @Nullable Instant extractedAt;
+
     @Column(updatable = false)
     private @Nullable UUID uploadedBy;
 
@@ -153,6 +165,50 @@ public class Document {
 
     public @Nullable String getFailureCode() {
         return failureCode;
+    }
+
+    public @Nullable Extraction getExtraction() {
+        return extraction;
+    }
+
+    public @Nullable ExtractionMethod getExtractionMethod() {
+        return extractionMethod;
+    }
+
+    public @Nullable String getExtractionModel() {
+        return extractionModel;
+    }
+
+    public @Nullable Instant getExtractedAt() {
+        return extractedAt;
+    }
+
+    /** Whether the reading has not finished yet (QUEUED, or RUNNING again after a failed attempt). */
+    public boolean awaitsReading() {
+        return extractionStatus == ExtractionStatus.QUEUED || extractionStatus == ExtractionStatus.RUNNING;
+    }
+
+    public void startReading() {
+        extractionStatus = ExtractionStatus.RUNNING;
+    }
+
+    /** The reading's proposal; it stays as written (a person's corrections go elsewhere, T6). */
+    public void recordReading(ExtractionStatus status, ExtractionMethod method, @Nullable String failureCode,
+            @Nullable Extraction extraction, @Nullable String model, Instant now) {
+        this.extractionStatus = status;
+        this.extractionMethod = method;
+        this.failureCode = failureCode;
+        this.extraction = extraction;
+        this.extractionModel = model;
+        this.extractedAt = now;
+    }
+
+    /** The reading gave up (EXTRACT_TIMEOUT, EXTRACT_FAILED); the person types the values. */
+    public void readingFailed(String failureCode, Instant now) {
+        this.extractionStatus = ExtractionStatus.FAILED;
+        this.extractionMethod = ExtractionMethod.NONE;
+        this.failureCode = failureCode;
+        this.extractedAt = now;
     }
 
     public @Nullable UUID getUploadedBy() {

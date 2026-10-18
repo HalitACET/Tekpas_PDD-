@@ -28,6 +28,15 @@ class LocalFileStorageTest {
     }
 
     @Test
+    void readReturnsTheBytesAndAMissingKeyIsMissing() {
+        LocalFileStorage storage = new LocalFileStorage(root);
+        storage.put("docs/c1/d1", new byte[] {4, 5}, "application/pdf");
+
+        assertThat(storage.read("docs/c1/d1")).containsExactly(4, 5);
+        assertThatThrownBy(() -> storage.read("docs/c1/none")).isInstanceOf(MissingObjectException.class);
+    }
+
+    @Test
     void deleteIsIdempotent() {
         LocalFileStorage storage = new LocalFileStorage(root);
         storage.put("docs/c1/d1", new byte[] {1}, "application/pdf");

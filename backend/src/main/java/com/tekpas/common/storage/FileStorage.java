@@ -25,6 +25,9 @@ public interface FileStorage {
      */
     URI signedDownloadUrl(String key, Duration ttl, @Nullable String downloadName);
 
+    /** The object's bytes, for the server's own use (reading a document). A missing object is an error. */
+    byte[] read(String key);
+
     /** Removes the object; a missing object is not an error. */
     void delete(String key);
 }

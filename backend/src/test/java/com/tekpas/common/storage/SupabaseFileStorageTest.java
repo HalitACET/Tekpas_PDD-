@@ -187,6 +187,28 @@ class SupabaseFileStorageTest {
     }
 
     @Test
+    void readGetsThePrivateObjectWithTheServiceKey() {
+        reply.set(new Reply(200, "%PDF-1.7 demo"));
+
+        byte[] bytes = storage.read("docs/c1/d1");
+
+        assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo("%PDF-1.7 demo");
+        assertThat(seen.get(0).method()).isEqualTo("GET");
+        assertThat(seen.get(0).path()).isEqualTo("/storage/v1/object/authenticated/tekpas-docs/docs/c1/d1");
+        assertThat(seen.get(0).authorization()).isEqualTo("Bearer " + SERVICE_KEY);
+    }
+
+    @Test
+    void readTellsAMissingObjectFromAFailure() {
+        reply.set(new Reply(400, "{\"statusCode\":\"404\",\"error\":\"not_found\"}"));
+        assertThatThrownBy(() -> storage.read("docs/c1/d1")).isInstanceOf(MissingObjectException.class);
+
+        reply.set(new Reply(500, "{}"));
+        assertThatThrownBy(() -> storage.read("docs/c1/d1")).isExactlyInstanceOf(StorageException.class)
+                .hasMessage("Storage read failed (HTTP 500)");
+    }
+
+    @Test
     void deleteIsIdempotent() {
         storage.delete("docs/c1/d1");
         assertThat(seen.get(0).method()).isEqualTo("DELETE");

@@ -1,0 +1,49 @@
+{
+  "status" : "READ",
+  "method" : "TEXT_RULES",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "OEKO_TEX",
+    "method" : "TEXT_RULES",
+    "fields" : {
+      "certNo" : {
+        "value" : "DEMO-OT-2026-0812",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certificate No.: DEMO-OT-2026-0812"
+        }
+      },
+      "holderName" : {
+        "value" : "Ornek Dikim Atolyesi, Bursa, Turkiye",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certificate holder: Ornek Dikim Atolyesi, Bursa, Turkiye"
+        }
+      },
+      "issuer" : null,
+      "validFrom" : {
+        "value" : "2027-05-01",
+        "confidence" : 0.6,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Valid from: 01.05.2027"
+        }
+      },
+      "validUntil" : {
+        "value" : "2026-05-01",
+        "confidence" : 0.6,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Valid until: 01.05.2026"
+        }
+      }
+    },
+    "warnings" : [ "VALIDITY_RANGE_INVALID", "EXPIRED" ]
+  }
+}

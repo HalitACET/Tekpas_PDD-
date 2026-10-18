@@ -18,6 +18,11 @@ final class DisabledFileStorage implements FileStorage {
     }
 
     @Override
+    public byte[] read(String key) {
+        throw new StorageUnavailableException();
+    }
+
+    @Override
     public void delete(String key) {
         throw new StorageUnavailableException();
     }

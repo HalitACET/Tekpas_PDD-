@@ -1,0 +1,49 @@
+{
+  "status" : "READ",
+  "method" : "TEXT_RULES",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "OEKO_TEX",
+    "method" : "TEXT_RULES",
+    "fields" : {
+      "certNo" : {
+        "value" : "DEMO-OT-2026-0777",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certificate No.: DEMO-OT-2026-0777"
+        }
+      },
+      "holderName" : {
+        "value" : "Ornek Boya Apre San. A.S., Bursa, Turkiye",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certificate holder: Ornek Boya Apre San. A.S., Bursa, Turkiye"
+        }
+      },
+      "issuer" : {
+        "value" : "Demo Textile Testing Institute (fictional)",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certification body: Demo Textile Testing Institute (fictional)"
+        }
+      },
+      "validFrom" : null,
+      "validUntil" : {
+        "value" : "2027-06-30",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Valid until: 30.06.2027"
+        }
+      }
+    },
+    "warnings" : [ ]
+  }
+}

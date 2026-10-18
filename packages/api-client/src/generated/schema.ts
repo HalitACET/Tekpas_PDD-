@@ -771,6 +771,11 @@ export interface components {
             createdAt: string;
             /** @enum {string} */
             docType: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            /** Format: date-time */
+            extractedAt?: string | null;
+            extraction?: components["schemas"]["Extraction"];
+            /** @enum {string|null} */
+            extractionMethod?: "TEXT_RULES" | "LLM" | "NONE" | null;
             /** @enum {string} */
             extractionStatus: "QUEUED" | "RUNNING" | "READ" | "PARTIAL" | "UNREADABLE" | "FAILED";
             failureCode?: string | null;
@@ -799,12 +804,33 @@ export interface components {
         };
         /** @enum {string} */
         EnergySource: "GRID" | "SOLAR" | "WIND" | "NATURAL_GAS" | "COAL" | "BIOMASS" | "OTHER";
+        Evidence: {
+            /** Format: int32 */
+            page: number;
+            snippet: string;
+        };
+        Extraction: {
+            /** @enum {string} */
+            detectedType: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            fields: components["schemas"]["Fields"];
+            /** @enum {string} */
+            method: "TEXT_RULES" | "LLM" | "NONE";
+            warnings: string[];
+        };
         /** @enum {string} */
         Fiber: "COTTON" | "ORGANIC_COTTON" | "ELASTANE" | "POLYESTER" | "RECYCLED_POLYESTER" | "LINEN" | "WOOL" | "VISCOSE" | "POLYAMIDE" | "LYOCELL" | "RECYCLED_COTTON" | "SILK" | "OTHER";
         FiberShare: {
             fiber: components["schemas"]["Fiber"];
             /** Format: int32 */
             percent: number;
+        };
+        Field: {
+            /** Format: double */
+            confidence: number;
+            evidence?: components["schemas"]["Evidence"];
+            /** @enum {string} */
+            source: "TEXT_RULES" | "LLM";
+            value: string;
         };
         /** @description Field errors: type urn:tekpas:problem:validation, or conflict on a unique field (code Unique) */
         FieldViolation: {
@@ -819,6 +845,13 @@ export interface components {
             params?: {
                 [key: string]: unknown;
             } | null;
+        };
+        Fields: {
+            certNo?: components["schemas"]["Field"];
+            holderName?: components["schemas"]["Field"];
+            issuer?: components["schemas"]["Field"];
+            validFrom?: components["schemas"]["Field"];
+            validUntil?: components["schemas"]["Field"];
         };
         /** @description A closed data request link (urn:tekpas:problem:link-gone): what its holder may still see */
         LinkContext: {

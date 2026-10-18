@@ -61,7 +61,9 @@ class DocumentCleanupJobTest {
 
     private void runCleanup() {
         queue.enqueue(JobType.DOCUMENT_CLEANUP, new DocumentCleanupJob.Payload());
-        worker.runPending();
+        while (worker.runPending() > 0) {
+            // earlier tests leave reading jobs behind; run until the cleanup had its turn
+        }
     }
 
     private boolean exists(String id) {

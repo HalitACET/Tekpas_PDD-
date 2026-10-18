@@ -1,0 +1,57 @@
+{
+  "status" : "READ",
+  "method" : "TEXT_RULES",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "OEKO_TEX",
+    "method" : "TEXT_RULES",
+    "fields" : {
+      "certNo" : {
+        "value" : "DEMO-OT-2025-0099",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certificate No.: DEMO-OT-2025-0099"
+        }
+      },
+      "holderName" : {
+        "value" : "Ornek Orme Kumas A.S., Istanbul, Turkiye",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certificate holder: Ornek Orme Kumas A.S., Istanbul, Turkiye"
+        }
+      },
+      "issuer" : {
+        "value" : "Demo Textile Testing Institute (fictional)",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certification body: Demo Textile Testing Institute (fictional)"
+        }
+      },
+      "validFrom" : {
+        "value" : "2025-01-01",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Date of issue: 01.01.2025"
+        }
+      },
+      "validUntil" : {
+        "value" : "2025-12-31",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Valid until: 31.12.2025"
+        }
+      }
+    },
+    "warnings" : [ "EXPIRED" ]
+  }
+}

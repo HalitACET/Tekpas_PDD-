@@ -1,0 +1,17 @@
+{
+  "status" : "READ",
+  "method" : "TEXT_RULES",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "TECH_SHEET",
+    "method" : "TEXT_RULES",
+    "fields" : {
+      "certNo" : null,
+      "holderName" : null,
+      "issuer" : null,
+      "validFrom" : null,
+      "validUntil" : null
+    },
+    "warnings" : [ ]
+  }
+}
