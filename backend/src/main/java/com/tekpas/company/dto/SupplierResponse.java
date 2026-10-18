@@ -3,6 +3,7 @@ package com.tekpas.company.dto;
 import com.tekpas.company.CompanyType;
 import com.tekpas.supplychain.StepStatus;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
@@ -15,6 +16,8 @@ import org.jspecify.annotations.Nullable;
  * @param latestStepAt when that step last changed (design v0.3.1 25 "Son durum · 8 Eyl")
  * @param editable whether name, type and city can change (created by the current company, no users)
  * @param linkedAt when the supplier was added to the network
+ * @param certificates one entry per certificate type confirmed on a document of this supplier's steps in the
+ *     current company's batches (design v0.5 61); a type is expired when none of its documents is still valid
  */
 public record SupplierResponse(
         UUID id,
@@ -26,5 +29,6 @@ public record SupplierResponse(
         @Nullable StepStatus latestStepStatus,
         @Nullable Instant latestStepAt,
         boolean editable,
-        Instant linkedAt) {
+        Instant linkedAt,
+        List<SupplierCertificate> certificates) {
 }

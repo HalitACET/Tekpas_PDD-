@@ -1344,6 +1344,23 @@
         },
         "type" : "object"
       },
+      "SupplierCertificate" : {
+        "properties" : {
+          "expired" : {
+            "type" : "boolean"
+          },
+          "type" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : "string"
+          },
+          "validUntil" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        },
+        "required" : [ "expired", "type", "validUntil" ],
+        "type" : "object"
+      },
       "SupplierCreateRequest" : {
         "properties" : {
           "city" : {
@@ -1377,6 +1394,12 @@
             "format" : "int64",
             "type" : "integer"
           },
+          "certificates" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SupplierCertificate"
+            },
+            "type" : "array"
+          },
           "city" : {
             "type" : [ "string", "null" ]
           },
@@ -1409,7 +1432,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "batchCount", "editable", "id", "linkedAt", "name", "type" ],
+        "required" : [ "batchCount", "certificates", "editable", "id", "linkedAt", "name", "type" ],
         "type" : "object"
       },
       "SupplierUpdateRequest" : {
