@@ -34,7 +34,7 @@ Render diski geçici, kalıcı disk ücretli → elendi. **Tavsiye: A.** B yaln�
 
 ## 3. Okuma hattı
 
-**Arka plan işi** (K9 kuyruğu, `FOR UPDATE SKIP LOCKED`), eşzamanlı değil: Render ücretsiz paketi **0,1 CPU / 512 MB**; LLM çağrısı saniyeler sürer ve uyanan sunucu isteği kesebilir. Yükleme `202` + belge döner; iş commit sonrası hemen tetiklenir (5 sn'lik yoklama yedek). Tek worker iş parçacığı → aynı anda tek belge (bellek güvencesi). Web 1,5 sn'de bir sorar; 30 sn sonra "Okuma sürüyor, sayfadan ayrılabilirsiniz".
+**Arka plan işi** (K9 kuyruğu, `FOR UPDATE SKIP LOCKED`), eşzamanlı değil: Render ücretsiz paketi **0,1 CPU / 512 MB**; LLM çağrısı saniyeler sürer ve uyanan sunucu isteği kesebilir. Yükleme `202` + belge döner; iş commit sonrası hemen tetiklenir (sabit aralıklı DB yoklaması yok, Neon uyuyabilsin; tekrarlar bellekte planlanır, bkz. PLAN K9). Tek worker iş parçacığı → aynı anda tek belge (bellek güvencesi). Web 1,5 sn'de bir sorar; 30 sn sonra "Okuma sürüyor, sayfadan ayrılabilirsiniz".
 
 1. **PDF metin katmanı** (Apache PDFBox, yalnızca metin; geçici dosya modunda bellek, 15 sn sınır).
 2. **Sınıflandırıcı + kurallar:** Tür, anahtar ifadelerle bulunur (ör. "STANDARD 100 by OEKO-TEX", "Global Organic Textile Standard", "Global Recycled Standard"). Her tür bir `CertificateRule`: alan etiketine bağlı regex + doğrulayıcı (tarih ayrıştırma, numara biçimi). Etiketle bulunup doğrulanan alan 0,95; etiketsiz 0,7. Yeni tür = yeni sınıf + altın dosya.

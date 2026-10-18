@@ -40,8 +40,9 @@ Her feature paketi içinde: `XController`, `XService`, `XRepository`, `dto/` (Ja
 ## Arka plan işleri
 
 - İş eklemek: `jobQueue.enqueue(JobType.AI_EXTRACT_DOCUMENT, payload)`. Aynı transaction içinde yapılır, böylece kayıt geri alınırsa iş de geri alınır.
-- `JobWorker` `@Scheduled(fixedDelay = 2000)` ile `FOR UPDATE SKIP LOCKED` üzerinden bir iş alır, ilgili `JobHandler`'a verir.
-- Hata alırsa `attempts++`, `run_at = now() + 2^attempts dakika`. `max_attempts` aşılırsa `DEAD` olur.
+- `JobWorker` tek bir iş parçacığında `FOR UPDATE SKIP LOCKED` ile iş alır, ilgili `JobHandler<P>`'a tipli payload ile verir. **Sabit aralıklı yoklama yok** (Neon uyuyabilsin, PLAN K9): commit sonrası `JobQueue` uyandırır, sıradaki tekrarın zamanı bellekte planlanır, günlük işler `JobWorker.every` ile kurulur.
+- Hata alırsa yeniden dener: 30 sn, 2 dk, sonra 10 dk; `JobType.maxAttempts()` dolunca `DEAD`. `JobFailedPermanently` tekrarsız `FAILED`. İkisinde de `onGiveUp` bir kez çağrılır. Deneme `timeout()`'u aşarsa başarısız sayılır.
+- Testlerde işçi iş parçacığı kapalıdır (`tekpas.jobs.worker-enabled=false`); test `jobWorker.runPending()` çağırır.
 - Handler'lar idempotent yazılır: aynı iş iki kez çalışsa sonuç bozulmaz.
 
 ## AI (Gemini)
