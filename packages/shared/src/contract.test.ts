@@ -3,6 +3,7 @@ import { describe, expectTypeOf, it } from "vitest";
 import type {
   BatchStatus,
   ChemicalStandard,
+  DocType,
   DyeProcess,
   EnergySource,
   Fiber,
@@ -31,6 +32,7 @@ describe("constants match the generated API client", () => {
     expectTypeOf<YarnProcess>().toEqualTypeOf<Schemas["YarnProcess"]>();
     expectTypeOf<DyeProcess>().toEqualTypeOf<Schemas["DyeProcess"]>();
     expectTypeOf<ChemicalStandard>().toEqualTypeOf<Schemas["ChemicalStandard"]>();
+    expectTypeOf<DocType>().toEqualTypeOf<Schemas["DocumentResponse"]["docType"]>();
   });
 
   it("correction presets mark fields of the step data, or the documents section", () => {

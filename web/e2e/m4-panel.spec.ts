@@ -130,8 +130,15 @@ test("47b: a correction with a preset marks its field and sends the reason", asy
 
   const fix = panel.getByRole("region", { name: "Düzeltme iste" });
   await expect(fix.getByRole("button", { name: "Düzeltme talebini gönder" })).toBeDisabled();
-  // The documents' presets wait for M5.
-  await expect(fix.getByRole("button", { name: "Belge okunaksız" })).toHaveCount(0);
+  // The documents' presets (M5, design v0.5 60) mark the supplier form's Documents section and say so.
+  await expect(fix.getByRole("button", { name: "Sertifika süresi dolmuş" })).toHaveAttribute("aria-pressed", "false");
+  const unreadable = fix.getByRole("button", { name: "Belge okunaksız" });
+  await expect(fix.getByText(/Belgeler bölümü işaretlenir/)).toHaveCount(0);
+  await unreadable.click();
+  await expect(fix.getByText(/Belgeler bölümü işaretlenir/)).toBeVisible();
+  await unreadable.click();
+  await expect(fix.getByText(/Belgeler bölümü işaretlenir/)).toHaveCount(0);
+  await fix.getByLabel("Gerekçe").fill("");
   const preset = fix.getByRole("button", { name: "Lif oranı uyuşmuyor" });
   await expect(preset).toHaveAttribute("aria-pressed", "false");
   await preset.click();

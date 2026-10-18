@@ -306,6 +306,20 @@
       "BLUESIGN": "bluesign",
       "GOTS_APPROVED": "GOTS approved chemicals",
       "NONE": "None"
+    },
+    "docType": {
+      "OEKO_TEX": "OEKO-TEX Standard 100",
+      "GOTS": "GOTS certificate",
+      "GRS": "GRS certificate",
+      "BCI": "BCI certificate",
+      "OCS": "OCS certificate",
+      "BLUESIGN": "bluesign certificate",
+      "LAB_REPORT": "Lab report",
+      "SDS": "Safety data sheet (SDS)",
+      "INVOICE": "Invoice",
+      "TECH_SHEET": "Technical sheet",
+      "OTHER": "Other document",
+      "UNKNOWN": "Type not determined"
     }
   },
   "errors": {
@@ -607,7 +621,8 @@
             "FIBER_MISMATCH": "Fibre ratio does not match",
             "DOCUMENT_UNREADABLE": "Document is illegible",
             "CERTIFICATE_EXPIRED": "Certificate has expired"
-          }
+          },
+          "documentsHint": "The Documents section of the supplier's form is marked. Earlier documents stay read-only; the supplier can add a new one."
         },
         "approveFailed": "The step could not be approved",
         "origin": {
@@ -671,7 +686,9 @@
         "createFailed": "The link could not be created",
         "revokeFailed": "The link could not be revoked",
         "deadlineFailed": "The deadline could not be changed"
-      }
+      },
+      "documentCount": "{count, plural, one {# document} other {# documents}}",
+      "documentsPending": "A document waits for approval"
     }
   },
   "suppliers": {
@@ -1032,6 +1049,198 @@
       "sender": "Sender",
       "sentAt": "Sent",
       "code": "Submission no."
+    }
+  },
+  "documents": {
+    "title": "Documents",
+    "count": "{count, plural, one {# document} other {# documents}}",
+    "rule": "Nothing is saved until you approve it",
+    "loadFailed": "Documents could not be loaded",
+    "retry": "Try again",
+    "empty": {
+      "title": "No document has been uploaded to this step yet.",
+      "body": "The supplier can upload from the data request link, or you can add one here."
+    },
+    "chip": {
+      "reading": "Reading",
+      "full": "Awaiting approval",
+      "low": "Low confidence",
+      "unreadable": "Unreadable",
+      "error": "Error",
+      "approved": "Approved",
+      "expired": "Expired"
+    },
+    "card": {
+      "typeReading": "Detecting type",
+      "typeUnreadable": "Fields to be entered by hand",
+      "typeUnknown": "Type not determined",
+      "by": "{name} · {source} · {when}",
+      "sourcePanel": "from the panel",
+      "sourceLink": "via link",
+      "open": "{file} · {state} · review",
+      "reread": "Read again",
+      "rereadFailed": "The document could not be queued for reading"
+    },
+    "upload": {
+      "drop": "Drag files here",
+      "dropActive": "Drop to start uploading",
+      "pick": "Upload document",
+      "rules": "PDF, JPG, PNG · up to 10 MB · PDF up to 20 pages",
+      "hint": "GOTS · OEKO-TEX · technical sheet",
+      "cancel": "Cancel",
+      "remove": "Remove",
+      "retry": "Try again",
+      "progress": "Uploading",
+      "locked": "The batch is published; no document can be added.",
+      "errors": {
+        "format": "This format is not supported. Upload a PDF, JPG or PNG.",
+        "size": "The file is {size}. The limit is 10 MB.",
+        "empty": "The file is empty. Choose another file.",
+        "encrypted": "The PDF is encrypted or damaged and could not be opened. Upload a copy without a password.",
+        "pages": "The PDF is longer than 20 pages. The limit is 20 pages.",
+        "dimensions": "The image is too large. The limit is 40 megapixels.",
+        "duplicate": "This document was already uploaded to this step.",
+        "limit": "A step takes at most 10 documents.",
+        "published": "The batch is published; no document can be added.",
+        "rate": "Too many attempts. Try again in a minute.",
+        "storage": "The file storage is not responding right now. Try again shortly.",
+        "forbidden": "You are not allowed to upload documents.",
+        "network": "The connection dropped; the upload stopped at {percent}.",
+        "unknown": "The document could not be uploaded. Try again."
+      }
+    },
+    "review": {
+      "label": "Document review",
+      "context": "Document review · {step} step · {name}",
+      "close": "Close",
+      "fieldsTitle": "Fields read",
+      "threshold": "Confidence threshold {value}",
+      "pages": "{count, plural, one {# page} other {# pages}}",
+      "by": "{name}, {source} · {when}",
+      "sourcePanel": "from the panel",
+      "sourceLink": "via supplier link",
+      "fields": {
+        "docType": "Document type",
+        "certNo": "Certificate no.",
+        "holderName": "Certificate holder",
+        "issuer": "Issuing body",
+        "validFrom": "Valid from",
+        "validUntil": "Valid until"
+      },
+      "placeholders": {
+        "docType": "Choose the document type",
+        "certNo": "Number on the document",
+        "holderName": "Company name",
+        "issuer": "Body that issued the certificate",
+        "date": "DD.MM.YYYY"
+      },
+      "sources": {
+        "document": "Document",
+        "ai": "AI",
+        "manual": "Manual"
+      },
+      "fixed": "Corrected",
+      "original": "Read from the document: <v>{value}</v>",
+      "evidenceLead": "In the document: “",
+      "evidenceTail": "” · p. {page}",
+      "expiredField": "End date has passed · {days, plural, one {# day} other {# days}} ago",
+      "check": {
+        "ai": "AI estimate · compare with the document",
+        "low": "Confidence {value} · below the threshold",
+        "confirm": "Correct",
+        "checked": "Compared with the document · {name}"
+      },
+      "fieldError": {
+        "date": "Enter a date as DD.MM.YYYY",
+        "range": "The end cannot be before the start",
+        "type": "Choose the document type",
+        "required": "Required for this document type"
+      },
+      "reading": {
+        "title": "Reading the document",
+        "body": "The six fields are being read from the document. The values appear here when it is done; none is saved before you approve it.",
+        "seconds": "{count} s",
+        "leave": "You can leave this page.",
+        "leaveBody": "Reading continues in the background; when it is done the document card shows it."
+      },
+      "error": {
+        "title": "The document could not be read",
+        "body": "The document is saved; you can try reading it again or enter the fields by hand.",
+        "timeout": "The reading service did not answer in time.",
+        "reread": "Read again",
+        "manual": "Enter fields by hand"
+      },
+      "technical": "Technical detail: {code}",
+      "banner": {
+        "low": {
+          "title": "{count, plural, one {# field needs a check} other {# fields need a check}}",
+          "body": "Compare the yellow fields with the document on the left; mark them correct or fix them. Fields from AI always need a check."
+        },
+        "manual": {
+          "title": "Enter the fields by hand",
+          "body": "The document could not be read; type the values from the document on the left."
+        },
+        "noText": {
+          "title": "This document has no readable text, enter the fields by hand",
+          "body": "An image or a scanned page; no text could be extracted. You can ask the supplier for a clearer copy."
+        },
+        "unrecognised": {
+          "title": "No fields could be read from this document, enter them by hand",
+          "body": "The layout of the document was not recognised. Type the values from the document on the left."
+        },
+        "aiUnavailable": {
+          "title": "AI reading was not available, enter the fields by hand",
+          "body": "The document could not be read as text and AI reading cannot run right now. Type the values from the document on the left."
+        },
+        "noPerm": {
+          "title": "Approving needs an administrator",
+          "body": "Your role: {role}. You can see the fields but not change or approve them."
+        },
+        "approved": {
+          "title": "Approved by {name} · {when}",
+          "body": "{count, plural, one {# field was corrected} other {# fields were corrected}} while approving. The values are saved on the step.",
+          "bodyNone": "The values are saved on the step."
+        },
+        "expired": {
+          "title": "The certificate expired on {date}",
+          "body": "You can still approve it. Ask the supplier for a valid certificate."
+        }
+      },
+      "footer": {
+        "reading": "The fields appear here when reading is done.",
+        "error": "The document is saved, but could not be read.",
+        "approved": "Approved · the values are saved on the step.",
+        "noPerm": "Approving needs an administrator.",
+        "pending": "{count, plural, one {Check the yellow field first.} other {Check the # yellow fields first.}}",
+        "missing": "Needed to approve: {fields}.",
+        "invalid": "Fix the fields with errors to approve.",
+        "ready": "No value is saved until it is approved."
+      },
+      "cancel": "Cancel",
+      "approve": "Approve",
+      "approveFailed": "The document could not be approved",
+      "discard": {
+        "title": "You have unsaved changes",
+        "body": "{count, plural, one {Your correction to # field was not saved.} other {Your corrections to # fields were not saved.}} If you close, the changes are lost; the document stays awaiting approval.",
+        "keep": "Back to editing",
+        "confirm": "Discard changes and close"
+      },
+      "alreadyVerified": "This document is already approved."
+    },
+    "preview": {
+      "label": "Document preview",
+      "page": "Page",
+      "pageOf": "{page} / {pages}",
+      "prev": "Previous page",
+      "next": "Next page",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fit": "Fit",
+      "image": "Image",
+      "loading": "Loading the document",
+      "failed": "The document cannot be previewed",
+      "failedBody": "The file cannot be reached right now. You can still enter the fields and approve.",
+      "retry": "Try again"
     }
   }
 }
