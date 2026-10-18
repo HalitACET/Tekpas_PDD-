@@ -1,0 +1,17 @@
+{
+  "status" : "UNREADABLE",
+  "method" : "NONE",
+  "failureCode" : "NO_KNOWN_FIELDS",
+  "extraction" : {
+    "detectedType" : "UNKNOWN",
+    "method" : "NONE",
+    "fields" : {
+      "certNo" : null,
+      "holderName" : null,
+      "issuer" : null,
+      "validFrom" : null,
+      "validUntil" : null
+    },
+    "warnings" : [ ]
+  }
+}

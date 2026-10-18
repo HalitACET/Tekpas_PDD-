@@ -1,6 +1,7 @@
 package com.tekpas.support;
 
 import com.tekpas.common.storage.FileStorage;
+import com.tekpas.common.storage.MissingObjectException;
 import com.tekpas.common.storage.StorageException;
 import com.tekpas.common.storage.StorageUnavailableException;
 import java.io.IOException;
@@ -50,6 +51,16 @@ public class FakeFileStorage implements FileStorage {
         }
         return URI.create("https://storage.test/object/sign/" + key + "?token=t&ttl=" + ttl.toSeconds()
                 + (downloadName == null ? "" : "&download=" + downloadName.replace(' ', '+')));
+    }
+
+    @Override
+    public byte[] read(String key) {
+        check();
+        Stored stored = objects.get(key);
+        if (stored == null) {
+            throw new MissingObjectException();
+        }
+        return stored.bytes().clone();
     }
 
     @Override

@@ -17,7 +17,8 @@ import org.springframework.web.util.UriUtils;
 
 /**
  * Supabase Storage over its REST API (no S3 protocol, no SDK): {@code POST /object/{bucket}/{key}} to store,
- * {@code POST /object/sign/{bucket}/{key}} for a signed link, {@code DELETE /object/{bucket}/{key}}. The
+ * {@code POST /object/sign/{bucket}/{key}} for a signed link, {@code GET /object/authenticated/{bucket}/{key}} to
+ * read, {@code DELETE /object/{bucket}/{key}}. The
  * service role key stays in this class: it is sent as a bearer token and never logged or put in a message.
  * The bucket must be private; downloads only ever happen through short signed links.
  */
@@ -94,6 +95,22 @@ final class SupabaseFileStorage implements FileStorage {
                     + UriUtils.encodeQueryParam(downloadName, StandardCharsets.UTF_8);
         }
         return URI.create(url);
+    }
+
+    /** {@code GET /object/authenticated/{bucket}/{key}}: the private object, with the service key. */
+    @Override
+    public byte[] read(String key) {
+        try {
+            byte[] body = client.get().uri(objectUri("/object/authenticated/", key)).retrieve().body(byte[].class);
+            return body == null ? new byte[0] : body;
+        } catch (RestClientResponseException e) {
+            if (isNotFound(e)) {
+                throw new MissingObjectException();
+            }
+            throw failed("read", e);
+        } catch (RestClientException e) {
+            throw failed("read", e);
+        }
     }
 
     @Override

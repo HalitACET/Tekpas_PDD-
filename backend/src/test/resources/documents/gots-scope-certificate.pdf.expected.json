@@ -1,0 +1,57 @@
+{
+  "status" : "READ",
+  "method" : "TEXT_RULES",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "GOTS",
+    "method" : "TEXT_RULES",
+    "fields" : {
+      "certNo" : {
+        "value" : "DEMO-GOTS-SC-55821",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Scope certificate number: DEMO-GOTS-SC-55821"
+        }
+      },
+      "holderName" : {
+        "value" : "Karaca Tekstil Ltd. Sti., Denizli, Turkiye",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certified organisation: Karaca Tekstil Ltd. Sti., Denizli, Turkiye"
+        }
+      },
+      "issuer" : {
+        "value" : "Demo Certification Services (fictional)",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certified by: Demo Certification Services (fictional)"
+        }
+      },
+      "validFrom" : {
+        "value" : "2026-01-15",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Date of issue: 15 January 2026"
+        }
+      },
+      "validUntil" : {
+        "value" : "2027-01-14",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Valid until: 14 January 2027"
+        }
+      }
+    },
+    "warnings" : [ ]
+  }
+}

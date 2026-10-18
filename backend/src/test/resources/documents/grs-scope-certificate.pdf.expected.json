@@ -1,0 +1,57 @@
+{
+  "status" : "READ",
+  "method" : "TEXT_RULES",
+  "failureCode" : null,
+  "extraction" : {
+    "detectedType" : "GRS",
+    "method" : "TEXT_RULES",
+    "fields" : {
+      "certNo" : {
+        "value" : "DEMO-GRS-2026-3310",
+        "confidence" : 0.8,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "License No. / DEMO-GRS-2026-3310"
+        }
+      },
+      "holderName" : {
+        "value" : "Ege Geri Donusum Elyaf A.S., Izmir, Turkiye",
+        "confidence" : 0.8,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certificate holder / Ege Geri Donusum Elyaf A.S., Izmir, Turkiye"
+        }
+      },
+      "issuer" : {
+        "value" : "Demo Recycling Audits (fictional)",
+        "confidence" : 0.8,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Certification body / Demo Recycling Audits (fictional)"
+        }
+      },
+      "validFrom" : {
+        "value" : "2026-02-01",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Validity: 01/02/2026 - 31/01/2027"
+        }
+      },
+      "validUntil" : {
+        "value" : "2027-01-31",
+        "confidence" : 0.95,
+        "source" : "TEXT_RULES",
+        "evidence" : {
+          "page" : 1,
+          "snippet" : "Validity: 01/02/2026 - 31/01/2027"
+        }
+      }
+    },
+    "warnings" : [ ]
+  }
+}
