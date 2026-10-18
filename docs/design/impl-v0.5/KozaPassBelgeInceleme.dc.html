@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box}input,button{font:inherit}@keyframes kp-spin{to{transform:rotate(360deg)}}@keyframes kp-shim{0%{opacity:.55}50%{opacity:1}100%{opacity:.55}}</style>
+</helmet>
+<div lang="tr" role="dialog" aria-label="Belge inceleme" style="position:relative;width:1280px;max-width:100%;height:820px;background:var(--popover);color:var(--foreground);font-family:'Geist',system-ui,sans-serif;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden">
+  <div style="padding:16px 20px 14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:16px">
+    <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Belge inceleme · Kumaş adımı · Denizli Örme Tekstil</span>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <h2 style="margin:0;font:500 17px 'Geist Mono',monospace;letter-spacing:-0.01em">{{ doc.file }}</h2>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ chip.s }}-muted);color:var(--status-{{ chip.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><sc-if value="{{ chip.spin }}" hint-placeholder-val="{{ false }}">{{ spinner }}</sc-if><sc-if value="{{ chip.dot }}" hint-placeholder-val="{{ true }}"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ chip.s }})"></span></sc-if>{{ chip.t }}</span>
+        <sc-if value="{{ expChip }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;background:var(--status-rejected-muted);color:var(--status-rejected-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.clock }}"></path></svg>Süresi dolmuş</span></sc-if>
+      </div>
+      <span style="font-size:13px;color:var(--muted-foreground)">{{ doc.meta }} · {{ doc.by }}</span>
+    </div>
+    <button onClick="{{ tryClose }}" aria-label="Kapat" style="width:32px;height:32px;border-radius:6px;border:none;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button>
+  </div>
+
+  <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 520px">
+    <div style="min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--muted);border-right:1px solid var(--border)">
+      <div style="height:48px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--border);background:var(--card)">
+        <sc-if value="{{ pv.isPdf }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:4px">
+            <button onClick="{{ pv.prev }}" aria-label="Önceki sayfa" style="width:32px;height:32px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:{{ pv.prevOp }}"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chevL }}"></path></svg></button>
+            <span style="min-width:96px;text-align:center;font-size:13px">Sayfa <span style="font-family:'Geist Mono',monospace">{{ pv.page }} / {{ pv.pages }}</span></span>
+            <button onClick="{{ pv.next }}" aria-label="Sonraki sayfa" style="width:32px;height:32px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:{{ pv.nextOp }}"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chevR }}"></path></svg></button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ pv.isImg }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:var(--muted-foreground)">Görüntü · <span style="font-family:'Geist Mono',monospace">{{ doc.dim }}</span></span></sc-if>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:4px">
+          <button onClick="{{ pv.zOut }}" aria-label="Uzaklaştır" style="width:32px;height:32px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.minus }}"></path></svg></button>
+          <span style="min-width:52px;text-align:center;font:13px 'Geist Mono',monospace">{{ pv.zoomT }}</span>
+          <button onClick="{{ pv.zIn }}" aria-label="Yakınlaştır" style="width:32px;height:32px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg></button>
+          <button onClick="{{ pv.fit }}" style="height:32px;padding:0 10px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--foreground);font:500 13px 'Geist',sans-serif;cursor:pointer" style-hover="background:var(--accent)">Sığdır</button>
+        </div>
+      </div>
+      <div style="flex:1;min-height:0;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:28px;background:{{ pv.bg }}">
+        <div style="width:{{ pv.w }};flex:none;transform:rotate({{ pv.rot }});filter:{{ pv.filter }};transform-origin:top center">
+          <div style="background:#FFFFFF;color:#1C1B19;aspect-ratio:1/1.414;padding:{{ pv.pad }};box-shadow:0 1px 3px rgba(0,0,0,.18),0 10px 28px -10px rgba(0,0,0,.3);display:flex;flex-direction:column;font-family:'Geist',sans-serif;font-size:{{ pv.fs }};overflow:hidden">
+            <sc-for list="{{ paper }}" as="ln" hint-placeholder-count="10">
+              <sc-if value="{{ ln.isText }}" hint-placeholder-val="{{ true }}"><div style="margin-top:{{ ln.mt }};text-align:{{ ln.align }};line-height:1.35"><span style="font-weight:{{ ln.fw }};font-size:{{ ln.fs }};font-family:{{ ln.ff }};color:{{ ln.color }};letter-spacing:{{ ln.ls }};background:{{ ln.bg }};box-shadow:{{ ln.sh }};border-radius:2px;padding:0.1em 0.2em">{{ ln.t }}</span></div></sc-if>
+              <sc-if value="{{ ln.isBar }}" hint-placeholder-val="{{ false }}"><div style="margin-top:{{ ln.mt }};height:0.5em;width:{{ ln.w }};border-radius:2px;background:#E4E1DB"></div></sc-if>
+              <sc-if value="{{ ln.isRule }}" hint-placeholder-val="{{ false }}"><div style="margin-top:{{ ln.mt }};height:1px;background:#D2CEC6"></div></sc-if>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="min-height:0;overflow:auto;padding:18px 24px 24px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:14px;font-weight:600">Okunan alanlar</span><span style="font-size:12px;color:var(--muted-foreground)">Güven eşiği <span style="font-family:'Geist Mono',monospace">%80</span></span></div>
+
+      <sc-if value="{{ banner.show }}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="display:flex;gap:10px;padding:12px 14px;border-radius:8px;background:var(--status-{{ banner.s }}-muted);color:var(--status-{{ banner.s }}-foreground);font-size:13px;line-height:1.45"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ banner.icon }}"></path></svg><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">{{ banner.title }}</span><sc-if value="{{ banner.hasBody }}" hint-placeholder-val="{{ true }}"><span>{{ banner.body }}</span></sc-if><sc-if value="{{ banner.hasCode }}" hint-placeholder-val="{{ false }}"><span style="font:12px 'Geist Mono',monospace;opacity:.85">{{ banner.code }}</span></sc-if></span></div>
+      </sc-if>
+
+      <sc-if value="{{ isReading }}" hint-placeholder-val="{{ false }}">
+        <div role="status" aria-live="polite" style="display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:8px;border:1px solid var(--border);background:var(--card)">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500"><span style="display:flex;color:var(--brand-text)">{{ spinner }}</span>Belge okunuyor<span style="margin-left:auto;font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ readT }}</span></div>
+          <span style="font-size:13px;line-height:1.5;color:var(--muted-foreground)">Altı alan belgeden çıkarılıyor. Okuma bitince değerler burada görünür; hiçbiri siz onaylamadan kaydedilmez.</span>
+          <sc-if value="{{ longRead }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:6px;background:var(--muted);font-size:13px;line-height:1.5"><svg width="16" height="16" viewBox="0 0 24 24" style="flex:none;margin-top:2px;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.info }}"></path></svg><span><span style="font-weight:600">Sayfadan ayrılabilirsiniz.</span> Okuma arka planda sürer; bitince belge kartında ve Görevler’de görünür.</span></div></sc-if>
+        </div>
+        <sc-for list="{{ skelFields }}" as="s" hint-placeholder-count="6">
+          <div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--card)">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600;color:var(--muted-foreground)">{{ s.label }}</span><span style="margin-left:auto;width:36px;height:10px;border-radius:3px;background:var(--skeleton);animation:kp-shim 1.4s ease-in-out infinite"></span></div>
+            <span style="height:38px;border-radius:6px;background:var(--skeleton);display:flex;align-items:center;padding:0 10px;animation:kp-shim 1.4s ease-in-out infinite"><span style="width:{{ s.w }};height:10px;border-radius:3px;background:var(--muted)"></span></span>
+          </div>
+        </sc-for>
+      </sc-if>
+
+      <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+        <div role="alert" style="display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:20px;border-radius:10px;border:1px solid var(--border);background:var(--card)">
+          <span style="width:40px;height:40px;border-radius:10px;background:var(--status-rejected-muted);color:var(--status-rejected-foreground);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.alert }}"></path></svg></span>
+          <strong style="font-size:15px;font-weight:600">Belge okunurken hata oluştu</strong>
+          <span style="font-size:13px;line-height:1.55;color:var(--muted-foreground);text-wrap:pretty">Okuma servisi 60 saniye içinde yanıt vermedi. Belge kaydedildi; yeniden okumayı deneyebilir ya da alanları elle girebilirsiniz.</span>
+          <span style="font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">Neden: EXTRACT_TIMEOUT · istek 3c1e-77a0</span>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button onClick="{{ reread }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--primary-hover)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.refresh }}"></path></svg>Tekrar oku</button>
+            <button onClick="{{ manual }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer" style-hover="background:var(--accent)">Alanları elle gir</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showFields }}" hint-placeholder-val="{{ true }}">
+        <sc-for list="{{ fields }}" as="f" hint-placeholder-count="6">
+          <div onClick="{{ f.focus }}" style="border:1px solid {{ f.bd }};background:{{ f.bg }};box-shadow:{{ f.sh }};border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:8px;min-height:20px">
+              <span style="font-size:13px;font-weight:600">{{ f.label }}</span>
+              <sc-if value="{{ f.hasSrc }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;gap:4px;font:500 11px 'Geist',sans-serif;background:{{ f.sBg }};color:{{ f.sFg }};border:1px solid {{ f.sBd }};padding:1px 6px;border-radius:4px"><svg width="11" height="11" viewBox="0 0 24 24" style="fill:{{ f.sFill }};stroke:{{ f.sStroke }};stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ f.sIcon }}"></path></svg>{{ f.src }}</span></sc-if>
+              <sc-if value="{{ f.fixed }}" hint-placeholder-val="{{ false }}"><span style="font:500 11px 'Geist',sans-serif;background:var(--status-submitted-muted);color:var(--status-submitted-foreground);padding:1px 6px;border-radius:4px">Düzeltildi</span></sc-if>
+              <sc-if value="{{ f.hasConf }}" hint-placeholder-val="{{ true }}"><span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;font:500 12px 'Geist Mono',monospace;color:{{ f.cFg }}"><span style="width:6px;height:6px;border-radius:50%;background:{{ f.cDot }}"></span>{{ f.confT }}</span></sc-if>
+            </div>
+            <sc-if value="{{ f.editable }}" hint-placeholder-val="{{ true }}"><input value="{{ f.v }}" onChange="{{ f.onChange }}" onFocus="{{ f.focus }}" placeholder="{{ f.ph }}" aria-label="{{ f.label }}" style="height:38px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font:{{ f.font }};outline:none" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"></sc-if>
+            <sc-if value="{{ f.readonly }}" hint-placeholder-val="{{ false }}"><span aria-readonly="true" style="min-height:38px;padding:0 10px;border-radius:6px;background:var(--muted);display:flex;align-items:center;font:{{ f.font }};color:var(--foreground)">{{ f.vShow }}</span></sc-if>
+            <sc-if value="{{ f.hasOrig }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--muted-foreground)">Belgeden okunan: <span style="font-family:'Geist Mono',monospace;text-decoration:line-through">{{ f.orig }}</span></span></sc-if>
+            <sc-if value="{{ f.hasEv }}" hint-placeholder-val="{{ true }}"><button onClick="{{ f.jump }}" style="align-self:flex-start;padding:0;border:none;background:transparent;cursor:pointer;font-size:12px;line-height:1.45;color:var(--muted-foreground);text-align:left" style-hover="color:var(--foreground)"><span>{{ f.evLead }}</span><span style="font-family:'Geist Mono',monospace;color:var(--foreground)">{{ f.ev }}</span><span>{{ f.evTail }}</span></button></sc-if>
+            <sc-if value="{{ f.isExp }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--status-rejected-foreground);display:flex;gap:5px;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.alert }}"></path></svg>Bitiş tarihi geçmiş · 3 gün önce</span></sc-if>
+            <sc-if value="{{ f.needsCheck }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:8px;padding-top:6px;border-top:1px solid var(--status-low-confidence)"><span style="font-size:12px;color:var(--status-low-confidence-foreground)">{{ f.checkWhy }}</span><button onClick="{{ f.confirm }}" style="margin-left:auto;height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:5px;cursor:pointer" style-hover="background:var(--accent)"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>Doğru</button></div></sc-if>
+            <sc-if value="{{ f.checked }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--muted-foreground);display:flex;gap:5px;align-items:center"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>Belgeyle karşılaştırıldı · Elif Y.</span></sc-if>
+          </div>
+        </sc-for>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="height:64px;flex:none;padding:0 20px 0 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px">
+    <span style="font-size:13px;color:{{ foot.fg }}">{{ foot.t }}</span>
+    <sc-if value="{{ foot.cancel }}" hint-placeholder-val="{{ true }}"><button onClick="{{ tryClose }}" style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer" style-hover="background:var(--accent)">Vazgeç</button></sc-if>
+    <sc-if value="{{ foot.closeOnly }}" hint-placeholder-val="{{ false }}"><button onClick="{{ tryClose }}" style="margin-left:auto;height:36px;padding:0 16px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer" style-hover="background:var(--accent)">Kapat</button></sc-if>
+    <sc-if value="{{ foot.hasApprove }}" hint-placeholder-val="{{ true }}"><button onClick="{{ approve }}" disabled="{{ foot.dis }}" style="height:36px;padding:0 18px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;opacity:{{ foot.op }};cursor:{{ foot.cur }}"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg>Onayla</button></sc-if>
+  </div>
+
+  <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:var(--scrim);z-index:5"></div>
+    <div role="alertdialog" aria-label="Kaydedilmemiş değişiklikler" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;width:440px;background:var(--popover);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+      <div style="padding:24px 24px 20px;display:flex;gap:14px">
+        <span style="width:40px;height:40px;border-radius:50%;flex:none;background:var(--status-low-confidence-muted);color:var(--status-low-confidence-foreground);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.alert }}"></path></svg></span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h2 style="margin:0;font-size:17px;font-weight:600;letter-spacing:-0.01em">Kaydedilmemiş değişiklikler var</h2>
+          <span style="font-size:14px;line-height:1.5">{{ confirmBody }}</span>
+        </div>
+      </div>
+      <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
+        <button onClick="{{ keepEditing }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Düzenlemeye dön</button>
+        <button onClick="{{ discard }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--destructive);color:var(--destructive-foreground);border:1px solid transparent;cursor:pointer" style-hover="background:var(--destructive-hover)">Değişiklikleri sil ve kapat</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:820},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;reading&quot;,&quot;full&quot;,&quot;low&quot;,&quot;unreadable&quot;,&quot;error&quot;,&quot;approved&quot;,&quot;expired&quot;,&quot;noperm&quot;],&quot;default&quot;:&quot;full&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;elapsed&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;min&quot;:0,&quot;max&quot;:120,&quot;tsType&quot;:&quot;number&quot;},&quot;confirm&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;onClose&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+class Component extends DCLogic {
+  state = {};
+  p(k, d) { const v = this.props[k]; return v === undefined || v === null || v === '' ? d : v; }
+  pb(k) { const v = this.props[k]; return v === true || v === 'true'; }
+  componentDidMount() {
+    if (this.pb('confirm')) this.setState({ vals: { no: '23.HTR.71245' }, confirmOpen: true });
+    this._iv = setInterval(() => { if (this.mode() === 'reading') this.setState(s => ({ t: (s.t ?? (+this.p('elapsed', 6) || 0)) + 1 })); }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this._iv); }
+  mode() { return this.state.mode || this.p('state', 'full'); }
+  doc(key) {
+    const D = (k, label, v, src, conf, ev, pg, mono, extra) => ({ k, label, v, src, conf, ev, pg, mono, ...(extra || {}) });
+    const E = (k, label, mono) => D(k, label, '', null, null, null, 1, mono);
+    const empty = [E('type', 'Belge türü'), E('no', 'Sertifika no', true), E('holder', 'Sertifika sahibi'), E('issuer', 'Veren kuruluş'), E('from', 'Geçerlilik başlangıcı', true), E('to', 'Geçerlilik bitişi', true)];
+    const T = (t, st, k, mt) => ({ t, st, k, mt });
+    const B = (w, mt) => ({ bar: true, w, mt });
+    const gotsP = [
+      [T('ANADOLU SERTİFİKASYON LTD.', 'org'), T('Scope Certificate', 'title', 'type', '1.6em'), T('Global Organic Textile Standard (GOTS) 7.0', 'sub', 'type'), T('Certificate No. ASB-GOTS-118043', 'field', 'no', '1.4em'), T('issued by Anadolu Sertifikasyon Ltd. to', 'body', 'issuer', '1.2em'), T('Denizli Örme Tekstil San. ve Tic. A.Ş.', 'big', 'holder', '0.3em'), T('Organize Sanayi Bölgesi 4. Cad. No: 12, Denizli, Türkiye', 'muted'), B('94%', '1.4em'), B('88%', '0.6em'), B('62%', '0.6em'), T('Products: knitted fabrics, single jersey and interlock.', 'body', null, '1em'), B('80%', '0.8em'), B('54%', '0.6em'), { rule: true, mt: '1.4em' }, T('Valid from: 01 April 2026', 'field', 'from', '0.9em'), T('Valid until: 31 March 2027', 'field', 'to', '0.3em'), T('Place and date of issue: İzmir, 28.03.2026', 'muted', null, '2.2em'), B('28%', '1.6em'), T('Authorised signature', 'muted', null, '0.4em')],
+      [T('ANADOLU SERTİFİKASYON LTD.', 'org'), T('Annex · Product categories', 'sub', null, '1.2em'), T('Certificate No. ASB-GOTS-118043', 'field', null, '0.4em'), B('90%', '1.4em'), B('84%', '0.6em'), B('70%', '0.6em'), B('88%', '1.2em'), B('60%', '0.6em'), B('92%', '1.2em'), B('76%', '0.6em'), B('40%', '0.6em')],
+      [T('ANADOLU SERTİFİKASYON LTD.', 'org'), T('Annex · Facilities', 'sub', null, '1.2em'), B('86%', '1.4em'), B('64%', '0.6em'), B('78%', '1.2em'), B('52%', '0.6em')],
+    ];
+    const gotsF = [
+      D('type', 'Belge türü', 'GOTS kapsam sertifikası', 'Belgeden', 98, 'Scope Certificate · Global Organic Textile Standard', 1),
+      D('no', 'Sertifika no', 'ASB-GOTS-118043', 'Belgeden', 96, 'Certificate No. ASB-GOTS-118043', 1, true),
+      D('holder', 'Sertifika sahibi', 'Denizli Örme Tekstil San. ve Tic. A.Ş.', 'Belgeden', 97, 'Denizli Örme Tekstil San. ve Tic. A.Ş.', 1),
+      D('issuer', 'Veren kuruluş', 'Anadolu Sertifikasyon Ltd.', 'Belgeden', 93, 'issued by Anadolu Sertifikasyon Ltd.', 1),
+      D('from', 'Geçerlilik başlangıcı', '01.04.2026', 'Belgeden', 95, 'Valid from: 01 April 2026', 1, true),
+      D('to', 'Geçerlilik bitişi', '31.03.2027', 'Belgeden', 95, 'Valid until: 31 March 2027', 1, true)];
+    const oekoP = (no, iss, until, printedIssuer) => [
+      [T('ETTE', 'mono', 'issuer'), printedIssuer ? T('Ege Tekstil Test Enstitüsü, İzmir', 'muted', 'issuer', '0.2em') : T(' ', 'muted'), T('STANDARD 100 by OEKO-TEX®', 'sub', 'type', '1.4em'), T('Certificate', 'title', null, '0.2em'), T('Certificate ' + no, 'field', 'no', '1.2em'), T('The company', 'body', null, '1.2em'), T('Denizli Örme Tekstil San. ve Tic. A.Ş.', 'big', 'holder', '0.3em'), T('OSB 4. Cad. No: 12, Denizli, Türkiye', 'muted'), T('is granted authorisation to use the STANDARD 100 by OEKO-TEX® label for the articles listed in the annex.', 'body', null, '1.2em'), B('90%', '1.2em'), B('72%', '0.6em'), T('Issued: ' + iss, 'field', 'from', '1.4em'), T('Continued on page 2', 'muted', null, '3em')],
+      [T('ETTE', 'mono'), T('Annex to certificate ' + no, 'sub', null, '1.2em'), B('92%', '1.4em'), B('80%', '0.6em'), B('66%', '0.6em'), B('88%', '1.2em'), B('58%', '0.6em'), T('The certificate is valid until ' + until, 'field', 'to', '1.6em'), B('70%', '1.4em'), B('44%', '0.6em')],
+    ];
+    const tfP = [[T('DENİZLİ ÖRME TEKSTİL', 'org'), T('Teknik föy', 'title', null, '1.4em'), T('Ürün: Süprem 30/1 · 180 g/m²', 'field', null, '1.2em'), { rule: true, mt: '1.2em' }, B('86%', '1em'), B('86%', '0.8em'), B('86%', '0.8em'), B('86%', '0.8em'), B('60%', '0.8em'), { rule: true, mt: '1.2em' }, B('74%', '1em'), B('52%', '0.6em')], [T('DENİZLİ ÖRME TEKSTİL', 'org'), B('90%', '1.6em'), B('70%', '0.6em')]];
+    const by = 'Selin Arslan, tedarikçi bağlantısıyla · 17 Eki 2026, 09:14';
+    const docs = {
+      reading: { file: 'kumas_teknik_foy_0918.pdf', meta: 'PDF · 2 sayfa · 0,8 MB', by: 'Elif Yılmaz, panelden · 18 Eki 2026, 10:02', kind: 'pdf', paper: tfP, fields: empty },
+      full: { file: 'gots_kapsam_2026.pdf', meta: 'PDF · 3 sayfa · 1,4 MB', by, kind: 'pdf', paper: gotsP, fields: gotsF },
+      noperm: { file: 'gots_kapsam_2026.pdf', meta: 'PDF · 3 sayfa · 1,4 MB', by, kind: 'pdf', paper: gotsP, fields: gotsF },
+      approved: { file: 'gots_islem_2026.pdf', meta: 'PDF · 1 sayfa · 0,6 MB', by: 'Elif Yılmaz, panelden · 16 Eki 2026, 14:30', kind: 'pdf', pages: 1,
+        paper: [gotsP[0].map(l => l.t === 'Scope Certificate' ? { ...l, t: 'Transaction Certificate' } : l.t === 'Certificate No. ASB-GOTS-118043' ? { ...l, t: 'Certificate No. ASB-TC-55120O' } : l)],
+        fields: gotsF.map(f => f.k === 'type' ? { ...f, v: 'GOTS işlem sertifikası', ev: 'Transaction Certificate · Global Organic Textile Standard' } : f.k === 'no' ? { ...f, v: 'ASB-TC-551200', ev: 'Certificate No. ASB-TC-55120O', fixedOrig: 'ASB-TC-55120O' } : f) },
+      low: { file: 'oekotex_100_2026.pdf', meta: 'PDF · 2 sayfa · 1,1 MB', by, kind: 'pdf', paper: oekoP('23.HTR.7I245', '12.02.2026', '11.O2.2027', false), fields: [
+        D('type', 'Belge türü', 'OEKO-TEX Standard 100', 'Belgeden', 94, 'STANDARD 100 by OEKO-TEX®', 1),
+        D('no', 'Sertifika no', '23.HTR.7I245', 'Belgeden', 61, 'Certificate 23.HTR.7I245', 1, true),
+        D('holder', 'Sertifika sahibi', 'Denizli Örme Tekstil San. ve Tic. A.Ş.', 'Belgeden', 91, 'Denizli Örme Tekstil San. ve Tic. A.Ş.', 1),
+        D('issuer', 'Veren kuruluş', 'Ege Tekstil Test Enstitüsü', 'AI', 72, null, 1, false, { aiNote: 'Belgede metin olarak yok · antetteki “ETTE” logosundan çıkarıldı · s. 1' }),
+        D('from', 'Geçerlilik başlangıcı', '12.02.2026', 'Belgeden', 88, 'Issued: 12.02.2026', 1, true),
+        D('to', 'Geçerlilik bitişi', '11.02.2027', 'Belgeden', 74, 'valid until 11.O2.2027', 2, true)] },
+      expired: { file: 'oekotex_100_2025.pdf', meta: 'PDF · 2 sayfa · 1,0 MB', by, kind: 'pdf', paper: oekoP('22.HTR.40518', '16.10.2025', '15.10.2026', true), fields: [
+        D('type', 'Belge türü', 'OEKO-TEX Standard 100', 'Belgeden', 95, 'STANDARD 100 by OEKO-TEX®', 1),
+        D('no', 'Sertifika no', '22.HTR.40518', 'Belgeden', 95, 'Certificate 22.HTR.40518', 1, true),
+        D('holder', 'Sertifika sahibi', 'Denizli Örme Tekstil San. ve Tic. A.Ş.', 'Belgeden', 96, 'Denizli Örme Tekstil San. ve Tic. A.Ş.', 1),
+        D('issuer', 'Veren kuruluş', 'Ege Tekstil Test Enstitüsü', 'Belgeden', 92, 'Ege Tekstil Test Enstitüsü, İzmir', 1),
+        D('from', 'Geçerlilik başlangıcı', '16.10.2025', 'Belgeden', 95, 'Issued: 16.10.2025', 1, true),
+        D('to', 'Geçerlilik bitişi', '15.10.2026', 'Belgeden', 96, 'valid until 15.10.2026', 2, true)] },
+      unreadable: { file: 'IMG_2041.jpg', meta: 'JPG · 3,8 MB', dim: '4032 × 3024', by, kind: 'img', paper: oekoP('23.HTR.71245', '12.02.2026', '11.02.2027', false), fields: empty },
+      error: { file: 'scan_0917.pdf', meta: 'PDF · 6 sayfa · 8,9 MB', by, kind: 'scan', paper: tfP, fields: empty, pages: 6 },
+    };
+    return docs[key] || docs.full;
+  }
+  renderVals() {
+    const ic = {
+      x: 'M18 6 6 18M6 6l12 12', check: 'M20 6 9 17l-5-5', chevL: 'm15 18-6-6 6-6', chevR: 'm9 18 6-6-6-6', plus: 'M12 5v14M5 12h14', minus: 'M5 12h14',
+      alert: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 8v4M12 16h.01', info: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 16v-4M12 8h.01',
+      clock: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 6v6l4 2', refresh: 'M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5',
+      file: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7ZM14 2v6h6', sparkle: 'M12 2l2.2 6.3L20.5 10.5l-6.3 2.2L12 19l-2.2-6.3L3.5 10.5l6.3-2.2Z',
+      pencil: 'M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z', lock: 'M5 11h14v11H5ZM7 11V7a5 5 0 0 1 10 0v4',
+    };
+    const spinner = React.createElement('span', { style: { width: 12, height: 12, borderRadius: '50%', border: '1.5px solid currentColor', borderRightColor: 'transparent', animation: 'kp-spin .7s linear infinite', display: 'inline-block', flex: 'none' } });
+    const orig = this.p('state', 'full'), mode = this.mode();
+    const doc = this.doc(orig);
+    const vals = this.state.vals || {}, chk = this.state.chk || {};
+    const editable = ['full', 'low', 'unreadable', 'expired'].includes(mode);
+    const past = v => { const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(v || ''); return m ? new Date(+m[3], +m[2] - 1, +m[1]) < new Date(2026, 9, 18) : false; };
+    const active = this.state.active || null;
+    const SRC = {
+      Belgeden: { sBg: 'var(--muted)', sFg: 'var(--foreground)', sBd: 'transparent', sIcon: ic.file, sFill: 'none', sStroke: 'currentColor' },
+      AI: { sBg: 'var(--brand-muted)', sFg: 'var(--brand-text)', sBd: 'transparent', sIcon: ic.sparkle, sFill: 'currentColor', sStroke: 'none' },
+      Elle: { sBg: 'transparent', sFg: 'var(--muted-foreground)', sBd: 'var(--input)', sIcon: ic.pencil, sFill: 'none', sStroke: 'currentColor' },
+    };
+    const PH = { type: 'örn. GOTS kapsam sertifikası', no: 'Belgedeki numara', holder: 'Firma unvanı', issuer: 'Sertifikayı veren kuruluş', from: 'GG.AA.YYYY', to: 'GG.AA.YYYY' };
+    const F = doc.fields.map(f0 => {
+      const has = Object.prototype.hasOwnProperty.call(vals, f0.k);
+      const v = has ? vals[f0.k] : f0.v;
+      const userEdit = has && v !== f0.v;
+      const fixed = (userEdit && !!f0.src) || !!f0.fixedOrig;
+      const src = f0.src ? (fixed ? 'Elle' : f0.src) : (v ? 'Elle' : null);
+      const needs = editable && !fixed && !!f0.src && (f0.src === 'AI' || f0.conf < 80) && !chk[f0.k];
+      const checked = !fixed && !!chk[f0.k];
+      const isExp = !!v && f0.k === 'to' && past(v) && mode !== 'reading';
+      return { f0, v, userEdit, fixed, src, needs, checked, isExp };
+    });
+    const pendingLow = F.filter(x => x.needs).length;
+    const empties = F.filter(x => !String(x.v).trim()).length;
+    const dirty = F.filter(x => x.userEdit).length;
+    const setVal = (k, v) => this.setState(s => ({ vals: { ...(s.vals || {}), [k]: v } }));
+    const fields = F.map(({ f0, v, fixed, src, needs, checked, isExp }) => {
+      const isAct = active === f0.k && editable;
+      const st = src ? SRC[src] : SRC.Elle;
+      const low = f0.conf != null && f0.conf < 80;
+      const showConf = !!src && src !== 'Elle' && f0.conf != null;
+      return { label: f0.label, v, vShow: v || '—', ph: PH[f0.k], font: f0.mono ? "15px 'Geist Mono',monospace" : "500 14px 'Geist',sans-serif",
+        hasSrc: !!src, src: src || '', ...st, fixed, hasConf: showConf, confT: '%' + f0.conf, cFg: low || src === 'AI' ? 'var(--status-low-confidence-foreground)' : 'var(--status-approved-foreground)', cDot: low || src === 'AI' ? 'var(--status-low-confidence)' : 'var(--status-approved)',
+        editable, readonly: !editable, hasOrig: fixed && mode === 'approved', orig: f0.fixedOrig || f0.v,
+        hasEv: !!(f0.ev || f0.aiNote) && !fixed, evLead: f0.ev ? 'Belgede: “' : f0.aiNote, ev: f0.ev || '', evTail: f0.ev ? '” · s. ' + f0.pg : '',
+        isExp, needsCheck: needs, checked: checked && mode !== 'approved', checkWhy: src === 'AI' ? 'AI tahmini · belgeyle karşılaştırın' : 'Güven %' + f0.conf + ' · eşiğin altında',
+        bd: isExp ? 'var(--status-rejected)' : needs ? 'var(--status-low-confidence)' : isAct ? 'var(--ring)' : 'var(--border)',
+        bg: needs ? 'var(--status-low-confidence-muted)' : 'var(--card)', sh: isAct && !needs && !isExp ? '0 0 0 3px var(--ring-soft)' : 'none',
+        focus: () => this.state.active !== f0.k && this.setState({ active: f0.k, page: f0.pg || 1 }),
+        jump: e => { e && e.stopPropagation && e.stopPropagation(); this.setState({ active: f0.k, page: f0.pg || 1 }); },
+        onChange: e => setVal(f0.k, e.target.value), confirm: e => { e && e.stopPropagation && e.stopPropagation(); this.setState(s => ({ chk: { ...(s.chk || {}), [f0.k]: true } })); } };
+    });
+
+    const hasEvidence = !['reading', 'unreadable', 'error'].includes(orig);
+    const hl = {};
+    F.forEach(({ f0, needs, isExp }) => {
+      const on = active === f0.k;
+      hl[f0.k] = !hasEvidence ? { bg: 'transparent', sh: 'none' } : on ? { bg: 'rgba(140,47,75,.16)', sh: '0 0 0 1.5px #8C2F4B' } : needs ? { bg: 'rgba(217,154,6,.30)', sh: 'none' } : isExp ? { bg: 'rgba(217,45,32,.16)', sh: 'none' } : { bg: 'transparent', sh: 'none' };
+    });
+    const pages = doc.pages || doc.paper.length;
+    const page = Math.min(this.state.page || 1, pages);
+    const zoom = this.state.zoom || 100, z = zoom / 100;
+    const ST = {
+      org: ['600', '0.82em', "'Geist',sans-serif", '#6B665E', '0.14em'], title: ['400', '2.3em', "'Newsreader',Georgia,serif", '#1C1B19', '-0.01em'],
+      sub: ['500', '1em', "'Geist',sans-serif", '#3D3A35', '0'], field: ['500', '1em', "'Geist Mono',monospace", '#1C1B19', '0'], body: ['400', '0.95em', "'Geist',sans-serif", '#3D3A35', '0'],
+      big: ['600', '1.3em', "'Geist',sans-serif", '#1C1B19', '-0.01em'], muted: ['400', '0.85em', "'Geist',sans-serif", '#8A857C', '0'], mono: ['600', '1.5em', "'Geist Mono',monospace", '#8C2F4B', '0.2em'],
+    };
+    const raw = doc.paper[page - 1] || [{ bar: true, w: '88%', mt: '1em' }, { bar: true, w: '72%', mt: '0.6em' }, { bar: true, w: '90%', mt: '1.2em' }, { bar: true, w: '64%', mt: '0.6em' }, { bar: true, w: '80%', mt: '1.2em' }];
+    const paper = raw.map(l => {
+      if (l.bar) return { isBar: true, isText: false, isRule: false, w: l.w, mt: l.mt || '0' };
+      if (l.rule) return { isRule: true, isText: false, isBar: false, mt: l.mt || '0' };
+      const s = ST[l.st] || ST.body, h = l.k ? hl[l.k] || { bg: 'transparent', sh: 'none' } : { bg: 'transparent', sh: 'none' };
+      return { isText: true, isBar: false, isRule: false, t: l.t, fw: s[0], fs: s[1], ff: s[2], color: s[3], ls: s[4], mt: l.mt || '0', align: 'left', bg: h.bg, sh: h.sh };
+    });
+    const kind = doc.kind;
+    const pv = { isPdf: kind !== 'img', isImg: kind === 'img', page, pages, prevOp: page > 1 ? 1 : 0.4, nextOp: page < pages ? 1 : 0.4,
+      prev: () => page > 1 && this.setState({ page: page - 1 }), next: () => page < pages && this.setState({ page: page + 1 }),
+      zoomT: '%' + zoom, zIn: () => this.setState({ zoom: Math.min(200, zoom + 25) }), zOut: () => this.setState({ zoom: Math.max(50, zoom - 25) }), fit: () => this.setState({ zoom: 100 }),
+      w: Math.round(440 * z) + 'px', pad: Math.round(36 * z) + 'px', fs: (11 * z).toFixed(2) + 'px',
+      bg: kind === 'img' ? '#4A463F' : 'transparent', rot: kind === 'img' ? '-2.5deg' : kind === 'scan' ? '0.6deg' : '0deg',
+      filter: kind === 'img' ? 'blur(1.6px) contrast(.75) brightness(.92)' : kind === 'scan' ? 'grayscale(1) contrast(.92)' : 'none' };
+
+    const CH = { reading: ['Okunuyor', 'pending', true], full: ['Onay bekliyor', 'submitted'], noperm: ['Onay bekliyor', 'submitted'], expired: ['Onay bekliyor', 'submitted'], low: ['Düşük güven', 'low-confidence'], unreadable: ['Okunamadı', 'pending'], error: ['Hata', 'rejected'], approved: ['Onaylandı', 'approved'] };
+    const ch = CH[mode] || CH.full;
+    const chip = { t: ch[0], s: ch[1], spin: !!ch[2], dot: !ch[2] };
+    const fromError = orig === 'error';
+    const nFixed = F.filter(x => x.fixed).length;
+    const B = (show, s, icon, title, body, code) => ({ show, s, icon, title, body: body || '', hasBody: !!body, code: code || '', hasCode: !!code });
+    const lowN = F.filter(x => x.f0.src && (x.f0.src === 'AI' || x.f0.conf < 80)).length;
+    const banner = mode === 'low' && pendingLow ? B(true, 'low-confidence', ic.sparkle, lowN + ' alan kontrol istiyor', 'Sarı alanları soldaki belgeyle karşılaştırın; doğruysa işaretleyin, değilse düzeltin. AI kaynaklı alanlar her zaman kontrol ister.')
+      : mode === 'unreadable' ? (fromError ? B(true, 'pending', ic.pencil, 'Alanları elle girin', 'Belge okunamadı; değerleri soldaki belgeden kendiniz yazın.', 'Neden: EXTRACT_TIMEOUT') : B(true, 'pending', ic.pencil, 'Bu belgede okunabilir metin yok, alanları elle girin', 'Görüntü bulanık; metin çıkarılamadı. Daha net bir kopya için tedarikçiden düzeltme isteyebilirsiniz.', 'Neden: NO_TEXT_LAYER'))
+      : mode === 'noperm' ? B(true, 'pending', ic.lock, 'Onay için yönetici yetkisi gerekir', 'Rolünüz: Editör. Alanları görebilir, değiştiremez ve onaylayamazsınız.')
+      : mode === 'approved' ? B(true, 'approved', ic.check, 'Onaylayan ' + (this.state.mode === 'approved' ? 'Elif Yılmaz · şimdi' : 'Elif Yılmaz · 17 Eki 2026, 10:42'), nFixed ? nFixed + ' alan onay sırasında düzeltildi. Değerler adıma kaydedildi.' : 'Değerler adıma kaydedildi.')
+      : F.some(x => x.isExp) && editable ? B(true, 'rejected', ic.clock, 'Sertifikanın süresi 15 Ekim 2026’da dolmuş', 'Yine de onaylayabilirsiniz; adım “Süresi dolmuş” olarak işaretlenir. Geçerli sertifika için tedarikçiden düzeltme isteyin.')
+      : B(false, 'pending', ic.info, '');
+    const t = this.state.t ?? (+this.p('elapsed', 6) || 0);
+    const close = () => { if (this.props.onClose) this.props.onClose(); };
+    const tryClose = () => { if (dirty && editable) this.setState({ confirmOpen: true }); else close(); };
+    const canApprove = editable && pendingLow === 0 && empties === 0;
+    const foot = mode === 'reading' ? { t: 'Okuma bitince alanlar burada görünür.', fg: 'var(--muted-foreground)' }
+      : mode === 'error' ? { t: 'Belge kaydedildi, okunamadı.', fg: 'var(--muted-foreground)' }
+      : mode === 'approved' ? { t: 'Onaylandı · değerler adıma kaydedildi.', fg: 'var(--muted-foreground)' }
+      : mode === 'noperm' ? { t: 'Onay için yönetici yetkisi gerekir.', fg: 'var(--muted-foreground)' }
+      : pendingLow ? { t: 'Önce ' + pendingLow + ' sarı alanı kontrol edin.', fg: 'var(--status-low-confidence-foreground)' }
+      : empties ? { t: empties + ' alan boş · onay için tüm alanları doldurun.', fg: 'var(--muted-foreground)' }
+      : { t: 'Onaylanana kadar hiçbir değer kayda geçmez.', fg: 'var(--muted-foreground)' };
+    Object.assign(foot, { cancel: mode !== 'approved', closeOnly: mode === 'approved', hasApprove: mode !== 'approved', dis: !canApprove, op: canApprove ? 1 : 0.45, cur: canApprove ? 'pointer' : 'not-allowed' });
+    return {
+      ic, spinner, doc, chip, expChip: F.some(x => x.isExp), pv, paper, banner, fields, foot, tryClose,
+      isReading: mode === 'reading', isError: mode === 'error', showFields: !['reading', 'error'].includes(mode),
+      readT: t + ' sn', longRead: t >= 30,
+      skelFields: ['Belge türü', 'Sertifika no', 'Sertifika sahibi', 'Veren kuruluş', 'Geçerlilik başlangıcı', 'Geçerlilik bitişi'].map((label, i) => ({ label, w: ['58%', '44%', '72%', '52%', '30%', '30%'][i] })),
+      reread: () => this.setState({ mode: 'reading', t: 0 }), manual: () => this.setState({ mode: 'unreadable' }),
+      approve: () => canApprove && this.setState({ mode: 'approved', confirmOpen: false }),
+      confirmOpen: !!this.state.confirmOpen, confirmBody: (dirty || 1) + ' alanda yaptığınız düzeltme kaydedilmedi. Kapatırsanız değişiklikler silinir; belge onay bekler durumda kalır.',
+      keepEditing: () => this.setState({ confirmOpen: false }), discard: () => { this.setState({ confirmOpen: false, vals: {}, chk: {} }); close(); },
+    };
+  }
+}
+</script>
+</body>
+</html>
