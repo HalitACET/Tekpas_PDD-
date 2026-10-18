@@ -306,6 +306,20 @@
       "BLUESIGN": "bluesign",
       "GOTS_APPROVED": "GOTS-zugelassene Chemikalien",
       "NONE": "Keine"
+    },
+    "docType": {
+      "OEKO_TEX": "OEKO-TEX Standard 100",
+      "GOTS": "GOTS-Zertifikat",
+      "GRS": "GRS-Zertifikat",
+      "BCI": "BCI-Zertifikat",
+      "OCS": "OCS-Zertifikat",
+      "BLUESIGN": "bluesign-Zertifikat",
+      "LAB_REPORT": "Laborbericht",
+      "SDS": "Sicherheitsdatenblatt (SDS)",
+      "INVOICE": "Rechnung",
+      "TECH_SHEET": "Technisches Datenblatt",
+      "OTHER": "Anderes Dokument",
+      "UNKNOWN": "Typ nicht bestimmt"
     }
   },
   "errors": {
@@ -607,7 +621,8 @@
             "FIBER_MISMATCH": "Faseranteil stimmt nicht",
             "DOCUMENT_UNREADABLE": "Dokument ist unleserlich",
             "CERTIFICATE_EXPIRED": "Zertifikat ist abgelaufen"
-          }
+          },
+          "documentsHint": "Im Formular des Lieferanten wird der Abschnitt Dokumente markiert. Frühere Dokumente bleiben schreibgeschützt; der Lieferant kann ein neues hinzufügen."
         },
         "approveFailed": "Der Schritt konnte nicht freigegeben werden",
         "origin": {
@@ -671,7 +686,9 @@
         "createFailed": "Der Link konnte nicht erstellt werden",
         "revokeFailed": "Der Link konnte nicht widerrufen werden",
         "deadlineFailed": "Die Frist konnte nicht geändert werden"
-      }
+      },
+      "documentCount": "{count, plural, one {# Dokument} other {# Dokumente}}",
+      "documentsPending": "Ein Dokument wartet auf Freigabe"
     }
   },
   "suppliers": {
@@ -1032,6 +1049,198 @@
       "sender": "Absender",
       "sentAt": "Gesendet",
       "code": "Meldung Nr."
+    }
+  },
+  "documents": {
+    "title": "Dokumente",
+    "count": "{count, plural, one {# Dokument} other {# Dokumente}}",
+    "rule": "Ohne Ihre Freigabe wird kein Wert gespeichert",
+    "loadFailed": "Die Dokumente konnten nicht geladen werden",
+    "retry": "Erneut versuchen",
+    "empty": {
+      "title": "Für diesen Schritt wurde noch kein Dokument hochgeladen.",
+      "body": "Der Lieferant kann es über den Datenanfrage-Link hochladen, oder Sie fügen es hier hinzu."
+    },
+    "chip": {
+      "reading": "Wird gelesen",
+      "full": "Freigabe offen",
+      "low": "Geringe Sicherheit",
+      "unreadable": "Nicht lesbar",
+      "error": "Fehler",
+      "approved": "Freigegeben",
+      "expired": "Abgelaufen"
+    },
+    "card": {
+      "typeReading": "Typ wird bestimmt",
+      "typeUnreadable": "Felder von Hand eingeben",
+      "typeUnknown": "Typ nicht bestimmt",
+      "by": "{name} · {source} · {when}",
+      "sourcePanel": "über das Panel",
+      "sourceLink": "über den Link",
+      "open": "{file} · {state} · prüfen",
+      "reread": "Erneut lesen",
+      "rereadFailed": "Das Dokument konnte nicht erneut zum Lesen eingereiht werden"
+    },
+    "upload": {
+      "drop": "Dateien hierher ziehen",
+      "dropActive": "Loslassen, um den Upload zu starten",
+      "pick": "Dokument hochladen",
+      "rules": "PDF, JPG, PNG · höchstens 10 MB · PDF höchstens 20 Seiten",
+      "hint": "GOTS · OEKO-TEX · Technisches Datenblatt",
+      "cancel": "Abbrechen",
+      "remove": "Entfernen",
+      "retry": "Erneut versuchen",
+      "progress": "Wird hochgeladen",
+      "locked": "Die Charge ist veröffentlicht; Dokumente können nicht mehr hinzugefügt werden.",
+      "errors": {
+        "format": "Dieses Format wird nicht unterstützt. Laden Sie PDF, JPG oder PNG hoch.",
+        "size": "Die Datei ist {size} groß. Erlaubt sind höchstens 10 MB.",
+        "empty": "Die Datei ist leer. Wählen Sie eine andere Datei.",
+        "encrypted": "Das PDF ist verschlüsselt oder beschädigt und ließ sich nicht öffnen. Laden Sie eine Kopie ohne Passwort hoch.",
+        "pages": "Das PDF hat mehr als 20 Seiten. Erlaubt sind höchstens 20 Seiten.",
+        "dimensions": "Das Bild ist zu groß. Erlaubt sind höchstens 40 Megapixel.",
+        "duplicate": "Dieses Dokument wurde für diesen Schritt bereits hochgeladen.",
+        "limit": "Ein Schritt nimmt höchstens 10 Dokumente auf.",
+        "published": "Die Charge ist veröffentlicht; Dokumente können nicht mehr hinzugefügt werden.",
+        "rate": "Zu viele Versuche. Versuchen Sie es in einer Minute erneut.",
+        "storage": "Der Dateispeicher antwortet gerade nicht. Versuchen Sie es gleich noch einmal.",
+        "forbidden": "Sie dürfen keine Dokumente hochladen.",
+        "network": "Die Verbindung ist abgebrochen; der Upload stoppte bei {percent}.",
+        "unknown": "Das Dokument konnte nicht hochgeladen werden. Versuchen Sie es erneut."
+      }
+    },
+    "review": {
+      "label": "Dokumentprüfung",
+      "context": "Dokumentprüfung · Schritt {step} · {name}",
+      "close": "Schließen",
+      "fieldsTitle": "Gelesene Felder",
+      "threshold": "Sicherheitsschwelle {value}",
+      "pages": "{count, plural, one {# Seite} other {# Seiten}}",
+      "by": "{name}, {source} · {when}",
+      "sourcePanel": "über das Panel",
+      "sourceLink": "über den Lieferantenlink",
+      "fields": {
+        "docType": "Dokumenttyp",
+        "certNo": "Zertifikat-Nr.",
+        "holderName": "Zertifikatsinhaber",
+        "issuer": "Ausstellende Stelle",
+        "validFrom": "Gültig ab",
+        "validUntil": "Gültig bis"
+      },
+      "placeholders": {
+        "docType": "Dokumenttyp wählen",
+        "certNo": "Nummer laut Dokument",
+        "holderName": "Firmenname",
+        "issuer": "Stelle, die das Zertifikat ausgestellt hat",
+        "date": "TT.MM.JJJJ"
+      },
+      "sources": {
+        "document": "Dokument",
+        "ai": "KI",
+        "manual": "Manuell"
+      },
+      "fixed": "Korrigiert",
+      "original": "Aus dem Dokument gelesen: <v>{value}</v>",
+      "evidenceLead": "Im Dokument: „",
+      "evidenceTail": "“ · S. {page}",
+      "expiredField": "Enddatum überschritten · vor {days, plural, one {# Tag} other {# Tagen}}",
+      "check": {
+        "ai": "KI-Schätzung · mit dem Dokument vergleichen",
+        "low": "Sicherheit {value} · unter der Schwelle",
+        "confirm": "Richtig",
+        "checked": "Mit dem Dokument verglichen · {name}"
+      },
+      "fieldError": {
+        "date": "Datum als TT.MM.JJJJ eingeben",
+        "range": "Das Ende darf nicht vor dem Beginn liegen",
+        "type": "Dokumenttyp wählen",
+        "required": "Für diesen Dokumenttyp erforderlich"
+      },
+      "reading": {
+        "title": "Dokument wird gelesen",
+        "body": "Die sechs Felder werden aus dem Dokument gelesen. Die Werte erscheinen hier, sobald das Lesen fertig ist; keiner wird ohne Ihre Freigabe gespeichert.",
+        "seconds": "{count} s",
+        "leave": "Sie können die Seite verlassen.",
+        "leaveBody": "Das Lesen läuft im Hintergrund weiter; danach erscheint es auf der Dokumentkarte."
+      },
+      "error": {
+        "title": "Beim Lesen des Dokuments ist ein Fehler aufgetreten",
+        "body": "Das Dokument ist gespeichert; Sie können es erneut lesen lassen oder die Felder von Hand eingeben.",
+        "timeout": "Der Lesedienst hat nicht rechtzeitig geantwortet.",
+        "reread": "Erneut lesen",
+        "manual": "Felder von Hand eingeben"
+      },
+      "technical": "Technisches Detail: {code}",
+      "banner": {
+        "low": {
+          "title": "{count, plural, one {# Feld braucht eine Prüfung} other {# Felder brauchen eine Prüfung}}",
+          "body": "Vergleichen Sie die gelben Felder mit dem Dokument links; markieren Sie sie als richtig oder korrigieren Sie sie. Felder aus der KI müssen immer geprüft werden."
+        },
+        "manual": {
+          "title": "Felder von Hand eingeben",
+          "body": "Das Dokument konnte nicht gelesen werden; tippen Sie die Werte aus dem Dokument links ab."
+        },
+        "noText": {
+          "title": "Dieses Dokument enthält keinen lesbaren Text, Felder von Hand eingeben",
+          "body": "Ein Bild oder eine gescannte Seite; es ließ sich kein Text auslesen. Sie können beim Lieferanten eine deutlichere Kopie anfordern."
+        },
+        "unrecognised": {
+          "title": "Aus diesem Dokument konnte kein Feld gelesen werden, Felder von Hand eingeben",
+          "body": "Das Layout des Dokuments wurde nicht erkannt. Tippen Sie die Werte aus dem Dokument links ab."
+        },
+        "aiUnavailable": {
+          "title": "Das Lesen per KI war nicht verfügbar, Felder von Hand eingeben",
+          "body": "Das Dokument konnte nicht als Text gelesen werden und das Lesen per KI ist gerade nicht möglich. Tippen Sie die Werte aus dem Dokument links ab."
+        },
+        "noPerm": {
+          "title": "Für die Freigabe sind Administratorrechte nötig",
+          "body": "Ihre Rolle: {role}. Sie können die Felder sehen, aber nicht ändern oder freigeben."
+        },
+        "approved": {
+          "title": "Freigegeben von {name} · {when}",
+          "body": "{count, plural, one {# Feld wurde} other {# Felder wurden}} bei der Freigabe korrigiert. Die Werte sind im Schritt gespeichert.",
+          "bodyNone": "Die Werte sind im Schritt gespeichert."
+        },
+        "expired": {
+          "title": "Das Zertifikat ist am {date} abgelaufen",
+          "body": "Sie können es trotzdem freigeben. Fordern Sie beim Lieferanten ein gültiges Zertifikat an."
+        }
+      },
+      "footer": {
+        "reading": "Die Felder erscheinen hier, sobald das Lesen fertig ist.",
+        "error": "Das Dokument ist gespeichert, konnte aber nicht gelesen werden.",
+        "approved": "Freigegeben · die Werte sind im Schritt gespeichert.",
+        "noPerm": "Für die Freigabe sind Administratorrechte nötig.",
+        "pending": "{count, plural, one {Prüfen Sie zuerst das gelbe Feld.} other {Prüfen Sie zuerst die # gelben Felder.}}",
+        "missing": "Für die Freigabe erforderlich: {fields}.",
+        "invalid": "Korrigieren Sie für die Freigabe die fehlerhaften Felder.",
+        "ready": "Bis zur Freigabe wird kein Wert gespeichert."
+      },
+      "cancel": "Abbrechen",
+      "approve": "Freigeben",
+      "approveFailed": "Das Dokument konnte nicht freigegeben werden",
+      "discard": {
+        "title": "Es gibt nicht gespeicherte Änderungen",
+        "body": "{count, plural, one {Ihre Korrektur in # Feld wurde nicht gespeichert.} other {Ihre Korrekturen in # Feldern wurden nicht gespeichert.}} Wenn Sie schließen, gehen die Änderungen verloren; das Dokument bleibt zur Freigabe offen.",
+        "keep": "Zurück zur Bearbeitung",
+        "confirm": "Änderungen verwerfen und schließen"
+      },
+      "alreadyVerified": "Dieses Dokument ist bereits freigegeben."
+    },
+    "preview": {
+      "label": "Dokumentvorschau",
+      "page": "Seite",
+      "pageOf": "{page} / {pages}",
+      "prev": "Vorherige Seite",
+      "next": "Nächste Seite",
+      "zoomIn": "Vergrößern",
+      "zoomOut": "Verkleinern",
+      "fit": "Einpassen",
+      "image": "Bild",
+      "loading": "Dokument wird geladen",
+      "failed": "Das Dokument kann nicht angezeigt werden",
+      "failedBody": "Die Datei ist gerade nicht erreichbar. Sie können die Felder trotzdem eingeben und freigeben.",
+      "retry": "Erneut versuchen"
     }
   }
 }

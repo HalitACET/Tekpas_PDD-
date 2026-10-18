@@ -30,6 +30,11 @@ function setState(next: SessionState) {
   listeners.forEach((listener) => listener());
 }
 
+/** For the one call the API client cannot make: an upload that reports its progress (lib/api/documents.ts). */
+export function currentAccessToken(): string | undefined {
+  return accessToken;
+}
+
 export function getSessionState(): SessionState {
   return state;
 }

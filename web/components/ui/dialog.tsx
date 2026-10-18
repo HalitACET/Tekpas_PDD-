@@ -19,8 +19,9 @@ function DialogContent({
   className,
   children,
   closeLabel,
+  closeClassName,
   ...props
-}: DialogPrimitive.Popup.Props & { closeLabel: string }) {
+}: DialogPrimitive.Popup.Props & { closeLabel: string; closeClassName?: string }) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Backdrop
@@ -38,7 +39,10 @@ function DialogContent({
         {children}
         <DialogPrimitive.Close
           aria-label={closeLabel}
-          className="absolute top-5 right-6 flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
+          className={cn(
+            "absolute top-5 right-6 flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft",
+            closeClassName,
+          )}
         >
           <XIcon className="size-[18px]" strokeWidth={1.75} aria-hidden />
         </DialogPrimitive.Close>

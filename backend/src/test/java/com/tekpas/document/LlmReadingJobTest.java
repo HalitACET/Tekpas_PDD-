@@ -323,4 +323,57 @@ class LlmReadingJobTest {
         assertThat(view).doesNotContain("DEMO-OT-2026-0417", "Ornek Iplik", "LLM", "confidence", "extraction",
                 FakeAiClient.MODEL);
     }
+
+    @Test
+    void anUnreadableScanCanBeReadAgainOnceTheLlmIsOpenForTheCompany() throws IOException {
+        // Uploaded while the company was not a demo: the rules found no text and nothing went to the LLM.
+        Tenant owner = fixtures.tenant();
+        Setup s = t.setup(owner);
+        String id = upload(owner, s.yarnStep(), "scanned-oekotex.pdf");
+        drain();
+        assertThat(ai.calls()).isZero();
+        JsonNode closed = document(owner, id);
+        assertThat(closed.path("extractionStatus").asString()).isEqualTo("UNREADABLE");
+        assertThat(closed.path("rereadable").asBoolean()).isFalse();
+        assertThat(fixtures.post(owner, "/api/v1/documents/" + id + "/reread", Map.of())).hasStatus(409);
+
+        // The gate opens for the company (the switch and the key are on in this test class).
+        jdbc.update("UPDATE company SET is_demo = TRUE WHERE id = ?", owner.company().getId());
+        ai.answer(recorded("scanned-oekotex.answer.json"));
+        assertThat(document(owner, id).path("rereadable").asBoolean()).isTrue();
+        assertThat(fixtures.post(owner, "/api/v1/documents/" + id + "/reread", Map.of())).hasStatus(202);
+        drain();
+
+        JsonNode read = document(owner, id);
+        assertThat(ai.calls()).isEqualTo(1);
+        assertThat(read.path("extractionStatus").asString()).isEqualTo("READ");
+        assertThat(read.path("extractionMethod").asString()).isEqualTo("LLM");
+        assertThat(read.path("rereadable").asBoolean()).isFalse();
+    }
+
+    @Test
+    void anUnreadableDocumentIsRereadableOnlyBeforeItIsConfirmed() throws IOException {
+        Tenant owner = demoTenant();
+        Setup s = t.setup(owner);
+        // The LLM answers nothing usable: the document is left to manual entry, and trying again is allowed.
+        String id = upload(owner, s.yarnStep(), "photo-certificate.jpg");
+        drain();
+        assertThat(document(owner, id).path("extractionStatus").asString()).isEqualTo("UNREADABLE");
+        assertThat(document(owner, id).path("rereadable").asBoolean()).isTrue();
+
+        jdbc.update("UPDATE document SET review_status = 'VERIFIED' WHERE id = ?::uuid", id);
+        assertThat(document(owner, id).path("rereadable").asBoolean()).isFalse();
+        assertThat(fixtures.post(owner, "/api/v1/documents/" + id + "/reread", Map.of())).hasStatus(409);
+    }
+
+    @Test
+    void anotherCompanyCannotReadAnUnreadableDocumentAgain() throws IOException {
+        Tenant owner = demoTenant();
+        Tenant stranger = demoTenant();
+        Setup s = t.setup(owner);
+        String id = upload(owner, s.yarnStep(), "photo-certificate.jpg");
+        drain();
+
+        assertThat(fixtures.post(stranger, "/api/v1/documents/" + id + "/reread", Map.of())).hasStatus(404);
+    }
 }

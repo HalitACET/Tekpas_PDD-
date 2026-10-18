@@ -463,6 +463,9 @@
             "format" : "int32",
             "type" : [ "integer", "null" ]
           },
+          "rereadable" : {
+            "type" : "boolean"
+          },
           "reviewStatus" : {
             "enum" : [ "UNREVIEWED", "VERIFIED" ],
             "type" : "string"
@@ -501,7 +504,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "createdAt", "docType", "extractionStatus", "id", "mimeType", "originalName", "reviewStatus", "sizeBytes", "source" ],
+        "required" : [ "createdAt", "docType", "extractionStatus", "id", "mimeType", "originalName", "rereadable", "reviewStatus", "sizeBytes", "source" ],
         "type" : "object"
       },
       "DyeProcess" : {
@@ -2581,6 +2584,75 @@
           }
         },
         "summary" : "The file, through a 60 second signed link",
+        "tags" : [ "documents" ]
+      }
+    },
+    "/api/v1/documents/{id}/reread" : {
+      "post" : {
+        "description" : "A reading that ended FAILED (design v0.5 57e \"Tekrar oku\"), or one left UNREADABLE while the LLM gate is open for the company (the LLM may read what the rules could not): the document goes back in the queue as if just uploaded and answers 202 with its new state (QUEUED). DocumentResponse.rereadable says when this works. Anything else (read, in progress, unreadable with the gate closed, confirmed) is 409 DOCUMENT_NOT_REREADABLE.",
+        "operationId" : "rereadDocument",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "202" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentResponse"
+                }
+              }
+            },
+            "description" : "Queued again"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such document in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "DOCUMENT_NOT_REREADABLE or BATCH_PUBLISHED"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many attempts (Retry-After)"
+          }
+        },
+        "summary" : "Read a document again",
         "tags" : [ "documents" ]
       }
     },

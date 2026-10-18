@@ -85,6 +85,30 @@ export const CHEMICAL_STANDARDS = ["ZDHC_MRSL", "OEKO_TEX_ECO_PASSPORT", "BLUESI
 export type ChemicalStandard = (typeof CHEMICAL_STANDARDS)[number];
 
 /**
+ * What a document is (backend `DocType`). UNKNOWN only means nobody said yet: a document is never confirmed as
+ * UNKNOWN.
+ */
+export const DOC_TYPES = [
+  "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN",
+] as const;
+export type DocType = (typeof DOC_TYPES)[number];
+
+/** Certificates have a number and a validity; confirming one needs both (backend `DocType.isCertificate`). */
+export const CERTIFICATE_DOC_TYPES = ["OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN"] as const satisfies readonly DocType[];
+
+export function isCertificateDocType(type: DocType): boolean {
+  return (CERTIFICATE_DOC_TYPES as readonly DocType[]).includes(type);
+}
+
+/** Upload limits (docs/m5-plan.md §4); the server decides, the client only saves a pointless transfer. */
+export const DOCUMENT_MAX_BYTES = 10 * 1024 * 1024;
+export const DOCUMENT_MAX_PAGES = 20;
+export const DOCUMENT_EXTENSIONS = ["pdf", "jpg", "jpeg", "png"] as const;
+
+/** A proposed value below this confidence is shown yellow and has to be checked by a person (design v0.5). */
+export const DOCUMENT_CONFIDENCE_THRESHOLD = 0.8;
+
+/**
  * "Düzeltme iste" presets (design v0.4 47b, v0.5 B5) and the fields each marks on the supplier's form (45).
  * The single place for this mapping. `stepTypes` are the steps that have those fields (backend StepData).
  * `DOCUMENTS_FIELD` is not a step data field but the Documents section of the supplier's form (backend
