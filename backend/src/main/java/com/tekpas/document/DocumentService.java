@@ -13,6 +13,8 @@ import com.tekpas.document.DocumentStore.Target;
 import com.tekpas.document.FileInspector.InspectedFile;
 import com.tekpas.document.dto.DocumentResponse;
 import com.tekpas.document.dto.VerifyDocumentRequest;
+import com.tekpas.jobs.JobQueue;
+import com.tekpas.jobs.JobType;
 import com.tekpas.request.StepEventKind;
 import com.tekpas.request.StepEvents;
 import com.tekpas.supplychain.SupplyStep;
@@ -46,6 +48,7 @@ public class DocumentService {
     /** Documents on one step, whoever uploaded them: a safety cap for the free storage tier (1 GB). */
     static final int MAX_PER_STEP = 10;
     static final int UPLOADS_PER_COMPANY_PER_HOUR = 60;
+    static final int REREADS_PER_COMPANY_PER_HOUR = 30;
     static final Duration DOWNLOAD_LINK_TTL = Duration.ofSeconds(60);
 
     private final DocumentRepository documents;
@@ -56,13 +59,15 @@ public class DocumentService {
     private final FileStorage storage;
     private final FileInspector inspector;
     private final DocumentStore store;
+    private final JobQueue jobs;
     private final RateLimiter limiter;
     private final Clock clock;
     private final TransactionTemplate tx;
 
     public DocumentService(DocumentRepository documents, SupplyStepRepository steps, BatchRepository batches,
             AppUserRepository users, StepEvents events, FileStorage storage, FileInspector inspector,
-            DocumentStore store, RateLimiter limiter, Clock clock, PlatformTransactionManager transactions) {
+            DocumentStore store, JobQueue jobs, RateLimiter limiter, Clock clock,
+            PlatformTransactionManager transactions) {
         this.documents = documents;
         this.steps = steps;
         this.batches = batches;
@@ -71,6 +76,7 @@ public class DocumentService {
         this.storage = storage;
         this.inspector = inspector;
         this.store = store;
+        this.jobs = jobs;
         this.limiter = limiter;
         this.clock = clock;
         this.tx = new TransactionTemplate(transactions);
@@ -179,6 +185,36 @@ public class DocumentService {
                     Map.of("documentId", d.getId().toString(), "docType", d.getDocType().name()));
         }
         return DocumentResponse.from(d, name);
+    }
+
+    /**
+     * A reading that failed is queued again ("Tekrar oku", design v0.5 57e). Only a FAILED reading qualifies: one
+     * that finished (even with nothing found), one in progress and a confirmed document have nothing to redo. The
+     * same locks and order as {@link #verify}; a published batch is frozen.
+     */
+    @Transactional
+    public DocumentResponse reread(UUID companyId, UUID documentId) {
+        limiter.hit("document-reread", companyId.toString(), REREADS_PER_COMPANY_PER_HOUR, Duration.ofHours(1));
+        List<UUID> stepIds = documents.stepIdOf(documentId, companyId);
+        if (stepIds.isEmpty()) {
+            throw new NotFoundException("Document not found");
+        }
+        UUID stepId = stepIds.getFirst();
+        if (stepId != null) {
+            SupplyStep step = steps.lockForUpdate(stepId, companyId).orElse(null);
+            if (step != null && batches.findById(step.getBatchId())
+                    .map(b -> b.getStatus() == BatchStatus.PUBLISHED).orElse(false)) {
+                throw ConflictException.state("BATCH_PUBLISHED", "The batch is published; its documents cannot change");
+            }
+        }
+        Document d = documents.lockByIdAndCompanyId(documentId, companyId)
+                .orElseThrow(() -> new NotFoundException("Document not found"));
+        if (d.getExtractionStatus() != ExtractionStatus.FAILED || d.getReviewStatus() == ReviewStatus.VERIFIED) {
+            throw ConflictException.state("DOCUMENT_NOT_REREADABLE", "Only a reading that failed can be tried again");
+        }
+        d.requeueReading();
+        jobs.enqueue(JobType.AI_EXTRACT_DOCUMENT, new ExtractDocument(d.getId()));
+        return DocumentResponse.from(d, null);
     }
 
     private static @Nullable String textOf(Extraction.@Nullable Field field) {

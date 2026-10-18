@@ -233,6 +233,16 @@ public class Document {
         this.extractedAt = now;
     }
 
+    /** A failed reading is tried again: back in the queue, as freshly uploaded. */
+    public void requeueReading() {
+        this.extractionStatus = ExtractionStatus.QUEUED;
+        this.extractionMethod = null;
+        this.failureCode = null;
+        this.extraction = null;
+        this.extractionModel = null;
+        this.extractedAt = null;
+    }
+
     public @Nullable String getCertNo() {
         return certNo;
     }

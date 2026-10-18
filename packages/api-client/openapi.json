@@ -2584,6 +2584,75 @@
         "tags" : [ "documents" ]
       }
     },
+    "/api/v1/documents/{id}/reread" : {
+      "post" : {
+        "description" : "Only a reading that ended FAILED (design v0.5 57e \"Tekrar oku\"): the document goes back in the queue as if just uploaded and answers 202 with its new state (QUEUED). A reading that finished, is in progress, or a confirmed document is 409 DOCUMENT_NOT_REREADABLE.",
+        "operationId" : "rereadDocument",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "202" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentResponse"
+                }
+              }
+            },
+            "description" : "Queued again"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such document in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "DOCUMENT_NOT_REREADABLE or BATCH_PUBLISHED"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many attempts (Retry-After)"
+          }
+        },
+        "summary" : "Read a document again after its reading failed",
+        "tags" : [ "documents" ]
+      }
+    },
     "/api/v1/documents/{id}/verify" : {
       "post" : {
         "description" : "OWNER and ADMIN only. The values in the body (type, certificate number, holder, issuer, validity) become the document's real fields; they are the person's, whether they kept the proposal, corrected it or typed them. Each field is recorded as ACCEPTED, EDITED or ADDED against the reading's proposal. Works the same for a document the reading could not read (manual entry). Writes a DOCUMENT_VERIFIED event on the step. The reading itself is not changed.",

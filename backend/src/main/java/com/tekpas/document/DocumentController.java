@@ -141,6 +141,21 @@ public class DocumentController {
         return service.verify(currentUser.companyId(), currentUser.userId(), id, body);
     }
 
+    @PostMapping("/documents/{id}/reread")
+    @WriteAccess
+    @Operation(operationId = "rereadDocument", summary = "Read a document again after its reading failed",
+            description = "Only a reading that ended FAILED (design v0.5 57e \"Tekrar oku\"): the document goes back in "
+                    + "the queue as if just uploaded and answers 202 with its new state (QUEUED). A reading that "
+                    + "finished, is in progress, or a confirmed document is 409 DOCUMENT_NOT_REREADABLE.")
+    @ApiResponse(responseCode = "202", description = "Queued again")
+    @ApiResponse(responseCode = "403", description = "Read-only or supplier user")
+    @ApiResponse(responseCode = "404", description = "No such document in this company")
+    @ApiResponse(responseCode = "409", description = "DOCUMENT_NOT_REREADABLE or BATCH_PUBLISHED")
+    @ApiResponse(responseCode = "429", description = "Too many attempts (Retry-After)")
+    public ResponseEntity<DocumentResponse> rereadDocument(@PathVariable UUID id) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(service.reread(currentUser.companyId(), id));
+    }
+
     @DeleteMapping("/documents/{id}")
     @WriteAccess
     @Operation(operationId = "deleteDocument", summary = "Remove a document nobody verified yet")
