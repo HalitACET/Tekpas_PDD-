@@ -20,6 +20,12 @@ spring:
       USE_NULL_FOR_MISSING_REFERENCE_VALUES: true
       # 99.5 for an Integer field is a validation error (code "Integer"), never silently truncated to 99.
       ACCEPT_FLOAT_AS_INT: false
+  servlet:
+    multipart:
+      # Documents (M5): 10 MB per file (PLAN K10); Spring's default of 1 MB would refuse every real certificate.
+      # The request limit leaves room for the form fields and the multipart framing.
+      max-file-size: 10MB
+      max-request-size: 11MB
   web:
     # API messages (validation defaults included) are English; the clients translate (CLAUDE.md rule 8).
     locale: en
@@ -27,6 +33,10 @@ spring:
 
 server:
   port: ${PORT:8080}
+  tomcat:
+    # An upload refused for its size is answered with 413 instead of a dropped connection: Tomcat reads on up to
+    # this much of the unread body before it closes (its default is 2 MB).
+    max-swallow-size: 12MB
 
 logging:
   pattern:

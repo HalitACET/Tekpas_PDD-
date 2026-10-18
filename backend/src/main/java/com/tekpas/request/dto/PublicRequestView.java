@@ -1,8 +1,10 @@
 package com.tekpas.request.dto;
 
+import com.tekpas.document.dto.PublicDocument;
 import com.tekpas.supplychain.StepData;
 import com.tekpas.supplychain.StepType;
 import java.time.Instant;
+import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -12,7 +14,9 @@ import org.jspecify.annotations.Nullable;
  * @param requesterName the contact on the page (name only, 39)
  * @param data the step's current data: empty for a first request, the previous submission after a correction
  * @param rejection set when the manufacturer asked for a correction
+ * @param documents what was uploaded through the step's links, oldest first (no reading result, see {@link PublicDocument})
  */
 public record PublicRequestView(String code, String manufacturerName, String requesterName, String productName,
-        String batchNo, StepType stepType, Instant expiresAt, StepData data, @Nullable PublicRejection rejection) {
+        String batchNo, StepType stepType, Instant expiresAt, StepData data, @Nullable PublicRejection rejection,
+        List<PublicDocument> documents) {
 }

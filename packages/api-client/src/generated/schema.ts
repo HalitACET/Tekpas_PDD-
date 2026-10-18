@@ -202,6 +202,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/documents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One document */
+        get: operations["getDocument"];
+        put?: never;
+        post?: never;
+        /** Remove a document nobody verified yet */
+        delete: operations["deleteDocument"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The file, through a 60 second signed link
+         * @description Answers 302 to a signed link on the storage's own origin (a browser client fetches it with its bearer token and the redirect strips the header). With the local development storage the bytes are returned directly. download=true makes it an attachment.
+         */
+        get: operations["downloadDocument"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/products": {
         parameters: {
             query?: never;
@@ -280,6 +318,46 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/request/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a certificate or technical sheet to the step
+         * @description PDF, JPG or PNG, up to 10 MB (PDF up to 20 pages, not encrypted); at most 5 per link, 20 uploads per hour. The answer says nothing about reading: the supplier only sees that it is uploaded (design v0.5 51-53).
+         */
+        post: operations["uploadPublicDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/request/documents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a document uploaded through this link
+         * @description Only the link's own uploads, and only before the form is submitted.
+         */
+        delete: operations["deletePublicDocument"];
         options?: never;
         head?: never;
         patch?: never;
@@ -380,6 +458,27 @@ export interface paths {
          * @description SUBMITTED → APPROVED. Once every step is approved the batch becomes READY.
          */
         post: operations["approveStep"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/steps/{id}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The step's documents, newest first */
+        get: operations["listStepDocuments"];
+        put?: never;
+        /**
+         * Upload a certificate or technical sheet to a step
+         * @description PDF, JPG or PNG, up to 10 MB (PDF up to 20 pages, not encrypted). The type is read from the file's bytes, not its name. The document is stored and queued for reading; nothing it contains is applied until a person confirms it. At most 10 documents per step.
+         */
+        post: operations["uploadDocument"];
         delete?: never;
         options?: never;
         head?: never;
@@ -667,6 +766,30 @@ export interface components {
             /** Format: int32 */
             validDays: number;
         };
+        DocumentResponse: {
+            /** Format: date-time */
+            createdAt: string;
+            /** @enum {string} */
+            docType: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            /** @enum {string} */
+            extractionStatus: "QUEUED" | "RUNNING" | "READ" | "PARTIAL" | "UNREADABLE" | "FAILED";
+            failureCode?: string | null;
+            /** Format: uuid */
+            id: string;
+            mimeType: string;
+            originalName: string;
+            /** Format: int32 */
+            pageCount?: number | null;
+            /** @enum {string} */
+            reviewStatus: "UNREVIEWED" | "VERIFIED";
+            /** Format: int64 */
+            sizeBytes: number;
+            /** @enum {string} */
+            source: "PANEL" | "SUPPLIER_LINK";
+            /** Format: uuid */
+            stepId?: string | null;
+            uploadedByName?: string | null;
+        };
         /** @enum {string} */
         DyeProcess: "REACTIVE" | "DISPERSE" | "VAT" | "PIGMENT" | "OTHER";
         EnergyShare: {
@@ -821,6 +944,16 @@ export interface components {
             name?: string | null;
             sku?: string | null;
         };
+        PublicDocument: {
+            fileName: string;
+            /** Format: uuid */
+            id: string;
+            previous: boolean;
+            /** Format: int64 */
+            sizeBytes: number;
+            /** Format: date-time */
+            uploadedAt: string;
+        };
         PublicRejection: {
             /** Format: date-time */
             at: string;
@@ -832,6 +965,7 @@ export interface components {
             batchNo: string;
             code: string;
             data: components["schemas"]["StepData"];
+            documents: components["schemas"]["PublicDocument"][];
             /** Format: date-time */
             expiresAt: string;
             manufacturerName: string;
@@ -1619,6 +1753,153 @@ export interface operations {
             };
         };
     };
+    getDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such document in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    deleteDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed, with its file */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such document in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description DOCUMENT_VERIFIED or BATCH_PUBLISHED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    downloadDocument: {
+        parameters: {
+            query?: {
+                download?: boolean;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The bytes (local development storage only) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Signed link in Location */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such document in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The file storage failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description File storage is not configured (STORAGE_PROVIDER) */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     listProducts: {
         parameters: {
             query?: {
@@ -1927,6 +2208,165 @@ export interface operations {
                 };
             };
             /** @description Unknown link (LINK_INVALID) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED) */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Too many requests (Retry-After) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    uploadPublicDocument: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Request-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Uploaded */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicDocument"];
+                };
+            };
+            /** @description The file is refused: field file, code FileEmpty, FileEncrypted, FileCorrupt, FilePages or FileDimensions */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Unknown link (LINK_INVALID) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description DUPLICATE_DOCUMENT or DOCUMENT_LIMIT */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED) */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Larger than 10 MB (field file, code FileTooLarge) */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Not a PDF, JPG or PNG (field file, code FileType) */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Too many requests (Retry-After) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The file storage failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description File storage is not configured */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    deletePublicDocument: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Request-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unknown link (LINK_INVALID) or no such document on this link */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2275,6 +2715,158 @@ export interface operations {
             };
             /** @description The step is not submitted (reason STEP_NOT_SUBMITTED) */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    listStepDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description At most 10 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"][];
+                };
+            };
+            /** @description Supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such step in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    uploadDocument: {
+        parameters: {
+            query?: {
+                docType?: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Stored; reading is queued */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+            /** @description The file is refused: field file, code FileEmpty, FileEncrypted, FileCorrupt, FilePages or FileDimensions */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such step in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description DUPLICATE_DOCUMENT (same file on the step), DOCUMENT_LIMIT, or BATCH_PUBLISHED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Larger than 10 MB (field file, code FileTooLarge) */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Not a PDF, JPG or PNG (field file, code FileType) */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Too many uploads (Retry-After) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The file storage failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description File storage is not configured (STORAGE_PROVIDER) */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

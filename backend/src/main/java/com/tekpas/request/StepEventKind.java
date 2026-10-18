@@ -11,5 +11,10 @@ public enum StepEventKind {
     APPROVED,
     REJECTED,
     /** The manufacturer entered the data itself (FIBER origin): a manufacturer's declaration. */
-    MANUFACTURER_ENTERED
+    MANUFACTURER_ENTERED,
+    /** A certificate or technical sheet was uploaded (panel or link); detail: documentId, docType, source. */
+    DOCUMENT_UPLOADED,
+    DOCUMENT_REMOVED,
+    /** A person confirmed what was read from a document (M5 T6). */
+    DOCUMENT_VERIFIED
 }

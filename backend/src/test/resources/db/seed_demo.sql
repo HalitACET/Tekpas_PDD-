@@ -66,7 +66,7 @@ INSERT INTO document (company_id, step_id, doc_type, file_key, original_name, mi
                       extraction_status, extraction, extraction_model, extracted_at, valid_until) VALUES
  ('00000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000012', 'OEKO_TEX',
   'docs/ege-iplik/oeko-tex-2026.pdf', 'OEKO-TEX_Standard100_2026.pdf', 'application/pdf', 284113,
-  repeat('a', 64), 'DONE',
+  repeat('a', 64), 'READ',
   '{"certNo":{"value":"SH025 123456","confidence":0.98},
     "holderName":{"value":"Ege İplik San. Ltd.","confidence":0.95},
     "validUntil":{"value":"2027-03-31","confidence":0.97}}',

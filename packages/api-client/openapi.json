@@ -408,6 +408,60 @@
         "required" : [ "code", "createdAt", "expiresAt", "id", "openCount", "status", "validDays" ],
         "type" : "object"
       },
+      "DocumentResponse" : {
+        "properties" : {
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "docType" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : "string"
+          },
+          "extractionStatus" : {
+            "enum" : [ "QUEUED", "RUNNING", "READ", "PARTIAL", "UNREADABLE", "FAILED" ],
+            "type" : "string"
+          },
+          "failureCode" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "mimeType" : {
+            "type" : "string"
+          },
+          "originalName" : {
+            "type" : "string"
+          },
+          "pageCount" : {
+            "format" : "int32",
+            "type" : [ "integer", "null" ]
+          },
+          "reviewStatus" : {
+            "enum" : [ "UNREVIEWED", "VERIFIED" ],
+            "type" : "string"
+          },
+          "sizeBytes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "source" : {
+            "enum" : [ "PANEL", "SUPPLIER_LINK" ],
+            "type" : "string"
+          },
+          "stepId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "uploadedByName" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "createdAt", "docType", "extractionStatus", "id", "mimeType", "originalName", "reviewStatus", "sizeBytes", "source" ],
+        "type" : "object"
+      },
       "DyeProcess" : {
         "enum" : [ "REACTIVE", "DISPERSE", "VAT", "PIGMENT", "OTHER" ],
         "type" : "string"
@@ -813,6 +867,30 @@
         },
         "type" : "object"
       },
+      "PublicDocument" : {
+        "properties" : {
+          "fileName" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "previous" : {
+            "type" : "boolean"
+          },
+          "sizeBytes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "uploadedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "fileName", "id", "previous", "sizeBytes", "uploadedAt" ],
+        "type" : "object"
+      },
       "PublicRejection" : {
         "properties" : {
           "at" : {
@@ -846,6 +924,12 @@
           "data" : {
             "$ref" : "#/components/schemas/StepData"
           },
+          "documents" : {
+            "items" : {
+              "$ref" : "#/components/schemas/PublicDocument"
+            },
+            "type" : "array"
+          },
           "expiresAt" : {
             "format" : "date-time",
             "type" : "string"
@@ -866,7 +950,7 @@
             "$ref" : "#/components/schemas/StepType"
           }
         },
-        "required" : [ "batchNo", "code", "data", "expiresAt", "manufacturerName", "productName", "requesterName", "stepType" ],
+        "required" : [ "batchNo", "code", "data", "documents", "expiresAt", "manufacturerName", "productName", "requesterName", "stepType" ],
         "type" : "object"
       },
       "PublicSubmitRequest" : {
@@ -2141,6 +2225,182 @@
         "tags" : [ "supply-chain" ]
       }
     },
+    "/api/v1/documents/{id}" : {
+      "delete" : {
+        "operationId" : "deleteDocument",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Removed, with its file"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such document in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "DOCUMENT_VERIFIED or BATCH_PUBLISHED"
+          }
+        },
+        "summary" : "Remove a document nobody verified yet",
+        "tags" : [ "documents" ]
+      },
+      "get" : {
+        "operationId" : "getDocument",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such document in this company"
+          }
+        },
+        "summary" : "One document",
+        "tags" : [ "documents" ]
+      }
+    },
+    "/api/v1/documents/{id}/file" : {
+      "get" : {
+        "description" : "Answers 302 to a signed link on the storage's own origin (a browser client fetches it with its bearer token and the redirect strips the header). With the local development storage the bytes are returned directly. download=true makes it an attachment.",
+        "operationId" : "downloadDocument",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "download",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "format" : "binary",
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "The bytes (local development storage only)"
+          },
+          "302" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "format" : "binary",
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "Signed link in Location"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such document in this company"
+          },
+          "502" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The file storage failed"
+          },
+          "503" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "File storage is not configured (STORAGE_PROVIDER)"
+          }
+        },
+        "summary" : "The file, through a 60 second signed link",
+        "tags" : [ "documents" ]
+      }
+    },
     "/api/v1/products" : {
       "get" : {
         "operationId" : "listProducts",
@@ -2565,6 +2825,199 @@
         "tags" : [ "public-requests" ]
       }
     },
+    "/api/v1/public/request/documents" : {
+      "post" : {
+        "description" : "PDF, JPG or PNG, up to 10 MB (PDF up to 20 pages, not encrypted); at most 5 per link, 20 uploads per hour. The answer says nothing about reading: the supplier only sees that it is uploaded (design v0.5 51-53).",
+        "operationId" : "uploadPublicDocument",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Request-Token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "properties" : {
+                  "file" : {
+                    "format" : "binary",
+                    "type" : "string"
+                  }
+                },
+                "required" : [ "file" ],
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicDocument"
+                }
+              }
+            },
+            "description" : "Uploaded"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The file is refused: field file, code FileEmpty, FileEncrypted, FileCorrupt, FilePages or FileDimensions"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Unknown link (LINK_INVALID)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "DUPLICATE_DOCUMENT or DOCUMENT_LIMIT"
+          },
+          "410" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED)"
+          },
+          "413" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Larger than 10 MB (field file, code FileTooLarge)"
+          },
+          "415" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Not a PDF, JPG or PNG (field file, code FileType)"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many requests (Retry-After)"
+          },
+          "502" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The file storage failed"
+          },
+          "503" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "File storage is not configured"
+          }
+        },
+        "summary" : "Add a certificate or technical sheet to the step",
+        "tags" : [ "public-requests" ]
+      }
+    },
+    "/api/v1/public/request/documents/{id}" : {
+      "delete" : {
+        "description" : "Only the link's own uploads, and only before the form is submitted.",
+        "operationId" : "deletePublicDocument",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Request-Token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Removed"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Unknown link (LINK_INVALID) or no such document on this link"
+          },
+          "410" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED)"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many requests (Retry-After)"
+          }
+        },
+        "summary" : "Remove a document uploaded through this link",
+        "tags" : [ "public-requests" ]
+      }
+    },
     "/api/v1/public/request/submit" : {
       "post" : {
         "description" : "Required besides the submitter's name: YARN fiberComposition, originCountry; FABRIC fiberComposition, fabricType; DYEING dyeProcess, chemicalStandards; SEWING originCountry.",
@@ -2959,6 +3412,198 @@
         },
         "summary" : "Approve the data a supplier submitted",
         "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/steps/{id}/documents" : {
+      "get" : {
+        "operationId" : "listStepDocuments",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/DocumentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "At most 10"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such step in this company"
+          }
+        },
+        "summary" : "The step's documents, newest first",
+        "tags" : [ "documents" ]
+      },
+      "post" : {
+        "description" : "PDF, JPG or PNG, up to 10 MB (PDF up to 20 pages, not encrypted). The type is read from the file's bytes, not its name. The document is stored and queued for reading; nothing it contains is applied until a person confirms it. At most 10 documents per step.",
+        "operationId" : "uploadDocument",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "docType",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "properties" : {
+                  "file" : {
+                    "format" : "binary",
+                    "type" : "string"
+                  }
+                },
+                "required" : [ "file" ],
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "202" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentResponse"
+                }
+              }
+            },
+            "description" : "Stored; reading is queued"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The file is refused: field file, code FileEmpty, FileEncrypted, FileCorrupt, FilePages or FileDimensions"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such step in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "DUPLICATE_DOCUMENT (same file on the step), DOCUMENT_LIMIT, or BATCH_PUBLISHED"
+          },
+          "413" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Larger than 10 MB (field file, code FileTooLarge)"
+          },
+          "415" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Not a PDF, JPG or PNG (field file, code FileType)"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many uploads (Retry-After)"
+          },
+          "502" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The file storage failed"
+          },
+          "503" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "File storage is not configured (STORAGE_PROVIDER)"
+          }
+        },
+        "summary" : "Upload a certificate or technical sheet to a step",
+        "tags" : [ "documents" ]
       }
     },
     "/api/v1/steps/{id}/reject" : {
@@ -3478,6 +4123,9 @@
   }, {
     "description" : "Links that let a supplier fill a step without an account (K14, K21)",
     "name" : "data-requests"
+  }, {
+    "description" : "Certificates and technical sheets of a step (M5)",
+    "name" : "documents"
   }, {
     "description" : "Product models (one GTIN each) of the current company",
     "name" : "products"

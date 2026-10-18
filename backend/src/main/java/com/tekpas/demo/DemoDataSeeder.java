@@ -135,6 +135,8 @@ public class DemoDataSeeder implements ApplicationRunner {
             // Rows from an earlier start keep their id but may carry an older spelling (e.g. "Nilufer Giyim
             // A.S."): bring the name up to date, and touch the row only when it differs.
             jdbc.update("UPDATE company SET name = ? WHERE id = ? AND name <> ?", c.name(), c.id(), c.name());
+            // Seed companies only ever hold made-up data; this is what lets the LLM read their documents (M5 T5).
+            jdbc.update("UPDATE company SET is_demo = TRUE WHERE id = ? AND NOT is_demo", c.id());
         }
         for (DemoUser u : USERS) {
             seedUser(u);

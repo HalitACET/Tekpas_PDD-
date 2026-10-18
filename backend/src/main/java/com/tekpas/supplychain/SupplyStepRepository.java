@@ -22,6 +22,13 @@ public interface SupplyStepRepository extends JpaRepository<SupplyStep, UUID> {
             """)
     Optional<SupplyStep> lockForUpdate(UUID id, UUID companyId);
 
+    /** The company's step without a lock (a read; the upload locks it later). */
+    @Query("""
+            select s from SupplyStep s, Batch b
+            where s.id = :id and b.id = s.batchId and b.companyId = :companyId
+            """)
+    Optional<SupplyStep> findOfCompany(UUID id, UUID companyId);
+
     /** Steps of the company's batches that are not published yet (the tasks, design v0.4 48a). */
     @Query("""
             select s from SupplyStep s, Batch b
