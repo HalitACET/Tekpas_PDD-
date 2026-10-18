@@ -85,6 +85,19 @@ tekpas:
       url: ${STORAGE_SUPABASE_URL:}
       service-key: ${STORAGE_SUPABASE_SERVICE_KEY:}
       bucket: ${STORAGE_BUCKET:}
+  ai:
+    llm:
+      # LLM reading of what the rules cannot read (scans, photos), docs/m5-plan.md §3. Off unless switched on; even
+      # then the LLM gate also needs GEMINI_API_KEY and a demo company (company.is_demo).
+      enabled: ${LLM_ENABLED:false}
+      # Our own cap on calls a day (Pacific time). Not Google's quota: check that in AI Studio on the demo day.
+      daily-limit: ${LLM_DAILY_LIMIT:50}
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      # The model id as AI Studio lists it; never written in code.
+      model: ${GEMINI_MODEL:}
+      timeout: ${GEMINI_TIMEOUT:PT20S}
+      max-output-tokens: ${GEMINI_MAX_OUTPUT_TOKENS:1024}
   jobs:
     # Background jobs (K9). Tests switch the worker thread off and run the jobs themselves (JobWorker.runPending).
     worker-enabled: ${JOBS_WORKER_ENABLED:true}

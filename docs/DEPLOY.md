@@ -206,6 +206,25 @@ Belgeler (sertifika, teknik föy) Supabase Storage'da durur; backend ona REST il
 
 **Duraklama:** ücretsiz Supabase projesi, 7 günlük kayan pencerede çok az kullanıcı isteği alırsa duraklatılır (resmi doküman: supabase.com/docs/guides/platform/free-project-pausing). Etkinlik olarak veritabanı sorguları, API çağrıları ve Dashboard ziyareti sayılır; **Storage isteklerinin sayılıp sayılmadığı belgede yazmıyor**, bu yüzden cron'a veya storage trafiğine güvenme. Demo haftasında Dashboard'u her 5 günde bir aç. Duraklarsa: Dashboard → organizasyon → proje → **Resume project** (1 yıl içinde geri alınır). Demo öncesi kontrol listesi: `docs/m5-plan.md` §8.
 
+## 10. LLM ile okuma (M5 T5, yalnızca demo)
+
+Varsayılan **kapalı**; prod'da açık bırakılmaz. Kapı üç koşulla açılır: `LLM_ENABLED=true` + `GEMINI_API_KEY` + belgenin firması demo firma (`company.is_demo`, yalnızca seed firmaları). Gerçek firmanın belgesi bu ayarlarla da gitmez. Ücretsiz katmanda Google içeriği ürün geliştirmede kullanabilir: yalnızca sentetik ("ÖRNEK — GEÇERSİZ") belge.
+
+1. https://aistudio.google.com → API anahtarı. Anahtar yalnızca Render'a girilir (koda, repoya, dokümana, sohbete yazılmaz).
+2. Aynı gün AI Studio'daki model listesine ve hız sınırlarına bak (sayılar sık değişiyor, kodda yok).
+3. Render → tekpas-api → Environment (`render.yaml`'a yazılmaz):
+
+   | Anahtar | Değer |
+   | --- | --- |
+   | `LLM_ENABLED` | `true` (gösterimden sonra `false`) |
+   | `GEMINI_API_KEY` | AI Studio anahtarı |
+   | `GEMINI_MODEL` | AI Studio'daki model kimliği (ör. bir Flash-Lite modeli) |
+   | `LLM_DAILY_LIMIT` | AI Studio'daki günlük kotanın altında bir sayı (varsayılan 50) |
+   | `GEMINI_TIMEOUT` | isteğe bağlı, varsayılan `PT20S` |
+
+   `LLM_ENABLED=true` + anahtar varken `GEMINI_MODEL` boşsa açılış durur. Açılış log'unda `LLM reading is ON (model …)` WARN satırı görülür.
+4. Doğrulama: demo firmasıyla taranmış sentetik belge (`scanned-oekotex.pdf`) yükle; panelde alanlar sarı (≤ %79) ve kaynak "LLM". 429 veya günlük sınırda belge `LLM_UNAVAILABLE` ile "Alanları elle girin" olur (demo yedek planı, `docs/m5-plan.md` §8).
+
 ## Sorun giderme
 
 | Belirti | Sebep / çözüm |

@@ -1,0 +1,17 @@
+{
+  "status" : "UNREADABLE",
+  "method" : "NONE",
+  "failureCode" : "NO_KNOWN_FIELDS",
+  "extraction" : {
+    "detectedType" : "OEKO_TEX",
+    "method" : "NONE",
+    "fields" : {
+      "certNo" : null,
+      "holderName" : null,
+      "issuer" : null,
+      "validFrom" : null,
+      "validUntil" : null
+    },
+    "warnings" : [ ]
+  }
+}
