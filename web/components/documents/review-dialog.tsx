@@ -239,6 +239,20 @@ export function ReviewDialog({
                 approved={{ name: doc.verifiedByName ?? "—", when: verifiedWhen, fixed: fixedCount }}
               />
 
+              {state === "unreadable" && doc.rereadable && canWrite && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="self-start"
+                  disabled={reread.isPending}
+                  onClick={() =>
+                    reread.mutate(doc.id, { onError: (error) => showErrorToast({ title: t("approveFailed"), error }) })
+                  }
+                >
+                  <RefreshCw className="size-3.5" strokeWidth={1.75} aria-hidden />
+                  {t("error.reread")}
+                </Button>
+              )}
               {state === "reading" && <ReadingCard seconds={seconds} />}
               {state === "error" && !manual && (
                 <ErrorCard

@@ -3,7 +3,7 @@
 import { CORRECTION_PRESETS, DOCUMENTS_FIELD, FIBERS, type Fiber, ORIGIN_COUNTRIES, type StepType } from "@tekpas/shared";
 import { Check, CheckCircle2, CircleAlert, FileText, Inbox, Link2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { showErrorToast } from "@/components/common/error-toast";
 import { GuardedButton } from "@/components/common/guarded-button";
 import { NativeSelect } from "@/components/common/native-select";
@@ -105,7 +105,7 @@ export function StepPanel({
         <OriginPanel batch={batch} step={step} canWrite={canWrite} reviewer={reviewer} />
       ) : (
         <>
-          <SheetBody className="gap-[22px]">
+          <SheetBody className="gap-[22px] pb-8">
             {submitted && who && (
               <div className="flex items-start gap-2.5 rounded-lg bg-status-submitted-muted px-3.5 py-3 text-[13px] leading-[1.45] text-status-submitted-foreground">
                 <Inbox className="mt-px size-4 shrink-0" strokeWidth={1.75} aria-hidden />
@@ -294,6 +294,13 @@ function FixSection({
   const [reason, setReason] = useState("");
   const [fields, setFields] = useState<string[]>([]);
   const reject = useRejectStep(batchId);
+  // The form opens at the end of a long panel: bring it into view, with room above the footer bar. A document
+  // preset adds a line to the form, which pushes its buttons down again: bring it back.
+  const section = useRef<HTMLElement>(null);
+  const showsDocumentsHint = fields.includes(DOCUMENTS_FIELD);
+  useEffect(() => {
+    section.current?.scrollIntoView({ block: "nearest" });
+  }, [showsDocumentsHint]);
   const presets = CORRECTION_PRESETS.filter((p) => (p.stepTypes as readonly StepType[]).includes(step.stepType));
 
   const isOn = (preset: (typeof presets)[number]) => preset.fields.every((f) => fields.includes(f));
@@ -314,7 +321,11 @@ function FixSection({
     );
 
   return (
-    <section aria-labelledby={`${id}-title`} className="flex flex-col gap-2.5 rounded-[10px] border bg-muted p-3.5">
+    <section
+      ref={section}
+      aria-labelledby={`${id}-title`}
+      className="flex scroll-mb-8 flex-col gap-2.5 rounded-[10px] border bg-muted p-3.5"
+    >
       <h3 id={`${id}-title`} className="text-[13px] font-semibold">
         {t("title")}
       </h3>
@@ -339,7 +350,7 @@ function FixSection({
           })}
         </div>
       )}
-      {fields.includes(DOCUMENTS_FIELD) && (
+      {showsDocumentsHint && (
         <p className="flex items-start gap-1.5 text-xs leading-normal text-muted-foreground">
           <FileText className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
           {t("documentsHint")}

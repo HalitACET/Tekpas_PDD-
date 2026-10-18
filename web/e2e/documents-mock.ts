@@ -35,8 +35,10 @@ export interface MockDocument {
   verifiedByName: string | null;
   verifiedAt: string | null;
   verification: unknown;
-  /** Mock only: the bytes the file endpoint serves. */
+  rereadable: boolean;
+  /** Mock only: the bytes the file endpoint serves (a golden test document by name, or the bytes themselves). */
   file: string;
+  bytes?: Buffer;
 }
 
 /** What the backend's reading produced for a test document (the golden files), as the API sends it. */
@@ -67,6 +69,7 @@ export function mockDocument(kind: DocKind, stepId: string, over: Partial<MockDo
     verifiedByName: null,
     verifiedAt: null,
     verification: null,
+    rereadable: false,
   };
   const read = (extraction: ReturnType<typeof expected>) => ({
     extraction,
@@ -142,6 +145,7 @@ export function mockDocument(kind: DocKind, stepId: string, over: Partial<MockDo
         pageCount: 1,
         createdAt: new Date(2026, 9, 17, 9, 17).toISOString(),
         extractionStatus: "FAILED",
+        rereadable: true,
         extractionMethod: "NONE",
         failureCode: "EXTRACT_TIMEOUT",
         extractedAt: new Date(2026, 9, 17, 9, 19).toISOString(),
@@ -206,8 +210,9 @@ export async function mockDocumentsApi(page: Page, { docs, upload }: Options) {
   const find = (id: string | undefined) => docs.find((d) => d.id === id);
   const idOf = (route: Route, offset = 1) => new URL(route.request().url()).pathname.split("/").at(-offset);
   const json = (d: MockDocument) => {
-    const { file, ...rest } = d;
+    const { file, bytes, ...rest } = d;
     void file;
+    void bytes;
     return rest;
   };
 
@@ -241,7 +246,7 @@ export async function mockDocumentsApi(page: Page, { docs, upload }: Options) {
     return route.fulfill({
       status: 200,
       contentType: MIME[path.extname(doc.file)] ?? "application/octet-stream",
-      body: readFileSync(path.join(FILES, doc.file)),
+      body: doc.bytes ?? readFileSync(path.join(FILES, doc.file)),
     });
   });
 
@@ -266,7 +271,7 @@ export async function mockDocumentsApi(page: Page, { docs, upload }: Options) {
   await page.route(/\/api\/v1\/documents\/[0-9a-f-]{36}\/reread$/, (route) => {
     const doc = find(idOf(route, 2));
     if (!doc) return problem(route, 404, { type: "urn:tekpas:problem:not-found", title: "Not found" });
-    Object.assign(doc, { extractionStatus: "RUNNING", failureCode: null, extractionMethod: null, createdAt: new Date().toISOString() });
+    Object.assign(doc, { extractionStatus: "RUNNING", rereadable: false, failureCode: null, extractionMethod: null, createdAt: new Date().toISOString() });
     return route.fulfill({ status: 202, json: json(doc) });
   });
 

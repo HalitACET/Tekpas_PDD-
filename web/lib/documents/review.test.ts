@@ -36,6 +36,7 @@ function doc(over: Partial<DocumentResponse> = {}, fields: Fields = {}, detected
     extractionStatus: "READ",
     reviewStatus: "UNREVIEWED",
     source: "SUPPLIER_LINK",
+    rereadable: false,
     createdAt: "2026-10-17T09:14:00Z",
     extraction: { detectedType: detected, method: "TEXT_RULES", fields, warnings: [] },
     ...over,

@@ -156,6 +156,14 @@ for (const scheme of ["light", "dark"] as const) {
       await shoot(page, `57d-${scheme}`);
     });
 
+    test("57d2 review, unreadable with the AI reading open", async ({ page }) => {
+      const docs = await prepare(page, scheme, { kinds: ["unreadable"] });
+      docs[0].rereadable = true;
+      const dialog = await openReview(page, "unreadable");
+      await expect(dialog.getByRole("button", { name: "Tekrar oku" })).toBeVisible();
+      await shoot(page, `57d2-${scheme}`);
+    });
+
     test("57e review, error", async ({ page }) => {
       await prepare(page, scheme, { kinds: ["error"] });
       const dialog = await openReview(page, "error");
@@ -296,7 +304,8 @@ for (const scheme of ["light", "dark"] as const) {
       await panel.getByRole("button", { name: "Düzeltme iste" }).click();
       await panel.getByRole("button", { name: "Belge okunaksız" }).click();
       await expect(panel.getByRole("button", { name: "Sertifika süresi dolmuş" })).toBeVisible();
-      await panel.getByRole("button", { name: "Sertifika süresi dolmuş" }).scrollIntoViewIfNeeded();
+      // The form has been scrolled into view on its own: the send button is whole, above the footer bar.
+      await expect(panel.getByRole("button", { name: "Düzeltme talebini gönder" })).toBeInViewport({ ratio: 1 });
       await shoot(page, `60-${scheme}`);
     });
   });

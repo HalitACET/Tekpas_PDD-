@@ -166,6 +166,49 @@ test("a failed reading: 'Tekrar oku' starts it again, 'Alanları elle gir' opens
   await expect(dialog.getByLabel("Sertifika no")).toHaveValue("");
 });
 
+test("'Tekrar oku' is offered for an unreadable document only while the AI reading is open", async ({ page }) => {
+  // Gate closed (the API says rereadable: false): manual entry only, no button on the card or in the dialog.
+  await prepare(page, ["unreadable"]);
+  const closed = await openReview(page, "unreadable");
+  await expect(closed.getByRole("button", { name: "Tekrar oku" })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "Tekrar oku" })).toHaveCount(0);
+});
+
+test("with the AI reading open, an unreadable document can be read again from the card and the dialog", async ({ page }) => {
+  const docs = await prepare(page, ["unreadable"]);
+  docs[0].rereadable = true;
+  const { section } = await openPanel(page);
+  await expect(section.getByRole("button", { name: "Tekrar oku" })).toHaveCount(1);
+  await section.getByRole("button", { name: /^IMG_2041\.jpg ·/ }).click();
+  const dialog = page.getByRole("dialog", { name: "Belge inceleme" });
+  await expect(dialog.getByText("Teknik ayrıntı: NO_TEXT_LAYER")).toBeVisible();
+  const sent = page.waitForRequest((r) => r.url().endsWith("/reread") && r.method() === "POST");
+  await dialog.getByRole("button", { name: "Tekrar oku" }).click();
+  await sent;
+  await expect(dialog.getByText("Belge okunuyor")).toBeVisible();
+});
+
+test("the correction form is brought into view, with room left above the footer", async ({ page }) => {
+  await prepare(page, ["unreadable"]);
+  const { panel } = await openPanel(page);
+  await panel.getByRole("button", { name: "Düzeltme iste" }).click();
+  const send = panel.getByRole("button", { name: "Düzeltme talebini gönder" });
+  const footer = panel.getByRole("button", { name: "Adımı onayla" });
+  const clearance = async () => {
+    const [sendBox, footerBox] = [await send.boundingBox(), await footer.boundingBox()];
+    // The footer bar starts 14 px above its buttons; 16 px of room between the form and the bar.
+    return footerBox!.y - 14 - (sendBox!.y + sendBox!.height);
+  };
+  await expect(send).toBeInViewport({ ratio: 1 });
+  expect(await clearance()).toBeGreaterThanOrEqual(16);
+  // A document preset adds a line to the form: its buttons stay whole and clear of the bar.
+  await panel.getByRole("button", { name: "Belge okunaksız" }).click();
+  await expect(panel.getByText(/Belgeler bölümü işaretlenir/)).toBeVisible();
+  await expect(send).toBeInViewport({ ratio: 1 });
+  await expect.poll(clearance).toBeGreaterThanOrEqual(16);
+});
+
 test("'Tekrar oku' puts the document back to reading", async ({ page }) => {
   await prepare(page, ["error"]);
   const dialog = await openReview(page, "error");
@@ -258,4 +301,63 @@ test("a file of the wrong kind or size is refused before it is sent", async ({ p
   await section.getByRole("button", { name: /^Kaldır: foy\.docx/ }).click();
   await expect(section.getByRole("alert")).toHaveCount(1);
   expect(sent).toBe(0);
+});
+
+/** A valid PDF of `pages` pages, each with its own big number, so a page or a zoom change shows in the picture. */
+function numberedPdf(pages: number): Buffer {
+  const objects: string[] = ["<< /Type /Catalog /Pages 2 0 R >>"];
+  const kids = Array.from({ length: pages }, (_, i) => `${4 + i * 2} 0 R`).join(" ");
+  objects.push(`<< /Type /Pages /Kids [${kids}] /Count ${pages} >>`);
+  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+  for (let i = 0; i < pages; i++) {
+    const content = `BT /F1 ${60 + i * 40} Tf 80 600 Td (PAGE ${i + 1}) Tj ET`;
+    objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents ${5 + i * 2} 0 R /Resources << /Font << /F1 3 0 R >> >> >>`);
+    objects.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  }
+  let pdf = "%PDF-1.4\n";
+  const offsets: number[] = [];
+  objects.forEach((body, i) => {
+    offsets.push(pdf.length);
+    pdf += `${i + 1} 0 obj\n${body}\nendobj\n`;
+  });
+  const xref = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (const o of offsets) pdf += `${String(o).padStart(10, "0")} 00000 n \n`;
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return Buffer.from(pdf, "latin1");
+}
+
+test("the preview's page, zoom and fit controls change what the browser's viewer shows", async ({ page, browser }) => {
+  const docs = await prepare(page, ["full"]);
+  docs[0].bytes = numberedPdf(3);
+  docs[0].pageCount = 3;
+  const dialog = await openReview(page, "full");
+  const frame = dialog.locator("iframe");
+  await expect(dialog.getByText("Sayfa 1 / 3")).toBeVisible();
+  // Chrome's viewer needs a moment to draw; give it before every picture.
+  const picture = async () => {
+    await page.waitForTimeout(1500);
+    return frame.screenshot();
+  };
+  const first = await picture();
+
+  await dialog.getByRole("button", { name: "Sonraki sayfa" }).click();
+  await expect(dialog.getByText("Sayfa 2 / 3")).toBeVisible();
+  await expect(frame).toHaveAttribute("src", /#page=2&/);
+  const second = await picture();
+  expect(second.equals(first)).toBe(false);
+
+  await dialog.getByRole("button", { name: "Önceki sayfa" }).click();
+  expect((await picture()).equals(first)).toBe(true);
+
+  await dialog.getByRole("button", { name: "Yakınlaştır" }).click();
+  await expect(dialog.getByText("%125")).toBeVisible();
+  const zoomed = await picture();
+  expect(zoomed.equals(first)).toBe(false);
+
+  await dialog.getByRole("button", { name: "Sığdır" }).click();
+  await expect(dialog.getByText("%100")).toBeVisible();
+  expect((await picture()).equals(first)).toBe(true);
+
+  console.log(`preview controls verified in ${browser.browserType().name()} ${browser.version()}`);
 });

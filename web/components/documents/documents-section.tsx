@@ -344,7 +344,7 @@ function DocumentCard({
       </span>
       <span className="flex flex-col items-end gap-1.5">
         <DocumentChip state={state} size="sm" />
-        {state === "error" && canWrite && (
+        {doc.rereadable && canWrite && (
           <Button
             variant="secondary"
             className="h-[26px] gap-[5px] px-2 text-xs"
