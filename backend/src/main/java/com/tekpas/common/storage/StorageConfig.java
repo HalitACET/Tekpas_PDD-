@@ -51,7 +51,7 @@ public class StorageConfig {
         }
         boolean https = "https".equalsIgnoreCase(uri.getScheme());
         boolean loopback = "http".equalsIgnoreCase(uri.getScheme()) && uri.getHost() != null
-                && LOOPBACK.contains(uri.getHost().toLowerCase());
+                && LOOPBACK.contains(uri.getHost().toLowerCase(java.util.Locale.ROOT));
         if (!(https || loopback) || uri.getHost() == null) {
             throw new IllegalStateException("STORAGE_SUPABASE_URL must be an https:// URL");
         }
