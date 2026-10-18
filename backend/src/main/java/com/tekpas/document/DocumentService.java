@@ -3,6 +3,8 @@ package com.tekpas.document;
 import com.tekpas.batch.BatchRepository;
 import com.tekpas.batch.BatchStatus;
 import com.tekpas.common.error.ConflictException;
+import com.tekpas.common.error.FieldViolation;
+import com.tekpas.common.error.InvalidFieldsException;
 import com.tekpas.common.error.NotFoundException;
 import com.tekpas.common.storage.FileStorage;
 import com.tekpas.common.web.RateLimiter;
@@ -10,15 +12,22 @@ import com.tekpas.company.AppUserRepository;
 import com.tekpas.document.DocumentStore.Target;
 import com.tekpas.document.FileInspector.InspectedFile;
 import com.tekpas.document.dto.DocumentResponse;
+import com.tekpas.document.dto.VerifyDocumentRequest;
 import com.tekpas.request.StepEventKind;
 import com.tekpas.request.StepEvents;
 import com.tekpas.supplychain.SupplyStep;
 import com.tekpas.supplychain.SupplyStepRepository;
 import java.net.URI;
+import java.time.Clock;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -27,8 +36,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * The manufacturer's side of documents (design v0.5 56–58): upload to a step, list, read, download link and
- * removal. Every lookup filters by the caller's company; another company's step or document is a 404.
+ * The manufacturer's side of documents (design v0.5 56–58): upload to a step, list, read, download link,
+ * removal and the confirmation of what was read. Every lookup filters by the caller's company; another company's
+ * step or document is a 404.
  */
 @Service
 public class DocumentService {
@@ -47,11 +57,12 @@ public class DocumentService {
     private final FileInspector inspector;
     private final DocumentStore store;
     private final RateLimiter limiter;
+    private final Clock clock;
     private final TransactionTemplate tx;
 
     public DocumentService(DocumentRepository documents, SupplyStepRepository steps, BatchRepository batches,
             AppUserRepository users, StepEvents events, FileStorage storage, FileInspector inspector,
-            DocumentStore store, RateLimiter limiter, PlatformTransactionManager transactions) {
+            DocumentStore store, RateLimiter limiter, Clock clock, PlatformTransactionManager transactions) {
         this.documents = documents;
         this.steps = steps;
         this.batches = batches;
@@ -61,6 +72,7 @@ public class DocumentService {
         this.inspector = inspector;
         this.store = store;
         this.limiter = limiter;
+        this.clock = clock;
         this.tx = new TransactionTemplate(transactions);
     }
 
@@ -80,19 +92,107 @@ public class DocumentService {
             String name = users.findById(userId).map(u -> u.getFullName()).orElse(null);
             return new Target(companyId, step.getId(), null, userId, name);
         });
-        return DocumentResponse.from(saved);
+        return DocumentResponse.from(saved, null);
     }
 
     @Transactional(readOnly = true)
     public List<DocumentResponse> list(UUID companyId, UUID stepId) {
         steps.findOfCompany(stepId, companyId).orElseThrow(() -> new NotFoundException("Step not found"));
-        return documents.findByStepIdAndCompanyIdOrderByCreatedAtDesc(stepId, companyId).stream()
-                .map(DocumentResponse::from).toList();
+        return respond(documents.findByStepIdAndCompanyIdOrderByCreatedAtDesc(stepId, companyId));
     }
 
     @Transactional(readOnly = true)
     public DocumentResponse get(UUID companyId, UUID documentId) {
-        return DocumentResponse.from(find(companyId, documentId));
+        return respond(List.of(find(companyId, documentId))).getFirst();
+    }
+
+    /**
+     * A person confirms a document: the values they send become its real fields and its type, and the check of
+     * every field (accepted, edited, added) is kept for the accuracy figure. Only OWNER and ADMIN (the controller);
+     * a published batch and an already confirmed document are 409, a document still being read is 409 too (its
+     * proposal is not final). The reading's {@code extraction} is never touched.
+     */
+    @Transactional
+    public DocumentResponse verify(UUID companyId, UUID userId, UUID documentId, VerifyDocumentRequest request) {
+        // Step first, then the document: the same order as upload and removal, so they cannot deadlock.
+        List<UUID> stepIds = documents.stepIdOf(documentId, companyId);
+        if (stepIds.isEmpty()) {
+            throw new NotFoundException("Document not found");
+        }
+        UUID stepId = stepIds.getFirst();
+        if (stepId != null) {
+            SupplyStep step = steps.lockForUpdate(stepId, companyId).orElse(null);
+            if (step != null && batches.findById(step.getBatchId())
+                    .map(b -> b.getStatus() == BatchStatus.PUBLISHED).orElse(false)) {
+                throw ConflictException.state("BATCH_PUBLISHED", "The batch is published; its documents cannot change");
+            }
+        }
+        Document d = documents.lockByIdAndCompanyId(documentId, companyId)
+                .orElseThrow(() -> new NotFoundException("Document not found"));
+        if (d.getReviewStatus() == ReviewStatus.VERIFIED) {
+            throw ConflictException.state("DOCUMENT_VERIFIED", "This document is already verified");
+        }
+        if (d.awaitsReading()) {
+            throw ConflictException.state("DOCUMENT_NOT_READ", "The document is still being read");
+        }
+        if (request.docType() == DocType.UNKNOWN) {
+            throw new InvalidFieldsException(new FieldViolation("docType", "OneOf", "Choose the document's type"));
+        }
+        if (request.validFrom() != null && request.validUntil() != null
+                && request.validUntil().isBefore(request.validFrom())) {
+            throw new InvalidFieldsException(new FieldViolation("validUntil", "DateRange",
+                    "Must not be before validFrom"));
+        }
+        String certNo = DocumentText.clean(request.certNo());
+        String holder = DocumentText.clean(request.holderName());
+        String issuer = DocumentText.clean(request.issuer());
+        if (request.docType().isCertificate()) {
+            List<String> missing = new ArrayList<>();
+            if (certNo == null) {
+                missing.add("certNo");
+            }
+            if (request.validUntil() == null) {
+                missing.add("validUntil");
+            }
+            if (!missing.isEmpty()) {
+                throw new IncompleteCertificateException(missing);
+            }
+        }
+        Extraction proposal = d.getExtraction();
+        Extraction.Fields fields = proposal == null ? Extraction.Fields.none() : proposal.fields();
+        DocType detected = proposal == null || proposal.detectedType() == DocType.UNKNOWN ? null
+                : proposal.detectedType();
+        Verification verification = new Verification(
+                Verification.of(detected, request.docType()),
+                Verification.of(textOf(fields.certNo()), certNo),
+                Verification.of(textOf(fields.holderName()), holder),
+                Verification.of(textOf(fields.issuer()), issuer),
+                Verification.of(textOf(fields.validFrom()), request.validFrom() == null ? null
+                        : request.validFrom().toString()),
+                Verification.of(textOf(fields.validUntil()), request.validUntil() == null ? null
+                        : request.validUntil().toString()));
+        d.verify(request.docType(), certNo, holder, issuer, request.validFrom(), request.validUntil(), verification,
+                userId, clock.instant());
+        String name = users.findById(userId).map(u -> u.getFullName()).orElse(null);
+        if (stepId != null) {
+            events.record(stepId, d.getRequestId(), StepEventKind.DOCUMENT_VERIFIED, userId, name,
+                    Map.of("documentId", d.getId().toString(), "docType", d.getDocType().name()));
+        }
+        return DocumentResponse.from(d, name);
+    }
+
+    private static @Nullable String textOf(Extraction.@Nullable Field field) {
+        return field == null ? null : DocumentText.clean(field.value());
+    }
+
+    /** The responses with the verifiers' names (one lookup for the whole list). */
+    private List<DocumentResponse> respond(List<Document> list) {
+        Set<UUID> verifierIds = list.stream().map(Document::getVerifiedBy).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<UUID, String> names = new HashMap<>();
+        users.findAllById(verifierIds).forEach(u -> names.put(u.getId(), u.getFullName()));
+        return list.stream().map(d -> DocumentResponse.from(d, d.getVerifiedBy() == null ? null
+                : names.get(d.getVerifiedBy()))).toList();
     }
 
     /** A short signed link to the file (or the file's own URI with the local provider, see the controller). */

@@ -291,6 +291,23 @@ class LlmReadingJobTest {
     }
 
     @Test
+    void theSupplierPageCarriesTheFlagOnlyForADemoCompany() {
+        Tenant demo = demoTenant();
+        Tenant real = fixtures.tenant();
+        String demoToken = t.link(demo, t.setup(demo).yarnStep());
+        String realToken = t.link(real, t.setup(real).yarnStep());
+
+        JsonNode demoView = fixtures.body(t.publicOpen(demoToken));
+        JsonNode realView = fixtures.body(t.publicOpen(realToken));
+
+        // The flag is all the page learns: the warning "Demo ortamı: gerçek belge yüklemeyin" (design A5).
+        assertThat(demoView.path("aiReading").asBoolean()).isTrue();
+        assertThat(realView.path("aiReading").asBoolean()).isFalse();
+        assertThat(fixtures.responseText(t.publicOpen(demoToken))).doesNotContain("is_demo", "isDemo", "gemini",
+                FakeAiClient.MODEL);
+    }
+
+    @Test
     void theSupplierNeverSeesTheLlmReading() throws IOException {
         Tenant owner = demoTenant();
         Setup s = t.setup(owner);

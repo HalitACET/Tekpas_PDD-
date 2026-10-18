@@ -96,6 +96,7 @@ export interface MockStep {
   inputStepIds: string[];
   data: Record<string, unknown>;
   documentCount: number;
+  unreviewedDocumentCount: number;
   submittedAt: string | null;
   updatedAt: string;
   /** M4: the latest link (no token), the last submission, the correction asked for, the approval. */
@@ -161,6 +162,7 @@ export function mockChain(batch: number, specs: StepSpec[]): MockStep[] {
       inputStepIds: [],
       data: stepType === "FIBER" && who ? { fiberType: who, ...data } : data,
       documentCount: 0,
+      unreviewedDocumentCount: 0,
       submittedAt: status === "PENDING" ? null : at(8, 20),
       updatedAt: at(8, 20),
     };

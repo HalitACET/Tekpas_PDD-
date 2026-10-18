@@ -85,12 +85,16 @@ export const CHEMICAL_STANDARDS = ["ZDHC_MRSL", "OEKO_TEX_ECO_PASSPORT", "BLUESI
 export type ChemicalStandard = (typeof CHEMICAL_STANDARDS)[number];
 
 /**
- * "Düzeltme iste" presets (design v0.4 47b) and the step data fields each marks on the supplier's form (45).
- * The single place for this mapping: the documents' presets ("Belge okunaksız", "Sertifika süresi dolmuş")
- * join with M5 and M7. `stepTypes` are the steps that have those fields (backend StepData).
+ * "Düzeltme iste" presets (design v0.4 47b, v0.5 B5) and the fields each marks on the supplier's form (45).
+ * The single place for this mapping. `stepTypes` are the steps that have those fields (backend StepData).
+ * `DOCUMENTS_FIELD` is not a step data field but the Documents section of the supplier's form (backend
+ * `StepReviewService.DOCUMENTS_FIELD`); the document presets mark it on every step a supplier fills in.
  */
+export const DOCUMENTS_FIELD = "documents";
 export const CORRECTION_PRESETS = [
   { key: "FIBER_MISMATCH", fields: ["fiberComposition"], stepTypes: ["YARN", "FABRIC"] },
+  { key: "DOCUMENT_UNREADABLE", fields: [DOCUMENTS_FIELD], stepTypes: ["YARN", "FABRIC", "DYEING", "SEWING", "ACCESSORY", "PACKAGING"] },
+  { key: "CERTIFICATE_EXPIRED", fields: [DOCUMENTS_FIELD], stepTypes: ["YARN", "FABRIC", "DYEING", "SEWING", "ACCESSORY", "PACKAGING"] },
 ] as const satisfies readonly { key: string; fields: readonly string[]; stepTypes: readonly StepType[] }[];
 export type CorrectionPreset = (typeof CORRECTION_PRESETS)[number]["key"];
 

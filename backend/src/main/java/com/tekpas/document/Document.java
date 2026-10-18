@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -77,6 +78,27 @@ public class Document {
     private @Nullable String extractionModel;
 
     private @Nullable Instant extractedAt;
+
+    /** The confirmed values (a person's, set by {@link #verify}); null until then or when left empty. */
+    @Column(length = 100)
+    private @Nullable String certNo;
+
+    @Column(length = 200)
+    private @Nullable String holderName;
+
+    @Column(length = 200)
+    private @Nullable String issuer;
+
+    private @Nullable LocalDate validFrom;
+
+    private @Nullable LocalDate validUntil;
+
+    private @Nullable UUID verifiedBy;
+
+    private @Nullable Instant verifiedAt;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private @Nullable Verification verification;
 
     @Column(updatable = false)
     private @Nullable UUID uploadedBy;
@@ -209,6 +231,57 @@ public class Document {
         this.extractionMethod = ExtractionMethod.NONE;
         this.failureCode = failureCode;
         this.extractedAt = now;
+    }
+
+    public @Nullable String getCertNo() {
+        return certNo;
+    }
+
+    public @Nullable String getHolderName() {
+        return holderName;
+    }
+
+    public @Nullable String getIssuer() {
+        return issuer;
+    }
+
+    public @Nullable LocalDate getValidFrom() {
+        return validFrom;
+    }
+
+    public @Nullable LocalDate getValidUntil() {
+        return validUntil;
+    }
+
+    public @Nullable UUID getVerifiedBy() {
+        return verifiedBy;
+    }
+
+    public @Nullable Instant getVerifiedAt() {
+        return verifiedAt;
+    }
+
+    public @Nullable Verification getVerification() {
+        return verification;
+    }
+
+    /**
+     * A person's confirmation: the values they kept (or typed) become the document's real fields and its type.
+     * Nothing else changes; {@code extraction} stays as the reading wrote it.
+     */
+    public void verify(DocType docType, @Nullable String certNo, @Nullable String holderName,
+            @Nullable String issuer, @Nullable LocalDate validFrom, @Nullable LocalDate validUntil,
+            Verification verification, UUID userId, Instant now) {
+        this.docType = docType;
+        this.certNo = certNo;
+        this.holderName = holderName;
+        this.issuer = issuer;
+        this.validFrom = validFrom;
+        this.validUntil = validUntil;
+        this.verification = verification;
+        this.verifiedBy = userId;
+        this.verifiedAt = now;
+        this.reviewStatus = ReviewStatus.VERIFIED;
     }
 
     public @Nullable UUID getUploadedBy() {

@@ -9,7 +9,7 @@ import org.jspecify.annotations.Nullable;
  * "Düzeltme iste" (design v0.4 47b). The reason goes to the supplier (45).
  *
  * @param fields step data fields to mark on the supplier's form, from the preset reasons; only names of the
- *     step type's fields are accepted
+ *     step type's fields are accepted, and {@code documents} (the Documents section, for the document presets)
  */
 public record StepRejectRequest(@NotBlank @Size(max = 500) String reason, @Nullable List<String> fields) {
 }

@@ -47,11 +47,12 @@ Her feature paketi içinde: `XController`, `XService`, `XRepository`, `dto/` (Ja
 
 ## AI (Gemini)
 
-- `AiClient` arayüzü: `extractDocument(bytes, mimeType, docType)`, `validateBatch(context)`, `translate(snapshot, targetLang)`.
-- Gemini çağrısı yapılandırılmış çıktı (JSON şeması) ile yapılır. Serbest metin parse edilmez.
-- Her alan için `{value, confidence}` döner. Güven skoru 0.8'in altındaysa arayüzde sarı gösterilir.
-- Prompt'lar `src/main/resources/prompts/*.md` dosyalarında tutulur, koda gömülmez.
-- Testlerde `AiClient` her zaman fake implementasyonla değiştirilir. **Testler gerçek API'yi çağırmaz.**
+- `AiClient` sağlayıcıdan bağımsız tek metottur: `generateJson(AiRequest)` (talimat + belge parçaları + JSON şeması → JSON metni) ve `model()`. Alana özel mantık (belge okuma, ileride tutarlılık, çeviri) arayüzde değil, onu kullanan sınıftadır (`LlmDocumentReader`). Uygulamalar: `GeminiAiClient` (`generateContent`, RestClient, SDK yok, araç yok, anahtar yalnızca `x-goog-api-key` başlığında), `DisabledAiClient`; testte `FakeAiClient`.
+- Yapılandırılmış çıktı (`responseSchema`) kullanılır, serbest metin parse edilmez. Cevap yine de güvenilmeyen girdidir: şemadaki alanlar sunucuda yeniden doğrulanır, fazlası atılır.
+- **Güven skorunu model değil sunucu verir** (cevaptaki güven değerine güvenilmez, prompt injection ile değiştirilebilir). LLM değerleri 0.8'in altında kalır (yeşile çıkamaz), arayüzde sarı gösterilir.
+- Belgeyi LLM'e götüren tek kapı `LlmGate`: `LLM_ENABLED` + `GEMINI_API_KEY` + `company.is_demo`, üçü birden. Ücretli katman istisnası yok. Günlük sınır `LlmBudget` (V10 `llm_usage`).
+- Prompt'lar `src/main/resources/prompts/*.md` dosyalarında tutulur, koda gömülmez. Belge, talimata karıştırılmadan rastgele sınırlayıcılar arasında veri olarak gider.
+- Testlerde `AiClient` her zaman fake implementasyonla değiştirilir (`@IntegrationTest` zaten verir). **Testler gerçek API'yi çağırmaz.**
 
 ## Test
 

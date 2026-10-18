@@ -106,9 +106,12 @@ class PublicDocumentApiTest {
         Setup s = t.setup(owner);
         String token = t.link(owner, s.yarnStep());
         String id = fixtures.body(t.publicPdf(token)).path("id").asString();
-        // The reading finished, found a certificate and failed once: none of it may reach the supplier.
+        // The reading finished, found a certificate and failed once, and a person confirmed it: none of it may
+        // reach the supplier.
         jdbc.update("""
                 UPDATE document SET extraction_status = 'READ', doc_type = 'OEKO_TEX', cert_no = 'DEMO-SECRET-123',
+                       review_status = 'VERIFIED', issuer = 'Gizli Veren Kurum', verified_at = now(),
+                       verification = '{"certNo":"EDITED","issuer":"ADDED"}'::jsonb,
                        holder_name = 'Gizli Sahip A.S.', extraction_method = 'TEXT_RULES', failure_code = 'NO_TEXT_LAYER',
                        extraction = '{"detectedType":"OEKO_TEX","method":"TEXT_RULES","warnings":[],"fields":{"certNo":{"value":"DEMO-SECRET-123","confidence":0.97,"source":"TEXT_RULES","evidence":{"page":1,"snippet":"Certificate No.: DEMO-SECRET-123"}}}}'::jsonb
                 WHERE id = ?::uuid
@@ -122,10 +125,23 @@ class PublicDocumentApiTest {
         assertThat(documents.get(0).propertyNames()).containsExactlyInAnyOrder("id", "fileName", "sizeBytes",
                 "uploadedAt", "previous");
         String text = fixtures.responseText(view);
-        assertThat(text).doesNotContain("DEMO-SECRET-123", "Gizli Sahip", "OEKO_TEX", "NO_TEXT_LAYER", "confidence",
-                "extraction", "failureCode", "reviewStatus");
+        assertThat(text).doesNotContain("DEMO-SECRET-123", "Gizli Sahip", "Gizli Veren", "OEKO_TEX", "NO_TEXT_LAYER",
+                "confidence", "extraction", "failureCode", "reviewStatus", "VERIFIED", "verif", "EDITED", "ADDED");
         assertThat(fixtures.body(t.publicUpload(token, TestFiles.png(), "foto.png", "image/png")).propertyNames())
                 .doesNotContain("extractionStatus", "docType", "failureCode");
+    }
+
+    @Test
+    void theLinkViewSaysOnlyWhetherAnAiServiceReadsDocuments() {
+        Tenant owner = fixtures.tenant();
+        Setup s = t.setup(owner);
+        String token = t.link(owner, s.yarnStep());
+
+        JsonNode view = fixtures.body(t.publicOpen(token));
+
+        // Off here (no LLM switch in the test profile): the demo warning of design A5 stays hidden.
+        assertThat(view.path("aiReading").isBoolean()).isTrue();
+        assertThat(view.path("aiReading").asBoolean()).isFalse();
     }
 
     @Test

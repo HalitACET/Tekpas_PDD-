@@ -21,6 +21,8 @@ export function publicView(stepType: StepType, extra: Record<string, unknown> = 
     stepType,
     expiresAt: new Date(2026, 9, 17, 14, 30).toISOString(),
     data: {},
+    documents: [],
+    aiReading: false,
     ...extra,
   };
 }

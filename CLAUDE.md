@@ -40,6 +40,7 @@ Not: 5432 makinedeki başka bir Postgres'e ait, local Docker DB 5433'te.
 
 1. **Çok kiracılık (tenant):** `company_id` ASLA istekten (body, query, path) alınmaz, her zaman JWT'deki kullanıcıdan gelir. Bir firmaya ait kaydı okuyan veya yazan her sorgu `company_id` ile filtrelenir. Başka firmanın kaydına erişim denemesi `404` döner, `403` değil (varlığı sızdırmamak için). Bu kuralın testini her yeni endpoint'te yaz.
 2. **Uygulanmış bir Flyway migration'ı asla düzenleme.** Değişiklik = yeni `V{n}__aciklama.sql`.
+   Yeni migration eklenince `ApplicationSmokeTest`'teki migration listesi ve tablo sayısı da güncellenir; migration içeren PR'larda bu test koşulur.
 3. **Secret commit etme.** Sadece `.env.example` repoda durur. Gerçek anahtarı koda, teste veya dokümana yazma.
 4. **Gemini ücretsiz katmanı:** Gönderilen veri Google tarafından kullanılabilir. AI'a sadece sahte veya demo verisi gönder. Model adı koda gömülmez, `GEMINI_MODEL` config'inden okunur.
 5. **AI önerir, insan onaylar.** AI çıktısı hiçbir zaman doğrudan asıl alana yazılmaz. `document.extraction` alanına güven skoruyla birlikte yazılır, kullanıcı onaylayınca asıl alanlara taşınır.

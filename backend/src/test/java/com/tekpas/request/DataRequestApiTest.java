@@ -307,7 +307,7 @@ class DataRequestApiTest {
             JsonNode view = fixtures.body(result);
             assertThat(view.properties().stream().map(Map.Entry::getKey)).containsExactlyInAnyOrder("code",
                     "manufacturerName", "requesterName", "productName", "batchNo", "stepType", "expiresAt", "data",
-                    "rejection", "documents");
+                    "rejection", "documents", "aiReading");
             assertThat(view.path("stepType").asString()).isEqualTo("YARN");
             assertThat(view.path("productName").asString()).isEqualTo("Organik tişört");
             assertThat(view.path("requesterName").asString()).isEqualTo(s.tenant().user().getFullName());
@@ -477,6 +477,21 @@ class DataRequestApiTest {
                     List.of("fiberComposition", "waterLPerKg"))), "fields", "NotApplicable");
             assertFieldError(fixtures.post(s.tenant(), uri, Map.of("reason", "Kontrol edin.", "fields",
                     List.of("anything"))), "fields", "NotApplicable");
+        }
+
+        @Test
+        void theDocumentPresetsMarkTheDocumentsSectionOfTheSuppliersForm() {
+            Setup s = submitted();
+
+            MvcTestResult rejected = fixtures.post(s.tenant(), "/api/v1/steps/" + s.yarnStep() + "/reject",
+                    Map.of("reason", "Belge okunaksız.", "fields", List.of("documents")));
+
+            assertThat(rejected).hasStatusOk();
+            assertThat(stepNode(fixtures.body(rejected), "YARN").path("rejection").path("fields").valueStream()
+                    .map(JsonNode::asString)).containsExactly("documents");
+            JsonNode view = fixtures.body(open(token(s.tenant(), s.yarnStep())));
+            assertThat(view.path("rejection").path("fields").valueStream().map(JsonNode::asString))
+                    .containsExactly("documents");
         }
 
         @Test

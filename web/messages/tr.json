@@ -604,7 +604,9 @@
           "newLink": "Yeni bağlantı oluştur",
           "failed": "Düzeltme talebi gönderilemedi",
           "presets": {
-            "FIBER_MISMATCH": "Lif oranı uyuşmuyor"
+            "FIBER_MISMATCH": "Lif oranı uyuşmuyor",
+            "DOCUMENT_UNREADABLE": "Belge okunaksız",
+            "CERTIFICATE_EXPIRED": "Sertifika süresi dolmuş"
           }
         },
         "approveFailed": "Adım onaylanamadı",

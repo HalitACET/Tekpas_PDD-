@@ -604,7 +604,9 @@
           "newLink": "Create a new link",
           "failed": "The correction request could not be sent",
           "presets": {
-            "FIBER_MISMATCH": "Fibre ratio does not match"
+            "FIBER_MISMATCH": "Fibre ratio does not match",
+            "DOCUMENT_UNREADABLE": "Document is illegible",
+            "CERTIFICATE_EXPIRED": "Certificate has expired"
           }
         },
         "approveFailed": "The step could not be approved",

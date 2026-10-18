@@ -12,6 +12,7 @@ import com.tekpas.common.error.NotFoundException;
 import com.tekpas.company.Company;
 import com.tekpas.company.CompanyRepository;
 import com.tekpas.company.SupplierService;
+import com.tekpas.document.DocumentRepository;
 import com.tekpas.product.ProductRepository;
 import com.tekpas.request.DataRequest;
 import com.tekpas.request.DataRequestRepository;
@@ -68,6 +69,7 @@ public class ChainService {
     private final CompanyRepository companies;
     private final SupplierService suppliers;
     private final DataRequestRepository requests;
+    private final DocumentRepository documents;
     private final BatchProgress progress;
     private final StepEvents events;
     private final JdbcTemplate jdbc;
@@ -75,8 +77,8 @@ public class ChainService {
 
     public ChainService(SupplyStepRepository steps, ChainLinks links, BatchRepository batches,
             ProductRepository products, CompanyRepository companies, SupplierService suppliers,
-            DataRequestRepository requests, BatchProgress progress, StepEvents events, JdbcTemplate jdbc,
-            Clock clock) {
+            DataRequestRepository requests, DocumentRepository documents, BatchProgress progress, StepEvents events,
+            JdbcTemplate jdbc, Clock clock) {
         this.steps = steps;
         this.links = links;
         this.batches = batches;
@@ -84,6 +86,7 @@ public class ChainService {
         this.companies = companies;
         this.suppliers = suppliers;
         this.requests = requests;
+        this.documents = documents;
         this.progress = progress;
         this.events = events;
         this.jdbc = jdbc;
@@ -229,6 +232,9 @@ public class ChainService {
         Map<UUID, List<DataRequest>> requestsByStep = requests
                 .findByStepIdInOrderByCreatedAtDesc(chain.stream().map(SupplyStep::getId).toList()).stream()
                 .collect(Collectors.groupingBy(DataRequest::getStepId));
+        Map<UUID, DocumentRepository.StepDocumentCounts> documentCounts = documents
+                .countByStepIds(chain.stream().map(SupplyStep::getId).toList()).stream()
+                .collect(Collectors.toMap(DocumentRepository.StepDocumentCounts::getStepId, Function.identity()));
         Instant now = clock.instant();
 
         List<ChainStepResponse> nodes = chain.stream().map(step -> {
@@ -237,10 +243,12 @@ public class ChainService {
             DataRequest completed = stepRequests.stream()
                     .filter(r -> r.getStatus() == RequestStatus.COMPLETED && r.getSubmitterName() != null)
                     .findFirst().orElse(null);
+            DocumentRepository.StepDocumentCounts counts = documentCounts.get(step.getId());
             return new ChainStepResponse(step.getId(), step.getStepType(), step.getStatus(),
                     supplier == null ? null
                             : new StepSupplier(supplier.getId(), supplier.getName(), supplier.getCity(), supplier.getType()),
-                    step.getSortOrder(), inputs.getOrDefault(step.getId(), List.of()), step.getData(), 0,
+                    step.getSortOrder(), inputs.getOrDefault(step.getId(), List.of()), step.getData(),
+                    counts == null ? 0 : (int) counts.getTotal(), counts == null ? 0 : (int) counts.getUnreviewed(),
                     step.getSubmittedAt(), step.getUpdatedAt(),
                     stepRequests.isEmpty() ? null : DataRequestSummary.of(stepRequests.getFirst(), now),
                     completed == null || completed.getCompletedAt() == null ? null
