@@ -1144,6 +1144,13 @@ export interface components {
             /** Format: uuid */
             supplierId?: string | null;
         };
+        SupplierCertificate: {
+            expired: boolean;
+            /** @enum {string} */
+            type: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            /** Format: date */
+            validUntil: string;
+        };
         SupplierCreateRequest: {
             /**
              * @description One of Turkey's 81 provinces (field error City otherwise)
@@ -1159,6 +1166,7 @@ export interface components {
         SupplierResponse: {
             /** Format: int64 */
             batchCount: number;
+            certificates: components["schemas"]["SupplierCertificate"][];
             city?: string | null;
             editable: boolean;
             /** Format: uuid */

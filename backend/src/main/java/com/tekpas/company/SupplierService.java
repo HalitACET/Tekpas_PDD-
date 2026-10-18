@@ -5,12 +5,17 @@ import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
 import com.tekpas.common.error.NotFoundException;
 import com.tekpas.common.web.PageResponse;
+import com.tekpas.company.dto.SupplierCertificate;
 import com.tekpas.company.dto.SupplierCreateRequest;
 import com.tekpas.company.dto.SupplierResponse;
 import com.tekpas.company.dto.SupplierUpdateRequest;
+import com.tekpas.document.DocType;
 import com.tekpas.supplychain.StepStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -68,10 +73,12 @@ public class SupplierService {
 
     private final NamedParameterJdbcTemplate jdbc;
     private final CompanyRepository companies;
+    private final Clock clock;
 
-    public SupplierService(NamedParameterJdbcTemplate jdbc, CompanyRepository companies) {
+    public SupplierService(NamedParameterJdbcTemplate jdbc, CompanyRepository companies, Clock clock) {
         this.jdbc = jdbc;
         this.companies = companies;
+        this.clock = clock;
     }
 
     @Transactional(readOnly = true)
@@ -86,6 +93,7 @@ public class SupplierService {
         params.put("offset", pageable.getOffset());
         List<SupplierResponse> content = jdbc.query(
                 SELECT + FROM + " ORDER BY " + order + ", c.id LIMIT :limit OFFSET :offset", params, SupplierService::row);
+        content = withCertificates(companyId, content);
         long count = total == null ? 0 : total;
         int pages = (int) ((count + pageable.getPageSize() - 1) / pageable.getPageSize());
         return new PageResponse<>(content, pageable.getPageNumber(), pageable.getPageSize(), count, pages);
@@ -177,8 +185,44 @@ public class SupplierService {
     }
 
     private Optional<SupplierResponse> find(UUID companyId, UUID supplierId) {
-        return jdbc.query(SELECT + FROM, params(companyId, null, null, supplierId), SupplierService::row).stream()
+        return withCertificates(companyId,
+                jdbc.query(SELECT + FROM, params(companyId, null, null, supplierId), SupplierService::row)).stream()
                 .findFirst();
+    }
+
+    /**
+     * Adds what each supplier's confirmed certificates say (design v0.5 61), in one query for the whole page. Only
+     * documents the current company confirmed on steps of its own batches count; a document nobody confirmed is not
+     * a certificate yet.
+     */
+    private List<SupplierResponse> withCertificates(UUID companyId, List<SupplierResponse> suppliers) {
+        if (suppliers.isEmpty()) {
+            return suppliers;
+        }
+        Map<UUID, List<SupplierCertificate>> bySupplier = new HashMap<>();
+        LocalDate today = LocalDate.now(clock);
+        jdbc.query("""
+                SELECT s.supplier_company_id AS supplier_id, d.doc_type, max(d.valid_until) AS valid_until
+                FROM document d JOIN supply_step s ON s.id = d.step_id
+                WHERE d.company_id = :me AND d.review_status = 'VERIFIED' AND d.valid_until IS NOT NULL
+                  AND d.doc_type IN (:types) AND s.supplier_company_id IN (:suppliers)
+                GROUP BY s.supplier_company_id, d.doc_type
+                """, Map.of("me", companyId,
+                        "types", java.util.Arrays.stream(DocType.values()).filter(DocType::isCertificate)
+                                .map(Enum::name).toList(),
+                        "suppliers", suppliers.stream().map(SupplierResponse::id).toList()),
+                rs -> {
+                    LocalDate until = rs.getObject("valid_until", LocalDate.class);
+                    bySupplier.computeIfAbsent(rs.getObject("supplier_id", UUID.class), k -> new ArrayList<>())
+                            .add(new SupplierCertificate(DocType.valueOf(rs.getString("doc_type")), until,
+                                    until.isBefore(today)));
+                });
+        return suppliers.stream().map(r -> {
+            List<SupplierCertificate> own = new ArrayList<>(bySupplier.getOrDefault(r.id(), List.of()));
+            own.sort(java.util.Comparator.comparing(SupplierCertificate::type));
+            return new SupplierResponse(r.id(), r.name(), r.type(), r.city(), r.phone(), r.batchCount(),
+                    r.latestStepStatus(), r.latestStepAt(), r.editable(), r.linkedAt(), own);
+        }).toList();
     }
 
     private static Map<String, Object> params(UUID companyId, @Nullable CompanyType type, @Nullable String q,
@@ -211,7 +255,8 @@ public class SupplierService {
                 status == null ? null : StepStatus.valueOf(status),
                 rs.getTimestamp("latest_at") == null ? null : rs.getTimestamp("latest_at").toInstant(),
                 rs.getBoolean("editable"),
-                rs.getTimestamp("linked_at").toInstant());
+                rs.getTimestamp("linked_at").toInstant(),
+                List.of());
     }
 
     private static void requireSupplierType(CompanyType type) {

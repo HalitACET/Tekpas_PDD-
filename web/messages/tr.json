@@ -708,7 +708,7 @@
       "batches": "Parti",
       "status": "Durum"
     },
-    "noCertificates": "Sertifikalar belgelerle birlikte gelecek",
+    "noCertificates": "Onaylı sertifika yok",
     "noStatus": "Henüz adım yok",
     "noPhone": "Telefon yok",
     "listError": "Tedarikçiler yüklenemedi",
@@ -763,6 +763,18 @@
       "cancel": "Vazgeç",
       "confirm": "Bağı kaldır",
       "failed": "Bağ kaldırılamadı"
+    },
+    "certificate": {
+      "types": {
+        "OEKO_TEX": "OEKO-TEX",
+        "GOTS": "GOTS",
+        "GRS": "GRS",
+        "BCI": "BCI",
+        "OCS": "OCS",
+        "BLUESIGN": "bluesign"
+      },
+      "valid": "{type} · onaylı, geçerli",
+      "expired": "{type} · süresi doldu ({date})"
     }
   },
   "tasks": {

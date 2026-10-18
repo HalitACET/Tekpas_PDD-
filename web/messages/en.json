@@ -708,7 +708,7 @@
       "batches": "Batches",
       "status": "Status"
     },
-    "noCertificates": "Certificates arrive with documents",
+    "noCertificates": "No confirmed certificate",
     "noStatus": "No step yet",
     "noPhone": "No phone",
     "listError": "Suppliers could not be loaded",
@@ -763,6 +763,18 @@
       "cancel": "Cancel",
       "confirm": "Remove link",
       "failed": "The link could not be removed"
+    },
+    "certificate": {
+      "types": {
+        "OEKO_TEX": "OEKO-TEX",
+        "GOTS": "GOTS",
+        "GRS": "GRS",
+        "BCI": "BCI",
+        "OCS": "OCS",
+        "BLUESIGN": "bluesign"
+      },
+      "valid": "{type} · confirmed, valid",
+      "expired": "{type} · expired ({date})"
     }
   },
   "tasks": {

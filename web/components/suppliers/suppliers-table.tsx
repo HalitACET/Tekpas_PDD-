@@ -2,7 +2,7 @@
 
 import { formatPhone, type StepStatus } from "@tekpas/shared";
 import { Ellipsis, Pencil, Unlink } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { StepStatusBadge } from "@/components/common/step-status-badge";
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,8 @@ export function SupplierRow({
   const t = useTranslations("suppliers");
   const tType = useTranslations("enums.companyType");
   const tCommon = useTranslations("common");
+  const tCert = useTranslations("suppliers.certificate");
+  const locale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuLabel = `${t("rowMenu.label")}: ${supplier.name}`;
 
@@ -88,9 +90,31 @@ export function SupplierRow({
       <span role="cell" className="font-mono text-xs">
         {supplier.phone ? formatPhone(supplier.phone) : <Missing reason={t("noPhone")} />}
       </span>
-      <span role="cell">
-        {/* Certificates arrive with documents (M5). */}
-        <Missing reason={t("noCertificates")} />
+      <span role="cell" className="flex flex-wrap gap-1">
+        {supplier.certificates.length === 0 ? (
+          <Missing reason={t("noCertificates")} />
+        ) : (
+          // Design v0.5 61: confirmed certificate types; red when none of the type is still valid.
+          supplier.certificates.map((c) => {
+            const name = tCert(`types.${c.type}` as "types.GOTS");
+            const until = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit", year: "numeric" }).format(
+              new Date(`${c.validUntil}T00:00:00`),
+            );
+            return (
+              <span
+                key={c.type}
+                role="img"
+                aria-label={c.expired ? tCert("expired", { type: name, date: until }) : tCert("valid", { type: name })}
+                title={c.expired ? tCert("expired", { type: name, date: until }) : tCert("valid", { type: name })}
+                className={`rounded-[4px] px-1.5 py-0.5 text-[11px] font-medium ${
+                  c.expired ? "bg-status-rejected-muted text-status-rejected-foreground" : "bg-muted"
+                }`}
+              >
+                {name}
+              </span>
+            );
+          })
+        )}
       </span>
       <span role="cell" className={`pr-5 text-right tabular-nums ${supplier.batchCount ? "" : "text-muted-foreground"}`}>
         {supplier.batchCount}
