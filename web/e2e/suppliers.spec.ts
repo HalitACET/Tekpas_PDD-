@@ -18,6 +18,16 @@ const row = (page: Page, name: string) => page.getByRole("row", { name: new RegE
 const menu = (page: Page, name: string) => page.getByRole("button", { name: `Satır menüsü: ${name}` });
 const dialog = (page: Page, name: string) => page.getByRole("dialog", { name });
 
+test("an expired certificate is red and says when it ended", async ({ page }) => {
+  await openSuppliers(page);
+  const boya = row(page, "Çınar Boya Apre");
+  await expect(boya.getByRole("cell").nth(4)).toHaveText("OEKO-TEXbluesign");
+  const expired = boya.getByRole("img", { name: "OEKO-TEX · süresi doldu (15.10.2026)" });
+  await expect(expired).toBeVisible();
+  await expect(expired).toHaveClass(/status-rejected/);
+  await expect(boya.getByRole("img", { name: "bluesign · onaylı, geçerli" })).not.toHaveClass(/status-rejected/);
+});
+
 test("lists the network with type, city, phone, batch count and the latest step status", async ({ page }) => {
   await openSuppliers(page);
 
@@ -27,8 +37,10 @@ test("lists the network with type, city, phone, batch count and the latest step 
   await expect(bursa).toContainText("+90 224 000 00 01");
   await expect(bursa).toContainText("9");
   await expect(bursa).toContainText("Onaylandı");
-  // Certificates come with documents (M5); a supplier without steps has no status.
-  await expect(bursa.getByRole("cell").nth(4)).toHaveText("—Sertifikalar belgelerle birlikte gelecek");
+  // Confirmed certificate types (design v0.5 61); a supplier without steps has no status.
+  await expect(bursa.getByRole("cell").nth(4)).toHaveText("OEKO-TEXGOTS");
+  await expect(bursa.getByRole("img", { name: "OEKO-TEX · onaylı, geçerli" })).toBeVisible();
+  await expect(row(page, "Ege Fason Dikim").getByRole("cell").nth(4)).toHaveText("—Onaylı sertifika yok");
   await expect(row(page, "Ege Fason Dikim").getByRole("cell").nth(6)).toHaveText("—Henüz adım yok");
   await expect(page.getByText("10 tedarikçi")).toBeVisible();
 

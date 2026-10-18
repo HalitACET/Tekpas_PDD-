@@ -691,7 +691,7 @@
       "batches": "Chargen",
       "status": "Status"
     },
-    "noCertificates": "Zertifikate kommen mit den Dokumenten",
+    "noCertificates": "Kein bestätigtes Zertifikat",
     "noStatus": "Noch kein Schritt",
     "noPhone": "Kein Telefon",
     "listError": "Lieferanten konnten nicht geladen werden",
@@ -746,6 +746,18 @@
       "cancel": "Abbrechen",
       "confirm": "Verknüpfung entfernen",
       "failed": "Die Verknüpfung konnte nicht entfernt werden"
+    },
+    "certificate": {
+      "types": {
+        "OEKO_TEX": "OEKO-TEX",
+        "GOTS": "GOTS",
+        "GRS": "GRS",
+        "BCI": "BCI",
+        "OCS": "OCS",
+        "BLUESIGN": "bluesign"
+      },
+      "valid": "{type} · bestätigt, gültig",
+      "expired": "{type} · abgelaufen ({date})"
     }
   },
   "tasks": {

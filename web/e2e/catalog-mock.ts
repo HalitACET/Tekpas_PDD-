@@ -322,6 +322,8 @@ export interface MockSupplier {
   latestStepAt: string | null;
   editable: boolean;
   linkedAt: string;
+  /** The confirmed certificate types (design v0.5 61); `expired` as the API decides it. */
+  certificates: { type: string; validUntil: string; expired: boolean }[];
   /** Mock only: the design batches (by number) whose chain uses this supplier. */
   batchNos: string[];
 }
@@ -331,6 +333,17 @@ export interface MockSupplier {
  * design's sample numbers. "Ekin Aksesuar" has its own account (not editable).
  */
 const LATEST_DAY: Record<number, number> = { 1: 16, 2: 16, 3: 15, 4: 19, 5: 8, 6: 14, 7: 2, 9: 10, 10: 1 };
+
+/** Design v0.5 61 (SMETA is not a document type of M5 and stays out). */
+const cert = (type: string, validUntil: string, expired = false) => ({ type, validUntil, expired });
+const CERTIFICATES: Record<string, MockSupplier["certificates"]> = {
+  "Bursa İplik San.": [cert("OEKO_TEX", "2027-03-31"), cert("GOTS", "2027-03-31")],
+  "Denizli Örme Tekstil": [cert("GOTS", "2027-03-31")],
+  "Çınar Boya Apre": [cert("OEKO_TEX", "2026-10-15", true), cert("BLUESIGN", "2027-06-30")],
+  "Lale Konfeksiyon": [cert("OEKO_TEX", "2027-02-11")],
+  "Ekin Aksesuar": [cert("OEKO_TEX", "2026-09-30", true)],
+  "Uşak Kumaş Dokuma": [cert("GRS", "2027-01-14")],
+};
 
 export function designSuppliers(): MockSupplier[] {
   const s = (
@@ -354,6 +367,7 @@ export function designSuppliers(): MockSupplier[] {
     latestStepAt: latestStepStatus ? at(8, LATEST_DAY[n] ?? 1, 10) : null,
     editable,
     linkedAt: at(6, n),
+    certificates: CERTIFICATES[name] ?? [],
     batchNos,
   });
   return [
@@ -758,6 +772,7 @@ export async function mockCatalogApi(
         latestStepAt: null,
         editable: true,
         linkedAt: new Date().toISOString(),
+        certificates: [],
         batchNos: [],
       };
       suppliers.push(created);
