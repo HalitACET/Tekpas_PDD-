@@ -6,7 +6,7 @@ Kök `CLAUDE.md` kuralları burada da geçerli. Bu dosya sadece backend'e özgü
 
 ```
 com.tekpas
-├── common/        ProblemDetail handler, CurrentUser, sayfalama, audit, S3 storage
+├── common/        ProblemDetail handler, CurrentUser, sayfalama, audit, dosya depolama (`storage/`: Supabase REST, yerel, kapalı)
 ├── auth/          login, refresh (rotation), logout, JWT filtresi, şifre hash
 ├── company/       firma, kullanıcı, tedarikçi ağı
 ├── product/

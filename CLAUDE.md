@@ -16,7 +16,7 @@ Ayrıntılı plan, kararlar ve kilometre taşları: `docs/PLAN.md`. Her işe ba�
 | `packages/api-client/` | Backend'in OpenAPI çıktısından üretilen TS client (openapi-typescript + openapi-fetch). `openapi.json` ve `src/generated/` **otomatik üretilir**, elle düzenlenmez; `src/client.ts` elle yazılır. |
 | `packages/shared/` | Ortak Zod şemaları, sabitler, çeviri dosyaları |
 | DB | PostgreSQL 16 (local Docker, prod Neon) |
-| Dosya | S3 API (local MinIO, prod Supabase Storage (S3)) |
+| Dosya | `FileStorage` arayüzü: prod Supabase Storage (REST, `RestClient`), local `backend/.storage` (MinIO ve AWS SDK yok) |
 | AI | Google Gemini API, `AiClient` arayüzünün arkasında |
 | Deploy | Render (backend), Vercel (web), Neon (DB), Supabase Storage (S3), Expo EAS / Expo Go. **Hepsi ücretsiz katman.** |
 
@@ -25,7 +25,7 @@ JS tarafı pnpm workspaces ile yönetilir. Backend Maven ile ayrı çalışır.
 ## Komutlar
 
 ```bash
-docker compose -f infra/docker-compose.yml up -d   # Postgres :5433, MinIO :9000/:9001
+docker compose -f infra/docker-compose.yml up -d   # Postgres :5433
 cd backend && ./mvnw spring-boot:run                # API :8080, Swagger: /swagger-ui.html
 cd backend && ./mvnw verify                         # testler (Testcontainers, Docker açık olmalı)
 pnpm --filter api-client generate                   # openapi.json -> TS client (openapi.json'u ./mvnw verify üretir)

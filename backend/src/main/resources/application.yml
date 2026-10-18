@@ -67,3 +67,11 @@ tekpas:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:}
   demo:
     password: ${DEMO_PASSWORD:}
+  storage:
+    # none: the application starts and document uploads answer 503 (production until the Supabase project exists).
+    # local: files under local-dir (development). supabase: Supabase Storage over REST (see docs/DEPLOY.md).
+    provider: ${STORAGE_PROVIDER:none}
+    supabase:
+      url: ${STORAGE_SUPABASE_URL:}
+      service-key: ${STORAGE_SUPABASE_SERVICE_KEY:}
+      bucket: ${STORAGE_BUCKET:}
