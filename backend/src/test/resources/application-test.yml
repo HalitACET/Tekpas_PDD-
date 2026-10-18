@@ -11,3 +11,5 @@ tekpas:
     trusted-proxies: 1
   demo:
     password: test-demo-password
+  jobs:
+    worker-enabled: false

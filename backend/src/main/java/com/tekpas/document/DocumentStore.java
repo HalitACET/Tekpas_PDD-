@@ -4,6 +4,8 @@ import com.tekpas.common.storage.FileStorage;
 import com.tekpas.common.storage.StorageException;
 import com.tekpas.document.FileInspector.InspectedFile;
 import com.tekpas.common.error.ConflictException;
+import com.tekpas.jobs.JobQueue;
+import com.tekpas.jobs.JobType;
 import com.tekpas.request.StepEventKind;
 import com.tekpas.request.StepEvents;
 import java.time.Clock;
@@ -22,8 +24,8 @@ import org.springframework.transaction.support.TransactionTemplate;
  * Writes one accepted upload: the object first, then the row, with the object removed again if the row cannot be
  * written. The 10 MB transfer to the storage happens outside any transaction (a Hikari connection and a row
  * lock must not wait on a slow network), so the caller's rules run twice: once before the transfer and again,
- * under the locks, right before the row is inserted. A crash between the two steps leaves an unreferenced
- * object; the cleanup job (M5 T3) sweeps those.
+ * under the locks, right before the row is inserted. A crash between the two steps leaves an object no row
+ * refers to; the storage cannot list its objects, so it stays (rare, harmless, see docs/PLAN.md M5 T3).
  */
 @Component
 class DocumentStore {
@@ -38,14 +40,16 @@ class DocumentStore {
     private final FileStorage storage;
     private final DocumentRepository documents;
     private final StepEvents events;
+    private final JobQueue jobs;
     private final Clock clock;
     private final TransactionTemplate tx;
 
-    DocumentStore(FileStorage storage, DocumentRepository documents, StepEvents events, Clock clock,
+    DocumentStore(FileStorage storage, DocumentRepository documents, StepEvents events, JobQueue jobs, Clock clock,
             PlatformTransactionManager transactions) {
         this.storage = storage;
         this.documents = documents;
         this.events = events;
+        this.jobs = jobs;
         this.clock = clock;
         this.tx = new TransactionTemplate(transactions);
     }
@@ -71,6 +75,8 @@ class DocumentStore {
                 events.record(now.stepId(), now.requestId(), StepEventKind.DOCUMENT_UPLOADED, now.uploadedBy(),
                         now.uploadedByName(), Map.of("documentId", id.toString(), "docType", docType.name(),
                                 "source", saved.source().name()));
+                // Same transaction: no row, no job; the worker starts right after the commit.
+                jobs.enqueue(JobType.AI_EXTRACT_DOCUMENT, new ExtractDocument(id));
                 return saved;
             });
         } catch (DataIntegrityViolationException e) {

@@ -103,6 +103,9 @@ class DocumentApiTest {
                         + "AND kind = 'DOCUMENT_UPLOADED'", s.yarnStep());
         assertThat(event.get("actor_user_id").toString()).isEqualTo(owner.user().getId().toString());
         assertThat((String) event.get("detail")).contains(id).contains("PANEL");
+
+        assertThat(jdbc.queryForObject("SELECT status FROM job WHERE type = 'AI_EXTRACT_DOCUMENT' "
+                + "AND payload->>'documentId' = ?", String.class, id)).isEqualTo("QUEUED");
     }
 
     @Test

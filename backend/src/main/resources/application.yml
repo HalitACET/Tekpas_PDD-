@@ -85,3 +85,6 @@ tekpas:
       url: ${STORAGE_SUPABASE_URL:}
       service-key: ${STORAGE_SUPABASE_SERVICE_KEY:}
       bucket: ${STORAGE_BUCKET:}
+  jobs:
+    # Background jobs (K9). Tests switch the worker thread off and run the jobs themselves (JobWorker.runPending).
+    worker-enabled: ${JOBS_WORKER_ENABLED:true}
