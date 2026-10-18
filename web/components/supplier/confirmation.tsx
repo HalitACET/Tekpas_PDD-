@@ -1,7 +1,8 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, File } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 import type { PublicRequestView, PublicSubmitResponse } from "@/lib/api/public-request";
 import { fiberText, formatPercent } from "@/lib/format";
 import { energyUnit, parsePercent, sectionsFor, type SubmissionValues } from "@/lib/supplier-request/form";
@@ -12,11 +13,14 @@ export function Confirmation({
   view,
   response,
   values,
+  documents,
   stepName,
 }: {
   view: PublicRequestView;
   response: PublicSubmitResponse;
   values: SubmissionValues;
+  /** The names of the documents uploaded through the link (nothing else about them is shown). */
+  documents: string[];
   stepName: string;
 }) {
   const t = useTranslations("supplier.done");
@@ -32,7 +36,7 @@ export function Confirmation({
   const has = (id: (typeof sections)[number]) => sections.includes(id);
   const country = (code: string) => new Intl.DisplayNames([locale], { type: "region" }).of(code) ?? code;
   const text = (value: string) => value.trim();
-  const rows: { label: string; value: string }[] = [];
+  const rows: { label: string; value: ReactNode; top?: boolean }[] = [];
   const add = (label: string, value: string | undefined | false) => {
     if (value) rows.push({ label, value });
   };
@@ -70,6 +74,24 @@ export function Confirmation({
     const spinning = values.yarnProcess ? tYarn(values.yarnProcess) : "";
     add(t("rows.yarn"), [text(values.yarnCount) && `Ne ${text(values.yarnCount)}`, spinning].filter(Boolean).join(" · "));
   }
+  if (documents.length > 0) {
+    rows.push({
+      label: t("rows.documents", { count: documents.length }),
+      top: true,
+      value: (
+        <ul className="flex min-w-0 flex-col items-end gap-1.5">
+          {documents.map((name) => (
+            <li key={name} className="flex max-w-full items-center gap-1.5 font-mono text-[13px] font-normal">
+              <File className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} aria-hidden />
+              <span dir="auto" className="truncate">
+                {name}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ),
+    });
+  }
   add(t("rows.sender"), [text(values.submitterName), text(values.submitterRole)].filter(Boolean).join(" · "));
 
   return (
@@ -86,7 +108,7 @@ export function Confirmation({
       <FactList
         title={<h2 className="text-sm font-semibold">{t("summary", { step: stepName })}</h2>}
         trailing={<span className="font-mono text-xs text-muted-foreground">{t("code", { code: response.code })}</span>}
-        rows={rows.map((r) => ({ label: r.label, value: r.value }))}
+        rows={rows}
       />
       <section className="flex flex-col gap-2 text-sm leading-[1.55]">
         <h2 className="font-semibold">{t("nextTitle")}</h2>

@@ -59,9 +59,10 @@ test("40b → 43: an empty form shows its errors and focuses the first; a filled
 
   await expect(heading(page)).toHaveText("İplik verileri");
   await expect(page.getByText("Tüm alanlar zorunludur, aksi belirtilmedikçe.")).toBeVisible();
-  // The documents' place is there but closed until M5.
-  await expect(page.getByRole("region", { name: "Belgeler" })).toContainText("Yakında");
-  await expect(page.getByRole("button", { name: "Belge yükle" })).toBeDisabled();
+  // The documents' place is open since M5 (design v0.5 49): empty, optional, nothing uploaded yet.
+  await expect(page.getByRole("region", { name: "Belgeler" })).toContainText("0 / 5");
+  await expect(page.getByRole("region", { name: "Belgeler" })).not.toContainText("Yakında");
+  await expect(page.getByRole("button", { name: "Belge yükle" })).toBeEnabled();
 
   await page.getByRole("button", { name: "Gönder" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "alanda hata var" })).toContainText("3 alanda hata var. İlk hatalı alana gidildi.");
