@@ -19,6 +19,10 @@ public final class ProblemTypes {
     public static final URI LINK_INVALID = of("link-invalid");
     /** A data request link that expired, was revoked or was used (410, design v0.4 44). */
     public static final URI LINK_GONE = of("link-gone");
+    /** No file storage provider is configured (503). */
+    public static final URI STORAGE_UNAVAILABLE = of("storage-unavailable");
+    /** The file storage provider failed (502). */
+    public static final URI STORAGE_FAILED = of("storage-failed");
     public static final URI TOO_MANY_REQUESTS = of("too-many-requests");
 
     private ProblemTypes() {

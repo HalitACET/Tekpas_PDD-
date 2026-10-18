@@ -2,6 +2,9 @@ package com.tekpas.request;
 
 import com.tekpas.common.web.ClientIp;
 import com.tekpas.common.web.RateLimiter;
+import com.tekpas.document.PublicDocumentService;
+import com.tekpas.document.dto.PublicDocument;
+import java.util.UUID;
 import com.tekpas.request.dto.PublicRequestView;
 import com.tekpas.request.dto.PublicSubmitRequest;
 import com.tekpas.request.dto.PublicSubmitResponse;
@@ -15,13 +18,19 @@ import jakarta.validation.Valid;
 import java.time.Duration;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * The supplier's page (design v0.4 39–45) without an account. The token travels in the X-Request-Token header,
@@ -41,6 +50,8 @@ public class PublicRequestController {
     static final int PER_IP_PER_MINUTE = 30;
     static final int INVALID_PER_IP_PER_MINUTE = 10;
     static final int SUBMITS_PER_TOKEN_PER_HOUR = 10;
+    /** Uploads per token; rejected files count too. A link also takes at most 5 documents (PublicDocumentService). */
+    static final int UPLOADS_PER_TOKEN_PER_HOUR = 20;
     static final int OPENS_PER_TOKEN_PER_MINUTE = 60;
     /** All requests together, when the client IP is unknown. */
     static final int GENERAL_PER_MINUTE = 600;
@@ -48,11 +59,14 @@ public class PublicRequestController {
     static final int GENERAL_INVALID_PER_MINUTE = 100;
 
     private final PublicRequestService service;
+    private final PublicDocumentService documents;
     private final RateLimiter limiter;
     private final ClientIp clientIp;
 
-    public PublicRequestController(PublicRequestService service, RateLimiter limiter, ClientIp clientIp) {
+    public PublicRequestController(PublicRequestService service, PublicDocumentService documents, RateLimiter limiter,
+            ClientIp clientIp) {
         this.service = service;
+        this.documents = documents;
         this.limiter = limiter;
         this.clientIp = clientIp;
     }
@@ -94,6 +108,51 @@ public class PublicRequestController {
                 limiter.hit("submit", RequestTokens.hash(token), SUBMITS_PER_TOKEN_PER_HOUR, Duration.ofHours(1));
             }
             return service.submit(token, body);
+        });
+    }
+
+    @PostMapping(path = "/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(operationId = "uploadPublicDocument", summary = "Add a certificate or technical sheet to the step",
+            description = "PDF, JPG or PNG, up to 10 MB (PDF up to 20 pages, not encrypted); at most 5 per link, 20 "
+                    + "uploads per hour. The answer says nothing about reading: the supplier only sees that it "
+                    + "is uploaded (design v0.5 51-53).")
+    @ApiResponse(responseCode = "201", description = "Uploaded")
+    @ApiResponse(responseCode = "400", description = "The file is refused: field file, code FileEmpty, "
+            + "FileEncrypted, FileCorrupt, FilePages or FileDimensions")
+    @ApiResponse(responseCode = "404", description = "Unknown link (LINK_INVALID)")
+    @ApiResponse(responseCode = "409", description = "DUPLICATE_DOCUMENT or DOCUMENT_LIMIT")
+    @ApiResponse(responseCode = "410", description = "Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED)")
+    @ApiResponse(responseCode = "413", description = "Larger than 10 MB (field file, code FileTooLarge)")
+    @ApiResponse(responseCode = "415", description = "Not a PDF, JPG or PNG (field file, code FileType)")
+    @ApiResponse(responseCode = "429", description = "Too many requests (Retry-After)")
+    @ApiResponse(responseCode = "502", description = "The file storage failed")
+    @ApiResponse(responseCode = "503", description = "File storage is not configured")
+    public ResponseEntity<PublicDocument> uploadPublicDocument(HttpServletRequest http,
+            @Parameter(in = ParameterIn.HEADER, name = TOKEN_HEADER, required = true)
+            @RequestHeader(name = TOKEN_HEADER, required = false) @Nullable String token,
+            @RequestPart("file") MultipartFile file) {
+        return limited(http, () -> {
+            if (token != null && RequestTokens.wellFormed(token)) {
+                limiter.hit("upload", RequestTokens.hash(token), UPLOADS_PER_TOKEN_PER_HOUR, Duration.ofHours(1));
+            }
+            return ResponseEntity.status(HttpStatus.CREATED).body(documents.upload(token, file));
+        });
+    }
+
+    @DeleteMapping("/documents/{id}")
+    @Operation(operationId = "deletePublicDocument", summary = "Remove a document uploaded through this link",
+            description = "Only the link's own uploads, and only before the form is submitted.")
+    @ApiResponse(responseCode = "204", description = "Removed")
+    @ApiResponse(responseCode = "404", description = "Unknown link (LINK_INVALID) or no such document on this link")
+    @ApiResponse(responseCode = "410", description = "Closed link (LINK_EXPIRED, LINK_REVOKED, ALREADY_SUBMITTED)")
+    @ApiResponse(responseCode = "429", description = "Too many requests (Retry-After)")
+    public ResponseEntity<Void> deletePublicDocument(HttpServletRequest http,
+            @Parameter(in = ParameterIn.HEADER, name = TOKEN_HEADER, required = true)
+            @RequestHeader(name = TOKEN_HEADER, required = false) @Nullable String token,
+            @PathVariable UUID id) {
+        return limited(http, () -> {
+            documents.remove(token, id);
+            return ResponseEntity.noContent().build();
         });
     }
 

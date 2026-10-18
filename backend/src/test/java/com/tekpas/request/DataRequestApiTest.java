@@ -307,7 +307,7 @@ class DataRequestApiTest {
             JsonNode view = fixtures.body(result);
             assertThat(view.properties().stream().map(Map.Entry::getKey)).containsExactlyInAnyOrder("code",
                     "manufacturerName", "requesterName", "productName", "batchNo", "stepType", "expiresAt", "data",
-                    "rejection");
+                    "rejection", "documents");
             assertThat(view.path("stepType").asString()).isEqualTo("YARN");
             assertThat(view.path("productName").asString()).isEqualTo("Organik tişört");
             assertThat(view.path("requesterName").asString()).isEqualTo(s.tenant().user().getFullName());

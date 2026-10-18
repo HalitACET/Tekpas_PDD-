@@ -12,13 +12,14 @@ import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Full application against Testcontainers Postgres, driven through MockMvc (security filters included).
- * Provides {@link TestFixtures} and a {@link MutableClock}.
+ * Provides {@link TestFixtures}, a {@link MutableClock} and an in-memory {@link FakeFileStorage}.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import({TestcontainersConfiguration.class, TestClockConfiguration.class, TestFixtures.class})
+@Import({TestcontainersConfiguration.class, TestClockConfiguration.class, TestStorageConfiguration.class,
+        TestFixtures.class})
 @ActiveProfiles("test")
 public @interface IntegrationTest {
 }

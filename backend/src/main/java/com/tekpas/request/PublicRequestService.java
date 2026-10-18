@@ -6,6 +6,8 @@ import com.tekpas.batch.BatchRepository;
 import com.tekpas.company.AppUser;
 import com.tekpas.company.AppUserRepository;
 import com.tekpas.company.CompanyRepository;
+import com.tekpas.document.DocumentRepository;
+import com.tekpas.document.dto.PublicDocument;
 import com.tekpas.product.ProductRepository;
 import com.tekpas.request.dto.LinkContext;
 import com.tekpas.request.dto.PublicRejection;
@@ -18,6 +20,7 @@ import com.tekpas.supplychain.SupplyStep;
 import com.tekpas.supplychain.SupplyStepRepository;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
@@ -39,11 +42,12 @@ public class PublicRequestService {
     private final AppUserRepository users;
     private final BatchProgress progress;
     private final StepEvents events;
+    private final DocumentRepository documents;
     private final Clock clock;
 
     public PublicRequestService(DataRequestRepository requests, SupplyStepRepository steps, BatchRepository batches,
             ProductRepository products, CompanyRepository companies, AppUserRepository users, BatchProgress progress,
-            StepEvents events, Clock clock) {
+            StepEvents events, DocumentRepository documents, Clock clock) {
         this.requests = requests;
         this.steps = steps;
         this.batches = batches;
@@ -52,6 +56,7 @@ public class PublicRequestService {
         this.users = users;
         this.progress = progress;
         this.events = events;
+        this.documents = documents;
         this.clock = clock;
     }
 
@@ -73,7 +78,31 @@ public class PublicRequestService {
                 : null;
         return new PublicRequestView(RequestTokens.code(request.getId()), link.manufacturerName(),
                 link.requesterName(), link.productName(), link.batch().getBatchNo(), step.getStepType(),
-                request.getExpiresAt(), step.getData(), rejection);
+                request.getExpiresAt(), step.getData(), rejection, documentsOf(step, request));
+    }
+
+    /** What an upload through the link may touch: the open link, its step (still fillable) and the owner company. */
+    public record OpenLink(DataRequest request, SupplyStep step, UUID companyId, @Nullable UUID supplierCompanyId) {
+    }
+
+    /**
+     * The link of {@code token} when it can still take uploads: row-locked (so an upload and the submission cannot
+     * interleave), not expired, revoked or submitted. Call it inside a transaction.
+     */
+    public OpenLink requireOpen(@Nullable String token) {
+        DataRequest request = find(token);
+        Link link = link(request);
+        ensureOpen(request, link);
+        SupplyStep step = steps.lockById(request.getStepId()).orElseThrow(LinkClosedException::invalid);
+        if (step.getStatus() != StepStatus.PENDING && step.getStatus() != StepStatus.REJECTED) {
+            throw LinkClosedException.submitted(link.context(request));
+        }
+        return new OpenLink(request, step, link.batch().getCompanyId(), step.getSupplierCompanyId());
+    }
+
+    private List<PublicDocument> documentsOf(SupplyStep step, DataRequest request) {
+        return documents.findByStepIdAndRequestIdIsNotNullOrderByCreatedAtAsc(step.getId()).stream()
+                .map(d -> PublicDocument.from(d, request.getId())).toList();
     }
 
     /** One submission per link; the step becomes SUBMITTED and waits for the manufacturer (47a). */

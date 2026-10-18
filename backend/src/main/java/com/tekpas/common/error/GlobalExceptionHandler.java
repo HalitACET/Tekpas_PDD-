@@ -1,7 +1,10 @@
 package com.tekpas.common.error;
 
 import jakarta.validation.ConstraintViolation;
+import com.tekpas.common.storage.StorageException;
+import com.tekpas.common.storage.StorageUnavailableException;
 import com.tekpas.common.web.RequestId;
+import com.tekpas.document.UploadRejectedException;
 import com.tekpas.request.LinkClosedException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import tools.jackson.core.JacksonException;
@@ -65,6 +69,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                 .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.retryAfterSeconds()))
                 .body(handleApiException(ex));
+    }
+
+    /** 503 while no storage provider is configured, 502 when the provider itself failed (the message has no secrets). */
+    @ExceptionHandler(StorageException.class)
+    ProblemDetail handleStorage(StorageException ex) {
+        if (ex instanceof StorageUnavailableException) {
+            return problem(HttpStatus.SERVICE_UNAVAILABLE, ProblemTypes.STORAGE_UNAVAILABLE, "Service unavailable",
+                    "File storage is not available");
+        }
+        log.error("File storage failed: {}", ex.getMessage());
+        return problem(HttpStatus.BAD_GATEWAY, ProblemTypes.STORAGE_FAILED, "Bad gateway", "File storage failed");
+    }
+
+    /** An upload over the multipart limit (10 MB) answers like the inspector's own rejection: field file. */
+    @Override
+    protected @Nullable ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex,
+            HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        UploadRejectedException rejected = UploadRejectedException.tooLarge();
+        return handleExceptionInternal(ex, handleApiException(rejected), headers, rejected.status(), request);
     }
 
     // Method security failures surface in MVC, not in the security filter chain.
