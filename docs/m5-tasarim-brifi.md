@@ -6,15 +6,17 @@ Belge yükleme ve belge okuma. v0.4'ün dili, token'ları ve bileşenleri korunu
 
 ## A. Tedarikçi sayfası `/r` (v0.4 42'nin yerine)
 
+**Karar (PR #32): tedarikçi okunan değerleri ve okuma sonucunu görmez.** Bu bölümde yalnızca **yükleme durumları** çizilir: yükleniyor, yüklendi, hata, tür/boyut reddi, limit doldu. Okuma sonucu durumları (okunuyor, okundu, düşük güven, okunamadı, okuma hatası, tespit edilen tür, alan değerleri, güven yüzdesi) tedarikçi ekranlarında **hiç yok**; bunlar yalnızca B (panel) bölümünde. Tedarikçi açısından belge "Yüklendi"de kalır, arkada okunup okunmadığı ona gösterilmez.
+
 1. **Belgeler bölümü, boş:** 42'deki kutu açık; "Belge yükle" (dosya seç; telefonda kamera / dosyalar seçimi tarayıcıdan gelir), tür ipucu (GOTS · OEKO-TEX · teknik föy), biçim ve boyut satırı. "İsteğe bağlı" etiketi kalır.
 2. **Yükleniyor:** dosya satırında ilerleme çubuğu, yüzde, "İptal".
-3. **Yüklendi:** dosya satırı (ad, boyut, tür simgesi, "Kaldır"); birden fazla belge listesi; 5. belgeden sonra yükleme düğmesi kapalı + neden.
-4. **Hatalar (satır içi, dosya satırında):** desteklenmeyen biçim, 10 MB'ı aşıyor, aynı belge zaten yüklendi, şifreli veya bozuk PDF, 20 sayfayı aşıyor, belge sınırı doldu, çok fazla deneme (429), bağlantı koptu + "Tekrar dene".
-5. **Demo uyarısı:** AI okuma açıkken bölümün üstünde tek satırlık not: "Demo ortamı: gerçek belge yüklemeyin."
+3. **Yüklendi:** dosya satırı (ad, boyut, tür simgesi, "Kaldır"); birden fazla belge listesi; 5. belgeden sonra yükleme düğmesi kapalı + neden ("Limit doldu: en fazla 5 belge"). Satırda yalnızca "Yüklendi" bilgisi var; okuma durumu veya alan değeri yok. Gönderimden sonra "Kaldır" yok.
+4. **Hatalar (satır içi, dosya satırında; hepsi yükleme anında sunucunun reddi):** desteklenmeyen biçim (yalnızca PDF, JPG, PNG), 10 MB'ı aşıyor, aynı belge zaten yüklendi, şifreli veya bozuk PDF, 20 sayfayı aşıyor, belge sınırı doldu, çok fazla deneme (429), bağlantı koptu + "Tekrar dene".
+5. **Demo uyarısı:** AI okuma (LLM) açıkken bölümün üstünde tek satırlık not: "Demo ortamı: gerçek belge yüklemeyin." LLM kapalıyken (prod varsayılanı) görünmez; ayrı bir durum olarak çizilir.
 6. **Gönderildi (43):** özetin içinde yüklenen belgelerin adları.
 7. **Düzeltme (45):** gerekçe "Belge okunaksız" veya "Sertifika süresi dolmuş" ise Belgeler bölümü işaretli; önceki belgeler salt okunur "Önceki gönderim" altında, yeni belge eklenebilir.
 
-Tedarikçi okunan değerleri görmez (açık karar 1; aksi karar çıkarsa B2'nin mobil hali eklenir).
+**A'da çizilmeyecekler:** okunuyor / okundu / düşük güven / okunamadı / okuma hatası çipleri, sertifika no, sahibi ve tarihler, güven yüzdesi, belge türü önerisi, "AI" rozeti.
 
 ## B. Panel
 
@@ -29,6 +31,7 @@ Tedarikçi okunan değerleri görmez (açık karar 1; aksi karar çıkarsa B2'ni
    - g. sertifika süresi dolmuş (bitiş tarihi geçmişte: kırmızı uyarı, onay yine mümkün)
    - h. yetkisiz rol (EDITOR/VIEWER: form salt okunur, "Onay için yönetici yetkisi gerekir")
    - Düğmeler: "Onayla", "Vazgeç"; kaydedilmemiş değişiklikle kapatma onayı.
+   - **Elle giriş birinci sınıf akıştır** (d ve e): okuma çalışmasa da (LLM kapalı, taranmış belge, hata) alanlar elle doldurulup onaylanır; "AI" rozeti yalnızca LLM kullanıldıysa görünür, kural yolunda "Belgeden". Demo yedek planı buna dayanır (`docs/m5-plan.md` §8).
 3. **Panelden yükleme:** düğüm panelinde "Belge yükle" + sürükle bırak alanı; A2–A4'ün masaüstü hali.
 4. **Zincir düğümü:** belge simgesi ve sayısı (M3'te gizli bırakıldı), okunmayı bekleyen belge için nokta.
 5. **47b red seçenekleri:** "Belge okunaksız", "Sertifika süresi dolmuş" açılır (M4'te gizliydi).
