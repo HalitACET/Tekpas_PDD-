@@ -123,6 +123,15 @@ Uygulama kuralları:
 - 55'teki "Önceki gönderim" belgeleri salt okunur: `PublicDocument.previous = true`. Yeni linkle yüklenenler silinebilir (gönderimden önce).
 - Not: dizin adı `impl-v0.5` tasarım dışa aktarımını içeriyor (önceki sürümlerde tasarım `v0.4/`, ekran görüntüleri `impl-v0.4/`). Web PR'larında ekran görüntüleri `impl-v0.5/` yerine `impl-v0.5-shots/` gibi ayrı bir yere konabilir; karar kullanıcıda.
 
+**T7 (web a, panel) uygulama notları** (PR: panel belge arayüzü; "Tekrar oku" ucu ayrı commit):
+- **Önizleme blob URL ile.** `GET /documents/{id}/file` bearer ister ve imzalı bağlantıya 302 verir; `iframe`/`img` `src`'si bunu taşıyamaz. Dosya `fetch` ile alınıp (yönlendirme başlığı düşürür) sunucunun baytlardan bulduğu MIME ile `Blob`'a sarılır, `blob:` adresiyle gösterilir. PDF'i tarayıcının kendi görüntüleyicisi çizer (PDF kitaplığı eklenmedi); sayfa ve yakınlaştırma adresin `#page=…&zoom=…` kısmıyla verilir. Bu yüzden kanıt satırına tıklayınca **sayfa** değişir ama metin **işaretlenmez** (tasarım 57b'deki işaretleme için pdf.js gerekir; yeni bağımlılık, kullanıcı kararı).
+- **"Tekrar oku" (`POST /documents/{id}/reread`) yalnızca `FAILED` okumada** çalışır (OWNER/ADMIN/EDITOR); okunmuş, sürmekte olan, `UNREADABLE` ve onaylı belge 409 `DOCUMENT_NOT_REREADABLE`. `UNREADABLE` (ör. LLM sonradan açıldı) için yeniden okuma yok: tasarım yalnızca hata durumunda gösteriyor.
+- **Yükleme ilerlemesi `XMLHttpRequest` ile**: `fetch` gövde ilerlemesini bildiremez; `lib/api/documents.ts`'teki tek çağrı, aynı bearer token ve tek yenileme denemesiyle. Dosya türü/boyutu istemcide önceden elenir, asıl karar sunucuda.
+- **Belge türü alanı bir seçimdir** (tasarımdaki serbest metin yerine `DocType`), "Onayla" kararı 6'ya uyar: sertifika türünde sertifika no ve bitiş tarihi zorunlu, diğer alanlar isteğe bağlı. Tasarım "tüm alanlar dolu olmalı" diyordu; altbilgi eksik alanı adıyla söyler.
+- **Teknik ayrıntı satırında istek no yok**: belge cevabı, okumayı başarısız kılan isteğin no'sunu taşımıyor (iş arka planda koşuyor). Yalnızca neden kodu gösterilir.
+- Tasarımdaki "bitince Görevler'de görünür" cümlesi çıkarıldı (Görevler sayfası okuma sonucunu listelemiyor). Belge silme tasarımda yok, arayüzde de yok (uç duruyor).
+- Ekran görüntüleri `docs/design/impl-v0.5/<çerçeve>-<tema>.png` (üretici: `web/e2e/screenshots-v05.spec.ts`; `-de-1024` ekleri en uzun çeviri + en dar genişlikte kırpılma kontrolü). Üretimdeki PDF görüntüleyicisi ve Supabase imzalı bağlantısının CORS'u canlıda doğrulanmadı.
+
 ## 10. M10 listesi (M5'ten devredilenler)
 
 - **Depoda kayıtsız dosya taraması:** depolamaya aktarım ile satır yazımı arasında süreç çökerse kalan, hiçbir `document` satırının göstermediği nesneler. `FileStorage` listeleme bilmiyor; Supabase'in liste ucuyla `docs/` öneki taranıp satırı olmayan ve 1 günden eski nesneler silinir (günlük iş, `DOCUMENT_CLEANUP`'a eklenebilir).
