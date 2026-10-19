@@ -81,6 +81,8 @@ Uygulanan set (T4, `backend/src/test/resources/documents/`, üreteç `DemoCertif
 
 PR'lar: backend (a) T1+T2, (b) T3+T4+T5, (c) T6; web (a) T7, (b) T8. Her backend PR'ında `./mvnw verify` + `api-client generate`. Tasarım gelene kadar web başlamaz.
 
+**Durum (19.10.2026):** T0–T6 backend (#32–#41), T7 (#42, #43), T8 (#44) ve T9 (çeviriler, haftalık not, README; bu PR) tamam. Canlı Supabase denemesi henüz yapılmadı (bkz. §8 ve §10).
+
 ## 7. Kararlar (PR #32 incelemesi, kullanıcı onaylı)
 
 1. **Tedarikçi okunan değerleri görmez.** Yalnızca yükleme durumunu görür (yükleniyor, yüklendi, hata, tür/boyut reddi, limit doldu). Onay panelde OWNER/ADMIN'de. Tedarikçi uçlarında okuma durumu ve alan değeri dönmez; test bunu doğrular.

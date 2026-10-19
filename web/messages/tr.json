@@ -1148,7 +1148,7 @@
         "rate": "Çok fazla deneme yapıldı. 1 dakika sonra tekrar deneyin.",
         "storage": "Dosya depolaması şu an yanıt vermiyor. Biraz sonra tekrar deneyin.",
         "forbidden": "Belge yükleme yetkiniz yok.",
-        "network": "Bağlantı koptu, yükleme %{percent}’de durdu.",
+        "network": "Bağlantı koptu, yükleme {percent}’de durdu.",
         "unknown": "Belge yüklenemedi. Tekrar deneyin."
       }
     },
