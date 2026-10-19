@@ -197,6 +197,8 @@ Plan: `docs/m5-plan.md` (depolama, V9, okuma hattı, güvenlik, test, açık kar
 **Kabul:** Örnek bir OEKO-TEX PDF'i yüklenir, sertifika no, sahibi ve geçerlilik tarihi otomatik dolar, kullanıcı onaylayınca asıl alanlara geçer. Demo olmayan bir firmanın belgesi hiçbir koşulda LLM'e gitmez (test).
 
 ### M6 — Pasaport ve QR (**çekirdek tamam**)
+Plan: `docs/m6-plan.md` (uyum skoru kuralları, snapshot ve sürüm modeli, GS1 Digital Link ve QR, `/01/[gtin]/10/[batch]` önbellek ve dil mimarisi, açık kararlar §9). Tasarım brifi: `docs/m6-tasarim-brifi.md` → Claude Design v0.6. Sıra: tasarım + kararlar → backend T1–T4 → web T5–T6 → T7.
+
 - [ ] Uyum skoru (onaylı adımlar + zorunlu alanlar + geçerli sertifikalar)
 - [ ] Yayınla: snapshot, sürüm, eski sürüm SUPERSEDED; geri çek
 - [ ] QR üretimi (GS1 Digital Link), PNG indirme
