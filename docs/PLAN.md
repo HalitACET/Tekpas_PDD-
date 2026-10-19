@@ -310,6 +310,8 @@ Plan: `docs/m5-plan.md` (depolama, V9, okuma hattı, güvenlik, test, açık kar
   - **42:** Belgeler bölümü tasarımdaki gibi "Yakında" ve kapalı (M5'e kadar).
 - [ ] **v0.3.1 30**, PR #30. M4 düğmeleri açıldı ("Bir sonraki sürümde" yok); panelin güncel hali v0.4 47a (`impl-v0.4/47a-*`), `impl-v0.3.1/30-*` buna göre yeniden çekildi.
 
+- [ ] **Belgeler sayfası "Belge yükle"** (tasarımı yok, kullanıcı isteğiyle; `impl-v0.5/62a-*`, `62b-*`): "Yakında" yerine diyalog. Önce parti ve aşama seçilir (react-hook-form, 08 "Yeni parti" diyaloğunun parçaları, yerel select); yayındaki parti seçilemez, zinciri olmayan partide not çıkar. "Devam" sonrası seçilen adımın 56/58 belge bölümü aynen açılır. Sayfanın kendisi hâlâ tasarım G'nin boş çerçevesi; firma çapında belge listesi ve "Tedarikçiden iste" ayrı tasarım bekliyor.
+
 **Ertelenenler** (tasarımda var, verisi sonraki kilometre taşında gelecek):
 - [x] Menüdeki "Görevler" rozeti (bekleyen görev sayısı), PR #30 (`GET /tasks` `total`; 0'da gizli).
 

@@ -4,6 +4,7 @@ import { Plus, Search, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { LogoMark } from "@/components/brand/logo";
+import { GuardedButton } from "@/components/common/guarded-button";
 import { Button } from "@/components/ui/button";
 import { PAGES_WITH_IMPORT, PAGES_WITHOUT_ACTIONS, type PageKey } from "@/lib/nav";
 
@@ -17,9 +18,18 @@ interface GuideStep {
 
 /**
  * Design G page: title, actions, (inactive) filters, table frame with the empty state. Real lists come
- * with their milestones; until then every action shows a "coming soon" toast.
+ * with their milestones; until then every action shows a "coming soon" toast, unless the page passes its
+ * own primary action (`onCta`, guarded by `ctaAllowed` for read-only users).
  */
-export function PageView({ page }: { page: PageKey }) {
+export function PageView({
+  page,
+  onCta,
+  ctaAllowed = true,
+}: {
+  page: PageKey;
+  onCta?: () => void;
+  ctaAllowed?: boolean;
+}) {
   const t = useTranslations(`pages.${page}`);
   const tPage = useTranslations("page");
   const tCommon = useTranslations("common");
@@ -29,10 +39,18 @@ export function PageView({ page }: { page: PageKey }) {
 
   const comingSoon = () =>
     toast(tCommon("comingSoon.title"), { description: tCommon("comingSoon.description") });
+  const cta = onCta ?? comingSoon;
 
   return (
     <>
-      <MobilePageView page={page} onAction={comingSoon} guide={guide} hasActions={hasActions} />
+      <MobilePageView
+        page={page}
+        onCta={cta}
+        ctaAllowed={ctaAllowed}
+        onAction={comingSoon}
+        guide={guide}
+        hasActions={hasActions}
+      />
 
       {/* From md up: design G desktop. */}
       <div className="hidden min-h-0 flex-1 flex-col gap-5 md:flex">
@@ -49,10 +67,10 @@ export function PageView({ page }: { page: PageKey }) {
                   {tPage("import")}
                 </Button>
               )}
-              <Button onClick={comingSoon}>
+              <GuardedButton allowed={ctaAllowed} onClick={cta}>
                 <Plus strokeWidth={1.75} aria-hidden />
                 {t("cta")}
-              </Button>
+              </GuardedButton>
             </div>
           )}
         </div>
@@ -98,7 +116,9 @@ export function PageView({ page }: { page: PageKey }) {
             <p className="max-w-[420px] text-sm leading-[1.55] text-pretty text-muted-foreground">{t("emptyBody")}</p>
             {hasActions && (
               <div className="mt-1.5 flex gap-2">
-                <Button onClick={comingSoon}>{t("cta")}</Button>
+                <GuardedButton allowed={ctaAllowed} tooltipAlign="center" onClick={cta}>
+                  {t("cta")}
+                </GuardedButton>
                 <Button variant="secondary" onClick={comingSoon}>
                   {t("cta2")}
                 </Button>
@@ -135,11 +155,15 @@ export function PageView({ page }: { page: PageKey }) {
 /** Design G mobile (below md): stacked 44 px actions, empty-state card, "how to start" list. */
 function MobilePageView({
   page,
+  onCta,
+  ctaAllowed,
   onAction,
   guide,
   hasActions,
 }: {
   page: PageKey;
+  onCta: () => void;
+  ctaAllowed: boolean;
   onAction: () => void;
   guide?: GuideStep[];
   hasActions: boolean;
@@ -157,10 +181,15 @@ function MobilePageView({
 
       {hasActions && (
         <div className="flex flex-col gap-2">
-          <Button onClick={onAction} className="h-11 gap-2 rounded-lg text-[15px] [&_svg:not([class*='size-'])]:size-[18px]">
+          <GuardedButton
+            allowed={ctaAllowed}
+            tooltipAlign="center"
+            onClick={onCta}
+            className="h-11 gap-2 rounded-lg text-[15px] [&_svg:not([class*='size-'])]:size-[18px]"
+          >
             <Plus strokeWidth={1.75} aria-hidden />
             {t("cta")}
-          </Button>
+          </GuardedButton>
           <Button
             variant="secondary"
             onClick={onAction}
