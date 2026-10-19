@@ -1,6 +1,6 @@
 # 05 — Belge ve AI çıkarımı
 
-**Kilometre taşı:** M5  ·  **Tarih aralığı:** 18.10 – 19.10.2026  ·  **Canlı link:** https://kozapass.vercel.app (belge yükleme canlıda henüz gerçek depoyla denenmedi, bkz. Sonraki adım)
+**Kilometre taşı:** M5  ·  **Tarih aralığı:** 18.10 – 19.10.2026  ·  **Canlı link:** https://kozapass.vercel.app (belge yükleme, önizleme ve AI hibrit okuma canlıda gerçek Supabase ile denendi)
 
 ## Yapılanlar
 - **Depolama (PR #34):** `FileStorage` arayüzü; prod'da `SupabaseFileStorage` (Spring `RestClient`, REST: yükleme, 60 sn imzalı indirme bağlantısı, silme). Yerelde ve testte sahte depolama. AWS SDK ve MinIO kalktı, `STORAGE_*` ortam değişkenleri geldi.
@@ -33,17 +33,18 @@
 - **Önizleme:** `GET /file` Bearer istediği için `iframe src` çalışmaz. Dosya `fetch` ile alınıp blob URL'si ile gösteriliyor. Sonuç: sayfa değişiyor ama metin işaretlenmiyor (pdf.js yeni bağımlılık; M10'a kaldı).
 - **`DUPLICATE_DOCUMENT` belge id'sini taşımıyor:** Planlanan `id` alanı eklenmedi; arayüz yalnızca "zaten yüklendi" diyor. Kabul edildi.
 - **Yer tutucu biçimi:** `tr.json`'da bir anahtar `%{percent}` yazıyordu (ICU biçimi `{percent}`); ekranda ham `%{percent}` görünecekti. Bu PR'da düzeltildi.
-- **Canlı deneme beklemesi:** Storage'ın Supabase'te duraklamayı sayıp saymadığı belgede yok. Demo öncesi Dashboard'un açık tutulması ve test yüklemesi planlandı (`m5-plan.md` §8).
+- **Canlı deneme:** Supabase'te gerçek yükleme, önizleme ve AI hibrit okuma denendi; CORS ve yönlendirme sorunu çıkmadı (`GET /file` 302'si ve imzalı bağlantı Vercel → Render → Supabase zincirinde tarayıcı `fetch`'iyle çalıştı).
+- **Hâlâ açık:** Storage isteklerinin Supabase'te duraklamayı sayıp saymadığı belgede yok. Demo öncesi Dashboard'un açık tutulması ve test yüklemesi planlandı (`m5-plan.md` §8).
 
 ## Test
 - **Bu kilometre taşında ölçülen sayılar** (PR notlarına göre): depolama 24, yükleme ve V9 50 (birim 19, entegrasyon 31), işçi 11, temizlik 4, Türkçe okuma 12, LLM 37, onay 23 yeni test. Tüm backend toplamı bu notta yeniden sayılmadı.
 - **Web:** `i18n.test.ts` (üç dilin anahtar kümesi), belge ve tedarikçi bileşen testleri.
 - **e2e:** `m5-panel.spec.ts` (panel önizleme, sayfa geçişi, yakınlaştırma; yerel Chrome ile), tedarikçi belge ekran görüntüleri `screenshots-v05-supplier.spec.ts`. CI'da henüz değil (M10).
-- **Canlıda:** 10 MB geçişi (18.10). Gerçek Supabase yükleme denemesi yapılmadı.
+- **Canlıda:** 10 MB geçişi (18.10). Gerçek Supabase ile yükleme, önizleme ve AI hibrit okuma başarıyla denendi; CORS/yönlendirme sorunu yok.
 
 ## Ekran görüntüleri
 - `docs/design/impl-v0.5/`: tedarikçi 49–55b, panel 56a–61 (açık ve koyu; `-de-1024` ekleri en uzun çeviri ve dar genişlik kontrolü). Üretici: `web/e2e/screenshots-v05*.spec.ts`.
 
 ## Sonraki adım
-- Supabase projesini kurup ilk gerçek yüklemeyi yapmak: `DEPLOY.md` §9, yükleme süresi ve PDFBox önbelleği ölçülür, CORS ile önizleme canlıda doğrulanır.
+- Canlıda yükleme süresini ve PDFBox yazı tipi önbelleğini ölçmek (`m5-plan.md` §11); yükleme, önizleme ve CORS denemesi tamam.
 - M6 Pasaport ve QR: uyum skoru, yayın snapshot'ı, GS1 Digital Link QR. M10'a devredilenler `docs/m5-plan.md` §10'da.

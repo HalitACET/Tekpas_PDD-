@@ -81,7 +81,7 @@ Uygulanan set (T4, `backend/src/test/resources/documents/`, üreteç `DemoCertif
 
 PR'lar: backend (a) T1+T2, (b) T3+T4+T5, (c) T6; web (a) T7, (b) T8. Her backend PR'ında `./mvnw verify` + `api-client generate`. Tasarım gelene kadar web başlamaz.
 
-**Durum (19.10.2026):** T0–T6 backend (#32–#41), T7 (#42, #43), T8 (#44) ve T9 (çeviriler, haftalık not, README; bu PR) tamam. Canlı Supabase denemesi henüz yapılmadı (bkz. §8 ve §10).
+**Durum (19.10.2026):** T0–T6 backend (#32–#41), T7 (#42, #43), T8 (#44) ve T9 (çeviriler, haftalık not, README; bu PR) tamam. Canlı Supabase denemesi sonradan yapıldı ve geçti: yükleme, önizleme, AI hibrit okuma, CORS/yönlendirme sorunu yok (bkz. §8 ve §10).
 
 ## 7. Kararlar (PR #32 incelemesi, kullanıcı onaylı)
 
@@ -132,7 +132,7 @@ Uygulama kuralları:
 - **Yükleme ilerlemesi `XMLHttpRequest` ile**: `fetch` gövde ilerlemesini bildiremez; `lib/api/documents.ts`'teki tek çağrı, aynı bearer token ve tek yenileme denemesiyle. Dosya türü/boyutu istemcide önceden elenir, asıl karar sunucuda.
 - **Belge türü alanı bir seçimdir** (tasarımdaki serbest metin yerine `DocType`), "Onayla" kararı 6'ya uyar: sertifika türünde sertifika no ve bitiş tarihi zorunlu, diğer alanlar isteğe bağlı. Tasarım "tüm alanlar dolu olmalı" diyordu; altbilgi eksik alanı adıyla söyler.
 - Tasarımdaki "bitince Görevler'de görünür" cümlesi çıkarıldı (Görevler sayfası okuma sonucunu listelemiyor). Belge silme tasarımda yok, arayüzde de yok (uç duruyor).
-- Ekran görüntüleri `docs/design/impl-v0.5/<çerçeve>-<tema>.png` (üretici: `web/e2e/screenshots-v05.spec.ts`; `-de-1024` ekleri en uzun çeviri + en dar genişlikte kırpılma kontrolü). Üretimdeki PDF görüntüleyicisi ve Supabase imzalı bağlantısının CORS'u canlıda doğrulanmadı.
+- Ekran görüntüleri `docs/design/impl-v0.5/<çerçeve>-<tema>.png` (üretici: `web/e2e/screenshots-v05.spec.ts`; `-de-1024` ekleri en uzun çeviri + en dar genişlikte kırpılma kontrolü). Üretimdeki PDF görüntüleyicisi ve Supabase imzalı bağlantısı canlıda denendi, CORS sorunu çıkmadı.
 
 **T8 (web b, `/r`) uygulama notları:**
 - Belgeler bölümü artık hep açık (eski "Yakında" durumu kalktı). Durum `useSupplierDocuments` kancasında (`components/supplier/documents-section.tsx`); form bunu gönderme öncesi bekleme ve onay ekranındaki belge adları için kullanır. Arayüz yalnızca `documents[]` ve `aiReading` alanlarını okur.
@@ -145,7 +145,7 @@ Uygulama kuralları:
 
 - **pdf.js ile metin işaretleme:** inceleme penceresinde kanıt satırına tıklayınca yalnızca sayfa değişiyor; pdf.js ile belgedeki metnin işaretlenmesi (yeni bağımlılık, kullanıcı onayı gerekir).
 - **Onaysız belgeyi panelden kaldırma:** `DELETE /documents/{id}` ucu var, panelde (tasarımda da) düğmesi yok; tasarım gerekir.
-- **Canlıda önizleme CORS/yönlendirme kontrolü (Supabase ile):** `GET /documents/{id}/file` 302'sinin ve imzalı bağlantının tarayıcı `fetch`'inde (Vercel → Render → Supabase) CORS ve yönlendirme açısından çalıştığının canlıda doğrulanması.
+- **Canlıda önizleme CORS/yönlendirme kontrolü (Supabase ile):** `GET /documents/{id}/file` 302'sinin ve imzalı bağlantının tarayıcı `fetch`'inde (Vercel → Render → Supabase) CORS ve yönlendirme açısından çalıştığının canlıda doğrulanması. **Yapıldı:** canlıda doğrulandı, CORS ve yönlendirme sorunu çıkmadı; M10 listesinden düştü.
 - **Depoda kayıtsız dosya taraması:** depolamaya aktarım ile satır yazımı arasında süreç çökerse kalan, hiçbir `document` satırının göstermediği nesneler. `FileStorage` listeleme bilmiyor; Supabase'in liste ucuyla `docs/` öneki taranıp satırı olmayan ve 1 günden eski nesneler silinir (günlük iş, `DOCUMENT_CLEANUP`'a eklenebilir).
 - **Tarayıcıda OCR araştırması** (tesseract.js, kararlar §7.3): taranmış belgeyi sunucuya göndermeden okuma.
 
