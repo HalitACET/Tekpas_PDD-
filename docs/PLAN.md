@@ -198,11 +198,14 @@ Plan: `docs/m5-plan.md` (depolama, V9, okuma hattı, güvenlik, test, açık kar
 **Kabul:** Örnek bir OEKO-TEX PDF'i yüklenir, sertifika no, sahibi ve geçerlilik tarihi otomatik dolar, kullanıcı onaylayınca asıl alanlara geçer. Demo olmayan bir firmanın belgesi hiçbir koşulda LLM'e gitmez (test).
 
 ### M6 — Pasaport ve QR (**çekirdek tamam**)
+Plan: `docs/m6-plan.md` (uyum skoru kuralları, snapshot ve sürüm modeli, GS1 Digital Link ve QR, `/01/[gtin]/10/[batch]` önbellek ve dil mimarisi, açık kararlar §9). Tasarım brifi: `docs/m6-tasarim-brifi.md` → Claude Design v0.6. Sıra: tasarım + kararlar → backend T1–T4 → web T5–T6 → T7.
+
 - [ ] Uyum skoru (onaylı adımlar + zorunlu alanlar + geçerli sertifikalar)
 - [ ] Yayınla: snapshot, sürüm, eski sürüm SUPERSEDED; geri çek
 - [ ] QR üretimi (GS1 Digital Link), PNG indirme
 - [ ] Web: `/01/[gtin]/10/[batch]` SSR pasaport sayfası (zincir, lif bileşimi, sertifikalar, bakım)
 - [ ] Yayın eşiği: uyum skoru %90 altındaysa yayınlanamaz; yayından önce "Önizle" (tasarım v0.3)
+- *Kararlar* (`docs/m6-plan.md` §9, onaylı): onaysız adım yayını engeller; skor 50/30/20, tüketiciye görünmez; tedarikçi adları açık; QR backend'de ZXing; düzenleme = yeni sürüm taslağı (yayın geri çekilmez, yayınlanınca eskisi SUPERSEDED); geri çekilen QR'da "Geri çekildi"; eski sürümler yalnızca panelde; bakım bilgisi M10'da; Vercel ISR + `next.tags` ve yayında önbellek ısıtma; okutma istatistiği yok; public sayfa `noindex`.
 
 **Kabul:** Telefonla QR okutulur, pasaport 2 saniyede açılır. Yeni sürüm yayınlanınca aynı QR yeni sürümü gösterir.
 
@@ -242,6 +245,7 @@ Plan: `docs/m5-plan.md` (depolama, V9, okuma hattı, güvenlik, test, açık kar
 
 - [ ] Depoda kayıtsız dosya taraması (M5 T3'ten): satırı olmayan `docs/` nesnelerini bul ve sil (`docs/m5-plan.md` §10)
 - [ ] Tarayıcıda OCR araştırması (tesseract.js; M5 kararı 3, `docs/m5-plan.md` §10)
+- [ ] Bakım bilgisi (ISO 3758 sembolleri): `product.care_info`, ürün formu, pasaport sayfası bölümü ve uyum skorunun ürün alanı (M6'dan ertelendi, `docs/m6-plan.md` §9 karar 9; snapshot `schemaVersion: 2`)
 **Kabul:** Demo senaryosu baştan sona hatasız, internet yavaşken bile çalışıyor.
 
 ### M11 — Çok dil ve Excel
