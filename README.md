@@ -41,7 +41,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M2 | Ürün ve parti: GTIN doğrulaması, ürün ve parti ekranları | ✅ |
 | M3 | Tedarik zinciri: tedarikçi ağı, zincir (DAG), parti detayı | ✅ |
 | M4 | Veri talebi ve tedarikçi sayfası: bağlantı, gönderim, onay ve red, görevler | ✅ |
-| M5 | Belge ve AI çıkarımı | ⬜ |
+| M5 | Belge ve AI çıkarımı: sertifika yükleme, okuma, onay | ✅ |
 | M6 | Pasaport ve QR | ⬜ |
 | M7 | Tutarlılık kontrolü ve sertifika takibi | ⬜ |
 | M8 | Mobil I: görevler, kamera ile belge | ⬜ |
@@ -90,7 +90,7 @@ flowchart LR
   end
 
   db[("PostgreSQL 16")]
-  storage[("Dosya deposu<br/>S3 API")]
+  storage[("Dosya deposu<br/>Supabase Storage, REST")]
   ai["Google Gemini<br/>belge okuma"]
 
   web -- "aynı origin üzerinden /api/v1 proxy" --> rest
@@ -114,11 +114,11 @@ flowchart LR
 | Backend | Java 21, Spring Boot 4.1, Spring Security (JWT), Spring Data JPA, Flyway, springdoc-openapi 3.1 |
 | Web | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, shadcn/ui (Base UI), TanStack Query 5, react-hook-form, Zod 4, next-intl 4 |
 | Mobil | React Native 0.86, Expo SDK 57 (Expo Router) |
-| Veri | PostgreSQL 16, S3 uyumlu dosya deposu |
+| Veri | PostgreSQL 16, Supabase Storage (REST) |
 | AI | Google Gemini (bir arayüzün arkasında; yalnızca demo verisi) |
 | Test | JUnit 5, Testcontainers, AssertJ · Vitest · Playwright |
 | Araçlar | pnpm 11 workspaces, Node 22, Maven Wrapper, GitHub Actions |
-| Yayın | Render (API), Vercel (web), yönetilen Postgres ve S3 deposu; hepsi ücretsiz katman |
+| Yayın | Render (API), Vercel (web), Neon (Postgres), Supabase Storage; hepsi ücretsiz katman |
 
 ## Monorepo
 
