@@ -44,8 +44,8 @@ Dayandığı kararlar: K11 (pasaport seviyesi parti), K12 (snapshot dondurulur),
 - `schema_version SMALLINT`, `snapshot_sha256 CHAR(64)` (kanonik JSON'un özeti; sayfada kısa "doğrulama kodu" olarak görünür).
 - `superseded_at`, `withdrawn_at`, `withdrawn_by`, `withdraw_reason VARCHAR(500)`.
 - **Değişmezlik tetikleyicisi** (`BEFORE UPDATE`): `snapshot`, `snapshot_sha256`, `version`, `batch_id`, `company_id`, `gtin`, `batch_no`, `completeness`, `published_*` değişirse hata. Yalnızca `PUBLISHED → SUPERSEDED` ve `PUBLISHED → WITHDRAWN` geçişine (ve ilgili `_at/_by/_reason` kolonlarına) izin verir. `BEFORE DELETE` engeli: pasaport satırı silinmez. JPA tarafında da kolonlar `updatable = false`. Kural 6 böylece uygulama hatasına karşı DB'de de korunur (rapor için iyi bir anlatı).
-- `job.type`: `PASSPORT_CACHE_REFRESH` (§5.4).
-- Yayın ve geri çekme `audit_log`'a yazılır (`entity_type = PASSPORT`, `action = PUBLISH | WITHDRAW | DRAFT`); M12'deki denetim izi ekranı bunu okur.
+- `job.type`: `PASSPORT_CACHE_REFRESH` (§5.4) V11'e girmedi: işi T4 yazar, kısıt değişikliği o PR'ın V12'sinde.
+- Yayın ve geri çekme `audit_log`'a yazılır (`entity_type = PASSPORT`, `action = PUBLISH | WITHDRAW`; taslak açma `entity_type = BATCH`, `action = PASSPORT_DRAFT`); M12'deki denetim izi ekranı bunu okur.
 - Tablo şu an boş (seed pasaport üretmiyor), `company_id` için geri doldurma gerekmez; yine de migration `batch`'ten doldurup sonra `NOT NULL` yapar. `ApplicationSmokeTest` migration listesi ve tablo sayısı güncellenir (kural 2).
 
 ### 3.2 Snapshot içeriği (izinli alan listesi)
@@ -202,5 +202,15 @@ Ad şu sırayla çözülür (`renderVals`, `p.name`):
 
 - **`state=superseded` (herkese açık "Eski sürüm" durumu, "Güncel sürüm" bandı, QR doğrulamada "Eski sürüm · güncel sürüm 2") uygulanmaz.** Karar 8: eski sürümler tüketiciye kapalı. Aynı görünüm yalnızca panelde sürüm görüntüleme sayfasında kullanılır (şerit "Eski sürüm · yalnızca panelde", brif B8).
 - Tasarımdaki "QR doğrulama" bölümünün "Sürüm durumu" satırı herkese açık sayfada yalnızca "Güncel · Sürüm N" der.
-- Doğrulama kodu tasarımda `7Q4K-2M9X` biçiminde (4-4, büyük harf ve rakam), altında "içerikten üretilir; içerik değişirse kod da değişir" notu var. Nasıl türetileceği tasarımda yok. **Öneri (T2'de onaylanır):** `snapshot_sha256`'dan türetilen 8 karakter, karışan karakterler (0/O, 1/I) çıkarılmış alfabeyle; tam özet DB'de kalır (§3.1). **Açık nokta:** tasarım "etiketteki kodla karşılaştırın" diyor, ama M6 planında etikete doğrulama kodu basılmıyor (QR altındaki satır yalnızca GTIN ve parti, §4). Ya kod QR kartına eklenir ya da bu ipucu metinden çıkar; karar bekliyor.
+- Doğrulama kodu tasarımda `7Q4K-2M9X` biçiminde (4-4, büyük harf ve rakam), altında "içerikten üretilir; içerik değişirse kod da değişir" notu var. Nasıl türetileceği tasarımda yok. **T2'de böyle uygulandı (`VerificationCode`):** `snapshot_sha256`'dan türetilen 8 karakter, karışan karakterler (0/O, 1/I) çıkarılmış alfabeyle; tam özet DB'de kalır (§3.1). **Açık nokta:** tasarım "etiketteki kodla karşılaştırın" diyor, ama M6 planında etikete doğrulama kodu basılmıyor (QR altındaki satır yalnızca GTIN ve parti, §4). Ya kod QR kartına eklenir ya da bu ipucu metinden çıkar; karar bekliyor.
 - Önizleme durumunda tasarım "Sürüm 3 taslağı" der; önizleme yalnızca panelden (`passport-preview`), halka açık değil.
+
+### 10.3 T2 uygulama notları (yayın, sürümler, geri çekme)
+
+- **V11:** `passport`'a `company_id`, `gtin`, `batch_no`, `schema_version`, `snapshot_sha256`, `superseded_at`, `withdrawn_*`; durum ile geçiş kolonlarının birlikte dolması CHECK ile. Değişmezlik tetikleyicisi `pg_trigger_depth() > 1` iken geçer: kullanıcı silinince `published_by` SET NULL ve firma silinince CASCADE gibi dış anahtar eylemleri bozulmasın; doğrudan `UPDATE` ve `DELETE` derinlik 1'dir ve reddedilir.
+- **Uçlar:** `POST /batches/{id}/passports` (OWNER, ADMIN; 201), `GET /batches/{id}/passport-preview`, `GET /batches/{id}/passports` (düz liste, en yeni önce), `POST /batches/{id}/passports/draft` (OWNER, ADMIN), `GET /passports/{id}` (sürüm + snapshot), `POST /passports/{id}/withdraw` `{reason}` (OWNER, ADMIN). Okuma uçları OWNER/ADMIN/EDITOR/VIEWER; SUPPLIER hepsinde 403. Başka firmanın partisi ve pasaportu 404.
+- **Hatalar:** 409 `PUBLISH_BLOCKED` (gövdede `blockers`, T1'deki kodlarla), `ALREADY_PUBLISHED`, `BATCH_NOT_PUBLISHED`, `NOT_PUBLISHED`; geri çekme gerekçesi boşsa 400. `ConflictException` gövdeye ek alan taşıyabiliyor.
+- **Kilit sırası** her yerde parti, sonra pasaport satırı (yayın ve geri çekme aynı sırada, kilitlenme yok). İki eşzamanlı yayından biri 201, öbürü 409 `ALREADY_PUBLISHED` (testte).
+- **Küçük yarış penceresi:** skor ve snapshot aynı transaction'da ama READ COMMITTED'da ayrı okunur; arada bir adım değişirse skor milisaniyelik eski kalabilir. Snapshot kurucusu yine de yalnızca onaylı adımların verisini ve onaylı belgeleri alır; onaysız adım görürse 409 verir. Dondurulan veri her zaman onaylıdır.
+- **Snapshot:** yalnızca geçerli (bitişi bugünden önce olmayan) ve onaylı sertifikalar girer; süresi dolmuş eski sertifika (yenilenmiş) listede yok. Onaylı adımların verisi izinli alan listesiyle (`SnapshotStepData`) kopyalanır: miktarlar, hasat yılı ve ton girmez. Anahtarlar `s1…` ve `c1…`. Önizlemede onaysız adım `approved: false`, verisiz görünür.
+- **Özet:** snapshot'ın JSON metninin (kayıt alanlarının tanım sırası) SHA-256'sı; satırdan okunan kayıt yeniden yazılınca aynı özeti verir (testte). `VerificationCode` bundan türetilir.

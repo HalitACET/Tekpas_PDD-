@@ -60,6 +60,13 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
             """)
     List<ScoreDocument> scoreDocumentsOf(UUID companyId, Collection<UUID> stepIds);
 
+    /** The documents a person confirmed on these steps (the passport takes certificates from them), of the company. */
+    @Query("""
+            select d from Document d where d.companyId = :companyId and d.stepId in :stepIds
+              and d.reviewStatus = com.tekpas.document.ReviewStatus.VERIFIED
+            """)
+    List<Document> confirmedOfSteps(UUID companyId, Collection<UUID> stepIds);
+
     /** @see #scoreDocumentsOf */
     interface ScoreDocument {
 

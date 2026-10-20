@@ -185,6 +185,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/batches/{id}/passport-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The passport as it would be published now, nothing saved
+         * @description Steps that are not approved show as such, without data. Panel only.
+         */
+        get: operations["previewPassport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/batches/{id}/passports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The versions of the batch's passport, newest first */
+        get: operations["listPassportVersions"];
+        put?: never;
+        /**
+         * Publish a new version of the batch's passport
+         * @description The server computes the compliance score and refuses (409 PUBLISH_BLOCKED, with blockers) while anything blocks. The snapshot is frozen; the previous version becomes SUPERSEDED.
+         */
+        post: operations["publishPassport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/batches/{id}/passports/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Open the batch for a new version
+         * @description The published version stays published and keeps answering the QR code; the batch can be changed again and the next publishing makes a new version.
+         */
+        post: operations["openPassportDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/batches/{id}/score": {
         parameters: {
             query?: never;
@@ -294,6 +355,46 @@ export interface paths {
          * @description OWNER and ADMIN only. The values in the body (type, certificate number, holder, issuer, validity) become the document's real fields; they are the person's, whether they kept the proposal, corrected it or typed them. Each field is recorded as ACCEPTED, EDITED or ADDED against the reading's proposal. Works the same for a document the reading could not read (manual entry). Writes a DOCUMENT_VERIFIED event on the step. The reading itself is not changed.
          */
         post: operations["verifyDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/passports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One version with its frozen content
+         * @description Panel only: old versions are not public (docs/m6-plan.md §9 decision 8).
+         */
+        get: operations["getPassport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/passports/{id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Withdraw the published version
+         * @description The QR code then says the passport was withdrawn. The batch can be changed again; there is no way back to an older version.
+         */
+        post: operations["withdrawPassport"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1008,6 +1109,47 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
+        PassportDetailResponse: {
+            snapshot: components["schemas"]["PassportSnapshot"];
+            version: components["schemas"]["PassportVersionResponse"];
+        };
+        PassportSnapshot: {
+            batch: components["schemas"]["SnapshotBatch"];
+            certificates: components["schemas"]["SnapshotCertificate"][];
+            manufacturer: components["schemas"]["SnapshotManufacturer"];
+            passport: components["schemas"]["SnapshotPassport"];
+            product: components["schemas"]["SnapshotProduct"];
+            /** Format: int32 */
+            schemaVersion: number;
+            supplyChain: components["schemas"]["SnapshotStep"][];
+        };
+        /** @enum {string} */
+        PassportStatus: "PUBLISHED" | "SUPERSEDED" | "WITHDRAWN";
+        PassportVersionResponse: {
+            /** Format: uuid */
+            batchId: string;
+            batchNo: string;
+            /** Format: int32 */
+            completeness: number;
+            gtin: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            publishedAt: string;
+            publishedByName?: string | null;
+            /** Format: int32 */
+            schemaVersion: number;
+            status: components["schemas"]["PassportStatus"];
+            /** Format: date-time */
+            supersededAt?: string | null;
+            verificationCode: string;
+            /** Format: int32 */
+            version: number;
+            withdrawReason?: string | null;
+            /** Format: date-time */
+            withdrawnAt?: string | null;
+            withdrawnByName?: string | null;
+        };
         /** @enum {string} */
         ProductCategory: "T_SHIRT" | "SHIRT" | "TROUSERS" | "DRESS" | "KNITWEAR" | "SWEATSHIRT" | "OUTERWEAR" | "BABY" | "HOME_TEXTILE" | "FABRIC" | "OTHER";
         ProductCreateRequest: {
@@ -1146,6 +1288,76 @@ export interface components {
             /** Format: int32 */
             threshold: number;
             warnings: components["schemas"]["ScoreIssue"][];
+        };
+        SnapshotActor: {
+            city?: string | null;
+            country: string;
+            name: string;
+        };
+        SnapshotBatch: {
+            /** Format: date */
+            producedFrom?: string | null;
+            /** Format: date */
+            producedTo?: string | null;
+        };
+        SnapshotCertificate: {
+            certNo?: string | null;
+            holder?: string | null;
+            issuer?: string | null;
+            key: string;
+            /** @enum {string} */
+            type: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            /** Format: date */
+            validFrom?: string | null;
+            /** Format: date */
+            validUntil: string;
+        };
+        SnapshotManufacturer: {
+            city?: string | null;
+            country: string;
+            name: string;
+        };
+        SnapshotPassport: {
+            batchNo: string;
+            gtin: string;
+            /** Format: date-time */
+            publishedAt?: string | null;
+            /** Format: int32 */
+            version: number;
+        };
+        SnapshotProduct: {
+            category: components["schemas"]["ProductCategory"];
+            description?: string | null;
+            fiberComposition?: components["schemas"]["FiberShare"][] | null;
+            name: string;
+        };
+        SnapshotStep: {
+            actor?: components["schemas"]["SnapshotActor"];
+            approved: boolean;
+            /** Format: date-time */
+            approvedAt?: string | null;
+            certificates: string[];
+            data?: components["schemas"]["SnapshotStepData"];
+            inputs: string[];
+            key: string;
+            type: components["schemas"]["StepType"];
+        };
+        SnapshotStepData: {
+            chemicalStandards?: components["schemas"]["ChemicalStandard"][] | null;
+            dyeProcess?: components["schemas"]["DyeProcess"];
+            dyeProcessOther?: string | null;
+            energyKwhPerKg?: number | null;
+            energyKwhPerPiece?: number | null;
+            energySources?: components["schemas"]["EnergyShare"][] | null;
+            fabricType?: string | null;
+            fiberComposition?: components["schemas"]["FiberShare"][] | null;
+            fiberType?: components["schemas"]["Fiber"];
+            gsm?: number | null;
+            originCountry?: string | null;
+            originRegion?: string | null;
+            waterLPerKg?: number | null;
+            yarnCount?: string | null;
+            yarnProcess?: components["schemas"]["YarnProcess"];
         };
         StepCreateRequest: {
             inputStepIds?: string[] | null;
@@ -1328,6 +1540,9 @@ export interface components {
             validFrom?: string | null;
             /** Format: date */
             validUntil?: string | null;
+        };
+        WithdrawRequest: {
+            reason: string;
         };
         /** @enum {string} */
         YarnProcess: "COMBED" | "CARDED" | "OPEN_END" | "OTHER";
@@ -1890,6 +2105,184 @@ export interface operations {
             };
         };
     };
+    previewPassport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The snapshot */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportSnapshot"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    listPassportVersions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The versions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportVersionResponse"][];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    publishPassport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Published */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportVersionResponse"];
+                };
+            };
+            /** @description Only OWNER and ADMIN publish */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description PUBLISH_BLOCKED (blockers in the body) or ALREADY_PUBLISHED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    openPassportDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The batch, editable again */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchResponse"];
+                };
+            };
+            /** @description Only OWNER and ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description BATCH_NOT_PUBLISHED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     getBatchScore: {
         parameters: {
             query?: never;
@@ -2250,6 +2643,108 @@ export interface operations {
             };
             /** @description A certificate (OEKO_TEX, GOTS, GRS, BCI, OCS, BLUESIGN) needs certNo and validUntil: one NotNull error per missing field. Other types need neither. */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getPassport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The version and its snapshot */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportDetailResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such passport in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    withdrawPassport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WithdrawRequest"];
+            };
+        };
+        responses: {
+            /** @description Withdrawn */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassportVersionResponse"];
+                };
+            };
+            /** @description A reason is required */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Only OWNER and ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such passport in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description NOT_PUBLISHED: only the published version can be withdrawn */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -850,6 +850,115 @@
         "required" : [ "content", "page", "size", "totalElements", "totalPages" ],
         "type" : "object"
       },
+      "PassportDetailResponse" : {
+        "properties" : {
+          "snapshot" : {
+            "$ref" : "#/components/schemas/PassportSnapshot"
+          },
+          "version" : {
+            "$ref" : "#/components/schemas/PassportVersionResponse"
+          }
+        },
+        "required" : [ "snapshot", "version" ],
+        "type" : "object"
+      },
+      "PassportSnapshot" : {
+        "properties" : {
+          "batch" : {
+            "$ref" : "#/components/schemas/SnapshotBatch"
+          },
+          "certificates" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SnapshotCertificate"
+            },
+            "type" : "array"
+          },
+          "manufacturer" : {
+            "$ref" : "#/components/schemas/SnapshotManufacturer"
+          },
+          "passport" : {
+            "$ref" : "#/components/schemas/SnapshotPassport"
+          },
+          "product" : {
+            "$ref" : "#/components/schemas/SnapshotProduct"
+          },
+          "schemaVersion" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "supplyChain" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SnapshotStep"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "batch", "certificates", "manufacturer", "passport", "product", "schemaVersion", "supplyChain" ],
+        "type" : "object"
+      },
+      "PassportStatus" : {
+        "enum" : [ "PUBLISHED", "SUPERSEDED", "WITHDRAWN" ],
+        "type" : "string"
+      },
+      "PassportVersionResponse" : {
+        "properties" : {
+          "batchId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "batchNo" : {
+            "type" : "string"
+          },
+          "completeness" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "gtin" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "publishedByName" : {
+            "type" : [ "string", "null" ]
+          },
+          "schemaVersion" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/PassportStatus"
+          },
+          "supersededAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "verificationCode" : {
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "withdrawReason" : {
+            "type" : [ "string", "null" ]
+          },
+          "withdrawnAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "withdrawnByName" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "batchId", "batchNo", "completeness", "gtin", "id", "publishedAt", "schemaVersion", "status", "verificationCode", "version" ],
+        "type" : "object"
+      },
       "ProductCategory" : {
         "enum" : [ "T_SHIRT", "SHIRT", "TROUSERS", "DRESS", "KNITWEAR", "SWEATSHIRT", "OUTERWEAR", "BABY", "HOME_TEXTILE", "FABRIC", "OTHER" ],
         "type" : "string"
@@ -1251,6 +1360,216 @@
           }
         },
         "required" : [ "blockers", "criteria", "publishable", "score", "threshold", "warnings" ],
+        "type" : "object"
+      },
+      "SnapshotActor" : {
+        "properties" : {
+          "city" : {
+            "type" : [ "string", "null" ]
+          },
+          "country" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "country", "name" ],
+        "type" : "object"
+      },
+      "SnapshotBatch" : {
+        "properties" : {
+          "producedFrom" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "producedTo" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "SnapshotCertificate" : {
+        "properties" : {
+          "certNo" : {
+            "type" : [ "string", "null" ]
+          },
+          "holder" : {
+            "type" : [ "string", "null" ]
+          },
+          "issuer" : {
+            "type" : [ "string", "null" ]
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "type" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : "string"
+          },
+          "validFrom" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          },
+          "validUntil" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        },
+        "required" : [ "key", "type", "validUntil" ],
+        "type" : "object"
+      },
+      "SnapshotManufacturer" : {
+        "properties" : {
+          "city" : {
+            "type" : [ "string", "null" ]
+          },
+          "country" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "country", "name" ],
+        "type" : "object"
+      },
+      "SnapshotPassport" : {
+        "properties" : {
+          "batchNo" : {
+            "type" : "string"
+          },
+          "gtin" : {
+            "type" : "string"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "batchNo", "gtin", "version" ],
+        "type" : "object"
+      },
+      "SnapshotProduct" : {
+        "properties" : {
+          "category" : {
+            "$ref" : "#/components/schemas/ProductCategory"
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "fiberComposition" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FiberShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "category", "name" ],
+        "type" : "object"
+      },
+      "SnapshotStep" : {
+        "properties" : {
+          "actor" : {
+            "$ref" : "#/components/schemas/SnapshotActor"
+          },
+          "approved" : {
+            "type" : "boolean"
+          },
+          "approvedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "certificates" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/SnapshotStepData"
+          },
+          "inputs" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/StepType"
+          }
+        },
+        "required" : [ "approved", "certificates", "inputs", "key", "type" ],
+        "type" : "object"
+      },
+      "SnapshotStepData" : {
+        "properties" : {
+          "chemicalStandards" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ChemicalStandard"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "dyeProcess" : {
+            "$ref" : "#/components/schemas/DyeProcess"
+          },
+          "dyeProcessOther" : {
+            "type" : [ "string", "null" ]
+          },
+          "energyKwhPerKg" : {
+            "type" : [ "number", "null" ]
+          },
+          "energyKwhPerPiece" : {
+            "type" : [ "number", "null" ]
+          },
+          "energySources" : {
+            "items" : {
+              "$ref" : "#/components/schemas/EnergyShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "fabricType" : {
+            "type" : [ "string", "null" ]
+          },
+          "fiberComposition" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FiberShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "fiberType" : {
+            "$ref" : "#/components/schemas/Fiber"
+          },
+          "gsm" : {
+            "type" : [ "number", "null" ]
+          },
+          "originCountry" : {
+            "type" : [ "string", "null" ]
+          },
+          "originRegion" : {
+            "type" : [ "string", "null" ]
+          },
+          "waterLPerKg" : {
+            "type" : [ "number", "null" ]
+          },
+          "yarnCount" : {
+            "type" : [ "string", "null" ]
+          },
+          "yarnProcess" : {
+            "$ref" : "#/components/schemas/YarnProcess"
+          }
+        },
         "type" : "object"
       },
       "StepCreateRequest" : {
@@ -1772,6 +2091,17 @@
           }
         },
         "required" : [ "docType" ],
+        "type" : "object"
+      },
+      "WithdrawRequest" : {
+        "properties" : {
+          "reason" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "reason" ],
         "type" : "object"
       },
       "YarnProcess" : {
@@ -2494,6 +2824,222 @@
         "tags" : [ "supply-chain" ]
       }
     },
+    "/api/v1/batches/{id}/passport-preview" : {
+      "get" : {
+        "description" : "Steps that are not approved show as such, without data. Panel only.",
+        "operationId" : "previewPassport",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PassportSnapshot"
+                }
+              }
+            },
+            "description" : "The snapshot"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          }
+        },
+        "summary" : "The passport as it would be published now, nothing saved",
+        "tags" : [ "passports" ]
+      }
+    },
+    "/api/v1/batches/{id}/passports" : {
+      "get" : {
+        "operationId" : "listPassportVersions",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/PassportVersionResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "The versions"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          }
+        },
+        "summary" : "The versions of the batch's passport, newest first",
+        "tags" : [ "passports" ]
+      },
+      "post" : {
+        "description" : "The server computes the compliance score and refuses (409 PUBLISH_BLOCKED, with blockers) while anything blocks. The snapshot is frozen; the previous version becomes SUPERSEDED.",
+        "operationId" : "publishPassport",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PassportVersionResponse"
+                }
+              }
+            },
+            "description" : "Published"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN publish"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "PUBLISH_BLOCKED (blockers in the body) or ALREADY_PUBLISHED"
+          }
+        },
+        "summary" : "Publish a new version of the batch's passport",
+        "tags" : [ "passports" ]
+      }
+    },
+    "/api/v1/batches/{id}/passports/draft" : {
+      "post" : {
+        "description" : "The published version stays published and keeps answering the QR code; the batch can be changed again and the next publishing makes a new version.",
+        "operationId" : "openPassportDraft",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BatchResponse"
+                }
+              }
+            },
+            "description" : "The batch, editable again"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "BATCH_NOT_PUBLISHED"
+          }
+        },
+        "summary" : "Open the batch for a new version",
+        "tags" : [ "passports" ]
+      }
+    },
     "/api/v1/batches/{id}/score" : {
       "get" : {
         "description" : "Three criteria (approved steps 50, required fields 30, valid certificates 20), the blockers that stop publishing whatever the score, and warnings. Computed on every call; publishing needs no blocker, the threshold is part of them.",
@@ -2943,6 +3489,134 @@
         },
         "summary" : "Confirm what was read from a document",
         "tags" : [ "documents" ]
+      }
+    },
+    "/api/v1/passports/{id}" : {
+      "get" : {
+        "description" : "Panel only: old versions are not public (docs/m6-plan.md §9 decision 8).",
+        "operationId" : "getPassport",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PassportDetailResponse"
+                }
+              }
+            },
+            "description" : "The version and its snapshot"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such passport in this company"
+          }
+        },
+        "summary" : "One version with its frozen content",
+        "tags" : [ "passports" ]
+      }
+    },
+    "/api/v1/passports/{id}/withdraw" : {
+      "post" : {
+        "description" : "The QR code then says the passport was withdrawn. The batch can be changed again; there is no way back to an older version.",
+        "operationId" : "withdrawPassport",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/WithdrawRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PassportVersionResponse"
+                }
+              }
+            },
+            "description" : "Withdrawn"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "A reason is required"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such passport in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "NOT_PUBLISHED: only the published version can be withdrawn"
+          }
+        },
+        "summary" : "Withdraw the published version",
+        "tags" : [ "passports" ]
       }
     },
     "/api/v1/products" : {
@@ -4670,6 +5344,9 @@
   }, {
     "description" : "Certificates and technical sheets of a step (M5)",
     "name" : "documents"
+  }, {
+    "description" : "Passport versions of a batch: publish, preview, withdraw (the panel; the public page is a separate, login-free endpoint)",
+    "name" : "passports"
   }, {
     "description" : "Product models (one GTIN each) of the current company",
     "name" : "products"

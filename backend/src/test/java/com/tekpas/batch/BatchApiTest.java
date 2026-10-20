@@ -595,8 +595,11 @@ class BatchApiTest {
             Tenant tenant = fixtures.tenant();
             String id = createBatch(tenant);
             jdbc.update("""
-                    INSERT INTO passport (batch_id, version, status, snapshot, completeness)
-                    VALUES (?::uuid, 1, 'WITHDRAWN', '{}'::jsonb, 0)
+                    INSERT INTO passport (batch_id, company_id, gtin, batch_no, version, status, snapshot,
+                                          snapshot_sha256, completeness, withdrawn_at, withdraw_reason)
+                    SELECT b.id, b.company_id, p.gtin, b.batch_no, 1, 'WITHDRAWN', '{}'::jsonb, repeat('0', 64), 0,
+                           now(), 'test'
+                    FROM batch b JOIN product p ON p.id = b.product_id WHERE b.id = ?::uuid
                     """, id);
 
             MvcTestResult result = fixtures.delete(tenant, BATCHES + "/" + id);
