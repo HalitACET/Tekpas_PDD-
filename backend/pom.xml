@@ -17,6 +17,7 @@
 		<java.version>21</java.version>
 		<springdoc.version>3.1.1</springdoc.version>
 		<pdfbox.version>3.0.8</pdfbox.version>
+		<zxing.version>3.5.3</zxing.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -59,6 +60,11 @@
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
 			<version>${pdfbox.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>${zxing.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>

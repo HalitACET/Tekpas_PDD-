@@ -22,5 +22,11 @@ public interface PassportRepository extends JpaRepository<Passport, UUID> {
 
     Optional<Passport> findFirstByBatchIdAndCompanyIdOrderByVersionDesc(UUID batchId, UUID companyId);
 
+    /**
+     * The public lookup (QR code): the newest version of the passport with this GTIN and batch number. Not filtered by
+     * company on purpose: a GTIN is worldwide unique (M2) and the page is for everyone.
+     */
+    Optional<Passport> findFirstByGtinAndBatchNoOrderByVersionDesc(String gtin, String batchNo);
+
     Optional<Passport> findByBatchIdAndCompanyIdAndStatus(UUID batchId, UUID companyId, PassportStatus status);
 }

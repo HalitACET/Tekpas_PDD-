@@ -381,6 +381,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/passports/{id}/qr.png": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The QR code of the passport address as a PNG
+         * @description The GS1 Digital Link without a version: the same code shows whichever version is current. Only the code is drawn (error correction M, quiet zone 4). size: 512 (default) or 1024.
+         */
+        get: operations["getPassportQrPng"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/passports/{id}/qr.svg": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The QR code of the passport address as an SVG (for print) */
+        get: operations["getPassportQrSvg"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/passports/{id}/withdraw": {
         parameters: {
             query?: never;
@@ -456,6 +493,26 @@ export interface paths {
          * @description The product's last chain is copied; without one, the default five-step chain is used.
          */
         get: operations["getChainPreview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/passports/01/{gtin}/10/{batch}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The published passport of a code
+         * @description gtin: GTIN-8/12/13/14 (normalized to 14 digits), batch: the AI (10) batch number (upper-cased). Always the newest version; older versions are not public. Never published or unreadable code: 404 PASSPORT_NOT_FOUND. Withdrawn: 410 PASSPORT_WITHDRAWN with the date.
+         */
+        get: operations["getPublicPassport"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1131,6 +1188,7 @@ export interface components {
             batchNo: string;
             /** Format: int32 */
             completeness: number;
+            digitalLink: string;
             gtin: string;
             /** Format: uuid */
             id: string;
@@ -1209,6 +1267,10 @@ export interface components {
             sizeBytes: number;
             /** Format: date-time */
             uploadedAt: string;
+        };
+        PublicPassportResponse: {
+            snapshot: components["schemas"]["PassportSnapshot"];
+            verificationCode: string;
         };
         PublicRejection: {
             /** Format: date-time */
@@ -2692,6 +2754,97 @@ export interface operations {
             };
         };
     };
+    getPassportQrPng: {
+        parameters: {
+            query?: {
+                size?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The image */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                };
+            };
+            /** @description size is not 512 or 1024 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such passport in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getPassportQrSvg: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The image */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/svg+xml": string;
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such passport in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     withdrawPassport: {
         parameters: {
             query?: never;
@@ -3032,6 +3185,56 @@ export interface operations {
             };
             /** @description No such product in this company */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getPublicPassport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                gtin: string;
+                batch: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The passport */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicPassportResponse"];
+                };
+            };
+            /** @description No published passport for this code (PASSPORT_NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Withdrawn by the manufacturer (PASSPORT_WITHDRAWN) */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Too many requests */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -5,7 +5,10 @@ import java.time.Instant;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
-/** One version of a batch's passport, without its content (the versions tab, the answer of publishing). */
+/**
+ * One version of a batch's passport, without its content (the versions tab, the answer of publishing).
+ * {@code digitalLink} is the GS1 Digital Link the QR code holds; it is the same for every version of a batch.
+ */
 public record PassportVersionResponse(
         UUID id,
         UUID batchId,
@@ -13,6 +16,7 @@ public record PassportVersionResponse(
         PassportStatus status,
         String gtin,
         String batchNo,
+        String digitalLink,
         int schemaVersion,
         int completeness,
         String verificationCode,

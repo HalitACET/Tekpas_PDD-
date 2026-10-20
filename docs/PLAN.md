@@ -91,8 +91,8 @@ SUPPLIER sadece `supplier_company_id`'si kendi firması olan adımları görür.
 | Tedarikçi (girişsiz, token `X-Request-Token` başlığında, K21) | `GET /public/request` · `POST /public/request/submit` · `POST /public/request/documents` · `DELETE /public/request/documents/{id}` (M5) |
 | Belge + AI | `POST /steps/{id}/documents` (202, okuma kuyruğa) · `GET /steps/{id}/documents` · `GET /documents/{id}` · `GET /documents/{id}/file` · `DELETE /documents/{id}` · `POST /documents/{id}/verify` · `GET /documents/expiring?days=30` (M7) |
 | Tutarlılık | `POST /batches/{id}/validate` · `GET /batches/{id}/issues` · `POST /issues/{id}/resolve` |
-| Pasaport | `POST /batches/{id}/passports` · `GET /batches/{id}/passports` · `POST /passports/{id}/withdraw` · `GET /passports/{id}/qr.png` |
-| Pasaport (girişsiz) | `GET /public/passports/01/{gtin}/10/{batch}?lang=` |
+| Pasaport | `POST /batches/{id}/passports` · `GET /batches/{id}/passports` · `GET /batches/{id}/passport-preview` · `POST /batches/{id}/passports/draft` · `GET /passports/{id}` · `POST /passports/{id}/withdraw` · `GET /passports/{id}/qr.png?size=512\|1024` · `GET /passports/{id}/qr.svg` |
+| Pasaport (girişsiz) | `GET /public/passports/01/{gtin}/10/{batch}` (her zaman en son sürüm; dil sayfada seçilir, `?lang=` yok) |
 | Excel | `GET /imports/template?kind=` · `POST /imports` · `GET /imports/{id}` |
 | Mobil | `POST /push-tokens` · `DELETE /push-tokens/{token}` |
 
@@ -202,7 +202,7 @@ Plan: `docs/m6-plan.md` (uyum skoru kuralları, snapshot ve sürüm modeli, GS1 
 
 - [ ] Uyum skoru (onaylı adımlar + zorunlu alanlar + geçerli sertifikalar). _T1 (backend) tamam: `GET /batches/{id}/score`, `GET /batches` ve `GET /batches/{id}`'de `score`, `ComplianceScore` (saf hesap) + 16 birim, 7 entegrasyon testi; web kartı T6'da._
 - [ ] Yayınla: snapshot, sürüm, eski sürüm SUPERSEDED; geri çek. _T2 (backend) tamam: V11 + değişmezlik tetikleyicisi, `POST /batches/{id}/passports`, önizleme, sürümler, `passports/draft`, `GET /passports/{id}`, geri çek; 17 entegrasyon testi. Herkese açık uç ve QR T3'te._
-- [ ] QR üretimi (GS1 Digital Link), PNG indirme
+- [ ] QR üretimi (GS1 Digital Link), PNG indirme. _T3 (backend) tamam: `Gs1DigitalLink` (Java + `packages/shared` ikizi, ortak vektörler), ZXing `core` 3.5.3, `qr.png`/`qr.svg`, herkese açık `GET /public/passports/01/{gtin}/10/{batch}` (200/404/410, 120/dk IP sınırı), `PUBLIC_BASE_URL` (`render.yaml`'a eklendi)._
 - [ ] Web: `/01/[gtin]/10/[batch]` SSR pasaport sayfası (zincir, lif bileşimi, sertifikalar, bakım)
 - [ ] Yayın eşiği: uyum skoru %90 altındaysa yayınlanamaz; yayından önce "Önizle" (tasarım v0.3)
 - *Kararlar* (`docs/m6-plan.md` §9, onaylı): onaysız adım yayını engeller; skor 50/30/20, tüketiciye görünmez; tedarikçi adları açık; QR backend'de ZXing; düzenleme = yeni sürüm taslağı (yayın geri çekilmez, yayınlanınca eskisi SUPERSEDED); geri çekilen QR'da "Geri çekildi"; eski sürümler yalnızca panelde; bakım bilgisi M10'da; Vercel ISR + `next.tags` ve yayında önbellek ısıtma; okutma istatistiği yok; public sayfa `noindex`.

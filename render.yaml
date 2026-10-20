@@ -33,5 +33,8 @@ services:
         sync: false
       - key: DEMO_PASSWORD
         sync: false
+      # QR codes point here (K13, M6). No domain yet; one value to change later.
+      - key: PUBLIC_BASE_URL
+        value: https://kozapass.vercel.app
       # CORS_ALLOWED_ORIGINS is optional (K18: the web app goes through its own origin); add it in the
       # dashboard only if a browser client ever calls the API directly.

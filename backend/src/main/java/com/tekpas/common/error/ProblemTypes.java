@@ -19,6 +19,10 @@ public final class ProblemTypes {
     public static final URI LINK_INVALID = of("link-invalid");
     /** A data request link that expired, was revoked or was used (410, design v0.4 44). */
     public static final URI LINK_GONE = of("link-gone");
+    /** The public passport page: no published passport for this code (404). */
+    public static final URI PASSPORT_NOT_FOUND = of("passport-not-found");
+    /** The public passport page: the manufacturer withdrew the passport (410). */
+    public static final URI PASSPORT_WITHDRAWN = of("passport-withdrawn");
     /** No file storage provider is configured (503). */
     public static final URI STORAGE_UNAVAILABLE = of("storage-unavailable");
     /** The file storage provider failed (502). */
