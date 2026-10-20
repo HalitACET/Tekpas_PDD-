@@ -129,6 +129,11 @@
             "format" : "int32",
             "type" : "integer"
           },
+          "score" : {
+            "description" : "Compliance score 0–100 (docs/m6-plan.md §2); GET /batches/{id}/score tells how it adds up",
+            "format" : "int32",
+            "type" : "integer"
+          },
           "status" : {
             "$ref" : "#/components/schemas/BatchStatus"
           },
@@ -137,7 +142,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "batchNo", "chain", "createdAt", "id", "product", "quantity", "status", "updatedAt" ],
+        "required" : [ "batchNo", "chain", "createdAt", "id", "product", "quantity", "score", "status", "updatedAt" ],
         "type" : "object"
       },
       "BatchStatus" : {
@@ -362,6 +367,10 @@
         },
         "required" : [ "code", "createdAt", "expiresAt", "id", "token", "validDays" ],
         "type" : "object"
+      },
+      "CriterionCode" : {
+        "enum" : [ "STEPS_APPROVED", "REQUIRED_FIELDS", "VALID_CERTIFICATES" ],
+        "type" : "string"
       },
       "DataRequestOptions" : {
         "properties" : {
@@ -1124,6 +1133,125 @@
       "RequestStatus" : {
         "enum" : [ "SENT", "OPENED", "COMPLETED", "EXPIRED", "REVOKED" ],
         "type" : "string"
+      },
+      "ScoreCriterion" : {
+        "properties" : {
+          "code" : {
+            "$ref" : "#/components/schemas/CriterionCode"
+          },
+          "earned" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ScoreItem"
+            },
+            "type" : "array"
+          },
+          "possible" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "code", "earned", "items", "possible" ],
+        "type" : "object"
+      },
+      "ScoreIssue" : {
+        "properties" : {
+          "code" : {
+            "$ref" : "#/components/schemas/ScoreIssueCode"
+          },
+          "count" : {
+            "format" : "int32",
+            "type" : [ "integer", "null" ]
+          },
+          "docType" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : [ "string", "null" ]
+          },
+          "stepId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "validUntil" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "code" ],
+        "type" : "object"
+      },
+      "ScoreIssueCode" : {
+        "enum" : [ "NO_CHAIN", "STEP_NOT_APPROVED", "CERTIFICATE_EXPIRED", "SCORE_BELOW_THRESHOLD", "UNREVIEWED_DOCUMENTS", "CERTIFICATE_EXPIRING" ],
+        "type" : "string"
+      },
+      "ScoreItem" : {
+        "properties" : {
+          "code" : {
+            "$ref" : "#/components/schemas/ScoreItemCode"
+          },
+          "missing" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "ok" : {
+            "type" : "boolean"
+          },
+          "stepId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          }
+        },
+        "required" : [ "code", "ok" ],
+        "type" : "object"
+      },
+      "ScoreItemCode" : {
+        "enum" : [ "STEP_APPROVED", "STEP_FIELDS", "PRODUCT_FIBERS", "PRODUCT_CATEGORY", "BATCH_DATES", "STEP_CERTIFICATE" ],
+        "type" : "string"
+      },
+      "ScoreResponse" : {
+        "properties" : {
+          "blockers" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ScoreIssue"
+            },
+            "type" : "array"
+          },
+          "criteria" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ScoreCriterion"
+            },
+            "type" : "array"
+          },
+          "publishable" : {
+            "type" : "boolean"
+          },
+          "score" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "threshold" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "warnings" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ScoreIssue"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "blockers", "criteria", "publishable", "score", "threshold", "warnings" ],
+        "type" : "object"
       },
       "StepCreateRequest" : {
         "properties" : {
@@ -2364,6 +2492,55 @@
         },
         "summary" : "Give a batch without steps the default chain",
         "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/batches/{id}/score" : {
+      "get" : {
+        "description" : "Three criteria (approved steps 50, required fields 30, valid certificates 20), the blockers that stop publishing whatever the score, and warnings. Computed on every call; publishing needs no blocker, the threshold is part of them.",
+        "operationId" : "getBatchScore",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ScoreResponse"
+                }
+              }
+            },
+            "description" : "The score"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          }
+        },
+        "summary" : "The batch's compliance score and how it adds up",
+        "tags" : [ "batches" ]
       }
     },
     "/api/v1/batches/{id}/steps" : {

@@ -14,20 +14,20 @@ Dayandığı kararlar: K11 (pasaport seviyesi parti), K12 (snapshot dondurulur),
 
 ## 2. Uyum skoru
 
-**Ne ölçer:** Partinin yayına ne kadar hazır olduğunu, açıklanabilir ve test edilebilir kurallarla. AI kullanılmaz (M7'nin AI kontrolleri ayrı). Değer 0–100 tam sayı, **aşağı yuvarlanır** (eşiğe yuvarlamayla ulaşılmaz). Tarih kuralları `Europe/Istanbul` gününe göre, `Clock` enjekte edilir.
+**Ne ölçer:** Partinin yayına ne kadar hazır olduğunu, açıklanabilir ve test edilebilir kurallarla. AI kullanılmaz (M7'nin AI kontrolleri ayrı). Değer 0–100 tam sayı. Her ölçüt kendi puanını **aşağı yuvarlar**, skor bu puanların toplamıdır (panelde parçalar toplamla tutar; eşiğe yuvarlamayla ulaşılmaz). Adım payları tam kesirle toplanır. Tarih kuralları `Europe/Istanbul` gününe göre, `Clock` enjekte edilir.
 
 | Kod | Ölçüt | Puan | Hesap |
 | --- | --- | :-: | --- |
 | `STEPS_APPROVED` | Onaylı adımlar | 50 | Zincirdeki her adım eşit pay; `APPROVED` adım tam puan (FIBER menşe girilince onaylı sayılıyor, M4). |
 | `REQUIRED_FIELDS` | Zorunlu alanlar | 30 | Yarısı adımlar: her adımın `StepData.missingFor(type)` listesine göre doldurulan oran. Yarısı ürün/parti: lif bileşimi (toplam 100), kategori, üretim tarih aralığı. Bakım bilgisi M10'a ertelendi (karar 9), ölçütte yok. |
-| `VALID_CERTIFICATES` | Geçerli sertifikalar | 20 | Sertifika beklenen adımlar (karar 2: `YARN`, `FABRIC`, `DYEING`; zincirde olanlar) eşit pay. Adımda en az bir **onaylı** (`VERIFIED`) sertifika türü belge (`DocType.isCertificate()`) ve `validUntil ≥ bugün` ise tam pay. Onaysız belge sayılmaz (kural 5). |
+| `VALID_CERTIFICATES` | Geçerli sertifikalar | 20 | Sertifika beklenen adımlar (karar 2: `YARN`, `FABRIC`, `DYEING`; zincirde olanlar) eşit pay. Adımda en az bir **onaylı** (`VERIFIED`) sertifika türü belge (`DocType.isCertificate()`) ve `validUntil ≥ bugün` ise tam pay. Onaysız belge sayılmaz (kural 5). Zincirde sertifika beklenen adım yoksa (ör. yalnızca lif ve konfeksiyon) kaçıracak bir şey yoktur, tam puan; zincir yoksa 0. |
 
 Örnek (varsayılan 5 adım, hepsi onaylı, alanlar tam): 3 sertifikadan 2'si → 50 + 30 + 13 = **93** (yayınlanır); 1'i → 50 + 30 + 6 = **86** (yayınlanamaz). Yani eşik pratikte "en az iki geçerli sertifika" demek.
 
 **Engeller** (skordan bağımsız, biri bile varsa yayın kapalı; her biri koduyla ve varsa adımıyla döner):
 - `NO_CHAIN`: zincir yok.
 - `STEP_NOT_APPROVED`: onaysız adım var (karar 1: halka açık veri insan onayı olmadan yayınlanmaz; skor %90 üstündeyken bile engeldir).
-- `CERTIFICATE_EXPIRED`: onaylı bir sertifikanın süresi dolmuş (adımın sertifika payı da 0).
+- `CERTIFICATE_EXPIRED`: onaylı bir sertifikanın süresi dolmuş **ve aynı adımda aynı türden geçerli sertifika yok** (yenileme eskisinin yerini alır; süresi dolan GOTS'u geçerli bir OEKO-TEX kurtarmaz). Bitiş günü dahil geçerlidir. Sertifika beklenmeyen adımlardaki (ör. konfeksiyon) onaylı sertifikalar da kontrol edilir.
 - `SCORE_BELOW_THRESHOLD`: skor < 90.
 - M7 için yer: açık kritik tutarlılık uyarısı (`ISSUES_OPEN`), M6'da her zaman 0.
 

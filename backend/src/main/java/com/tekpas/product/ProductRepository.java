@@ -2,6 +2,8 @@ package com.tekpas.product;
 
 import com.tekpas.product.dto.ProductListItem;
 import jakarta.persistence.LockModeType;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
@@ -15,6 +17,8 @@ import org.springframework.data.jpa.repository.Query;
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     Optional<Product> findByIdAndCompanyId(UUID id, UUID companyId);
+
+    List<Product> findByCompanyIdAndIdIn(UUID companyId, Collection<UUID> ids);
 
     /** FOR UPDATE: product changes that depend on "has no batches" (delete, GTIN change). */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
