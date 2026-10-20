@@ -93,6 +93,7 @@ Beklenen: `1 init` ve `2 auth and jobs`, ikisi de `success = true`.
    | --- | --- |
    | `BACKEND_URL` | 3. adımdaki Render adresi, sonda `/` olmadan |
    | `ENABLE_EXPERIMENTAL_COREPACK` | `1` |
+   | `REVALIDATE_SECRET` | En az 32 karakterlik rastgele değer (ör. `openssl rand -hex 32`). **Render'daki `REVALIDATE_SECRET` ile aynı olmalı** (M6): yayından sonra backend `POST /api/passport-cache` ile pasaport sayfasının önbelleğini bu gizli değerle düşürür. Yoksa veya kısaysa uç kapalı kalır (503) ve sayfa yalnızca önbelleği dolunca yenilenir. |
 
    Corepack açık olmazsa Vercel pnpm 10 kullanır; repo pnpm 11 istediği için (`engineStrict`) kurulum düşer. `BACKEND_URL` yoksa build bilerek hata verir.
 4. **Deploy**. Sonra **Settings → Build and Deployment**:

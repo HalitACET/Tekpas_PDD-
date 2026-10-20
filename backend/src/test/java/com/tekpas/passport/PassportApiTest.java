@@ -377,6 +377,42 @@ class PassportApiTest {
     }
 
     @Test
+    void publishingAndWithdrawingQueueTheWebCacheRefreshAndOpeningADraftDoesNot() throws IOException {
+        Tenant owner = fixtures.tenant();
+        Setup s = t.prepare(owner);
+        fixtures.post(owner, "/api/v1/batches/" + s.batchId() + "/passports", Map.of());
+        // A refused publishing queues nothing (and its transaction would take the job with it).
+        assertThat(refreshJobs(s)).isZero();
+
+        t.approveAll(s);
+        t.confirm(s, "YARN", "gots-scope-certificate.pdf", "GOTS", "2099-03-13");
+        t.confirm(s, "FABRIC", "oekotex-standard100.pdf", "OEKO_TEX", "2099-01-01");
+        String id = published(owner, s.batchId()).path("id").asString();
+        assertThat(refreshJobs(s)).isEqualTo(1);
+        String payload = jdbc.queryForObject("SELECT payload::text FROM job WHERE type = 'PASSPORT_CACHE_REFRESH' "
+                + "AND payload->>'gtin' = ?", String.class, s.gtin());
+        assertThat(payload).contains(s.gtin()).contains(s.batchNo());
+
+        fixtures.post(owner, "/api/v1/batches/" + s.batchId() + "/passports/draft", Map.of());
+        assertThat(refreshJobs(s)).isEqualTo(1);
+
+        fixtures.post(owner, "/api/v1/passports/" + id + "/withdraw", Map.of("reason", "x"));
+        assertThat(refreshJobs(s)).isEqualTo(2);
+
+        // No secret in the test configuration: the job ends at once and succeeds.
+        while (worker.runPending() > 0) {
+            // every due job
+        }
+        assertThat(jdbc.queryForList("SELECT DISTINCT status FROM job WHERE type = 'PASSPORT_CACHE_REFRESH' "
+                + "AND payload->>'gtin' = ?", String.class, s.gtin())).containsExactly("DONE");
+    }
+
+    private int refreshJobs(Setup s) {
+        return jdbc.queryForObject("SELECT count(*) FROM job WHERE type = 'PASSPORT_CACHE_REFRESH' "
+                + "AND payload->>'gtin' = ?", Integer.class, s.gtin());
+    }
+
+    @Test
     void publishAndWithdrawAreWrittenToTheAuditTrail() throws IOException {
         Tenant owner = fixtures.tenant();
         Setup s = t.publishable(owner);

@@ -11,7 +11,9 @@ public enum JobType {
     CERT_EXPIRY_SCAN(3),
     PUSH_NOTIFY(3),
     /** Remove documents of links that closed without a submission, 7 days on (M5 T3). */
-    DOCUMENT_CLEANUP(3);
+    DOCUMENT_CLEANUP(3),
+    /** Drop the web app's cached passport page after a publishing or a withdrawal and warm it (M6 T4). */
+    PASSPORT_CACHE_REFRESH(4);
 
     private final int maxAttempts;
 

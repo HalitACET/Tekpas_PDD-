@@ -224,3 +224,12 @@ Ad şu sırayla çözülür (`renderVals`, `p.name`):
 - **Hız sınırı:** ayrı kova `passport`, IP başına dakikada 120, IP bilinmiyorsa genel 600 (testte 121. istek 429). Önbellek (T4) çoğu isteği zaten sunucuya getirmeyecek.
 - **Kütüphane:** ZXing `core` 3.5.3 (Apache-2.0, geçişli bağımlılık yok); PNG için JDK `ImageIO`, SVG modül matrisinden. Hata düzeltme M, sessiz bölge 4 modül (testte ölçülüyor), PNG ve SVG ZXing ile geri çözülüp adrese eşitleniyor. `PassportVersionResponse.digitalLink` eklendi.
 - `ApiException` ek alan taşıyabiliyor (`property`); `ConflictException.with` ayrı kaldı.
+
+### 10.5 T4 uygulama notları (önbellek yenileme)
+
+- **Önbellek kararı:** kök yerleşim `getLocale()` ile başlık/çerez okuduğu için pasaport sayfası statik (ISR) olamaz; sayfa sunucuda çizilir, **veri** `unstable_cache` ile etiketli önbelleğe alınır (Next 16'da `use cache`'in yerine geçtiği belirtilen ama `cacheComponents` istemeyen yol; sonuç istekler ve deploy'lar arasında kalır). Veri dilden bağımsız olduğundan bir kayıt üç dili de karşılar; dil yalnızca çizimde seçilir. Önbelleğe 200 (yayında) ve 410 (geri çekilmiş) sonuçları girer; 404 ve hatalar girmez (rastgele kodlarla önbellek şişirilemez, yayından sonra eski 404 kalmaz). Bu uygulama T5'te.
+- **`PASSPORT_CACHE_REFRESH`** (V12'de iş türü, en çok 4 deneme: 30 sn, 2 dk, 10 dk): yayın ve geri çekme transaction'ında kuyruğa girer (geri alınırsa iş de gider), commit sonrası çalışır; taslak açmak herkese açık sayfayı değiştirmediği için iş yok. İş önce `POST {PUBLIC_BASE_URL}/api/passport-cache` (Bearer `REVALIDATE_SECRET`) çağırır, sonra her dilde sayfayı bir kez ister (backend uyanıkken önbelleği doldurur; en iyi çaba, hata yalnızca loglanır). 401/403/404 tekrarsız FAILED (yanlış gizli değer ya da uç yok), 5xx ve ulaşılamama tekrar denenir. Gizli değer yoksa (yerel, test) iş hemen biter.
+- **Web ucu** `POST /api/passport-cache`: gizli değer en az 32 karakter değilse 503 (kapalı), Bearer'ı sabit zamanlı karşılaştırır (401, gövdesiz), gövdedeki kodu `parseDigitalLink` ile kanonikleştirir (400), `revalidateTag(tag, { expire: 0 })` (bayat içerik sunulmaz, sonraki tarama taze veriyi bekler) ve 204 döner. Etiket `passport:{gtin14}:{BATCHNO}`.
+- **Yeni ortam değişkeni `REVALIDATE_SECRET`** Render (`render.yaml`, `sync: false`) ve Vercel'de aynı değerle; kullanıcı tarafından girilmesi gerekir (`docs/DEPLOY.md`).
+- **Açık, canlıda ölçülecek (T7):** Vercel'de `unstable_cache` verisinin yeni deploy'dan sonra korunduğu; korunmuyorsa deploy sonrası ısıtma eklenir.
+
