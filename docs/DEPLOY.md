@@ -60,7 +60,7 @@ openssl rand -base64 48
    | `JWT_SECRET` | 1. adımın çıktısı |
    | `DEMO_PASSWORD` | Demo kullanıcılarının şifresi (sen belirle). Boş bırakırsan demo kullanıcıları oluşmaz. |
 
-   `SPRING_PROFILES_ACTIVE=prod,demo` Blueprint'ten otomatik gelir. `PUBLIC_BASE_URL` (QR adresleri, K13) M6'da eklenecek; değeri `https://kozapass.vercel.app` olacak. `CORS_ALLOWED_ORIGINS` yok: web kendi origin'i üzerinden eriştiği için (K18) gerekmez, boşsa CORS kapalıdır.
+   `SPRING_PROFILES_ACTIVE=prod,demo` Blueprint'ten otomatik gelir. `PUBLIC_BASE_URL` (QR adresleri, K13, M6) Blueprint'ten gelir; değeri `https://kozapass.vercel.app`, alan adı gelince tek satır değişir. `CORS_ALLOWED_ORIGINS` yok: web kendi origin'i üzerinden eriştiği için (K18) gerekmez, boşsa CORS kapalıdır.
 4. **Apply**. İlk build 3–5 dk sürer (Maven bağımlılıkları + CDS arşivi).
 5. **Logs** sekmesinde şu iki satırı bekle:
    - `Started TekpasApplication in … seconds`

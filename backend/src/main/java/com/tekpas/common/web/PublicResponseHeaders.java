@@ -15,6 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class PublicResponseHeaders extends OncePerRequestFilter {
 
+    private static final String PASSPORTS = "/api/v1/public/passports/";
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return !request.getRequestURI().startsWith("/api/v1/public/");
@@ -23,9 +25,16 @@ public class PublicResponseHeaders extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        response.setHeader("Cache-Control", "no-store");
-        response.setHeader("X-Robots-Tag", "noindex, nofollow");
-        response.setHeader("Referrer-Policy", "no-referrer");
+        if (request.getRequestURI().startsWith(PASSPORTS)) {
+            // The passport is for everyone: the controller sets Cache-Control on a good answer, errors stay uncached.
+            // No indexing while the addresses are demo ones (docs/m6-plan.md §9 decision 12).
+            response.setHeader("X-Robots-Tag", "noindex");
+            response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+        } else {
+            response.setHeader("Cache-Control", "no-store");
+            response.setHeader("X-Robots-Tag", "noindex, nofollow");
+            response.setHeader("Referrer-Policy", "no-referrer");
+        }
         chain.doFilter(request, response);
     }
 }

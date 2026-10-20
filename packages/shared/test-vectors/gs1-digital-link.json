@@ -1,0 +1,31 @@
+{
+  "description": "Shared GS1 Digital Link cases: backend Gs1DigitalLinkTest (Java) and packages/shared gs1-digital-link.test.ts read this file, so both sides build and read the same address. path: GTIN-14 and AI (10) batch number as they are stored. parse: what a scanned address resolves to (GTIN normalized to 14 digits, batch number upper-cased), null when it is not a valid code.",
+  "valid": [
+    { "gtin": "04006381333931", "batchNo": "L2611A", "path": "/01/04006381333931/10/L2611A", "note": "GTIN-14 as stored" },
+    { "gtin": "4006381333931", "batchNo": "L2611A", "path": "/01/04006381333931/10/L2611A", "note": "GTIN-13 is padded to 14" },
+    { "gtin": "036000291452", "batchNo": "KP-2026-0915-A", "path": "/01/00036000291452/10/KP-2026-0915-A", "note": "GTIN-12 (UPC-A), dashes in the batch number" },
+    { "gtin": "96385074", "batchNo": "A", "path": "/01/00000096385074/10/A", "note": "GTIN-8, shortest batch number" },
+    { "gtin": "02012345000025", "batchNo": "ABCDEFGHIJ0123456789", "path": "/01/02012345000025/10/ABCDEFGHIJ0123456789", "note": "20 characters, the AI (10) maximum" }
+  ],
+  "invalidPath": [
+    { "gtin": "4006381333932", "batchNo": "L2611A", "note": "wrong check digit" },
+    { "gtin": "40063813339", "batchNo": "L2611A", "note": "11 digits" },
+    { "gtin": "04006381333931", "batchNo": "l2611a", "note": "lower case is not a stored batch number" },
+    { "gtin": "04006381333931", "batchNo": "L26 11A", "note": "space" },
+    { "gtin": "04006381333931", "batchNo": "ABCDEFGHIJ01234567890", "note": "21 characters" },
+    { "gtin": "04006381333931", "batchNo": "", "note": "empty" }
+  ],
+  "parse": [
+    { "gtin": "4006381333931", "batchNo": "l2611a", "gtin14": "04006381333931", "batch": "L2611A", "note": "GTIN-13 and lower case from a hand-typed address" },
+    { "gtin": "04006381333931", "batchNo": "KP-2026-0915-A", "gtin14": "04006381333931", "batch": "KP-2026-0915-A", "note": "canonical" },
+    { "gtin": "036000291452", "batchNo": "a", "gtin14": "00036000291452", "batch": "A", "note": "GTIN-12" }
+  ],
+  "unreadable": [
+    { "gtin": "4006381333932", "batchNo": "L2611A", "note": "wrong check digit" },
+    { "gtin": "4006381333931", "batchNo": "L26 11A", "note": "space in the batch number" },
+    { "gtin": "4006381333931", "batchNo": "ABCDEFGHIJ01234567890", "note": "21 characters" },
+    { "gtin": "4006381333931", "batchNo": "", "note": "empty batch number" },
+    { "gtin": "4006381333", "batchNo": "L2611A", "note": "10 digits" },
+    { "gtin": "04006381333931", "batchNo": "L2611A%20", "note": "percent sign" }
+  ]
+}

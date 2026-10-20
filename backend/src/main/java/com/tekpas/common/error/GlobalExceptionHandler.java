@@ -45,6 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ApiException.class)
     ProblemDetail handleApiException(ApiException ex) {
         ProblemDetail body = problem(ex.status(), ex.type(), ex.title(), ex.getMessage());
+        ex.properties().forEach(body::setProperty);
         if (ex instanceof ConflictException conflict) {
             if (!conflict.errors().isEmpty()) {
                 body.setProperty("errors", conflict.errors());

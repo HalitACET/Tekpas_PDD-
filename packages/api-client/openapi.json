@@ -913,6 +913,9 @@
             "format" : "int32",
             "type" : "integer"
           },
+          "digitalLink" : {
+            "type" : "string"
+          },
           "gtin" : {
             "type" : "string"
           },
@@ -956,7 +959,7 @@
             "type" : [ "string", "null" ]
           }
         },
-        "required" : [ "batchId", "batchNo", "completeness", "gtin", "id", "publishedAt", "schemaVersion", "status", "verificationCode", "version" ],
+        "required" : [ "batchId", "batchNo", "completeness", "digitalLink", "gtin", "id", "publishedAt", "schemaVersion", "status", "verificationCode", "version" ],
         "type" : "object"
       },
       "ProductCategory" : {
@@ -1128,6 +1131,18 @@
           }
         },
         "required" : [ "fileName", "id", "previous", "sizeBytes", "uploadedAt" ],
+        "type" : "object"
+      },
+      "PublicPassportResponse" : {
+        "properties" : {
+          "snapshot" : {
+            "$ref" : "#/components/schemas/PassportSnapshot"
+          },
+          "verificationCode" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "snapshot", "verificationCode" ],
         "type" : "object"
       },
       "PublicRejection" : {
@@ -3540,6 +3555,123 @@
         "tags" : [ "passports" ]
       }
     },
+    "/api/v1/passports/{id}/qr.png" : {
+      "get" : {
+        "description" : "The GS1 Digital Link without a version: the same code shows whichever version is current. Only the code is drawn (error correction M, quiet zone 4). size: 512 (default) or 1024.",
+        "operationId" : "getPassportQrPng",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 512,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "image/png" : {
+                "schema" : {
+                  "format" : "binary",
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "The image"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "size is not 512 or 1024"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such passport in this company"
+          }
+        },
+        "summary" : "The QR code of the passport address as a PNG",
+        "tags" : [ "passports" ]
+      }
+    },
+    "/api/v1/passports/{id}/qr.svg" : {
+      "get" : {
+        "operationId" : "getPassportQrSvg",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "image/svg+xml" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "The image"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such passport in this company"
+          }
+        },
+        "summary" : "The QR code of the passport address as an SVG (for print)",
+        "tags" : [ "passports" ]
+      }
+    },
     "/api/v1/passports/{id}/withdraw" : {
       "post" : {
         "description" : "The QR code then says the passport was withdrawn. The batch can be changed again; there is no way back to an older version.",
@@ -3983,6 +4115,71 @@
         },
         "summary" : "What a new batch of the product starts with",
         "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/public/passports/01/{gtin}/10/{batch}" : {
+      "get" : {
+        "description" : "gtin: GTIN-8/12/13/14 (normalized to 14 digits), batch: the AI (10) batch number (upper-cased). Always the newest version; older versions are not public. Never published or unreadable code: 404 PASSPORT_NOT_FOUND. Withdrawn: 410 PASSPORT_WITHDRAWN with the date.",
+        "operationId" : "getPublicPassport",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "gtin",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "batch",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicPassportResponse"
+                }
+              }
+            },
+            "description" : "The passport"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No published passport for this code (PASSPORT_NOT_FOUND)"
+          },
+          "410" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Withdrawn by the manufacturer (PASSPORT_WITHDRAWN)"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many requests"
+          }
+        },
+        "summary" : "The published passport of a code",
+        "tags" : [ "public-passports" ]
       }
     },
     "/api/v1/public/request" : {
@@ -5329,6 +5526,9 @@
   }, {
     "description" : "Login, token refresh, logout and the current user",
     "name" : "auth"
+  }, {
+    "description" : "The published passport of a GS1 Digital Link (no account)",
+    "name" : "public-passports"
   }, {
     "description" : "The current company's supplier network",
     "name" : "suppliers"

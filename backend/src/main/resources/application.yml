@@ -75,6 +75,9 @@ tekpas:
     refresh-reuse-grace: PT10S
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  public:
+    # Where the QR codes point to (PLAN K13): {base-url}/01/{gtin}/10/{batch}. No domain yet.
+    base-url: ${PUBLIC_BASE_URL:http://localhost:3000}
   demo:
     password: ${DEMO_PASSWORD:}
   storage:

@@ -8,6 +8,8 @@ import com.tekpas.batch.BatchStatus;
 import com.tekpas.batch.dto.BatchResponse;
 import com.tekpas.batch.dto.ScoreResponse;
 import com.tekpas.common.error.ConflictException;
+import com.tekpas.common.error.FieldViolation;
+import com.tekpas.common.error.InvalidFieldsException;
 import com.tekpas.common.error.NotFoundException;
 import com.tekpas.company.AppUser;
 import com.tekpas.company.AppUserRepository;
@@ -53,10 +55,12 @@ public class PassportService {
     private final JdbcTemplate jdbc;
     private final ObjectMapper json;
     private final Clock clock;
+    private final PublicProperties publicProperties;
+    private final QrCodes qr;
 
     public PassportService(BatchRepository batches, BatchService batchService, BatchProgress progress,
             PassportRepository passports, PassportSnapshotBuilder builder, AppUserRepository users, JdbcTemplate jdbc,
-            ObjectMapper json, Clock clock) {
+            ObjectMapper json, Clock clock, PublicProperties publicProperties, QrCodes qr) {
         this.batches = batches;
         this.batchService = batchService;
         this.progress = progress;
@@ -66,6 +70,8 @@ public class PassportService {
         this.jdbc = jdbc;
         this.json = json;
         this.clock = clock;
+        this.publicProperties = publicProperties;
+        this.qr = qr;
     }
 
     @Transactional
@@ -186,12 +192,37 @@ public class PassportService {
         return names;
     }
 
-    private static PassportVersionResponse toResponse(Passport p, Map<UUID, String> names) {
+    private PassportVersionResponse toResponse(Passport p, Map<UUID, String> names) {
         return new PassportVersionResponse(p.getId(), p.getBatchId(), p.getVersion(), p.getStatus(), p.getGtin(),
-                p.getBatchNo(), p.getSchemaVersion(), p.getCompleteness(), VerificationCode.of(p.getSnapshotSha256()),
+                p.getBatchNo(), digitalLink(p), p.getSchemaVersion(), p.getCompleteness(), VerificationCode.of(p.getSnapshotSha256()),
                 p.getPublishedAt(), p.getPublishedBy() == null ? null : names.get(p.getPublishedBy()),
                 p.getSupersededAt(), p.getWithdrawnAt(),
                 p.getWithdrawnBy() == null ? null : names.get(p.getWithdrawnBy()), p.getWithdrawReason());
+    }
+
+    /** The QR code PNG of the batch's passport address; {@code size} is 512 or 1024 pixels (about). */
+    @Transactional(readOnly = true)
+    public Qr qrPng(UUID companyId, UUID id, int size) {
+        if (size != 512 && size != 1024) {
+            throw new InvalidFieldsException(new FieldViolation("size", "OneOf", "Must be 512 or 1024"));
+        }
+        Passport passport = passports.findByIdAndCompanyId(id, companyId).orElseThrow(PassportService::notFound);
+        return new Qr(passport.getBatchNo(), qr.png(digitalLink(passport), size));
+    }
+
+    @Transactional(readOnly = true)
+    public Qr qrSvg(UUID companyId, UUID id) {
+        Passport passport = passports.findByIdAndCompanyId(id, companyId).orElseThrow(PassportService::notFound);
+        return new Qr(passport.getBatchNo(), qr.svg(digitalLink(passport)).getBytes(StandardCharsets.UTF_8));
+    }
+
+    /** A QR image and the batch number it belongs to (for the file name). */
+    public record Qr(String batchNo, byte[] bytes) {
+    }
+
+    /** The address of the passport page; the same for all versions of the batch. */
+    String digitalLink(Passport p) {
+        return Gs1DigitalLink.url(publicProperties.baseUrl(), p.getGtin(), p.getBatchNo());
     }
 
     /** SHA-256 of the snapshot's JSON text (declaration order of the records, so it can be recomputed from the row). */

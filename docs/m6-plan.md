@@ -96,7 +96,7 @@ Snapshot **dilden bağımsızdır**: metin yerine kod ve sayı taşır (`T_SHIRT
 - **Parti (AI 10):** en fazla 20 karakter, bizde yalnızca `A–Z 0–9 -` (M2 kuralı), yani URL'de yüzde kodlama gerekmez.
 - Sorgu parametreleri GS1 DL'de serbest; yalnızca `?lang=` kullanırız; `?v=` yok (karar 8), bilinmeyen parametreler yok sayılır. `/01/{gtin}` (partisiz, ürün düzeyi) M6 kapsamı dışı: 404.
 - **QR:** içerik URL'dir, **sürüm içermez** (kabul kriteri: aynı QR yeni sürümü gösterir). Hata düzeltme **M** (etiket aşınmasına yeterli, %15), sessiz bölge 4 modül. URL tamamı büyük harfe çevrilip QR'ın alfanümerik kipiyle daha küçük kod üretilebilir (şema ve alan adı büyük/küçük harf duyarsız, yolumuz rakam + büyük harf); ilk sürümde düz URL, ölçüm sonucu iyi çıkarsa açılır.
-- **Uçlar:** `GET /passports/{id}/qr.png?size=512|1024` ve `qr.svg` (baskı için vektör). Altında insan tarafından okunur satır: `(01) 02012345000025 (10) KP-2026-0915-A`. İlk yayından sonra sunulur (önce okutulursa 404 verirdi). Panel ve tenant kontrolü; herkese açık değil.
+- **Uçlar:** `GET /passports/{id}/qr.png?size=512|1024` ve `qr.svg` (baskı için vektör), yalnızca panel (tenant 404, SUPPLIER 403). **Görüntüde yalnızca kod var, altındaki `(01) … (10) …` satırı yok:** sunucuda yazı çizmek yazı tipi ister, Render'ın küçük imajında olmayabilir; satırı QR kartı çizer (`PassportVersionResponse.digitalLink`, `gtin`, `batchNo`). Piksel boyutu kutu başına tam piksele yuvarlanır (en çok istenen boyut). Sürüm içermez: yeni sürümün QR'ı birebir aynıdır (testte).
 - **Kütüphane (karar 5, yeni bağımlılık, onaylı):** backend'de ZXing `core` (Apache-2.0, geçişli bağımlılığı yok, PNG için JDK `ImageIO`, SVG modül matrisinden elle). Testte üretilen PNG yine ZXing ile çözülüp URL'ye eşitlenir.
 
 ## 5. Herkese açık sayfa `/01/[gtin]/10/[batch]`
@@ -214,3 +214,13 @@ Ad şu sırayla çözülür (`renderVals`, `p.name`):
 - **Küçük yarış penceresi:** skor ve snapshot aynı transaction'da ama READ COMMITTED'da ayrı okunur; arada bir adım değişirse skor milisaniyelik eski kalabilir. Snapshot kurucusu yine de yalnızca onaylı adımların verisini ve onaylı belgeleri alır; onaysız adım görürse 409 verir. Dondurulan veri her zaman onaylıdır.
 - **Snapshot:** yalnızca geçerli (bitişi bugünden önce olmayan) ve onaylı sertifikalar girer; süresi dolmuş eski sertifika (yenilenmiş) listede yok. Onaylı adımların verisi izinli alan listesiyle (`SnapshotStepData`) kopyalanır: miktarlar, hasat yılı ve ton girmez. Anahtarlar `s1…` ve `c1…`. Önizlemede onaysız adım `approved: false`, verisiz görünür.
 - **Özet:** snapshot'ın JSON metninin (kayıt alanlarının tanım sırası) SHA-256'sı; satırdan okunan kayıt yeniden yazılınca aynı özeti verir (testte). `VerificationCode` bundan türetilir.
+
+### 10.4 T3 uygulama notları (herkese açık uç, adres, QR)
+
+- **`PUBLIC_BASE_URL`** `tekpas.public.base-url` (varsayılan `http://localhost:3000`); `render.yaml`'da `https://kozapass.vercel.app`. Geçersiz adres açılışı durdurur.
+- **`Gs1DigitalLink`** (`path`, `url`, `parse`) ve TS ikizi `packages/shared/src/gs1-digital-link.ts`, `test-vectors/gs1-digital-link.json` ile iki tarafta aynı vakalar. `parse`: GTIN-8/12/13/14 (kontrol hanesi geçerli) → 14 hane, parti no büyük harfe.
+- **Herkese açık uç:** `GET /api/v1/public/passports/01/{gtin}/10/{batch}` → `{ verificationCode, snapshot }`, başka bir şey yok (skor, id, iç gerekçe yok; testte). Partinin **en son** sürümü karar verir: `PUBLISHED` 200, `WITHDRAWN` 410 `PASSPORT_WITHDRAWN` (`withdrawnAt`; gerekçe dönmez), yok ya da okunamayan kod 404 `PASSPORT_NOT_FOUND`. Taslaktaki ve hiç yayınlanmamış parti de 404 ve mesajı bilinmeyen koddan ayırt edilemez. `?v=` yok sayılır; eski sürüm dönmez.
+- **Başlıklar:** başarılı cevapta `Cache-Control: public, max-age=60`, hatalarda yok (404 yayından sonra eski kalmasın); `X-Robots-Tag: noindex`, `Referrer-Policy: strict-origin-when-cross-origin`. Tedarikçi linkinin `no-store` kuralı `/api/v1/public/passports/` için uygulanmaz.
+- **Hız sınırı:** ayrı kova `passport`, IP başına dakikada 120, IP bilinmiyorsa genel 600 (testte 121. istek 429). Önbellek (T4) çoğu isteği zaten sunucuya getirmeyecek.
+- **Kütüphane:** ZXing `core` 3.5.3 (Apache-2.0, geçişli bağımlılık yok); PNG için JDK `ImageIO`, SVG modül matrisinden. Hata düzeltme M, sessiz bölge 4 modül (testte ölçülüyor), PNG ve SVG ZXing ile geri çözülüp adrese eşitleniyor. `PassportVersionResponse.digitalLink` eklendi.
+- `ApiException` ek alan taşıyabiliyor (`property`); `ConflictException.with` ayrı kaldı.
