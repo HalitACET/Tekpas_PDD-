@@ -172,3 +172,35 @@ Her backend PR'ında `./mvnw verify` + `pnpm --filter api-client generate` (kura
 10. **SSR performansı: Vercel ISR + `next.tags`, yayın anında önbellek ısıtma;** `cacheComponents` kapalı kalır. Yeni gizli değişken `REVALIDATE_SECRET` (Render + Vercel, `.env.example`'da boş) (§5.3).
 11. **Okutma istatistiği kapsam dışı** (önbellekten dönen sayfa sunucuya uğramaz; `passport_scan` M6'da yazılmaz).
 12. **Public sayfaya `noindex` eklenir** (meta + `X-Robots-Tag`), demo süresince.
+
+## 10. Uygulama notları (tasarım v0.6)
+
+Tasarım dosyaları: `docs/design/impl-v0.6/` (`KozaPassPasaport.dc.html` yeni; `KozaPassPanel`, `KozaPassSupplier`, `KozaPassBelgeInceleme` v0.5 ile bayt bayt aynı).
+
+### 10.1 `product_title` ve varsayılan metinler (`KozaPassPasaport.dc.html`)
+
+**Tasarımda ne olduğu:** `product_title` yalnızca bileşenin **önizleme parametresidir** (`text`, varsayılan `""`). Tasarım aracında ürün adını elle denemek içindir; veri modeli değildir.
+
+Ad şu sırayla çözülür (`renderVals`, `p.name`):
+1. `product_title` boş değilse aynen kullanılır (`String(...)`, çevrilmez, kırpılmaz).
+2. Boşsa ve `long` açıksa uzun örnek: TR "Organik Pamuklu Kontrast Yakalı Düğmeli Polo", EN "Organic Cotton Polo Shirt with Contrast Collar", DE "Bio-Baumwoll-Poloshirt mit Kontrastkragen und Knopfleiste". Taşma denemesi içindir.
+3. Aksi halde kısa örnek: TR "Organik Pamuk Polo", EN "Organic Cotton Polo", DE "Bio-Baumwoll-Polo".
+
+(`g()` önce `state`'e, sonra parametreye bakar; boş metin "verilmedi" sayılır, bu yüzden boş `product_title` örneğe düşer.)
+
+**Ad nerede görünür:**
+- `<h1>`: serif (Newsreader), `clamp(34px, 8.6cqi, 52px)`, `line-height: 1.05`, `text-wrap: balance`. Uzun ad **satır kırar**, kesilmez, üç nokta yok.
+- Zaman çizgisinin son maddesi `p.short` = yerelleştirilmiş önek + ad: "Ürün: " / "Product: " / "Produkt: ". Önek çevrilir, ad çevrilmez.
+
+**Koda geçerken (karar, tasarımda yok):**
+- Üretimde değer `snapshot.product.name` olur (§3.2): serbest metin, özgün dilinde, **hiçbir zaman çevrilmez ve varsayılana düşmez**. `product.name` zorunlu alan olduğundan yedek metin gerekmez; tasarımdaki üç kısa/uzun örnek yalnızca tasarım verisidir, koda ve çeviri dosyalarına **girmez**.
+- Sayfa başlığı (`<title>`, §5.2) ve `og:title` aynı değeri kullanır: "{ürün} · {parti} · KozaPass".
+- `p.short` öneki `web/messages/{tr,en,de}.json`'a girer (`passport.timeline.product`); ad ICU yer tutucusuyla eklenir.
+- Test: tasarımın üç dildeki **uzun** örnek adı ve uzun üretici adı ("Nilüfer Giyim Tekstil Sanayi ve Dış Ticaret A.Ş.") 390 px'te taşmadan satır kırıyor mu (bileşen testi + e2e ekran görüntüsü, brifteki "en uzun metin" durumu).
+
+### 10.2 Tasarımın onaylı kararlardan ayrıldığı yerler
+
+- **`state=superseded` (herkese açık "Eski sürüm" durumu, "Güncel sürüm" bandı, QR doğrulamada "Eski sürüm · güncel sürüm 2") uygulanmaz.** Karar 8: eski sürümler tüketiciye kapalı. Aynı görünüm yalnızca panelde sürüm görüntüleme sayfasında kullanılır (şerit "Eski sürüm · yalnızca panelde", brif B8).
+- Tasarımdaki "QR doğrulama" bölümünün "Sürüm durumu" satırı herkese açık sayfada yalnızca "Güncel · Sürüm N" der.
+- Doğrulama kodu tasarımda `7Q4K-2M9X` biçiminde (4-4, büyük harf ve rakam), altında "içerikten üretilir; içerik değişirse kod da değişir" notu var. Nasıl türetileceği tasarımda yok. **Öneri (T2'de onaylanır):** `snapshot_sha256`'dan türetilen 8 karakter, karışan karakterler (0/O, 1/I) çıkarılmış alfabeyle; tam özet DB'de kalır (§3.1). **Açık nokta:** tasarım "etiketteki kodla karşılaştırın" diyor, ama M6 planında etikete doğrulama kodu basılmıyor (QR altındaki satır yalnızca GTIN ve parti, §4). Ya kod QR kartına eklenir ya da bu ipucu metinden çıkar; karar bekliyor.
+- Önizleme durumunda tasarım "Sürüm 3 taslağı" der; önizleme yalnızca panelden (`passport-preview`), halka açık değil.
