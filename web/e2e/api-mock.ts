@@ -34,6 +34,8 @@ export async function mockAuthApi(page: Page, { signedIn, login = "ok", role }: 
   await page.route("**/api/v1/tasks", (route) =>
     route.fulfill({ json: { total: 0, review: [], followUp: [], incomplete: [] } }),
   );
+  // ... and the certificates running out (M7), which count as tasks too.
+  await page.route("**/api/v1/documents/expiring*", (route) => route.fulfill({ json: [] }));
   const user = role ? { ...DESIGN_USER, role } : DESIGN_USER;
   const tokens = { access: "access-1" };
 

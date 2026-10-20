@@ -32,6 +32,8 @@ export interface ChainNodeStep extends LayoutStep {
   /** Documents of the step, and whether any still waits for a person (design v0.5 59). */
   documentCount: number;
   unreviewedDocumentCount: number;
+  /** Open blocking alerts and warnings of the step by code (design v0.7 86a); info level is left out. */
+  issueCodes?: { code: string; severity: "ERROR" | "WARNING" | "INFO" }[];
 }
 
 export function toNodeStep(step: ChainStep, fiberName: (fiber: Fiber) => string): ChainNodeStep {
@@ -155,8 +157,23 @@ function StepNodeView({ data: { step, selected, onOpen } }: NodeProps<StepNode>)
       </span>
       <strong className="mt-1 truncate text-sm font-semibold tracking-[-0.01em]">{step.name}</strong>
       {step.city && <span className="truncate text-xs text-muted-foreground">{step.city}</span>}
-      <span className="mt-auto">
+      <span className="mt-auto flex items-center justify-between gap-1.5">
         <StepStatusBadge status={step.status} size="sm" />
+        {step.issueCodes && step.issueCodes.length > 0 && (
+          <span className="flex items-center gap-1" title={step.issueCodes.map((i) => i.code).join(" · ")}>
+            {step.issueCodes.slice(0, 1).map((i) => (
+              <span
+                key={i.code}
+                className={`rounded-[4px] px-1 py-px font-mono text-[10px] font-medium whitespace-nowrap ${
+                  i.severity === "ERROR" ? "bg-status-rejected-muted text-status-rejected-foreground" : "bg-status-expiring-muted text-status-expiring-foreground"
+                }`}
+              >
+                {i.code}
+              </span>
+            ))}
+            {step.issueCodes.length > 1 && <span className="font-mono text-[10px] whitespace-nowrap text-muted-foreground">+{step.issueCodes.length - 1}</span>}
+          </span>
+        )}
       </span>
     </button>
   );

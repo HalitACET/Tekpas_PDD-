@@ -8,8 +8,11 @@ import { ListError } from "@/components/common/list-states";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { type CertificateTask, certificateTasks, useExpiringCertificates } from "@/lib/api/issues";
 import { type TaskItem, useTasks } from "@/lib/api/tasks";
+import { canWriteCatalog } from "@/lib/auth/permissions";
 import { useSession } from "@/lib/auth/use-session";
+import { GuardedButton } from "@/components/common/guarded-button";
 import { whatsAppUrl } from "@/components/batches/request-dialog";
 import { PageView } from "@/components/shell/page-view";
 
@@ -60,6 +63,8 @@ export function TasksPage() {
   const session = useSession();
   const supplier = session.status === "authenticated" && session.user.role === "SUPPLIER";
   const tasks = useTasks({ enabled: !supplier });
+  const certificates = useExpiringCertificates({ enabled: !supplier });
+  const certs = certificateTasks(certificates.data);
   // One "now" per visit, for the date in the header and the days left.
   const [now] = useState(() => new Date());
   const today = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" }).format(now);
@@ -82,8 +87,8 @@ export function TasksPage() {
           <h1 className="text-xl leading-7 font-semibold tracking-[-0.015em]">{tPage("title")}</h1>
           <p className="text-[13px] text-muted-foreground">{t("sub")}</p>
         </div>
-        {tasks.data && tasks.data.total > 0 && (
-          <span className="ml-auto text-xs text-muted-foreground">{t("summary", { count: tasks.data.total, date: today })}</span>
+        {tasks.data && tasks.data.total + certs.length > 0 && (
+          <span className="ml-auto text-xs text-muted-foreground">{t("summary", { count: tasks.data.total + certs.length, date: today })}</span>
         )}
       </div>
 
@@ -96,10 +101,12 @@ export function TasksPage() {
         <div className="rounded-lg border bg-card">
           <ListError title={t("loadError")} error={tasks.error} onRetry={() => void tasks.refetch()} retrying={tasks.isFetching} keepsFilters={false} />
         </div>
-      ) : tasks.data!.total === 0 ? (
+      ) : tasks.data!.total === 0 && certs.length === 0 ? (
         <EmptyTasks />
       ) : (
-        groups
+        <>
+        {certs.length > 0 && <CertificatesGroup items={certs} />}
+        {groups
           .filter(([, items]) => items.length > 0)
           .map(([key, items]) => (
             <section key={key} aria-labelledby={`tasks-${key}`} className="flex flex-col gap-2.5">
@@ -116,7 +123,8 @@ export function TasksPage() {
                 ))}
               </ul>
             </section>
-          ))
+          ))}
+        </>
       )}
     </div>
   );
@@ -223,5 +231,81 @@ function EmptyTasks() {
         {t("goBatches")}
       </Link>
     </div>
+  );
+}
+
+/** Design v0.7 89a: certificates that ended or end within 30 days, one row per certificate with the batches using it. */
+function CertificatesGroup({ items }: { items: CertificateTask[] }) {
+  const t = useTranslations("tasks");
+  return (
+    <section aria-labelledby="tasks-certificates" className="flex flex-col gap-2.5">
+      <div className="flex flex-wrap items-baseline gap-2.5">
+        <h2 id="tasks-certificates" className="text-[15px] font-semibold tracking-[-0.01em]">
+          {t("groups.certificates.title")}
+        </h2>
+        <span className="rounded-[4px] bg-muted px-1.5 py-px font-mono text-[11px] font-medium text-muted-foreground">{items.length}</span>
+        <span className="text-xs text-muted-foreground">{t("groups.certificates.desc")}</span>
+      </div>
+      <ul className="overflow-hidden rounded-lg border bg-card">
+        {items.map((item) => (
+          <CertificateRow key={item.key} item={item} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function CertificateRow({ item }: { item: CertificateTask }) {
+  const t = useTranslations("tasks");
+  const tStep = useTranslations("enums.stepType");
+  const tDoc = useTranslations("enums.docType");
+  const locale = useLocale();
+  const session = useSession();
+  const canWrite = session.status === "authenticated" && canWriteCatalog(session.user.role);
+  const expired = item.daysLeft < 0;
+  const tone = expired ? PILL.rejected : { badge: "bg-status-expiring-muted text-status-expiring-foreground", dot: "bg-status-expiring" };
+  const date = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${item.validUntil}T00:00:00Z`));
+  const base = `/batches/${item.batchId}?step=${item.stepId}`;
+  const button = "h-8 px-3 text-xs";
+
+  return (
+    <li className="grid min-h-14 grid-cols-[150px_minmax(0,1fr)_190px_170px_auto] items-center gap-3 border-b px-4 py-2 text-[13px] last:border-b-0 hover:bg-accent max-lg:grid-cols-[minmax(0,1fr)_auto] max-lg:gap-y-1">
+      <span className="max-lg:col-span-2">
+        <span className={`inline-flex items-center gap-1.5 rounded-full py-[3px] pr-[9px] pl-2 text-xs font-medium whitespace-nowrap ${tone.badge}`}>
+          <span className={`size-1.5 rounded-full ${tone.dot}`} aria-hidden />
+          {expired ? t("certificate.expiredLabel") : t("certificate.expiringLabel")}
+        </span>
+      </span>
+      <span className="flex min-w-0 flex-col gap-0.5">
+        <span className="truncate font-medium">
+          {item.supplierName ?? tStep(item.stepType)} · {tDoc(item.docType)}
+        </span>
+        <span className="truncate text-xs text-muted-foreground">{t("certificate.where", { step: tStep(item.stepType) })}</span>
+      </span>
+      <span className="flex min-w-0 flex-wrap gap-x-2 font-mono text-xs max-lg:hidden" aria-label={t("certificate.batches")}>
+        {item.batches.map((b) => (
+          <Link key={b.id} href={`/batches/${b.id}?step=${b.stepId}`} className="underline-offset-2 hover:underline">
+            {b.batchNo}
+          </Link>
+        ))}
+      </span>
+      <span className={`text-xs tabular-nums max-lg:hidden ${expired ? "text-status-rejected-foreground" : "text-status-expiring-foreground"}`}>
+        {expired ? t("certificate.expired", { date }) : t("certificate.daysLeft", { days: item.daysLeft })}
+      </span>
+      <span className="flex justify-end gap-2">
+        <Link href={base} className={cn(buttonVariants({ variant: "secondary", className: button }))}>
+          {t("certificate.go")}
+        </Link>
+        {canWrite ? (
+          <Link href={`${base}&open=request`} className={cn(buttonVariants({ className: button }))}>
+            {t("certificate.renew")}
+          </Link>
+        ) : (
+          <GuardedButton allowed={false} className={button} tooltipSide="top">
+            {t("certificate.renew")}
+          </GuardedButton>
+        )}
+      </span>
+    </li>
   );
 }

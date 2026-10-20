@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type { BatchResponse } from "@/lib/api/batches";
 import { formatPercent, formatQuantity, formatUpdated } from "@/lib/format";
 import { ChainProgress } from "./batch-status-chip";
+import { IssueDot } from "./issues/issue-dot";
 import { LifecycleChip } from "./passport/lifecycle-chip";
 
 /** Column template of design v0.3 07; the last column holds the row arrow to the detail (09). */
@@ -56,8 +57,9 @@ export function BatchRow({ batch, now }: { batch: BatchResponse; now: Date }) {
       <span role="cell">
         <ChainProgress statuses={batch.chain.stepStatuses} />
       </span>
-      <span role="cell">
+      <span role="cell" className="flex items-center gap-2">
         <LifecycleChip batch={batch} />
+        <IssueDot counts={batch.openIssues} />
       </span>
       <span role="cell">
         <ScoreCell batch={batch} />

@@ -59,12 +59,12 @@ test("09: the header, the score card, locked publishing and the blockers", async
   await expect(reasons.first()).toHaveText("İplik adımı onaylanmadı");
   await expect(reasons.last()).toHaveText("Uyum skoru %40, yayın için en az %90 gerekli");
 
-  // The supply chain and the passport versions work; documents and alerts follow with M5 and M7.
+  // The supply chain, the alerts and the passport versions work; the documents tab follows with its own milestone.
   const tabs = page.getByRole("navigation", { name: "Parti bölümleri" }).getByRole("button");
-  await expect(tabs).toHaveText(["Tedarik zinciri6", "Belgeler—", "Uyarılar—", "Pasaport sürümleri0"]);
+  await expect(tabs).toHaveText(["Tedarik zinciri6", "Belgeler—", "Uyarılar0", "Pasaport sürümleri0"]);
   await expect(tabs.nth(0)).toHaveAttribute("aria-current", "page");
-  for (const i of [1, 2]) await expect(tabs.nth(i)).toBeDisabled();
-  await expect(tabs.nth(3)).toBeEnabled();
+  await expect(tabs.nth(1)).toBeDisabled();
+  for (const i of [2, 3]) await expect(tabs.nth(i)).toBeEnabled();
 });
 
 test("09: the chain in five columns, with the origin, the suppliers, an empty step and the declarations", async ({ page }) => {

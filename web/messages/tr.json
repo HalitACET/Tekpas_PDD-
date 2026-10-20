@@ -144,7 +144,13 @@
       "sub": "Onayınızı bekleyen tedarik zinciri adımları ve belgeler.",
       "emptyTitle": "Onayınızı bekleyen görev yok",
       "emptyBody": "Tedarikçiden gelen adımlar ve AI tarafından okunan belgeler burada toplanır. Güveni 0,80 altında kalan alanlar önce listelenir.",
-      "cols": ["Görev", "Parti", "Tedarikçi", "Durum", "Bekleme"]
+      "cols": [
+        "Görev",
+        "Parti",
+        "Tedarikçi",
+        "Durum",
+        "Bekleme"
+      ]
     },
     "products": {
       "title": "Ürünler",
@@ -153,7 +159,13 @@
       "cta2": "Excel'den içe aktar",
       "emptyTitle": "Henüz ürün yok",
       "emptyBody": "Pasaport her zaman bir ürüne bağlıdır. GTIN, ürün adı ve lif bileşimiyle ilk ürününüzü tanımlayın.",
-      "cols": ["GTIN", "Ürün", "Lif bileşimi", "Parti sayısı", "Güncelleme"]
+      "cols": [
+        "GTIN",
+        "Ürün",
+        "Lif bileşimi",
+        "Parti sayısı",
+        "Güncelleme"
+      ]
     },
     "batches": {
       "title": "Partiler",
@@ -163,13 +175,28 @@
       "emptyTitle": "Henüz parti yok",
       "emptyBody": "İlk partinizi oluşturun: ürünü seçin, tedarik zincirindeki atölyeleri atayın, belgeleri toplayın. Onaylanan parti QR'lı pasaport olarak yayınlanır.",
       "emptyBodyShort": "İlk partinizi oluşturun. Onaylanan parti QR'lı pasaport olarak yayınlanır.",
-      "cols": ["Parti no", "Ürün", "Tedarik zinciri", "Durum", "Güncelleme"],
+      "cols": [
+        "Parti no",
+        "Ürün",
+        "Tedarik zinciri",
+        "Durum",
+        "Güncelleme"
+      ],
       "guide": {
         "label": "Nasıl başlanır",
         "steps": [
-          { "title": "Ürünü seç", "body": "GTIN ve lif bileşimi" },
-          { "title": "Tedarikçileri ata", "body": "İplik → konfeksiyon" },
-          { "title": "Belgeleri topla", "body": "AI okur, siz onaylarsınız" }
+          {
+            "title": "Ürünü seç",
+            "body": "GTIN ve lif bileşimi"
+          },
+          {
+            "title": "Tedarikçileri ata",
+            "body": "İplik → konfeksiyon"
+          },
+          {
+            "title": "Belgeleri topla",
+            "body": "AI okur, siz onaylarsınız"
+          }
         ]
       }
     },
@@ -180,7 +207,13 @@
       "cta2": "Davet bağlantısı gönder",
       "emptyTitle": "Henüz tedarikçi yok",
       "emptyBody": "İplikçi, kumaşçı, boyahane ve fason atölyelerinizi ekleyin; partilerin zincirine buradan atanırlar.",
-      "cols": ["Firma", "Rol", "Şehir", "Sertifikalar", "Güncelleme"]
+      "cols": [
+        "Firma",
+        "Rol",
+        "Şehir",
+        "Sertifikalar",
+        "Güncelleme"
+      ]
     },
     "documents": {
       "title": "Belgeler",
@@ -189,7 +222,13 @@
       "cta2": "Tedarikçiden iste",
       "emptyTitle": "Henüz belge yok",
       "emptyBody": "PDF, JPG veya PNG yükleyin (dosya başına en fazla 10 MB). AI; sertifika numarası, geçerlilik tarihi ve lif oranlarını çıkarır, onayınıza sunar.",
-      "cols": ["Belge", "Tür", "Tedarikçi", "Durum", "Geçerlilik"]
+      "cols": [
+        "Belge",
+        "Tür",
+        "Tedarikçi",
+        "Durum",
+        "Geçerlilik"
+      ]
     },
     "imports": {
       "title": "İçe aktarma",
@@ -198,7 +237,13 @@
       "cta2": "Şablonu indir",
       "emptyTitle": "Henüz içe aktarma yapılmadı",
       "emptyBody": "Ürün ve parti listelerinizi Excel olarak yükleyin. Şablonu indirip doldurmanız yeterli.",
-      "cols": ["Dosya", "Kaynak", "Satır", "Durum", "Tarih"]
+      "cols": [
+        "Dosya",
+        "Kaynak",
+        "Satır",
+        "Durum",
+        "Tarih"
+      ]
     },
     "users": {
       "title": "Kullanıcılar",
@@ -207,7 +252,13 @@
       "cta2": "Rolleri gör",
       "emptyTitle": "Yalnızca siz varsınız",
       "emptyBody": "Ofis ekibinizi davet edin. Onay ve yayınlama yetkisi yalnızca Firma sahibi ve Yöneticilerdedir.",
-      "cols": ["Ad", "E-posta", "Rol", "Son giriş", "Durum"]
+      "cols": [
+        "Ad",
+        "E-posta",
+        "Rol",
+        "Son giriş",
+        "Durum"
+      ]
     },
     "settings": {
       "title": "Ayarlar",
@@ -216,7 +267,13 @@
       "cta2": "Vazgeç",
       "emptyTitle": "Firma profili eksik",
       "emptyBody": "Pasaportta görünecek firma adı, adres ve logo bilgilerini tamamlayın.",
-      "cols": ["Ayar", "Değer", "", "", ""]
+      "cols": [
+        "Ayar",
+        "Değer",
+        "",
+        "",
+        ""
+      ]
     }
   },
   "enums": {
@@ -793,6 +850,10 @@
       "incomplete": {
         "title": "Eksik adımlar",
         "desc": "Tedarikçisi atanmamış veya bilgisi girilmemiş adımlar"
+      },
+      "certificates": {
+        "title": "Süresi yaklaşan sertifikalar",
+        "desc": "Süresi dolmuş veya 30 gün içinde dolacak; partide kullanılıyor"
       }
     },
     "stepData": "{supplier} · {step} verileri",
@@ -836,7 +897,17 @@
     "reminder": "Merhaba, {company} olarak {batchNo} partisi için {step} verilerinizi bekliyoruz. Size gönderdiğimiz bağlantı {deadline} tarihinde kapanacak. Teşekkürler, {name}",
     "emptyTitle": "Bekleyen görev yok",
     "emptyBody": "Bir tedarikçi veri gönderdiğinde, bir talebin süresi yaklaştığında veya bir adım tedarikçisiz kaldığında burada görünür.",
-    "goBatches": "Partilere git"
+    "goBatches": "Partilere git",
+    "certificate": {
+      "expired": "Süresi doldu · {date}",
+      "daysLeft": "{days, plural, =0 {Bugün doluyor} one {# gün içinde doluyor} other {# gün içinde doluyor}}",
+      "where": "{step} adımı",
+      "go": "Adıma git",
+      "renew": "Yenisini talep et",
+      "batches": "Kullanıldığı partiler",
+      "expiredLabel": "Süresi doldu",
+      "expiringLabel": "Süresi yaklaşıyor"
+    }
   },
   "supplier": {
     "meta": {
@@ -1513,6 +1584,131 @@
       "failed": "Belge önizlenemedi",
       "failedBody": "Dosyaya şu an ulaşılamıyor. Alanları yine de girip onaylayabilirsiniz.",
       "retry": "Tekrar dene"
+    }
+  },
+  "issues": {
+    "filter": "Uyarı filtresi",
+    "open": "Açık",
+    "resolved": "Çözülen",
+    "run": "Kontrolleri çalıştır",
+    "running": "Kontrol ediliyor…",
+    "lastCheck": "Son kontrol: {time}",
+    "neverChecked": "Henüz kontrol edilmedi",
+    "runningHint": "Kontroller çalışıyor",
+    "loading": "Uyarılar yükleniyor",
+    "loadError": "Uyarılar yüklenemedi",
+    "loadErrorBody": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin. Yayın engelleri sunucuda yine de uygulanır.",
+    "retry": "Tekrar dene",
+    "emptyTitle": "Açık uyarı yok",
+    "emptyBody": "Tüm kontroller geçti, son kontrol {when}.",
+    "emptyNever": "Kontroller henüz çalıştırılmadı. Çalıştırınca bulunan tutarsızlıklar burada listelenir.",
+    "emptyResolvedTitle": "Çözülen uyarı yok",
+    "emptyResolvedBody": "Elle çözülen uyarılar ve veri düzeltildiğinde kendiliğinden kapananlar burada, kim ve ne zaman bilgisiyle listelenir.",
+    "severity": {
+      "ERROR": "Engelleyici",
+      "WARNING": "Uyarı",
+      "INFO": "Bilgi"
+    },
+    "groupDesc": {
+      "ERROR": "Yayını engeller; veri düzelince kapanır",
+      "WARNING": "Çözülebilir; yayını durdurmaz",
+      "INFO": "Çözülebilir"
+    },
+    "rule": "Kural · {name}",
+    "ai": "AI önerisi",
+    "blocks": "Düzeltilene kadar yayını engeller",
+    "resolve": "Çözüldü",
+    "note": "Not",
+    "noteOptional": "(isteğe bağlı)",
+    "notePlaceholder": "Neden çözüldüğünü kısaca yazın; parti geçmişine kaydedilir",
+    "noteCount": "{count}/500",
+    "cancel": "Vazgeç",
+    "confirm": "Çözüldü işaretle",
+    "reopen": "Geri aç",
+    "resolvedBy": "Çözdü: {name} · {date}",
+    "resolvedByNote": "Çözdü: {name} · {date} — “{note}”",
+    "autoResolved": "Kendiliğinden kapandı · veri düzeltildi · {date}",
+    "blockingTitle": "Engelleyici uyarılar elle çözülemez; veriyi düzeltin.",
+    "blockingBody": "Veri düzeltilip onaylandığında uyarı kendiliğinden kapanır.",
+    "alreadyTitle": "Bu uyarı zaten çözülmüş.",
+    "alreadyBody": "Liste yenilendi; uyarı Çözülenler’de.",
+    "failedTitle": "İşlem tamamlanamadı",
+    "failedBody": "Birazdan tekrar deneyin.",
+    "actions": {
+      "goToStep": "Adıma git",
+      "requestFix": "Düzeltme iste",
+      "requestNew": "Yenisini talep et",
+      "requestCert": "Sertifika talep et",
+      "openDocument": "Belgeyi aç",
+      "openProduct": "Ürünlere git"
+    },
+    "summaryBlocking": "{count, plural, one {# engelleyici uyarı} other {# engelleyici uyarı}} · Uyarılar",
+    "summaryWarnings": "{count, plural, one {# uyarı} other {# uyarı}} · Uyarılar",
+    "tabBadge": "{count} açık uyarı",
+    "listDotBlocking": "{count, plural, one {# engelleyici uyarı} other {# engelleyici uyarı}}",
+    "listDotWarnings": "{count, plural, one {# uyarı, yayını durdurmaz} other {# uyarı, yayını durdurmaz}}",
+    "scoreBlockerSub": "{codes} · Uyarılar’a git",
+    "scoreWarningSub": "Bilgi amaçlı",
+    "publishBlocked": "{count, plural, one {# engelleyici uyarı açık} other {# engelleyici uyarı açık}}: {codes}",
+    "publishGoTo": "Uyarılar’a git",
+    "publishWarnings": "Uyarılar · yayını durdurmaz",
+    "publishMore": "{count, plural, one {ve # uyarı daha} other {ve # uyarı daha}}",
+    "unknownTitle": "Kontrol bir uyarı buldu.",
+    "unknownRule": "Kontrol",
+    "codes": {
+      "LIF-01": {
+        "rule": "Lif bileşimi tutarlılığı",
+        "title": "Etiket ile {who} lif beyanı uyuşmuyor.",
+        "meta": "{supplier}{step} adımı",
+        "label": "Etiket beyanı",
+        "declared": "{who} beyanı"
+      },
+      "LIF-02": {
+        "rule": "Lif toplamı",
+        "titleLabel": "Etiketteki lif bileşiminin toplamı {total}, %100 olmalı.",
+        "titleStep": "{who} lif bileşiminin toplamı {total}, %100 olmalı.",
+        "sum": "Toplam {total}",
+        "metaLabel": "Ürün bilgisi",
+        "label": "Etiket beyanı",
+        "declared": "{who} beyanı"
+      },
+      "SER-01": {
+        "rule": "Sertifika geçerliliği",
+        "title": "{doc} süresi {date} tarihinde doldu.",
+        "meta": "{supplier}{step} adımı · {days, plural, one {# gün önce} other {# gün önce}}"
+      },
+      "SER-02": {
+        "rule": "Sertifika geçerliliği",
+        "title": "{days, plural, =0 {{doc} bugün doluyor.} one {{doc} # gün içinde doluyor.} other {{doc} # gün içinde doluyor.}}",
+        "meta": "{supplier}{step} adımı · bitiş {date}"
+      },
+      "SER-03": {
+        "rule": "Sertifika sahibi",
+        "title": "{doc} sahibi tedarikçiyle eşleşmiyor.",
+        "meta": "{step} adımı",
+        "holder": "Sertifika sahibi",
+        "supplier": "Tedarikçi"
+      },
+      "SER-04": {
+        "rule": "Sertifika eksik",
+        "title": "{step} adımı onaylı ama onaylı sertifikası yok.",
+        "meta": "{supplier}{step} adımı"
+      },
+      "EKS-01": {
+        "rule": "Etiket bileşimi",
+        "title": "Ürünün etiket lif bileşimi girilmemiş.",
+        "meta": "Ürün bilgisi · pasaportta gösterilir"
+      },
+      "EKS-02": {
+        "rule": "Üretim tarihi",
+        "title": "{missing, select, FROM {Üretim başlangıç tarihi girilmemiş.} TO {Üretim bitiş tarihi girilmemiş.} other {Üretim tarihleri girilmemiş.}}",
+        "meta": "Parti bilgisi · isteğe bağlı"
+      },
+      "BEL-01": {
+        "rule": "Onay bekleyen belge",
+        "title": "“{file}” belgesi onay bekliyor; onaylanana kadar pasaporta girmez.",
+        "meta": "{supplier}{step} adımı · {doc}"
+      }
     }
   }
 }

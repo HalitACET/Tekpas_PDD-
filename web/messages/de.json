@@ -144,7 +144,13 @@
       "sub": "Lieferkettenschritte und Dokumente, die auf Ihre Freigabe warten.",
       "emptyTitle": "Keine Aufgaben warten auf Ihre Freigabe",
       "emptyBody": "Hier sammeln sich die Schritte der Lieferanten und die von der KI gelesenen Dokumente. Felder mit einer Konfidenz unter 0,80 stehen oben.",
-      "cols": ["Aufgabe", "Charge", "Lieferant", "Status", "Wartezeit"]
+      "cols": [
+        "Aufgabe",
+        "Charge",
+        "Lieferant",
+        "Status",
+        "Wartezeit"
+      ]
     },
     "products": {
       "title": "Produkte",
@@ -153,7 +159,13 @@
       "cta2": "Aus Excel importieren",
       "emptyTitle": "Noch keine Produkte",
       "emptyBody": "Ein Pass gehört immer zu einem Produkt. Legen Sie Ihr erstes Produkt mit GTIN, Namen und Faserzusammensetzung an.",
-      "cols": ["GTIN", "Produkt", "Faserzusammensetzung", "Chargen", "Aktualisiert"]
+      "cols": [
+        "GTIN",
+        "Produkt",
+        "Faserzusammensetzung",
+        "Chargen",
+        "Aktualisiert"
+      ]
     },
     "batches": {
       "title": "Chargen",
@@ -163,13 +175,28 @@
       "emptyTitle": "Noch keine Chargen",
       "emptyBody": "Legen Sie Ihre erste Charge an: Produkt wählen, die Betriebe der Lieferkette zuweisen, Dokumente sammeln. Eine freigegebene Charge wird als Pass mit QR-Code veröffentlicht.",
       "emptyBodyShort": "Legen Sie Ihre erste Charge an. Eine freigegebene Charge wird als Pass mit QR-Code veröffentlicht.",
-      "cols": ["Chargen-Nr.", "Produkt", "Lieferkette", "Status", "Aktualisiert"],
+      "cols": [
+        "Chargen-Nr.",
+        "Produkt",
+        "Lieferkette",
+        "Status",
+        "Aktualisiert"
+      ],
       "guide": {
         "label": "So starten Sie",
         "steps": [
-          { "title": "Produkt wählen", "body": "GTIN und Faserzusammensetzung" },
-          { "title": "Lieferanten zuweisen", "body": "Garn → Konfektion" },
-          { "title": "Dokumente sammeln", "body": "KI liest, Sie geben frei" }
+          {
+            "title": "Produkt wählen",
+            "body": "GTIN und Faserzusammensetzung"
+          },
+          {
+            "title": "Lieferanten zuweisen",
+            "body": "Garn → Konfektion"
+          },
+          {
+            "title": "Dokumente sammeln",
+            "body": "KI liest, Sie geben frei"
+          }
         ]
       }
     },
@@ -180,7 +207,13 @@
       "cta2": "Einladungslink senden",
       "emptyTitle": "Noch keine Lieferanten",
       "emptyBody": "Fügen Sie Ihre Spinnereien, Webereien, Färbereien und Nähbetriebe hinzu; von hier aus werden sie den Lieferketten zugewiesen.",
-      "cols": ["Firma", "Rolle", "Stadt", "Zertifikate", "Aktualisiert"]
+      "cols": [
+        "Firma",
+        "Rolle",
+        "Stadt",
+        "Zertifikate",
+        "Aktualisiert"
+      ]
     },
     "documents": {
       "title": "Dokumente",
@@ -189,7 +222,13 @@
       "cta2": "Beim Lieferanten anfordern",
       "emptyTitle": "Noch keine Dokumente",
       "emptyBody": "Laden Sie PDF-, JPG- oder PNG-Dateien hoch (je Datei höchstens 10 MB). Die KI liest Zertifikatsnummer, Gültigkeitsdatum und Faseranteile aus und legt sie Ihnen zur Freigabe vor.",
-      "cols": ["Dokument", "Art", "Lieferant", "Status", "Gültig bis"]
+      "cols": [
+        "Dokument",
+        "Art",
+        "Lieferant",
+        "Status",
+        "Gültig bis"
+      ]
     },
     "imports": {
       "title": "Importe",
@@ -198,7 +237,13 @@
       "cta2": "Vorlage herunterladen",
       "emptyTitle": "Noch keine Importe",
       "emptyBody": "Laden Sie Ihre Produkt- und Chargenlisten als Excel hoch. Vorlage herunterladen und ausfüllen genügt.",
-      "cols": ["Datei", "Quelle", "Zeilen", "Status", "Datum"]
+      "cols": [
+        "Datei",
+        "Quelle",
+        "Zeilen",
+        "Status",
+        "Datum"
+      ]
     },
     "users": {
       "title": "Benutzer",
@@ -207,7 +252,13 @@
       "cta2": "Rollen ansehen",
       "emptyTitle": "Nur Sie sind hier",
       "emptyBody": "Laden Sie Ihr Büroteam ein. Freigeben und Veröffentlichen dürfen nur Firmeninhaber und Administratoren.",
-      "cols": ["Name", "E-Mail", "Rolle", "Letzte Anmeldung", "Status"]
+      "cols": [
+        "Name",
+        "E-Mail",
+        "Rolle",
+        "Letzte Anmeldung",
+        "Status"
+      ]
     },
     "settings": {
       "title": "Einstellungen",
@@ -216,7 +267,13 @@
       "cta2": "Abbrechen",
       "emptyTitle": "Firmenprofil unvollständig",
       "emptyBody": "Ergänzen Sie Firmenname, Adresse und Logo, die im Produktpass erscheinen.",
-      "cols": ["Einstellung", "Wert", "", "", ""]
+      "cols": [
+        "Einstellung",
+        "Wert",
+        "",
+        "",
+        ""
+      ]
     }
   },
   "enums": {
@@ -793,6 +850,10 @@
       "incomplete": {
         "title": "Unvollständige Schritte",
         "desc": "Schritte ohne Lieferanten oder ohne Angaben"
+      },
+      "certificates": {
+        "title": "Auslaufende Zertifikate",
+        "desc": "Abgelaufen oder in 30 Tagen ablaufend; in einer Charge verwendet"
       }
     },
     "stepData": "{supplier} · Daten {step}",
@@ -836,7 +897,17 @@
     "reminder": "Guten Tag, {company} wartet noch auf Ihre Daten zum Schritt {step} für die Charge {batchNo}. Der Link, den wir Ihnen gesendet haben, schließt sich am {deadline}. Vielen Dank, {name}",
     "emptyTitle": "Keine offenen Aufgaben",
     "emptyBody": "Aufgaben erscheinen hier, wenn ein Lieferant Daten sendet, eine Anfrage kurz vor der Frist steht oder ein Schritt keinen Lieferanten hat.",
-    "goBatches": "Zu den Chargen"
+    "goBatches": "Zu den Chargen",
+    "certificate": {
+      "expired": "Abgelaufen · {date}",
+      "daysLeft": "{days, plural, =0 {Läuft heute ab} one {Läuft in # Tag ab} other {Läuft in # Tagen ab}}",
+      "where": "Schritt {step}",
+      "go": "Zum Schritt",
+      "renew": "Neues anfordern",
+      "batches": "Verwendet in Chargen",
+      "expiredLabel": "Abgelaufen",
+      "expiringLabel": "Läuft bald ab"
+    }
   },
   "supplier": {
     "meta": {
@@ -1513,6 +1584,131 @@
       "failed": "Das Dokument kann nicht angezeigt werden",
       "failedBody": "Die Datei ist gerade nicht erreichbar. Sie können die Felder trotzdem eingeben und freigeben.",
       "retry": "Erneut versuchen"
+    }
+  },
+  "issues": {
+    "filter": "Hinweisfilter",
+    "open": "Offen",
+    "resolved": "Erledigt",
+    "run": "Prüfungen ausführen",
+    "running": "Wird geprüft…",
+    "lastCheck": "Letzte Prüfung: {time}",
+    "neverChecked": "Noch nicht geprüft",
+    "runningHint": "Prüfungen laufen",
+    "loading": "Hinweise werden geladen",
+    "loadError": "Hinweise konnten nicht geladen werden",
+    "loadErrorBody": "Der Server ist nicht erreichbar. Prüfen Sie die Verbindung und versuchen Sie es erneut. Veröffentlichungssperren gelten auf dem Server trotzdem.",
+    "retry": "Erneut versuchen",
+    "emptyTitle": "Keine offenen Hinweise",
+    "emptyBody": "Alle Prüfungen bestanden, letzte Prüfung {when}.",
+    "emptyNever": "Die Prüfungen wurden noch nicht ausgeführt. Was sie finden, wird hier aufgelistet.",
+    "emptyResolvedTitle": "Keine erledigten Hinweise",
+    "emptyResolvedBody": "Von Hand erledigte Hinweise und solche, die sich nach der Korrektur der Daten von selbst geschlossen haben, stehen hier mit Person und Zeitpunkt.",
+    "severity": {
+      "ERROR": "Blockierend",
+      "WARNING": "Warnung",
+      "INFO": "Info"
+    },
+    "groupDesc": {
+      "ERROR": "Verhindert die Veröffentlichung; schließt sich nach der Korrektur",
+      "WARNING": "Kann erledigt werden; stoppt die Veröffentlichung nicht",
+      "INFO": "Kann erledigt werden"
+    },
+    "rule": "Regel · {name}",
+    "ai": "KI-Vorschlag",
+    "blocks": "Verhindert die Veröffentlichung bis zur Korrektur",
+    "resolve": "Erledigt",
+    "note": "Notiz",
+    "noteOptional": "(optional)",
+    "notePlaceholder": "Kurz begründen, warum erledigt; wird im Chargenverlauf gespeichert",
+    "noteCount": "{count}/500",
+    "cancel": "Abbrechen",
+    "confirm": "Als erledigt markieren",
+    "reopen": "Wieder öffnen",
+    "resolvedBy": "Erledigt von {name} · {date}",
+    "resolvedByNote": "Erledigt von {name} · {date} — „{note}“",
+    "autoResolved": "Von selbst geschlossen · Daten korrigiert · {date}",
+    "blockingTitle": "Blockierende Hinweise lassen sich nicht von Hand erledigen; korrigieren Sie die Daten.",
+    "blockingBody": "Der Hinweis schließt sich von selbst, sobald die Daten korrigiert und bestätigt sind.",
+    "alreadyTitle": "Dieser Hinweis ist bereits erledigt.",
+    "alreadyBody": "Die Liste wurde aktualisiert; der Hinweis steht unter Erledigt.",
+    "failedTitle": "Die Aktion konnte nicht abgeschlossen werden",
+    "failedBody": "Versuchen Sie es gleich noch einmal.",
+    "actions": {
+      "goToStep": "Zum Schritt",
+      "requestFix": "Korrektur anfordern",
+      "requestNew": "Neues anfordern",
+      "requestCert": "Zertifikat anfordern",
+      "openDocument": "Dokument öffnen",
+      "openProduct": "Zu den Produkten"
+    },
+    "summaryBlocking": "{count, plural, one {# blockierender Hinweis} other {# blockierende Hinweise}} · Hinweise",
+    "summaryWarnings": "{count, plural, one {# Hinweis} other {# Hinweise}} · Hinweise",
+    "tabBadge": "{count} offene Hinweise",
+    "listDotBlocking": "{count, plural, one {# blockierender Hinweis} other {# blockierende Hinweise}}",
+    "listDotWarnings": "{count, plural, one {# Hinweis, stoppt die Veröffentlichung nicht} other {# Hinweise, sie stoppen die Veröffentlichung nicht}}",
+    "scoreBlockerSub": "{codes} · Zu den Hinweisen",
+    "scoreWarningSub": "Zur Information",
+    "publishBlocked": "{count, plural, one {# blockierender Hinweis ist offen} other {# blockierende Hinweise sind offen}}: {codes}",
+    "publishGoTo": "Zu den Hinweisen",
+    "publishWarnings": "Hinweise · stoppen die Veröffentlichung nicht",
+    "publishMore": "{count, plural, one {und # weiterer Hinweis} other {und # weitere Hinweise}}",
+    "unknownTitle": "Eine Prüfung hat einen Hinweis gefunden.",
+    "unknownRule": "Prüfung",
+    "codes": {
+      "LIF-01": {
+        "rule": "Konsistenz der Faserzusammensetzung",
+        "title": "Etikett und Faserangabe von {who} stimmen nicht überein.",
+        "meta": "{supplier}Schritt {step}",
+        "label": "Etikettenangabe",
+        "declared": "Angabe von {who}"
+      },
+      "LIF-02": {
+        "rule": "Fasersumme",
+        "titleLabel": "Die Faserzusammensetzung des Etiketts ergibt {total}, sie muss 100 % ergeben.",
+        "titleStep": "Die Faserzusammensetzung von {who} ergibt {total}, sie muss 100 % ergeben.",
+        "sum": "Summe {total}",
+        "metaLabel": "Produktdaten",
+        "label": "Etikettenangabe",
+        "declared": "Angabe von {who}"
+      },
+      "SER-01": {
+        "rule": "Zertifikatsgültigkeit",
+        "title": "{doc} ist am {date} abgelaufen.",
+        "meta": "{supplier}Schritt {step} · {days, plural, one {vor # Tag} other {vor # Tagen}}"
+      },
+      "SER-02": {
+        "rule": "Zertifikatsgültigkeit",
+        "title": "{days, plural, =0 {{doc} läuft heute ab.} one {{doc} läuft in # Tag ab.} other {{doc} läuft in # Tagen ab.}}",
+        "meta": "{supplier}Schritt {step} · Ende {date}"
+      },
+      "SER-03": {
+        "rule": "Zertifikatsinhaber",
+        "title": "Der Inhaber von {doc} stimmt nicht mit dem Lieferanten überein.",
+        "meta": "Schritt {step}",
+        "holder": "Zertifikatsinhaber",
+        "supplier": "Lieferant"
+      },
+      "SER-04": {
+        "rule": "Zertifikat fehlt",
+        "title": "Der Schritt {step} ist freigegeben, hat aber kein bestätigtes Zertifikat.",
+        "meta": "{supplier}Schritt {step}"
+      },
+      "EKS-01": {
+        "rule": "Etikettenzusammensetzung",
+        "title": "Das Produkt hat keine Faserzusammensetzung auf dem Etikett.",
+        "meta": "Produktdaten · wird im Pass angezeigt"
+      },
+      "EKS-02": {
+        "rule": "Produktionsdatum",
+        "title": "{missing, select, FROM {Das Produktionsstartdatum fehlt.} TO {Das Produktionsenddatum fehlt.} other {Die Produktionsdaten fehlen.}}",
+        "meta": "Chargendaten · optional"
+      },
+      "BEL-01": {
+        "rule": "Dokument wartet auf Freigabe",
+        "title": "„{file}“ wartet auf Freigabe; bis dahin ist es nicht im Pass.",
+        "meta": "{supplier}Schritt {step} · {doc}"
+      }
     }
   }
 }

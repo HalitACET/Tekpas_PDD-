@@ -40,6 +40,12 @@ export const queryKeys = {
     chain: (id: string) => [...queryKeys.batches.all, "chain", id] as const,
     /** GET /batches/{id}/score: under batches.all, so every change of the batch (a step, a document) refreshes it. */
     score: (id: string) => [...queryKeys.batches.all, "score", id] as const,
+    /** GET /batches/{id}/issues (M7): under batches.all too, so a change of the batch refreshes the Uyarılar tab. */
+    issues: (id: string, status: string) => [...queryKeys.batches.all, "issues", id, status] as const,
+  },
+  /** GET /documents/expiring (M7): the tasks page group and the menu badge. */
+  certificates: {
+    expiring: ["certificates", "expiring"] as const,
   },
   /** The passport versions of a batch (M6): the versions tab, the preview, one version, the QR images. */
   passports: {

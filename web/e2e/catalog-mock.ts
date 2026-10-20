@@ -129,6 +129,8 @@ export interface MockBatch {
   producedTo: string | null;
   /** Mock only: the chain (the API sends its summary with the batch, the steps from /chain). */
   steps: MockStep[];
+  /** Mock only: the batch's consistency alerts (M7); none by default. Resolving one through the API moves it. */
+  issues?: { open: Record<string, unknown>[]; resolved: Record<string, unknown>[] };
   createdAt: string;
   updatedAt: string;
 }
@@ -494,16 +496,24 @@ export async function mockCatalogApi(
     return route.fallback();
   });
 
+  const issueCounts = (batch: MockBatch) => {
+    const open = batch.issues?.open ?? [];
+    const count = (severity: string) => open.filter((i) => i.severity === severity).length;
+    return { errors: count("ERROR"), warnings: count("WARNING"), infos: count("INFO") };
+  };
+
   const batchResponse = (batch: MockBatch) => {
     const product = store.find((p) => p.id === batch.productId)!;
-    const response: Partial<MockBatch> & { product: unknown; chain: unknown; score: number } = {
+    const response: Partial<MockBatch> & { product: unknown; chain: unknown; score: number; openIssues: unknown } = {
       ...batch,
       product: { id: product.id, name: product.name, gtin: product.gtin },
       chain: chainSummary(batch.steps),
       score: 40,
+      openIssues: issueCounts(batch),
     };
     delete response.productId;
     delete response.steps;
+    delete response.issues;
     return response;
   };
   const chainResponse = (batch: MockBatch) => ({
@@ -533,6 +543,42 @@ export async function mockCatalogApi(
     route.request().method() === "GET" ? route.fulfill({ json: [] }) : route.fallback(),
   );
 
+  /** GET /batches/{id}/issues (M7): no alerts by default; the Uyarılar tab and the score card ask for them. */
+  await page.route(/\/api\/v1\/batches\/[0-9a-f-]{36}\/issues(\?.*)?$/, (route) => {
+    const batch = batches.find((b) => b.id === idBefore(route, "/issues"));
+    if (!batch) return notFound(route);
+    const status = new URL(route.request().url()).searchParams.get("status") ?? "OPEN";
+    const issues = batch.issues;
+    return route.fulfill({
+      json: {
+        issues: (status === "RESOLVED" ? issues?.resolved : issues?.open) ?? [],
+        open: issueCounts(batch),
+        resolved: issues?.resolved.length ?? 0,
+        validatedAt: issues ? "2026-10-03T11:32:00Z" : null,
+      },
+    });
+  });
+
+  /** POST /issues/{id}/resolve: the alert moves to the resolved side, as the server would do it. */
+  await page.route(/\/api\/v1\/issues\/[^/]+\/resolve$/, (route) => {
+    const id = idBefore(route, "/resolve");
+    for (const batch of batches) {
+      const found = batch.issues?.open.find((i) => i.id === id);
+      if (!batch.issues || !found) continue;
+      const done = {
+        ...found,
+        resolved: true,
+        resolvedAt: new Date().toISOString(),
+        resolvedByName: "Elif Yılmaz",
+        note: route.request().postDataJSON()?.note ?? null,
+      };
+      batch.issues.open = batch.issues.open.filter((i) => i.id !== id);
+      batch.issues.resolved.push(done);
+      return route.fulfill({ json: done });
+    }
+    return notFound(route);
+  });
+
   /** GET /batches/{id}/score: nothing is approved in the design data, so each step blocks and the score is low. */
   await page.route(/\/api\/v1\/batches\/[0-9a-f-]{36}\/score$/, (route) => {
     const batch = batches.find((b) => b.id === idBefore(route, "/score"));
@@ -543,6 +589,8 @@ export async function mockCatalogApi(
         : batch.steps
             .filter((s) => s.status !== "APPROVED")
             .map((s) => ({ code: "STEP_NOT_APPROVED", stepId: s.id, stepType: s.stepType }));
+    const counts = issueCounts(batch);
+    if (counts.errors > 0) blockers.push({ code: "ISSUES_OPEN", count: counts.errors });
     blockers.push({ code: "SCORE_BELOW_THRESHOLD" });
     return route.fulfill({
       json: {
@@ -555,7 +603,7 @@ export async function mockCatalogApi(
           { code: "VALID_CERTIFICATES", earned: 5, possible: 20, items: [] },
         ],
         blockers,
-        warnings: [],
+        warnings: counts.warnings > 0 ? [{ code: "ISSUE_WARNINGS", count: counts.warnings }] : [],
       },
     });
   });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { certificateTasks, useExpiringCertificates } from "@/lib/api/issues";
 import { useTasks } from "@/lib/api/tasks";
 import { useSession } from "@/lib/auth/use-session";
 
@@ -9,8 +10,11 @@ export function TasksBadge({ className = "" }: { className?: string }) {
   const t = useTranslations("nav");
   const session = useSession();
   // Supplier users have no company tasks (GET /tasks is 403 for them).
-  const tasks = useTasks({ enabled: session.status === "authenticated" && session.user.role !== "SUPPLIER" });
-  const total = tasks.data?.total ?? 0;
+  const enabled = session.status === "authenticated" && session.user.role !== "SUPPLIER";
+  const tasks = useTasks({ enabled });
+  // Certificates running out are tasks too (design v0.7 89a: "7 + 3 = 10"), one per certificate.
+  const certificates = useExpiringCertificates({ enabled });
+  const total = (tasks.data?.total ?? 0) + certificateTasks(certificates.data).length;
   if (total === 0) return null;
   return (
     <span

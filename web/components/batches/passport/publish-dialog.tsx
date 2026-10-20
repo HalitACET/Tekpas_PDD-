@@ -2,13 +2,16 @@
 
 import { Check, CircleAlert, Clock, FileText, Globe, Lock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import type { BatchResponse } from "@/lib/api/batches";
 import { blockersOf, type PassportVersion, reasonOf, usePassportPreview, usePublishPassport, type ScoreResponse } from "@/lib/api/passports";
+import { useBatchIssues } from "@/lib/api/issues";
 import { ApiError } from "@/lib/api/request";
 import { formatPercent } from "@/lib/format";
+import { useIssueView } from "../issues/use-issue-view";
 import { QrCard } from "./qr-card";
 import { useIssueText } from "./score-card";
 
@@ -50,6 +53,9 @@ function PublishFlow({ batch, score, onClose }: { batch: BatchResponse; score: S
   const t = useTranslations("publishing");
   const locale = useLocale();
   const issueText = useIssueText();
+  const tIssues = useTranslations("issues");
+  const issueView = useIssueView();
+  const issues = useBatchIssues(batch.id, "OPEN");
   const publish = usePublishPassport(batch.id);
   const preview = usePassportPreview(batch.id);
   const [published, setPublished] = useState<PassportVersion>();
@@ -98,7 +104,14 @@ function PublishFlow({ batch, score, onClose }: { batch: BatchResponse; score: S
   const refused = blocked || conflict;
   const certificates = preview.data?.certificates.length;
   const suppliers = preview.data ? new Set(preview.data.supplyChain.filter((s) => s.actor).map((s) => s.actor!.name)).size : undefined;
-  const warnings = score?.warnings ?? [];
+  const openIssues = issues.data?.issues ?? [];
+  const blockingCodes = openIssues.filter((i) => i.severity === "ERROR").map((i) => i.code);
+  const issueWarnings = openIssues.filter((i) => i.severity === "WARNING");
+  // The open warnings are listed with their codes (design v0.7 88b); the score's own lines about the same thing give way.
+  const warnings = (score?.warnings ?? []).filter(
+    (w) => !issues.data || (w.code !== "CERTIFICATE_EXPIRING" && w.code !== "ISSUE_WARNINGS"),
+  );
+  const blockedByIssues = blocked && blockersOf(error).some((b) => b.code === "ISSUES_OPEN");
   const run = () => publish.mutate(undefined, { onSuccess: setPublished });
 
   return (
@@ -140,7 +153,9 @@ function PublishFlow({ batch, score, onClose }: { batch: BatchResponse; score: S
               {blockersOf(error).map((b, i) => (
                 <li key={i} className="flex gap-1.5">
                   <span className="mt-2 size-1 flex-none rounded-full bg-current" aria-hidden />
-                  {issueText(b, score?.score, score?.threshold)}
+                  {b.code === "ISSUES_OPEN"
+                    ? tIssues("publishBlocked", { count: b.count ?? 0, codes: blockingCodes.join(", ") })
+                    : issueText(b, score?.score, score?.threshold)}
                 </li>
               ))}
             </ul>
@@ -152,6 +167,26 @@ function PublishFlow({ batch, score, onClose }: { batch: BatchResponse; score: S
           </Refusal>
         )}
 
+        {!blocked && issueWarnings.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-semibold tracking-[0.06em] text-muted-foreground uppercase">{tIssues("publishWarnings")}</span>
+            {issueWarnings.slice(0, 3).map((w) => {
+              const view = issueView(w);
+              return (
+                <div key={w.id} className="flex gap-2 text-[13px]">
+                  <Clock className="mt-px size-[15px] flex-none text-status-expiring" strokeWidth={1.9} aria-hidden />
+                  <span>
+                    <span className="mr-1.5 font-mono text-xs">{view.code}</span>
+                    {view.title}
+                  </span>
+                </div>
+              );
+            })}
+            {issueWarnings.length > 3 && (
+              <span className="pl-[23px] text-xs text-muted-foreground">{tIssues("publishMore", { count: issueWarnings.length - 3 })}</span>
+            )}
+          </div>
+        )}
         {!blocked && warnings.length > 0 && (
           <div className="flex flex-col gap-2">
             <span className="text-xs font-semibold tracking-[0.06em] text-muted-foreground uppercase">{t("publishWarnings")}</span>
@@ -180,9 +215,20 @@ function PublishFlow({ batch, score, onClose }: { batch: BatchResponse; score: S
         {refused ? (
           <>
             <DialogClose render={<Button type="button" variant="secondary" />}>{t("publishClose")}</DialogClose>
-            <Button type="button" onClick={conflict ? () => window.location.reload() : onClose}>
-              {conflict ? t("publishReload") : t("publishBackToScore")}
-            </Button>
+            {blockedByIssues && (
+              <Link
+                href={`/batches/${batch.id}?tab=alerts`}
+                onClick={onClose}
+                className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3.5 text-[13px] font-medium text-primary-foreground outline-none hover:bg-primary-hover focus-visible:ring-[3px] focus-visible:ring-ring-soft"
+              >
+                {tIssues("publishGoTo")}
+              </Link>
+            )}
+            {!blockedByIssues && (
+              <Button type="button" onClick={conflict ? () => window.location.reload() : onClose}>
+                {conflict ? t("publishReload") : t("publishBackToScore")}
+              </Button>
+            )}
           </>
         ) : (
           <>
