@@ -38,7 +38,7 @@ test("a row of the list opens the batch; the arrow is its link", async ({ page }
   await expect(crumbs.locator('[aria-current="page"]')).toHaveText("KP-2026-0918-A");
 });
 
-test("09: the header, the locked score and publishing, and what M3 can tell about why", async ({ page }) => {
+test("09: the header, the score card, locked publishing and the blockers", async ({ page }) => {
   await openDetail(page, BATCH_0918);
 
   await expect(page.getByRole("heading", { level: 1, name: "KP-2026-0918-A" })).toBeVisible();
@@ -50,20 +50,21 @@ test("09: the header, the locked score and publishing, and what M3 can tell abou
   await expect(meta).toContainText("Üretim02.09 – 20.09.2026");
   await expect(meta).toContainText("Etiket beyanı%95 organik pamuk · %5 elastan");
 
-  await expect(page.getByText("Uyum skoru henüz hesaplanmadı")).toBeAttached();
+  await expect(page.getByRole("region", { name: "Uyum skoru" })).toBeVisible();
   await expect(page.getByText("Yayın eşiği %90")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Önizle" })).toBeDisabled();
+  // Anyone who can read previews; publishing is locked while something blocks (and says what).
+  await expect(page.getByRole("link", { name: "Önizle" })).toHaveAttribute("href", `/batches/${BATCH_0918}/preview`);
   await expect(page.getByRole("button", { name: "Pasaportu yayınla" })).toBeDisabled();
-  await expect(page.getByRole("list", { name: "Yayın kilitli" }).getByRole("listitem")).toHaveText([
-    "Konfeksiyon adımına tedarikçi atanmadı",
-    "3 adım onay bekliyor",
-  ]);
+  const reasons = page.getByRole("list", { name: "Yayın kilitli" }).getByRole("listitem");
+  await expect(reasons.first()).toHaveText("İplik adımı onaylanmadı");
+  await expect(reasons.last()).toHaveText("Uyum skoru %40, yayın için en az %90 gerekli");
 
-  // Only the supply chain tab has content in M3.
+  // The supply chain and the passport versions work; documents and alerts follow with M5 and M7.
   const tabs = page.getByRole("navigation", { name: "Parti bölümleri" }).getByRole("button");
-  await expect(tabs).toHaveText(["Tedarik zinciri6", "Belgeler—", "Uyarılar—", "Pasaport sürümleri—"]);
+  await expect(tabs).toHaveText(["Tedarik zinciri6", "Belgeler—", "Uyarılar—", "Pasaport sürümleri0"]);
   await expect(tabs.nth(0)).toHaveAttribute("aria-current", "page");
-  for (const i of [1, 2, 3]) await expect(tabs.nth(i)).toBeDisabled();
+  for (const i of [1, 2]) await expect(tabs.nth(i)).toBeDisabled();
+  await expect(tabs.nth(3)).toBeEnabled();
 });
 
 test("09: the chain in five columns, with the origin, the suppliers, an empty step and the declarations", async ({ page }) => {
@@ -126,7 +127,7 @@ test("26: a batch without a chain gets the default five steps", async ({ page })
   await openDetail(page, BATCH_0927);
 
   await expect(page.getByRole("heading", { level: 2, name: "Bu partinin tedarik zinciri yok" })).toBeVisible();
-  await expect(page.getByRole("list", { name: "Yayın kilitli" })).toHaveText("Tedarik zinciri oluşturulmadı");
+  await expect(page.getByRole("list", { name: "Yayın kilitli" }).getByRole("listitem").first()).toHaveText("Tedarik zinciri yok");
   await expect(page.getByRole("navigation", { name: "Parti bölümleri" }).getByRole("button").first()).toHaveText("Tedarik zinciri0");
   const sent = page.waitForRequest((r) => r.url().endsWith(`/batches/${BATCH_0927}/chain`) && r.method() === "POST");
   await page.getByRole("button", { name: "Varsayılan zinciri oluştur" }).click();
@@ -138,10 +139,8 @@ test("26: a batch without a chain gets the default five steps", async ({ page })
   await expect(nodes.nth(0)).toContainText("Menşe girilmediLif adımı boş");
   await expect(nodes.nth(0)).not.toContainText("Tedarikçi ata");
   await expect(nodes.nth(4)).toContainText("Tedarikçi ataKonfeksiyon adımı boş");
-  await expect(page.getByRole("list", { name: "Yayın kilitli" }).getByRole("listitem")).toHaveText([
-    "4 adıma tedarikçi atanmadı",
-    "Lif adımında menşe girilmedi",
-  ]);
+  // Nothing in the chain is approved yet: every step blocks, then the score under the threshold.
+  await expect(page.getByRole("list", { name: "Yayın kilitli" }).getByRole("listitem")).toHaveCount(6);
   // Nothing assigned yet: no declarations card.
   await expect(page.getByText("İplikçi beyanları")).toHaveCount(0);
 });
@@ -256,7 +255,7 @@ test("25: an empty step gets a supplier of the step's type", async ({ page }) =>
 
   await expect(sheet).toBeHidden();
   await expect(chain(page).getByRole("button", { name: "Konfeksiyon adımı: Lale Konfeksiyon" })).toContainText("Beklemede");
-  await expect(page.getByRole("list", { name: "Yayın kilitli" }).getByRole("listitem")).toHaveText(["4 adım onay bekliyor"]);
+  await expect(page.getByRole("list", { name: "Yayın kilitli" }).getByText("Konfeksiyon adımı onaylanmadı")).toBeVisible();
 });
 
 test("25: 'Listede yok mu?' adds a supplier of the step's type and selects it", async ({ page }) => {
