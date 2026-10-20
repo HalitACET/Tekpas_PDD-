@@ -200,7 +200,7 @@ Plan: `docs/m5-plan.md` (depolama, V9, okuma hattı, güvenlik, test, açık kar
 ### M6 — Pasaport ve QR (**çekirdek tamam**)
 Plan: `docs/m6-plan.md` (uyum skoru kuralları, snapshot ve sürüm modeli, GS1 Digital Link ve QR, `/01/[gtin]/10/[batch]` önbellek ve dil mimarisi, açık kararlar §9). Tasarım brifi: `docs/m6-tasarim-brifi.md` → Claude Design v0.6. Sıra: tasarım + kararlar → backend T1–T4 → web T5–T6 → T7.
 
-- [ ] Uyum skoru (onaylı adımlar + zorunlu alanlar + geçerli sertifikalar)
+- [ ] Uyum skoru (onaylı adımlar + zorunlu alanlar + geçerli sertifikalar). _T1 (backend) tamam: `GET /batches/{id}/score`, `GET /batches` ve `GET /batches/{id}`'de `score`, `ComplianceScore` (saf hesap) + 16 birim, 7 entegrasyon testi; web kartı T6'da._
 - [ ] Yayınla: snapshot, sürüm, eski sürüm SUPERSEDED; geri çek
 - [ ] QR üretimi (GS1 Digital Link), PNG indirme
 - [ ] Web: `/01/[gtin]/10/[batch]` SSR pasaport sayfası (zincir, lif bileşimi, sertifikalar, bakım)

@@ -7,6 +7,7 @@ import com.tekpas.batch.dto.BatchStatusCounts;
 import com.tekpas.batch.dto.BatchUpdateRequest;
 import com.tekpas.batch.dto.ChainSummary;
 import com.tekpas.batch.dto.NextBatchNoResponse;
+import com.tekpas.batch.dto.ScoreResponse;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
@@ -40,17 +41,20 @@ public class BatchService {
     private final ProductRepository products;
     private final BatchNumbers numbers;
     private final ChainCounts chainCounts;
+    private final ComplianceService compliance;
     private final JdbcTemplate jdbc;
     private final ChainService chains;
     private final SupplierService suppliers;
     private final Clock clock;
 
     public BatchService(BatchRepository batches, ProductRepository products, BatchNumbers numbers,
-            ChainCounts chainCounts, JdbcTemplate jdbc, ChainService chains, SupplierService suppliers, Clock clock) {
+            ChainCounts chainCounts, ComplianceService compliance, JdbcTemplate jdbc, ChainService chains,
+            SupplierService suppliers, Clock clock) {
         this.batches = batches;
         this.products = products;
         this.numbers = numbers;
         this.chainCounts = chainCounts;
+        this.compliance = compliance;
         this.jdbc = jdbc;
         this.chains = chains;
         this.suppliers = suppliers;
@@ -66,13 +70,23 @@ public class BatchService {
         }
         Page<BatchRow> page = batches.search(companyId, productId, status, supplierId, q, pageable);
         Map<UUID, ChainSummary> chains = chainCounts.of(page.map(BatchRow::id).getContent());
-        return PageResponse.of(page).map(row -> toResponse(row, ChainCounts.orEmpty(chains, row.id())));
+        Map<UUID, ScoreResponse> scores = compliance.of(companyId,
+                page.getContent().stream().map(ComplianceService.Target::of).toList());
+        return PageResponse.of(page).map(row -> toResponse(row, ChainCounts.orEmpty(chains, row.id()),
+                scores.get(row.id()).score()));
     }
 
     @Transactional(readOnly = true)
     public BatchResponse get(UUID companyId, UUID id) {
         BatchRow row = batches.findRow(id, companyId).orElseThrow(BatchService::notFound);
-        return toResponse(row, chainCounts.of(id));
+        return toResponse(row, chainCounts.of(id), compliance.of(companyId, ComplianceService.Target.of(row)).score());
+    }
+
+    /** How the batch's compliance score adds up, what blocks publishing and what deserves a look. */
+    @Transactional(readOnly = true)
+    public ScoreResponse score(UUID companyId, UUID id) {
+        BatchRow row = batches.findRow(id, companyId).orElseThrow(BatchService::notFound);
+        return compliance.of(companyId, ComplianceService.Target.of(row));
     }
 
     @Transactional(readOnly = true)
@@ -109,7 +123,8 @@ public class BatchService {
         saveAndFlush(batch);
         // The product's last chain is copied (or the default one started): the batch is ready for suppliers.
         chains.startChain(batch);
-        return toResponse(batch, product, chainCounts.of(batch.getId()));
+        return toResponse(batch, product, chainCounts.of(batch.getId()),
+                compliance.of(companyId, ComplianceService.Target.of(batch)).score());
     }
 
     @Transactional
@@ -143,7 +158,8 @@ public class BatchService {
         saveAndFlush(batch);
 
         Product product = products.findByIdAndCompanyId(batch.getProductId(), companyId).orElseThrow();
-        return toResponse(batch, product, chainCounts.of(id));
+        return toResponse(batch, product, chainCounts.of(id),
+                compliance.of(companyId, ComplianceService.Target.of(batch)).score());
     }
 
     @Transactional
@@ -178,16 +194,16 @@ public class BatchService {
         }
     }
 
-    private static BatchResponse toResponse(BatchRow row, ChainSummary chain) {
+    private static BatchResponse toResponse(BatchRow row, ChainSummary chain, int score) {
         return new BatchResponse(row.id(), row.batchNo(), new BatchProduct(row.productId(), row.productName(),
                 row.gtin()), row.productionOrderNo(), row.status(), row.quantity(), row.producedFrom(),
-                row.producedTo(), chain, row.createdAt(), row.updatedAt());
+                row.producedTo(), chain, score, row.createdAt(), row.updatedAt());
     }
 
-    private static BatchResponse toResponse(Batch b, Product p, ChainSummary chain) {
+    private static BatchResponse toResponse(Batch b, Product p, ChainSummary chain, int score) {
         return new BatchResponse(b.getId(), b.getBatchNo(), new BatchProduct(p.getId(), p.getName(), p.getGtin()),
                 b.getProductionOrderNo(), b.getStatus(), b.getQuantity(), b.getProducedFrom(), b.getProducedTo(),
-                chain, b.getCreatedAt(), b.getUpdatedAt());
+                chain, score, b.getCreatedAt(), b.getUpdatedAt());
     }
 
     private static NotFoundException notFound() {

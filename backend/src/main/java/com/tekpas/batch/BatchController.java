@@ -5,6 +5,7 @@ import com.tekpas.batch.dto.BatchResponse;
 import com.tekpas.batch.dto.BatchStatusCounts;
 import com.tekpas.batch.dto.BatchUpdateRequest;
 import com.tekpas.batch.dto.NextBatchNoResponse;
+import com.tekpas.batch.dto.ScoreResponse;
 import com.tekpas.common.security.CurrentUser;
 import com.tekpas.common.security.ReadAccess;
 import com.tekpas.common.security.WriteAccess;
@@ -100,6 +101,18 @@ public class BatchController {
     @ApiResponse(responseCode = "404", description = "No such batch in this company")
     public BatchResponse getBatch(@PathVariable UUID id) {
         return service.get(currentUser.companyId(), id);
+    }
+
+    @GetMapping("/{id}/score")
+    @Operation(operationId = "getBatchScore", summary = "The batch's compliance score and how it adds up",
+            description = "Three criteria (approved steps 50, required fields 30, valid certificates 20), the "
+                    + "blockers that stop publishing whatever the score, and warnings. Computed on every call; "
+                    + "publishing needs no blocker, the threshold is part of them.")
+    @ApiResponse(responseCode = "200", description = "The score")
+    @ApiResponse(responseCode = "403", description = "Supplier users have no access")
+    @ApiResponse(responseCode = "404", description = "No such batch in this company")
+    public ScoreResponse getBatchScore(@PathVariable UUID id) {
+        return service.score(currentUser.companyId(), id);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

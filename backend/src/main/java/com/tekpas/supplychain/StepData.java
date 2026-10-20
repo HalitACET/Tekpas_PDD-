@@ -125,6 +125,11 @@ public record StepData(
                 .count();
     }
 
+    /** The fields the supplier must fill before submitting a step of this type (the compliance score counts them). */
+    public static List<String> requiredFor(StepType type) {
+        return REQUIRED.getOrDefault(type, List.of());
+    }
+
     /** Field names a step type has (whitelist for the fields of a correction request). */
     public static List<String> fieldsOf(StepType type) {
         return FIELDS.entrySet().stream().filter(e -> e.getValue().types().contains(type)).map(Map.Entry::getKey)

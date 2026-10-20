@@ -1,6 +1,7 @@
 package com.tekpas.supplychain;
 
 import jakarta.persistence.LockModeType;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +15,9 @@ public interface SupplyStepRepository extends JpaRepository<SupplyStep, UUID> {
     List<SupplyStep> findByBatchId(UUID batchId);
 
     long countByBatchId(UUID batchId);
+
+    /** The steps of several batches at once; the caller passes batches of its own company only. */
+    List<SupplyStep> findByBatchIdIn(Collection<UUID> batchIds);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""

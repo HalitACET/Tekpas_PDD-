@@ -1,10 +1,12 @@
 package com.tekpas.document;
 
 import jakarta.persistence.LockModeType;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -46,6 +48,29 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
             from Document d where d.stepId in :stepIds group by d.stepId
             """)
     List<StepDocumentCounts> countByStepIds(Collection<UUID> stepIds);
+
+    /**
+     * The few columns the compliance score needs from the company's documents of these steps, in one query. The
+     * company filter is repeated here: the step ids come from the caller's own batches, and so does the filter.
+     */
+    @Query("""
+            select d.stepId as stepId, d.docType as docType, d.reviewStatus as reviewStatus,
+                   d.validUntil as validUntil
+            from Document d where d.companyId = :companyId and d.stepId in :stepIds
+            """)
+    List<ScoreDocument> scoreDocumentsOf(UUID companyId, Collection<UUID> stepIds);
+
+    /** @see #scoreDocumentsOf */
+    interface ScoreDocument {
+
+        UUID getStepId();
+
+        DocType getDocType();
+
+        ReviewStatus getReviewStatus();
+
+        @Nullable LocalDate getValidUntil();
+    }
 
     /** @see #countByStepIds */
     interface StepDocumentCounts {

@@ -185,6 +185,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/batches/{id}/score": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The batch's compliance score and how it adds up
+         * @description Three criteria (approved steps 50, required fields 30, valid certificates 20), the blockers that stop publishing whatever the score, and warnings. Computed on every call; publishing needs no blocker, the threshold is part of them.
+         */
+        get: operations["getBatchScore"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/batches/{id}/steps": {
         parameters: {
             query?: never;
@@ -693,6 +713,11 @@ export interface components {
             productionOrderNo?: string | null;
             /** Format: int32 */
             quantity: number;
+            /**
+             * Format: int32
+             * @description Compliance score 0–100 (docs/m6-plan.md §2); GET /batches/{id}/score tells how it adds up
+             */
+            score: number;
             status: components["schemas"]["BatchStatus"];
             /** Format: date-time */
             updatedAt: string;
@@ -786,6 +811,8 @@ export interface components {
             /** Format: int32 */
             validDays: number;
         };
+        /** @enum {string} */
+        CriterionCode: "STEPS_APPROVED" | "REQUIRED_FIELDS" | "VALID_CERTIFICATES";
         DataRequestOptions: {
             /** Format: int32 */
             validDays?: number | null;
@@ -1078,6 +1105,48 @@ export interface components {
         };
         /** @enum {string} */
         RequestStatus: "SENT" | "OPENED" | "COMPLETED" | "EXPIRED" | "REVOKED";
+        ScoreCriterion: {
+            code: components["schemas"]["CriterionCode"];
+            /** Format: int32 */
+            earned: number;
+            items: components["schemas"]["ScoreItem"][];
+            /** Format: int32 */
+            possible: number;
+        };
+        ScoreIssue: {
+            code: components["schemas"]["ScoreIssueCode"];
+            /** Format: int32 */
+            count?: number | null;
+            /** @enum {string|null} */
+            docType?: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN" | null;
+            /** Format: uuid */
+            stepId?: string | null;
+            stepType?: components["schemas"]["StepType"];
+            /** Format: date */
+            validUntil?: string | null;
+        };
+        /** @enum {string} */
+        ScoreIssueCode: "NO_CHAIN" | "STEP_NOT_APPROVED" | "CERTIFICATE_EXPIRED" | "SCORE_BELOW_THRESHOLD" | "UNREVIEWED_DOCUMENTS" | "CERTIFICATE_EXPIRING";
+        ScoreItem: {
+            code: components["schemas"]["ScoreItemCode"];
+            missing?: string[] | null;
+            ok: boolean;
+            /** Format: uuid */
+            stepId?: string | null;
+            stepType?: components["schemas"]["StepType"];
+        };
+        /** @enum {string} */
+        ScoreItemCode: "STEP_APPROVED" | "STEP_FIELDS" | "PRODUCT_FIBERS" | "PRODUCT_CATEGORY" | "BATCH_DATES" | "STEP_CERTIFICATE";
+        ScoreResponse: {
+            blockers: components["schemas"]["ScoreIssue"][];
+            criteria: components["schemas"]["ScoreCriterion"][];
+            publishable: boolean;
+            /** Format: int32 */
+            score: number;
+            /** Format: int32 */
+            threshold: number;
+            warnings: components["schemas"]["ScoreIssue"][];
+        };
         StepCreateRequest: {
             inputStepIds?: string[] | null;
             outputStepIds?: string[] | null;
@@ -1812,6 +1881,46 @@ export interface operations {
             };
             /** @description The batch already has steps (reason CHAIN_EXISTS) */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getBatchScore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The score */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScoreResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
