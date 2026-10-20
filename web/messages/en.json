@@ -144,7 +144,13 @@
       "sub": "Supply chain steps and documents waiting for your approval.",
       "emptyTitle": "No tasks waiting for your approval",
       "emptyBody": "Steps sent by suppliers and documents read by AI are collected here. Fields with confidence below 0.80 are listed first.",
-      "cols": ["Task", "Batch", "Supplier", "Status", "Waiting"]
+      "cols": [
+        "Task",
+        "Batch",
+        "Supplier",
+        "Status",
+        "Waiting"
+      ]
     },
     "products": {
       "title": "Products",
@@ -153,7 +159,13 @@
       "cta2": "Import from Excel",
       "emptyTitle": "No products yet",
       "emptyBody": "A passport always belongs to a product. Define your first product with its GTIN, name and fibre composition.",
-      "cols": ["GTIN", "Product", "Fibre composition", "Batches", "Updated"]
+      "cols": [
+        "GTIN",
+        "Product",
+        "Fibre composition",
+        "Batches",
+        "Updated"
+      ]
     },
     "batches": {
       "title": "Batches",
@@ -163,13 +175,28 @@
       "emptyTitle": "No batches yet",
       "emptyBody": "Create your first batch: choose the product, assign the workshops in the supply chain and collect the documents. An approved batch is published as a passport with a QR code.",
       "emptyBodyShort": "Create your first batch. An approved batch is published as a passport with a QR code.",
-      "cols": ["Batch no.", "Product", "Supply chain", "Status", "Updated"],
+      "cols": [
+        "Batch no.",
+        "Product",
+        "Supply chain",
+        "Status",
+        "Updated"
+      ],
       "guide": {
         "label": "How to start",
         "steps": [
-          { "title": "Choose the product", "body": "GTIN and fibre composition" },
-          { "title": "Assign suppliers", "body": "Yarn → garment" },
-          { "title": "Collect documents", "body": "AI reads, you approve" }
+          {
+            "title": "Choose the product",
+            "body": "GTIN and fibre composition"
+          },
+          {
+            "title": "Assign suppliers",
+            "body": "Yarn → garment"
+          },
+          {
+            "title": "Collect documents",
+            "body": "AI reads, you approve"
+          }
         ]
       }
     },
@@ -180,7 +207,13 @@
       "cta2": "Send invitation link",
       "emptyTitle": "No suppliers yet",
       "emptyBody": "Add your spinners, weavers, dyehouses and sewing workshops; they are assigned to batch chains from here.",
-      "cols": ["Company", "Role", "City", "Certificates", "Updated"]
+      "cols": [
+        "Company",
+        "Role",
+        "City",
+        "Certificates",
+        "Updated"
+      ]
     },
     "documents": {
       "title": "Documents",
@@ -189,7 +222,13 @@
       "cta2": "Request from supplier",
       "emptyTitle": "No documents yet",
       "emptyBody": "Upload PDF, JPG or PNG files (up to 10 MB each). AI extracts the certificate number, validity date and fibre percentages and submits them for your approval.",
-      "cols": ["Document", "Type", "Supplier", "Status", "Valid until"]
+      "cols": [
+        "Document",
+        "Type",
+        "Supplier",
+        "Status",
+        "Valid until"
+      ]
     },
     "imports": {
       "title": "Imports",
@@ -198,7 +237,13 @@
       "cta2": "Download template",
       "emptyTitle": "No imports yet",
       "emptyBody": "Upload your product and batch lists as Excel. Download the template and fill it in.",
-      "cols": ["File", "Source", "Rows", "Status", "Date"]
+      "cols": [
+        "File",
+        "Source",
+        "Rows",
+        "Status",
+        "Date"
+      ]
     },
     "users": {
       "title": "Users",
@@ -207,7 +252,13 @@
       "cta2": "View roles",
       "emptyTitle": "It's just you",
       "emptyBody": "Invite your office team. Only Company owners and Administrators can approve and publish.",
-      "cols": ["Name", "Email", "Role", "Last sign-in", "Status"]
+      "cols": [
+        "Name",
+        "Email",
+        "Role",
+        "Last sign-in",
+        "Status"
+      ]
     },
     "settings": {
       "title": "Settings",
@@ -216,7 +267,13 @@
       "cta2": "Cancel",
       "emptyTitle": "Company profile incomplete",
       "emptyBody": "Complete the company name, address and logo that appear on the passport.",
-      "cols": ["Setting", "Value", "", "", ""]
+      "cols": [
+        "Setting",
+        "Value",
+        "",
+        "",
+        ""
+      ]
     }
   },
   "enums": {
@@ -793,6 +850,10 @@
       "incomplete": {
         "title": "Incomplete steps",
         "desc": "Steps without a supplier or without their information"
+      },
+      "certificates": {
+        "title": "Certificates running out",
+        "desc": "Expired or expiring within 30 days; used in a batch"
       }
     },
     "stepData": "{supplier} · {step} data",
@@ -836,7 +897,17 @@
     "reminder": "Hello, {company} is still waiting for your {step} data for batch {batchNo}. The link we sent you closes on {deadline}. Thank you, {name}",
     "emptyTitle": "No open tasks",
     "emptyBody": "Tasks appear here when a supplier sends data, when a request is close to its deadline or when a step has no supplier.",
-    "goBatches": "Go to batches"
+    "goBatches": "Go to batches",
+    "certificate": {
+      "expired": "Expired · {date}",
+      "daysLeft": "{days, plural, =0 {Expires today} one {Expires within # day} other {Expires within # days}}",
+      "where": "{step} step",
+      "go": "Go to step",
+      "renew": "Request a new one",
+      "batches": "Used in batches",
+      "expiredLabel": "Expired",
+      "expiringLabel": "Running out"
+    }
   },
   "supplier": {
     "meta": {
@@ -1513,6 +1584,131 @@
       "failed": "The document cannot be previewed",
       "failedBody": "The file cannot be reached right now. You can still enter the fields and approve.",
       "retry": "Try again"
+    }
+  },
+  "issues": {
+    "filter": "Alert filter",
+    "open": "Open",
+    "resolved": "Resolved",
+    "run": "Run checks",
+    "running": "Checking…",
+    "lastCheck": "Last check: {time}",
+    "neverChecked": "Not checked yet",
+    "runningHint": "Checks are running",
+    "loading": "Loading alerts",
+    "loadError": "Alerts could not be loaded",
+    "loadErrorBody": "The server could not be reached. Check your connection and try again. Publishing blockers still apply on the server.",
+    "retry": "Try again",
+    "emptyTitle": "No open alerts",
+    "emptyBody": "All checks passed, last check {when}.",
+    "emptyNever": "The checks have not run yet. What they find is listed here.",
+    "emptyResolvedTitle": "No resolved alerts",
+    "emptyResolvedBody": "Alerts resolved by hand and those that closed themselves when the data was corrected are listed here, with who and when.",
+    "severity": {
+      "ERROR": "Blocking",
+      "WARNING": "Warning",
+      "INFO": "Info"
+    },
+    "groupDesc": {
+      "ERROR": "Blocks publishing; closes when the data is corrected",
+      "WARNING": "Can be resolved; does not stop publishing",
+      "INFO": "Can be resolved"
+    },
+    "rule": "Rule · {name}",
+    "ai": "AI suggestion",
+    "blocks": "Blocks publishing until corrected",
+    "resolve": "Resolved",
+    "note": "Note",
+    "noteOptional": "(optional)",
+    "notePlaceholder": "Say briefly why it is resolved; it is kept in the batch history",
+    "noteCount": "{count}/500",
+    "cancel": "Cancel",
+    "confirm": "Mark as resolved",
+    "reopen": "Reopen",
+    "resolvedBy": "Resolved by {name} · {date}",
+    "resolvedByNote": "Resolved by {name} · {date} — “{note}”",
+    "autoResolved": "Closed itself · data corrected · {date}",
+    "blockingTitle": "Blocking alerts cannot be resolved by hand; correct the data.",
+    "blockingBody": "The alert closes by itself once the data is corrected and approved.",
+    "alreadyTitle": "This alert is already resolved.",
+    "alreadyBody": "The list was refreshed; the alert is under Resolved.",
+    "failedTitle": "The action could not be completed",
+    "failedBody": "Try again in a moment.",
+    "actions": {
+      "goToStep": "Go to step",
+      "requestFix": "Request a correction",
+      "requestNew": "Request a new one",
+      "requestCert": "Request a certificate",
+      "openDocument": "Open document",
+      "openProduct": "Go to products"
+    },
+    "summaryBlocking": "{count, plural, one {# blocking alert} other {# blocking alerts}} · Alerts",
+    "summaryWarnings": "{count, plural, one {# alert} other {# alerts}} · Alerts",
+    "tabBadge": "{count} open alerts",
+    "listDotBlocking": "{count, plural, one {# blocking alert} other {# blocking alerts}}",
+    "listDotWarnings": "{count, plural, one {# alert, does not stop publishing} other {# alerts, they do not stop publishing}}",
+    "scoreBlockerSub": "{codes} · Go to alerts",
+    "scoreWarningSub": "For information",
+    "publishBlocked": "{count, plural, one {# blocking alert is open} other {# blocking alerts are open}}: {codes}",
+    "publishGoTo": "Go to alerts",
+    "publishWarnings": "Alerts · do not stop publishing",
+    "publishMore": "{count, plural, one {and # more alert} other {and # more alerts}}",
+    "unknownTitle": "A check found an alert.",
+    "unknownRule": "Check",
+    "codes": {
+      "LIF-01": {
+        "rule": "Fibre composition consistency",
+        "title": "The label and the fibre declaration of {who} do not match.",
+        "meta": "{supplier}{step} step",
+        "label": "Label declaration",
+        "declared": "{who} declaration"
+      },
+      "LIF-02": {
+        "rule": "Fibre total",
+        "titleLabel": "The label’s fibre composition adds up to {total}, it must be 100%.",
+        "titleStep": "The fibre composition of {who} adds up to {total}, it must be 100%.",
+        "sum": "Total {total}",
+        "metaLabel": "Product data",
+        "label": "Label declaration",
+        "declared": "{who} declaration"
+      },
+      "SER-01": {
+        "rule": "Certificate validity",
+        "title": "{doc} expired on {date}.",
+        "meta": "{supplier}{step} step · {days, plural, one {# day ago} other {# days ago}}"
+      },
+      "SER-02": {
+        "rule": "Certificate validity",
+        "title": "{days, plural, =0 {{doc} expires today.} one {{doc} expires within # day.} other {{doc} expires within # days.}}",
+        "meta": "{supplier}{step} step · ends {date}"
+      },
+      "SER-03": {
+        "rule": "Certificate holder",
+        "title": "The holder of {doc} does not match the supplier.",
+        "meta": "{step} step",
+        "holder": "Certificate holder",
+        "supplier": "Supplier"
+      },
+      "SER-04": {
+        "rule": "Certificate missing",
+        "title": "The {step} step is approved but has no confirmed certificate.",
+        "meta": "{supplier}{step} step"
+      },
+      "EKS-01": {
+        "rule": "Label composition",
+        "title": "The product has no fibre composition on its label.",
+        "meta": "Product data · shown in the passport"
+      },
+      "EKS-02": {
+        "rule": "Production date",
+        "title": "{missing, select, FROM {The production start date is missing.} TO {The production end date is missing.} other {The production dates are missing.}}",
+        "meta": "Batch data · optional"
+      },
+      "BEL-01": {
+        "rule": "Document awaiting approval",
+        "title": "“{file}” awaits approval; it is not in the passport until approved.",
+        "meta": "{supplier}{step} step · {doc}"
+      }
     }
   }
 }

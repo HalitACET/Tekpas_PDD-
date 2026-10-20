@@ -11,6 +11,11 @@ export function canWriteCatalog(role: Role): boolean {
   return role === "OWNER" || role === "ADMIN" || role === "EDITOR";
 }
 
+/** Approving data, resolving alerts and publishing are for OWNER and ADMIN (PLAN.md §2). */
+export function canReview(role: Role): boolean {
+  return role === "OWNER" || role === "ADMIN";
+}
+
 /** Pages a supplier user cannot use (the API answers 403); they are sent to their tasks instead. */
 const SUPPLIER_BLOCKED = ["/products", "/batches"];
 

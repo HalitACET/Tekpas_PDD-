@@ -11,10 +11,15 @@ const state = vi.hoisted(() => ({
   versions: [] as unknown[],
   publish: { mutate: undefined as unknown, isPending: false, isError: false, error: undefined as unknown },
   published: undefined as unknown,
+  issues: undefined as unknown,
 }));
 
 vi.mock("next/link", () => ({ default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => <a href={href} {...rest}>{children}</a> }));
 vi.mock("@/lib/auth/use-session", () => ({ useSession: () => ({ status: "authenticated", user: { role: state.role } }) }));
+vi.mock("@/lib/api/issues", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api/issues")>()),
+  useBatchIssues: () => ({ data: state.issues, isPending: false, isError: false }),
+}));
 vi.mock("@/lib/api/passports", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/api/passports")>()),
   usePassportVersions: () => ({ data: state.versions, isError: false, isPending: false }),
@@ -87,6 +92,21 @@ beforeEach(() => {
   state.versions = [];
   state.publish = { mutate: undefined, isPending: false, isError: false, error: undefined };
   state.published = undefined;
+  state.issues = undefined;
+});
+
+const issue = (over: object) => ({
+  id: "i1",
+  code: "SER-02",
+  severity: "WARNING",
+  source: "RULE",
+  stepType: "DYEING",
+  supplierName: "Uludağ Boya Terbiye",
+  params: { docType: "OEKO_TEX", validUntil: "2099-01-01" },
+  resolved: false,
+  autoResolved: false,
+  createdAt: "2026-10-20T10:00:00Z",
+  ...over,
 });
 
 describe("LifecycleChip", () => {
@@ -139,6 +159,34 @@ describe("ScoreCard", () => {
 
     expect(screen.getByText("Eşik aşıldı, 1 engel var")).toBeInTheDocument();
     expect(screen.getByText(/İplik · GOTS sertifikası süresi 12 Eki 2026 tarihinde doldu/)).toBeInTheDocument();
+  });
+
+  it("leads from the blocking alerts to their tab and names their codes; open warnings are one line of information", () => {
+    state.issues = {
+      issues: [issue({ id: "i1", code: "LIF-01", severity: "ERROR" }), issue({ id: "i2", code: "SER-01", severity: "ERROR" })],
+      open: { errors: 2, warnings: 3, infos: 0 },
+      resolved: 0,
+    };
+    card({
+      ...ready,
+      publishable: false,
+      blockers: [{ code: "ISSUES_OPEN", count: 2 }],
+      warnings: [{ code: "ISSUE_WARNINGS", count: 3 }],
+    });
+
+    const link = screen.getByRole("link", { name: "2 engelleyici uyarı açık" });
+    expect(link).toHaveAttribute("href", "/batches/b1?tab=alerts");
+    expect(screen.getByText("LIF-01 · SER-01 · Uyarılar’a git")).toBeInTheDocument();
+    expect(screen.getByText("3 uyarı açık, yayını durdurmaz")).toBeInTheDocument();
+    expect(screen.getByText("Bilgi amaçlı")).toBeInTheDocument();
+  });
+
+  it("shows only the information line when warnings are all that is open", () => {
+    card({ ...ready, warnings: [{ code: "ISSUE_WARNINGS", count: 5 }] });
+
+    expect(screen.getByText("Yayın engelleri")).toBeInTheDocument();
+    expect(screen.getByText("5 uyarı açık, yayını durdurmaz")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /engelleyici/ })).not.toBeInTheDocument();
   });
 
   it("shows the published version, the score it had and 'Yayında'", () => {
@@ -231,6 +279,55 @@ describe("PublishActions", () => {
     expect(within(dialog).getByText(/İplik · GOTS sertifikası süresi/)).toBeInTheDocument();
     expect(within(dialog).queryByRole("button", { name: "Yayınla" })).not.toBeInTheDocument();
     expect(within(dialog).getByRole("button", { name: "Skor kartına dön" })).toBeInTheDocument();
+  });
+
+  it("names the open blocking alerts by code and leads to their tab when the server refused because of them", async () => {
+    const user = userEvent.setup();
+    state.issues = {
+      issues: [issue({ id: "i1", code: "LIF-01", severity: "ERROR" }), issue({ id: "i2", code: "SER-01", severity: "ERROR" })],
+      open: { errors: 2, warnings: 0, infos: 0 },
+      resolved: 0,
+    };
+    state.publish = {
+      mutate: undefined,
+      isPending: false,
+      isError: true,
+      error: new ApiError(409, { type: "urn:tekpas:problem:conflict", title: "Conflict", status: 409, reason: "PUBLISH_BLOCKED", blockers: [{ code: "ISSUES_OPEN", count: 2 }] } as never),
+    };
+    renderWithIntl(<PublishActions batch={batch()} score={{ data: ready, isPending: false }} />);
+
+    await user.click(screen.getByRole("button", { name: "Pasaportu yayınla" }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("2 engelleyici uyarı açık: LIF-01, SER-01")).toBeInTheDocument();
+    expect(within(dialog).getByRole("link", { name: "Uyarılar’a git" })).toHaveAttribute("href", "/batches/b1?tab=alerts");
+    expect(within(dialog).queryByRole("button", { name: "Skor kartına dön" })).not.toBeInTheDocument();
+  });
+
+  it("lists the open warnings with their codes, three at most, and does not stop publishing", async () => {
+    const user = userEvent.setup();
+    state.issues = {
+      issues: [
+        issue({ id: "w1", code: "SER-02" }),
+        issue({ id: "w2", code: "SER-03", params: { docType: "GOTS", holder: "A", supplier: "B" } }),
+        issue({ id: "w3", code: "SER-04" }),
+        issue({ id: "w4", code: "EKS-01", stepType: undefined, supplierName: undefined, params: {} }),
+        issue({ id: "w5", code: "SER-04", stepType: "FABRIC" }),
+      ],
+      open: { errors: 0, warnings: 5, infos: 0 },
+      resolved: 0,
+    };
+    renderWithIntl(<PublishActions batch={batch()} score={{ data: { ...ready, warnings: [{ code: "ISSUE_WARNINGS", count: 5 }] }, isPending: false }} />);
+
+    await user.click(screen.getByRole("button", { name: "Pasaportu yayınla" }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("Uyarılar · yayını durdurmaz")).toBeInTheDocument();
+    expect(within(dialog).getByText("SER-02")).toBeInTheDocument();
+    expect(within(dialog).getByText("SER-03")).toBeInTheDocument();
+    expect(within(dialog).queryByText("EKS-01")).not.toBeInTheDocument();
+    expect(within(dialog).getByText("ve 2 uyarı daha")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "Yayınla" })).toBeEnabled();
   });
 
   it("says someone else published first when the server says it is published already", async () => {

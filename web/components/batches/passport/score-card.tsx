@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { BatchResponse } from "@/lib/api/batches";
 import type { ScoreCriterion, ScoreIssue, ScoreResponse } from "@/lib/api/passports";
+import { useBatchIssues } from "@/lib/api/issues";
 import { formatPercent } from "@/lib/format";
 import { useVersionFacts } from "./use-version-facts";
 
@@ -79,6 +80,8 @@ export function ScoreCard({
   const shown = published && batch.passport ? batch.passport.score : data.score;
   const above = shown >= data.threshold;
   const status = statusLine(t, data, batch);
+  // Open consistency warnings do not stop the publishing; they are one line of their own (design v0.7 86b).
+  const issueWarnings = data.warnings.find((w) => w.code === "ISSUE_WARNINGS");
   const dash = `${((CIRCUMFERENCE * shown) / 100).toFixed(1)} ${CIRCUMFERENCE.toFixed(1)}`;
 
   return (
@@ -135,12 +138,13 @@ export function ScoreCard({
         </div>
       )}
 
-      {data.blockers.length > 0 && (
+      {(data.blockers.length > 0 || issueWarnings) && (
         <div className="flex flex-col gap-2 border-t pt-3">
           <span className="text-xs font-semibold tracking-[0.06em] text-muted-foreground uppercase">{t("blockersTitle")}</span>
           {data.blockers.map((blocker, i) => (
-            <BlockerLine key={`${blocker.code}-${blocker.stepId ?? i}-${blocker.docType ?? ""}`} issue={blocker} score={data.score} threshold={data.threshold} />
+            <BlockerLine key={`${blocker.code}-${blocker.stepId ?? i}-${blocker.docType ?? ""}`} batchId={batch.id} issue={blocker} score={data.score} threshold={data.threshold} />
           ))}
+          {issueWarnings && <IssueWarningsLine issue={issueWarnings} />}
         </div>
       )}
     </section>
@@ -258,14 +262,48 @@ export function useIssueText() {
   };
 }
 
-function BlockerLine({ issue, score, threshold }: { issue: ScoreIssue; score: number; threshold: number }) {
+function BlockerLine({ batchId, issue, score, threshold }: { batchId: string; issue: ScoreIssue; score: number; threshold: number }) {
   const text = useIssueText();
+  const t = useTranslations("issues");
+  const open = useBatchIssues(batchId, "OPEN");
   const soft = issue.code === "SCORE_BELOW_THRESHOLD";
   const Icon = soft ? Clock : TriangleAlert;
+  if (issue.code === "ISSUES_OPEN") {
+    // The blocking alerts are in the Uyarılar tab: the line leads there and names their codes (design v0.7 86a).
+    const codes = (open.data?.issues ?? []).filter((i) => i.severity === "ERROR").map((i) => i.code).join(" · ");
+    return (
+      <div className="flex items-start gap-2 text-[13px] leading-[1.4]">
+        <Icon className="mt-px size-[15px] flex-none text-status-rejected" strokeWidth={1.9} aria-hidden />
+        <span className="flex flex-col gap-0.5">
+          <Link
+            href={`/batches/${batchId}?tab=alerts`}
+            className="font-medium text-status-rejected-foreground underline underline-offset-[3px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft"
+          >
+            {text(issue, score, threshold)}
+          </Link>
+          <span className="font-mono text-[11px] text-muted-foreground">{t("scoreBlockerSub", { codes })}</span>
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="flex items-start gap-2 text-[13px] leading-[1.4]">
       <Icon className={`mt-px size-[15px] flex-none ${soft ? "text-status-low-confidence" : "text-status-rejected"}`} strokeWidth={1.9} aria-hidden />
       <span>{text(issue, score, threshold)}</span>
+    </div>
+  );
+}
+
+function IssueWarningsLine({ issue }: { issue: ScoreIssue }) {
+  const text = useIssueText();
+  const t = useTranslations("issues");
+  return (
+    <div className="flex items-start gap-2 text-[13px] leading-[1.4]">
+      <CircleAlert className="mt-px size-[15px] flex-none text-status-expiring" strokeWidth={1.9} aria-hidden />
+      <span className="flex flex-col gap-0.5">
+        <span className="font-medium text-status-expiring-foreground">{text(issue)}</span>
+        <span className="font-mono text-[11px] text-muted-foreground">{t("scoreWarningSub")}</span>
+      </span>
     </div>
   );
 }

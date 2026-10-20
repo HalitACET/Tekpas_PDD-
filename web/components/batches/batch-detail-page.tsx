@@ -1,7 +1,7 @@
 "use client";
 
 import type { Fiber, StepStatus } from "@tekpas/shared";
-import { Layers, MoveRight, Plus } from "lucide-react";
+import { Clock, Layers, MoveRight, Plus, TriangleAlert } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -21,6 +21,7 @@ import {
   useBatchChain,
   useCreateDefaultChain,
 } from "@/lib/api/batches";
+import { type IssueCounts, type IssueSeverity, topSeverity, useBatchIssues } from "@/lib/api/issues";
 import { useBatchScore } from "@/lib/api/passports";
 import { useProduct } from "@/lib/api/products";
 import { ApiError } from "@/lib/api/request";
@@ -31,6 +32,7 @@ import { useSetBreadcrumbDetail } from "@/lib/breadcrumb";
 import { displayGtin, fiberText, formatDateRange, formatQuantity } from "@/lib/format";
 import { queryKeys } from "@/lib/query-keys";
 import { type ChainPanel, ChainPanels, panelFor } from "./chain-panels";
+import { AlertsTab } from "./issues/alerts-tab";
 import { LifecycleChip } from "./passport/lifecycle-chip";
 import { PublishActions } from "./passport/publish-actions";
 import { QrCard } from "./passport/qr-card";
@@ -85,6 +87,8 @@ export function BatchDetailPage({ id }: { id: string }) {
   return <BatchDetail batch={batch.data} chain={chain} />;
 }
 
+const openTotal = (counts: IssueCounts) => counts.errors + counts.warnings + counts.infos;
+
 function BatchDetail({ batch, chain }: { batch: BatchResponse; chain: ReturnType<typeof useBatchChain> }) {
   const t = useTranslations("batches.detail");
   const tFiber = useTranslations("enums.fiber");
@@ -92,19 +96,27 @@ function BatchDetail({ batch, chain }: { batch: BatchResponse; chain: ReturnType
   const router = useRouter();
   const pathname = usePathname();
   const score = useBatchScore(batch.id);
-  const tab = searchParams.get("tab") === "versions" ? "versions" : "chain";
+  const param = searchParams.get("tab");
+  const tab = param === "versions" || param === "alerts" ? param : "chain";
   const hasPassport = !!batch.passport && !batch.passport.withdrawn;
   const { live } = useVersionFacts(batch.id, hasPassport);
-  const steps = useMemo(
-    () =>
-      (chain.data?.steps ?? []).filter((s) => isDrawn(s.stepType)).map((s) => toNodeStep(s, (f: Fiber) => tFiber(f))),
-    [chain.data, tFiber],
-  );
-  const selectTab = (next: "chain" | "versions") => {
+  const issues = useBatchIssues(batch.id, "OPEN");
+  const steps = useMemo(() => {
+    // The codes of the step's open alerts, blocking first (design v0.7 86a); info level does not mark the chain.
+    const codes = new Map<string, { code: string; severity: IssueSeverity }[]>();
+    for (const issue of issues.data?.issues ?? []) {
+      if (!issue.stepId || issue.severity === "INFO") continue;
+      codes.set(issue.stepId, [...(codes.get(issue.stepId) ?? []), { code: issue.code, severity: issue.severity }]);
+    }
+    return (chain.data?.steps ?? [])
+      .filter((s) => isDrawn(s.stepType))
+      .map((s) => ({ ...toNodeStep(s, (f: Fiber) => tFiber(f)), issueCodes: codes.get(s.id) }));
+  }, [chain.data, issues.data, tFiber]);
+  const selectTab = (next: "chain" | "versions" | "alerts") => {
     const params = new URLSearchParams(searchParams.toString());
     // The chain's own deep links (?step=, ?open=) belong to the chain tab only.
-    if (next === "versions") {
-      params.set("tab", "versions");
+    if (next !== "chain") {
+      params.set("tab", next);
       params.delete("step");
       params.delete("open");
     } else {
@@ -118,7 +130,7 @@ function BatchDetail({ batch, chain }: { batch: BatchResponse; chain: ReturnType
     <TooltipProvider>
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
-          <BatchHeader batch={batch} />
+          <BatchHeader batch={batch} onShowAlerts={() => selectTab("alerts")} />
           <PublishActions batch={batch} score={score} />
         </div>
         <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
@@ -126,10 +138,22 @@ function BatchDetail({ batch, chain }: { batch: BatchResponse; chain: ReturnType
             <nav aria-label={t("tabs.label")} className="flex gap-1 border-b">
               <Tab label={t("tabs.chain")} count={String(chain.data?.steps.length ?? batch.chain.totalSteps)} active={tab === "chain"} onSelect={() => selectTab("chain")} />
               <Tab label={t("tabs.documents")} />
-              <Tab label={t("tabs.alerts")} />
+              <Tab
+                label={t("tabs.alerts")}
+                count={String(openTotal(batch.openIssues))}
+                severity={topSeverity(batch.openIssues)}
+                active={tab === "alerts"}
+                onSelect={() => selectTab("alerts")}
+              />
               <Tab label={t("tabs.versions")} count={String(batch.passport?.version ?? 0)} active={tab === "versions"} onSelect={() => selectTab("versions")} />
             </nav>
-            {tab === "versions" ? <VersionsTab batch={batch} /> : <ChainSection batch={batch} chain={chain} steps={steps} />}
+            {tab === "versions" ? (
+              <VersionsTab batch={batch} />
+            ) : tab === "alerts" ? (
+              <AlertsTab batch={batch} />
+            ) : (
+              <ChainSection batch={batch} chain={chain} steps={steps} />
+            )}
           </div>
           <aside className="flex flex-col gap-4">
             <ScoreCard batch={batch} score={score} onRetry={() => void score.refetch()} />
@@ -141,7 +165,7 @@ function BatchDetail({ batch, chain }: { batch: BatchResponse; chain: ReturnType
   );
 }
 
-function BatchHeader({ batch }: { batch: BatchResponse }) {
+function BatchHeader({ batch, onShowAlerts }: { batch: BatchResponse; onShowAlerts: () => void }) {
   const t = useTranslations("batches");
   const tDetail = useTranslations("batches.detail");
   const tFiber = useTranslations("enums.fiber");
@@ -157,6 +181,7 @@ function BatchHeader({ batch }: { batch: BatchResponse }) {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-mono text-[28px] leading-[34px] font-medium tracking-[-0.03em]">{batch.batchNo}</h1>
           <LifecycleChip batch={batch} size="lg" />
+          <AlertsSummary counts={batch.openIssues} onClick={onShowAlerts} />
         </div>
         <p className="text-base font-medium tracking-[-0.01em]">
           {batch.product.name}{" "}
@@ -198,8 +223,49 @@ function Meta({ term, children }: { term: string; children: React.ReactNode }) {
   );
 }
 
-/** A tab of 09. Without a count it is not available yet (documents M5, alerts M7); chain and versions work. */
-function Tab({ label, count, active = false, onSelect }: { label: string; count?: string; active?: boolean; onSelect?: () => void }) {
+/**
+ * The header button of design v0.7 B1: the open alerts at their highest severity, leading to the Uyarılar tab. Info
+ * level alone shows nothing; neither does a batch without open alerts.
+ */
+function AlertsSummary({ counts, onClick }: { counts: IssueCounts; onClick: () => void }) {
+  const t = useTranslations("issues");
+  if (counts.errors === 0 && counts.warnings === 0) return null;
+  const blocking = counts.errors > 0;
+  const Icon = blocking ? TriangleAlert : Clock;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft ${
+        blocking ? "bg-status-rejected-muted text-status-rejected-foreground" : "bg-status-expiring-muted text-status-expiring-foreground"
+      }`}
+    >
+      <Icon className="size-3.5" strokeWidth={1.75} aria-hidden />
+      {blocking ? t("summaryBlocking", { count: counts.errors }) : t("summaryWarnings", { count: counts.warnings })}
+    </button>
+  );
+}
+
+const BADGE_TONE: Record<IssueSeverity, string> = {
+  ERROR: "bg-status-rejected-muted text-status-rejected-foreground",
+  WARNING: "bg-status-expiring-muted text-status-expiring-foreground",
+  INFO: "bg-status-pending-muted text-status-pending-foreground",
+};
+
+/** A tab of 09. Without a count it is not available yet (documents M5); the others work. */
+function Tab({
+  label,
+  count,
+  severity,
+  active = false,
+  onSelect,
+}: {
+  label: string;
+  count?: string;
+  severity?: IssueSeverity;
+  active?: boolean;
+  onSelect?: () => void;
+}) {
   const t = useTranslations("batches.detail.tabs");
   const available = !!onSelect;
   return (
@@ -214,7 +280,9 @@ function Tab({ label, count, active = false, onSelect }: { label: string; count?
       } ${available ? "cursor-pointer hover:text-foreground" : ""}`}
     >
       {label}
-      <span className="rounded-[4px] bg-muted px-1.5 py-px font-mono text-[11px] font-medium text-muted-foreground">
+      <span
+        className={`rounded-[4px] px-1.5 py-px font-mono text-[11px] font-medium ${severity ? BADGE_TONE[severity] : "bg-muted text-muted-foreground"}`}
+      >
         {count ?? "—"}
       </span>
     </button>
