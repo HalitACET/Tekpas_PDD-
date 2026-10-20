@@ -42,7 +42,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M3 | Tedarik zinciri: tedarikçi ağı, zincir (DAG), parti detayı | ✅ |
 | M4 | Veri talebi ve tedarikçi sayfası: bağlantı, gönderim, onay ve red, görevler | ✅ |
 | M5 | Belge ve AI çıkarımı: sertifika yükleme, okuma, onay | ✅ |
-| M6 | Pasaport ve QR | ⬜ |
+| M6 | Pasaport ve QR: uyum skoru, sürümlü ve değişmez yayın, GS1 Digital Link QR, herkese açık sayfa | ✅ |
 | M7 | Tutarlılık kontrolü ve sertifika takibi | ⬜ |
 | M8 | Mobil I: görevler, kamera ile belge | ⬜ |
 | M9 | Mobil II: QR okutma, hızlı onay, bildirimler | ⬜ |
@@ -73,6 +73,14 @@ Tasarım Claude Design v0.3 (ve ek çerçeveleri v0.3.1, v0.3.2, v0.4) ile yapı
 | **39 Tedarikçi sayfası:** karşılama (telefon)<br><img src="docs/design/impl-v0.4/39-light.png" alt="Tedarikçi sayfası karşılama ekranı: kim istiyor, ne isteniyor, son tarih, açık tema" width="300"> | <br><img src="docs/design/impl-v0.4/39-dark.png" alt="Tedarikçi sayfası karşılama ekranı, koyu tema" width="300"> |
 | **40b Tedarikçi formu:** alan hataları<br><img src="docs/design/impl-v0.4/40b-light.png" alt="İplik formu: lif ve enerji toplamı %100 değil, iplik numarası ve ad soyad hatalı, açık tema" width="300"> | <br><img src="docs/design/impl-v0.4/40b-dark.png" alt="İplik formu alan hataları, koyu tema" width="300"> |
 | **45 Düzeltme istendi:** gerekçe üstte, alan işaretli<br><img src="docs/design/impl-v0.4/45-light.png" alt="Yeniden açılan form: düzeltme gerekçesi, işaretli lif bileşimi bölümü ve önceki veriler, açık tema" width="300"> | <br><img src="docs/design/impl-v0.4/45-dark.png" alt="Yeniden açılan form, koyu tema" width="300"> |
+
+**M6, pasaport ve QR** (Claude Design v0.6): herkese açık pasaport sayfası ve panelde yayın.
+
+| Herkese açık sayfa (EN, açık) | Herkese açık sayfa (DE, koyu) |
+| --- | --- |
+| <img src="docs/design/impl-v0.6/63a-pasaport-mobil-acik-en.jpg" alt="Pasaport sayfası, mobil, açık tema, İngilizce" width="300"> | <img src="docs/design/impl-v0.6/63b-pasaport-mobil-koyu-de.jpg" alt="Pasaport sayfası, mobil, koyu tema, Almanca" width="300"> |
+| **Yayın diyaloğu** | **Yayın başarılı, QR** |
+| <img src="docs/design/impl-v0.6/64a-yayin-diyalog.jpg" alt="Pasaportu yayınla diyaloğu" width="440"> | <img src="docs/design/impl-v0.6/64b-yayin-basari-qr.jpg" alt="Sürüm yayında, QR kodu" width="440"> |
 
 ## Mimari
 
