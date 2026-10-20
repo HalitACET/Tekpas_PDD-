@@ -11,6 +11,8 @@ import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
 import com.tekpas.common.error.NotFoundException;
+import com.tekpas.jobs.JobQueue;
+import com.tekpas.jobs.JobType;
 import com.tekpas.company.AppUser;
 import com.tekpas.company.AppUserRepository;
 import com.tekpas.passport.PassportSnapshotBuilder.Built;
@@ -57,10 +59,12 @@ public class PassportService {
     private final Clock clock;
     private final PublicProperties publicProperties;
     private final QrCodes qr;
+    private final JobQueue jobs;
 
     public PassportService(BatchRepository batches, BatchService batchService, BatchProgress progress,
             PassportRepository passports, PassportSnapshotBuilder builder, AppUserRepository users, JdbcTemplate jdbc,
-            ObjectMapper json, Clock clock, PublicProperties publicProperties, QrCodes qr) {
+            ObjectMapper json, Clock clock, PublicProperties publicProperties, QrCodes qr,
+            JobQueue jobs) {
         this.batches = batches;
         this.batchService = batchService;
         this.progress = progress;
@@ -72,6 +76,7 @@ public class PassportService {
         this.clock = clock;
         this.publicProperties = publicProperties;
         this.qr = qr;
+        this.jobs = jobs;
     }
 
     @Transactional
@@ -105,6 +110,7 @@ public class PassportService {
         batch.setStatus(BatchStatus.PUBLISHED);
         batch.touch(now);
 
+        refreshPage(saved);
         audit(companyId, userId, "PASSPORT", saved.getId(), "PUBLISH",
                 "{\"version\":" + version + ",\"completeness\":" + score.score() + "}");
         return toResponse(saved, names(List.of(saved)));
@@ -148,6 +154,7 @@ public class PassportService {
         if (batch.getStatus() == BatchStatus.PUBLISHED) {
             backToEditing(batch, now);
         }
+        refreshPage(passport);
         audit(companyId, userId, "PASSPORT", id, "WITHDRAW", null);
         return toResponse(passport, names(List.of(passport)));
     }
@@ -165,6 +172,15 @@ public class PassportService {
         backToEditing(batch, clock.instant());
         audit(companyId, userId, "BATCH", batchId, "PASSPORT_DRAFT", null);
         return batchService.get(companyId, batchId);
+    }
+
+    /**
+     * The page of this code changed (a new version or a withdrawal): queued in this transaction, so it only runs when the
+     * change is committed and is gone if it is rolled back. Opening a draft changes nothing public and queues nothing.
+     */
+    private void refreshPage(Passport passport) {
+        jobs.enqueue(JobType.PASSPORT_CACHE_REFRESH,
+                new PassportCacheRefreshJob.Payload(passport.getGtin(), passport.getBatchNo()));
     }
 
     /** COLLECTING, or READY when every step is approved (the batch's own rule). */

@@ -78,6 +78,8 @@ tekpas:
   public:
     # Where the QR codes point to (PLAN K13): {base-url}/01/{gtin}/10/{batch}. No domain yet.
     base-url: ${PUBLIC_BASE_URL:http://localhost:3000}
+    # Shared with the web app (Vercel): the backend calls POST /api/passport-cache with it after a publishing.
+    revalidate-secret: ${REVALIDATE_SECRET:}
   demo:
     password: ${DEMO_PASSWORD:}
   storage:
