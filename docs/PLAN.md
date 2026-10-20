@@ -212,11 +212,11 @@ Plan: `docs/m6-plan.md` (uyum skoru kuralları, snapshot ve sürüm modeli, GS1 
 
 ### M7 — Tutarlılık kontrolü ve sertifika takibi
 Plan: `docs/m7-plan.md` (kural kodları, V13, eşitleme, API, tetikleyiciler, günlük tarama, AI ikinci aşama). Tasarım brifi: `docs/m7-tasarim-brifi.md` → Claude Design v0.7 (v0.3 "Uyarılar" kartı başlangıç noktası). Backend T1–T3 tasarım beklemeden, web T4 tasarımdan sonra.
-- [ ] Kural tabanlı: lif toplamı ≠ 100, süresi dolmuş sertifika, sertifika sahibi ≠ tedarikçi, eksik zorunlu alan
+- [x] Kural tabanlı: lif toplamı ≠ 100, süresi dolmuş sertifika, sertifika sahibi ≠ tedarikçi, eksik zorunlu alan (T1–T3, PR #59–#61)
 - [ ] AI tabanlı: sertifika kapsamı ürün kategorisini kapsıyor mu, çelişkili beyanlar
-- [ ] Günlük `CERT_EXPIRY_SCAN` işi
-- [ ] Web: parti detayında uyarı paneli, çözüldü olarak işaretleme
-- [ ] Kural kodları (`LIF-01` vb., tasarım v0.3): her kontrolün sabit bir kodu olur, uyarıda gösterilir
+- [x] Günlük `CERT_EXPIRY_SCAN` işi (PR #61)
+- [x] Web: parti detayında uyarı paneli, çözüldü olarak işaretleme (T4, PR #62; Görevler'de sertifika grubu dahil)
+- [x] Kural kodları (`LIF-01` vb., tasarım v0.3): her kontrolün sabit bir kodu olur, uyarıda gösterilir
 
 **Kabul:** Lif toplamı %95 girilen partide kırmızı uyarı çıkar, pasaport yayınlanmadan önce gösterilir.
 
