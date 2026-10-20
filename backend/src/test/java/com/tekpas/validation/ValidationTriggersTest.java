@@ -57,6 +57,8 @@ class ValidationTriggersTest {
     @AfterEach
     void cleanUp() {
         storage.reset();
+        // The scan jobs this class queued are done; JobWorkerTest looks for recent ones of the type.
+        jdbc.update("DELETE FROM job WHERE type = 'CERT_EXPIRY_SCAN'");
     }
 
     private void drain() {
@@ -105,13 +107,16 @@ class ValidationTriggersTest {
     /** A confirmed certificate of the yarn step, written straight to the table (no trigger fires). */
     private String certificate(Setup s, String docType, int daysFromToday, String holder) {
         String id = UUID.randomUUID().toString();
+        // The application counts days in Istanbul; the database session (and CI) may be in another zone.
+        java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Istanbul"));
         jdbc.update("""
                 INSERT INTO document (id, company_id, step_id, doc_type, file_key, original_name, mime_type, size_bytes,
                     sha256, cert_no, holder_name, valid_from, valid_until, extraction_status, review_status)
                 VALUES (?::uuid, ?::uuid, ?::uuid, ?, ?, ?, 'application/pdf', 1000, ?, 'C-1', ?,
-                    CURRENT_DATE - 400, CURRENT_DATE + ?, 'READ', 'VERIFIED')
+                    ?, ?, 'READ', 'VERIFIED')
                 """, id, s.owner().company().getId().toString(), s.yarnStepId(), docType, "k/" + id, docType + ".pdf",
-                id.replace("-", "") + id.replace("-", "").substring(0, 32), holder, daysFromToday);
+                id.replace("-", "") + id.replace("-", "").substring(0, 32), holder,
+                java.sql.Date.valueOf(today.minusDays(400)), java.sql.Date.valueOf(today.plusDays(daysFromToday)));
         return id;
     }
 
