@@ -1,6 +1,7 @@
 package com.tekpas.batch.dto;
 
 import com.tekpas.batch.BatchStatus;
+import com.tekpas.validation.dto.IssueCounts;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -21,6 +22,8 @@ public record BatchResponse(
         @Schema(description = "Compliance score 0–100 (docs/m6-plan.md §2); GET /batches/{id}/score tells how it adds up")
         int score,
         @Nullable BatchPassport passport,
+        @Schema(description = "Open consistency issues by severity (docs/m7-plan.md): the list's badge and the header button")
+        IssueCounts openIssues,
         Instant createdAt,
         Instant updatedAt) {
 }

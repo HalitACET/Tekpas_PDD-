@@ -1,5 +1,6 @@
 package com.tekpas.validation;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,4 +20,22 @@ public interface ValidationIssueRepository extends JpaRepository<ValidationIssue
      */
     @Query("select i.batchId from ValidationIssue i where i.id = :id and i.companyId = :companyId")
     List<UUID> batchIdOf(UUID id, UUID companyId);
+
+    /** Open issues of these batches by severity, one row per batch and severity. */
+    @Query("""
+            select i.batchId as batchId, i.severity as severity, count(i) as total
+            from ValidationIssue i where i.companyId = :companyId and i.batchId in :batchIds and i.resolved = false
+            group by i.batchId, i.severity
+            """)
+    List<OpenCount> openCounts(UUID companyId, Collection<UUID> batchIds);
+
+    /** @see #openCounts */
+    interface OpenCount {
+
+        UUID getBatchId();
+
+        IssueSeverity getSeverity();
+
+        long getTotal();
+    }
 }

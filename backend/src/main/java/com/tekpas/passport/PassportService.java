@@ -19,6 +19,7 @@ import com.tekpas.passport.PassportSnapshotBuilder.Built;
 import com.tekpas.passport.dto.PassportDetailResponse;
 import com.tekpas.passport.dto.PassportVersionResponse;
 import com.tekpas.passport.snapshot.PassportSnapshot;
+import com.tekpas.validation.ValidationService;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -60,11 +61,12 @@ public class PassportService {
     private final PublicProperties publicProperties;
     private final QrCodes qr;
     private final JobQueue jobs;
+    private final ValidationService validation;
 
     public PassportService(BatchRepository batches, BatchService batchService, BatchProgress progress,
             PassportRepository passports, PassportSnapshotBuilder builder, AppUserRepository users, JdbcTemplate jdbc,
             ObjectMapper json, Clock clock, PublicProperties publicProperties, QrCodes qr,
-            JobQueue jobs) {
+            JobQueue jobs, ValidationService validation) {
         this.batches = batches;
         this.batchService = batchService;
         this.progress = progress;
@@ -77,15 +79,22 @@ public class PassportService {
         this.publicProperties = publicProperties;
         this.qr = qr;
         this.jobs = jobs;
+        this.validation = validation;
     }
 
-    @Transactional
+    /**
+     * {@code noRollbackFor}: a refused publishing (409) still keeps what the check just found, so that the Uyarılar tab
+     * shows the issues the refusal talks about. Nothing else has been written when it is refused.
+     */
+    @Transactional(noRollbackFor = ConflictException.class)
     public PassportVersionResponse publish(UUID companyId, UUID userId, UUID batchId) {
         Batch batch = batches.lockForUpdate(batchId, companyId).orElseThrow(PassportService::batchNotFound);
         if (batch.getStatus() == BatchStatus.PUBLISHED) {
             throw ConflictException.state("ALREADY_PUBLISHED",
                     "The batch is published; open a new version to change it");
         }
+        // The rules run now, under the batch's lock: a finding left over from before cannot let a publishing through.
+        validation.check(batch);
         // The score is computed here, on the server, from the data as it is now; the client's view does not count.
         ScoreResponse score = batchService.score(companyId, batchId);
         if (!score.publishable()) {

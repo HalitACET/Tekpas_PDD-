@@ -128,6 +128,10 @@
             "format" : "uuid",
             "type" : "string"
           },
+          "openIssues" : {
+            "$ref" : "#/components/schemas/IssueCounts",
+            "description" : "Open consistency issues by severity (docs/m7-plan.md): the list's badge and the header button"
+          },
           "passport" : {
             "$ref" : "#/components/schemas/BatchPassport"
           },
@@ -162,7 +166,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "batchNo", "chain", "createdAt", "id", "product", "quantity", "score", "status", "updatedAt" ],
+        "required" : [ "batchNo", "chain", "createdAt", "id", "openIssues", "product", "quantity", "score", "status", "updatedAt" ],
         "type" : "object"
       },
       "BatchStatus" : {
@@ -1500,7 +1504,7 @@
         "type" : "object"
       },
       "ScoreIssueCode" : {
-        "enum" : [ "NO_CHAIN", "STEP_NOT_APPROVED", "CERTIFICATE_EXPIRED", "SCORE_BELOW_THRESHOLD", "UNREVIEWED_DOCUMENTS", "CERTIFICATE_EXPIRING" ],
+        "enum" : [ "NO_CHAIN", "STEP_NOT_APPROVED", "CERTIFICATE_EXPIRED", "ISSUES_OPEN", "SCORE_BELOW_THRESHOLD", "UNREVIEWED_DOCUMENTS", "CERTIFICATE_EXPIRING", "ISSUE_WARNINGS" ],
         "type" : "string"
       },
       "ScoreItem" : {
