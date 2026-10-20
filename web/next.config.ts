@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // The passport page is public but not indexed while the addresses are demo ones (docs/m6-plan.md §9 decision 12).
+        source: "/01/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ],
+      },
+      {
         source: "/r",
         headers: [
           { key: "Referrer-Policy", value: "no-referrer" },
