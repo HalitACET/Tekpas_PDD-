@@ -38,6 +38,16 @@ export const queryKeys = {
     statusCounts: () => [...queryKeys.batches.all, "status-counts"] as const,
     detail: (id: string) => [...queryKeys.batches.all, "detail", id] as const,
     chain: (id: string) => [...queryKeys.batches.all, "chain", id] as const,
+    /** GET /batches/{id}/score: under batches.all, so every change of the batch (a step, a document) refreshes it. */
+    score: (id: string) => [...queryKeys.batches.all, "score", id] as const,
+  },
+  /** The passport versions of a batch (M6): the versions tab, the preview, one version, the QR images. */
+  passports: {
+    all: ["passports"] as const,
+    versions: (batchId: string) => [...queryKeys.passports.all, "versions", batchId] as const,
+    preview: (batchId: string) => [...queryKeys.passports.all, "preview", batchId] as const,
+    detail: (id: string) => [...queryKeys.passports.all, "detail", id] as const,
+    qr: (id: string, kind: string) => [...queryKeys.passports.all, "qr", id, kind] as const,
   },
   /** GET /tasks (design v0.4 48): the page and the menu badge share it. */
   tasks: {

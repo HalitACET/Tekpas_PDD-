@@ -5,11 +5,12 @@ import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { BatchResponse } from "@/lib/api/batches";
-import { formatQuantity, formatUpdated } from "@/lib/format";
-import { BatchStatusChip, ChainProgress } from "./batch-status-chip";
+import { formatPercent, formatQuantity, formatUpdated } from "@/lib/format";
+import { ChainProgress } from "./batch-status-chip";
+import { LifecycleChip } from "./passport/lifecycle-chip";
 
 /** Column template of design v0.3 07; the last column holds the row arrow to the detail (09). */
-export const BATCH_COLUMNS = "grid-cols-[170px_minmax(0,1fr)_180px_170px_140px_100px_40px]";
+export const BATCH_COLUMNS = "grid-cols-[170px_minmax(0,1fr)_150px_230px_170px_100px_40px]";
 
 export function BatchesTableHeader() {
   const t = useTranslations("batches.cols");
@@ -56,12 +57,10 @@ export function BatchRow({ batch, now }: { batch: BatchResponse; now: Date }) {
         <ChainProgress statuses={batch.chain.stepStatuses} />
       </span>
       <span role="cell">
-        <BatchStatusChip status={batch.status} />
+        <LifecycleChip batch={batch} />
       </span>
-      <span role="cell" className="font-mono text-xs font-medium text-muted-foreground">
-        {/* The compliance score arrives with passports (M6). */}
-        <span aria-hidden>—</span>
-        <span className="sr-only">{t("noScore")}</span>
+      <span role="cell">
+        <ScoreCell batch={batch} />
       </span>
       <span role="cell" className="text-xs text-muted-foreground">
         <time dateTime={batch.updatedAt}>{formatUpdated(batch.updatedAt, now, locale, t("yesterday"))}</time>
@@ -77,5 +76,39 @@ export function BatchRow({ batch, now }: { batch: BatchResponse; now: Date }) {
         </Link>
       </span>
     </div>
+  );
+}
+
+/**
+ * "Uyum skoru" (design v0.6): the number and a short bar with the 90 % threshold tick. A published batch shows the score
+ * it had when it was published ("v2 anı"); a batch without a supply chain has none ("—").
+ */
+function ScoreCell({ batch }: { batch: BatchResponse }) {
+  const t = useTranslations("batches");
+  const tPub = useTranslations("publishing");
+  const locale = useLocale();
+  if (batch.chain.totalSteps === 0) {
+    return (
+      <span className="font-mono text-xs font-medium text-muted-foreground">
+        <span aria-hidden>—</span>
+        <span className="sr-only">{t("noScore")}</span>
+      </span>
+    );
+  }
+  const frozen = batch.passport && (batch.status === "PUBLISHED" || batch.passport.withdrawn) ? batch.passport : undefined;
+  const value = frozen ? frozen.score : batch.score;
+  return (
+    <span className="flex items-center gap-2.5">
+      <span className="w-[34px] font-mono text-[13px] font-medium tabular-nums">{formatPercent(value, locale)}</span>
+      <span className="relative flex h-1 w-16 rounded-sm bg-muted" aria-hidden>
+        <span className={`rounded-sm ${value >= 90 ? "bg-status-approved" : "bg-status-pending"}`} style={{ width: `${value}%` }} />
+        <span className="absolute -top-[3px] left-[90%] h-2.5 w-[1.5px] bg-foreground opacity-60" />
+      </span>
+      {frozen && (
+        <span title={tPub("snapshotTitle")} className="text-[11px] text-muted-foreground">
+          {tPub("snapshotAt", { version: frozen.version })}
+        </span>
+      )}
+    </span>
   );
 }
