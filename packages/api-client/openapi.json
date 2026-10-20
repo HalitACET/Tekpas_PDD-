@@ -79,6 +79,23 @@
         "required" : [ "productId", "quantity" ],
         "type" : "object"
       },
+      "BatchPassport" : {
+        "properties" : {
+          "score" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "withdrawn" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "score", "version", "withdrawn" ],
+        "type" : "object"
+      },
       "BatchProduct" : {
         "properties" : {
           "gtin" : {
@@ -110,6 +127,9 @@
           "id" : {
             "format" : "uuid",
             "type" : "string"
+          },
+          "passport" : {
+            "$ref" : "#/components/schemas/BatchPassport"
           },
           "producedFrom" : {
             "format" : "date",

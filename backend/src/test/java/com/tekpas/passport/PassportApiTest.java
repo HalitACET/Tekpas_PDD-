@@ -413,6 +413,41 @@ class PassportApiTest {
     }
 
     @Test
+    void theBatchListAndDetailCarryTheNewestVersionWithItsScoreAtPublishing() throws IOException {
+        Tenant owner = fixtures.tenant();
+        Setup s = t.publishable(owner);
+        assertThat(batchJson(owner, s).path("passport").isMissingNode() || batchJson(owner, s).path("passport").isNull()).isTrue();
+
+        String v1 = published(owner, s.batchId()).path("id").asString();
+        JsonNode first = batchJson(owner, s).path("passport");
+        assertThat(first.path("version").asInt()).isEqualTo(1);
+        assertThat(first.path("score").asInt()).isEqualTo(93);
+        assertThat(first.path("withdrawn").asBoolean()).isFalse();
+        // The list says the same.
+        JsonNode row = fixtures.body(fixtures.get(owner, "/api/v1/batches?size=100")).path("content").valueStream()
+                .filter(b -> b.path("id").asString().equals(s.batchId())).findFirst().orElseThrow();
+        assertThat(row.path("passport").path("version").asInt()).isEqualTo(1);
+
+        // A change after publishing does not move the published score; a draft is "published and not PUBLISHED".
+        fixtures.post(owner, "/api/v1/batches/" + s.batchId() + "/passports/draft", Map.of());
+        JsonNode draft = batchJson(owner, s);
+        assertThat(draft.path("status").asString()).isEqualTo("READY");
+        assertThat(draft.path("passport").path("version").asInt()).isEqualTo(1);
+        assertThat(draft.path("passport").path("score").asInt()).isEqualTo(93);
+
+        fixtures.post(owner, "/api/v1/passports/" + v1 + "/withdraw", Map.of("reason", "x"));
+        assertThat(batchJson(owner, s).path("passport").path("withdrawn").asBoolean()).isTrue();
+        published(owner, s.batchId());
+        JsonNode second = batchJson(owner, s).path("passport");
+        assertThat(second.path("version").asInt()).isEqualTo(2);
+        assertThat(second.path("withdrawn").asBoolean()).isFalse();
+    }
+
+    private JsonNode batchJson(Tenant owner, Setup s) {
+        return fixtures.body(fixtures.get(owner, "/api/v1/batches/" + s.batchId()));
+    }
+
+    @Test
     void publishAndWithdrawAreWrittenToTheAuditTrail() throws IOException {
         Tenant owner = fixtures.tenant();
         Setup s = t.publishable(owner);

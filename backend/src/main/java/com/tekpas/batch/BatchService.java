@@ -1,6 +1,7 @@
 package com.tekpas.batch;
 
 import com.tekpas.batch.dto.BatchCreateRequest;
+import com.tekpas.batch.dto.BatchPassport;
 import com.tekpas.batch.dto.BatchProduct;
 import com.tekpas.batch.dto.BatchResponse;
 import com.tekpas.batch.dto.BatchStatusCounts;
@@ -42,19 +43,21 @@ public class BatchService {
     private final BatchNumbers numbers;
     private final ChainCounts chainCounts;
     private final ComplianceService compliance;
+    private final PassportSummaries passportSummaries;
     private final JdbcTemplate jdbc;
     private final ChainService chains;
     private final SupplierService suppliers;
     private final Clock clock;
 
     public BatchService(BatchRepository batches, ProductRepository products, BatchNumbers numbers,
-            ChainCounts chainCounts, ComplianceService compliance, JdbcTemplate jdbc, ChainService chains,
-            SupplierService suppliers, Clock clock) {
+            ChainCounts chainCounts, ComplianceService compliance, PassportSummaries passportSummaries,
+            JdbcTemplate jdbc, ChainService chains, SupplierService suppliers, Clock clock) {
         this.batches = batches;
         this.products = products;
         this.numbers = numbers;
         this.chainCounts = chainCounts;
         this.compliance = compliance;
+        this.passportSummaries = passportSummaries;
         this.jdbc = jdbc;
         this.chains = chains;
         this.suppliers = suppliers;
@@ -72,14 +75,16 @@ public class BatchService {
         Map<UUID, ChainSummary> chains = chainCounts.of(page.map(BatchRow::id).getContent());
         Map<UUID, ScoreResponse> scores = compliance.of(companyId,
                 page.getContent().stream().map(ComplianceService.Target::of).toList());
+        Map<UUID, BatchPassport> passports = passportSummaries.of(companyId, page.map(BatchRow::id).getContent());
         return PageResponse.of(page).map(row -> toResponse(row, ChainCounts.orEmpty(chains, row.id()),
-                scores.get(row.id()).score()));
+                scores.get(row.id()).score(), passports.get(row.id())));
     }
 
     @Transactional(readOnly = true)
     public BatchResponse get(UUID companyId, UUID id) {
         BatchRow row = batches.findRow(id, companyId).orElseThrow(BatchService::notFound);
-        return toResponse(row, chainCounts.of(id), compliance.of(companyId, ComplianceService.Target.of(row)).score());
+        return toResponse(row, chainCounts.of(id), compliance.of(companyId, ComplianceService.Target.of(row)).score(),
+                passportSummaries.of(companyId, java.util.List.of(id)).get(id));
     }
 
     /** How the batch's compliance score adds up, what blocks publishing and what deserves a look. */
@@ -124,7 +129,7 @@ public class BatchService {
         // The product's last chain is copied (or the default one started): the batch is ready for suppliers.
         chains.startChain(batch);
         return toResponse(batch, product, chainCounts.of(batch.getId()),
-                compliance.of(companyId, ComplianceService.Target.of(batch)).score());
+                compliance.of(companyId, ComplianceService.Target.of(batch)).score(), null);
     }
 
     @Transactional
@@ -159,7 +164,8 @@ public class BatchService {
 
         Product product = products.findByIdAndCompanyId(batch.getProductId(), companyId).orElseThrow();
         return toResponse(batch, product, chainCounts.of(id),
-                compliance.of(companyId, ComplianceService.Target.of(batch)).score());
+                compliance.of(companyId, ComplianceService.Target.of(batch)).score(),
+                passportSummaries.of(companyId, java.util.List.of(id)).get(id));
     }
 
     @Transactional
@@ -194,16 +200,18 @@ public class BatchService {
         }
     }
 
-    private static BatchResponse toResponse(BatchRow row, ChainSummary chain, int score) {
+    private static BatchResponse toResponse(BatchRow row, ChainSummary chain, int score,
+            @Nullable BatchPassport passport) {
         return new BatchResponse(row.id(), row.batchNo(), new BatchProduct(row.productId(), row.productName(),
                 row.gtin()), row.productionOrderNo(), row.status(), row.quantity(), row.producedFrom(),
-                row.producedTo(), chain, score, row.createdAt(), row.updatedAt());
+                row.producedTo(), chain, score, passport, row.createdAt(), row.updatedAt());
     }
 
-    private static BatchResponse toResponse(Batch b, Product p, ChainSummary chain, int score) {
+    private static BatchResponse toResponse(Batch b, Product p, ChainSummary chain, int score,
+            @Nullable BatchPassport passport) {
         return new BatchResponse(b.getId(), b.getBatchNo(), new BatchProduct(p.getId(), p.getName(), p.getGtin()),
                 b.getProductionOrderNo(), b.getStatus(), b.getQuantity(), b.getProducedFrom(), b.getProducedTo(),
-                chain, score, b.getCreatedAt(), b.getUpdatedAt());
+                chain, score, passport, b.getCreatedAt(), b.getUpdatedAt());
     }
 
     private static NotFoundException notFound() {

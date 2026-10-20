@@ -20,6 +20,7 @@ public record BatchResponse(
         ChainSummary chain,
         @Schema(description = "Compliance score 0–100 (docs/m6-plan.md §2); GET /batches/{id}/score tells how it adds up")
         int score,
+        @Nullable BatchPassport passport,
         Instant createdAt,
         Instant updatedAt) {
 }
