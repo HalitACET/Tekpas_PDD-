@@ -52,6 +52,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             if (conflict.reason() != null) {
                 body.setProperty("reason", conflict.reason());
             }
+            conflict.properties().forEach(body::setProperty);
         } else if (ex instanceof InvalidFieldsException invalid) {
             body.setProperty("errors", sorted(invalid.errors()));
         } else if (ex instanceof LinkClosedException closed) {

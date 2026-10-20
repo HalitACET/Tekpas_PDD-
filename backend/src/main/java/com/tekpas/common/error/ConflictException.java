@@ -1,7 +1,9 @@
 package com.tekpas.common.error;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 
@@ -14,6 +16,7 @@ public class ConflictException extends ApiException {
 
     private final List<FieldViolation> errors;
     private final @Nullable String reason;
+    private final Map<String, Object> properties = new LinkedHashMap<>();
 
     private ConflictException(URI type, String detail, List<FieldViolation> errors, @Nullable String reason) {
         super(HttpStatus.CONFLICT, type, "Conflict", detail);
@@ -32,6 +35,16 @@ public class ConflictException extends ApiException {
 
     public static ConflictException state(URI type, String reason, String detail) {
         return new ConflictException(type, detail, List.of(), reason);
+    }
+
+    /** An extra property of the problem body next to {@code reason} (e.g. the blockers of a refused publishing). */
+    public ConflictException with(String name, Object value) {
+        properties.put(name, value);
+        return this;
+    }
+
+    public Map<String, Object> properties() {
+        return properties;
     }
 
     public List<FieldViolation> errors() {

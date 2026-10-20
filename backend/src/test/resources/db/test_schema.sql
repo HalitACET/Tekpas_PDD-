@@ -35,11 +35,11 @@ SELECT original_name, valid_until FROM document WHERE valid_until < current_date
 
 \echo '--- 5) Pasaport v1 yayinla, sonra v2; v1 SUPERSEDED olmali'
 BEGIN;
-INSERT INTO passport (batch_id, version, snapshot, completeness)
-VALUES ('30000000-0000-0000-0000-000000000001', 1, '{"tr":{}}', 50);
-UPDATE passport SET status = 'SUPERSEDED' WHERE batch_id = '30000000-0000-0000-0000-000000000001' AND status = 'PUBLISHED';
-INSERT INTO passport (batch_id, version, snapshot, completeness)
-VALUES ('30000000-0000-0000-0000-000000000001', 2, '{"tr":{}}', 75);
+INSERT INTO passport (batch_id, company_id, gtin, batch_no, version, snapshot, snapshot_sha256, completeness)
+VALUES ('30000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '02012345000018', 'L2611A', 1, '{"schemaVersion":1}', repeat('a', 64), 50);
+UPDATE passport SET status = 'SUPERSEDED', superseded_at = now() WHERE batch_id = '30000000-0000-0000-0000-000000000001' AND status = 'PUBLISHED';
+INSERT INTO passport (batch_id, company_id, gtin, batch_no, version, snapshot, snapshot_sha256, completeness)
+VALUES ('30000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '02012345000018', 'L2611A', 2, '{"schemaVersion":1}', repeat('a', 64), 75);
 SELECT version, status FROM passport ORDER BY version;
 COMMIT;
 
@@ -50,8 +50,8 @@ WHERE p.gtin = '02012345000018' AND b.batch_no = 'L2611A' AND pa.status = 'PUBLI
 
 \echo '--- BEKLENEN HATALAR (hepsi reddedilmeli):'
 \echo 'a) ayni partide ikinci PUBLISHED pasaport'
-INSERT INTO passport (batch_id, version, snapshot, completeness)
-VALUES ('30000000-0000-0000-0000-000000000001', 3, '{}', 80);
+INSERT INTO passport (batch_id, company_id, gtin, batch_no, version, snapshot, snapshot_sha256, completeness)
+VALUES ('30000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '02012345000018', 'L2611A', 3, '{"schemaVersion":1}', repeat('a', 64), 80);
 \echo 'b) 14 haneli olmayan GTIN'
 INSERT INTO product (company_id, gtin, name, category)
 VALUES ('00000000-0000-0000-0000-000000000001', '12345ABC000000', 'X', 'T_SHIRT');
@@ -63,6 +63,12 @@ UPDATE batch SET quantity = -5;
 INSERT INTO company_supplier VALUES ('00000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000001');
 \echo 'f) uyum skoru 100 ustu'
 UPDATE passport SET completeness = 120;
+\echo 'i) yayinlanmis pasaportun snapshot degistirmek (V11 tetikleyicisi)'
+UPDATE passport SET snapshot = '{}' WHERE status = 'PUBLISHED';
+\echo 'j) pasaport satirini silmek (V11 tetikleyicisi)'
+DELETE FROM passport;
+\echo 'k) SUPERSEDED surumu geri PUBLISHED yapmak'
+UPDATE passport SET status = 'PUBLISHED', superseded_at = NULL WHERE status = 'SUPERSEDED';
 \echo 'g) adim kendi kendinin girdisi'
 INSERT INTO supply_step_input VALUES ('40000000-0000-0000-0000-000000000012','40000000-0000-0000-0000-000000000012');
 \echo 'h) E.164 olmayan telefon'
