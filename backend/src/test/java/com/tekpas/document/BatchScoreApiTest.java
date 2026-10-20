@@ -125,7 +125,9 @@ class BatchScoreApiTest {
         // One of the three certificate steps (yarn, fabric, dyeing): 20 * 1/3 → 6.
         assertThat(criterion(after, "VALID_CERTIFICATES").path("earned").asInt()).isEqualTo(6);
         assertThat(after.path("score").asInt()).isEqualTo(before.path("score").asInt() + 6);
-        assertThat(after.path("warnings")).isEmpty();
+        // Nothing waits for confirmation any more (the consistency warnings of M7 are a separate line).
+        assertThat(after.path("warnings").valueStream().map(w -> w.path("code").asString()))
+                .doesNotContain("UNREVIEWED_DOCUMENTS", "CERTIFICATE_EXPIRING");
     }
 
     @Test

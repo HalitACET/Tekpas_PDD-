@@ -117,6 +117,13 @@ class JobStore {
                 """, Boolean.class, type.name(), ts(since)));
     }
 
+    /** A job of this type with exactly this payload is waiting to start: it will see whatever changed since. */
+    boolean hasQueued(JobType type, String payloadJson) {
+        return Boolean.TRUE.equals(jdbc.queryForObject("""
+                SELECT EXISTS (SELECT 1 FROM job WHERE type = ? AND status = 'QUEUED' AND payload = CAST(? AS jsonb))
+                """, Boolean.class, type.name(), payloadJson));
+    }
+
     private static ClaimedJob claimed(ResultSet rs, int row) throws SQLException {
         return new ClaimedJob(rs.getLong("id"), JobType.valueOf(rs.getString("type")), rs.getString("payload"),
                 rs.getInt("attempts"), rs.getInt("max_attempts"));

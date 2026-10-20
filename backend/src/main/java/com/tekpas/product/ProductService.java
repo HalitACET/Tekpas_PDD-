@@ -1,5 +1,6 @@
 package com.tekpas.product;
 
+import com.tekpas.validation.ValidationTriggers;
 import com.tekpas.batch.BatchRepository;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.NotFoundException;
@@ -29,11 +30,14 @@ public class ProductService {
 
     private final ProductRepository products;
     private final BatchRepository batches;
+    private final ValidationTriggers validation;
     private final Clock clock;
 
-    public ProductService(ProductRepository products, BatchRepository batches, Clock clock) {
+    public ProductService(ProductRepository products, BatchRepository batches, ValidationTriggers validation,
+            Clock clock) {
         this.products = products;
         this.batches = batches;
+        this.validation = validation;
         this.clock = clock;
     }
 
@@ -89,6 +93,8 @@ public class ProductService {
         }
         if (request.declaredFiberComposition() != null) {
             product.setDeclaredFiberComposition(request.declaredFiberComposition().orElse(null));
+            // Every batch of the product compares its steps with the label.
+            validation.productChanged(companyId, id);
         }
         product.touch(clock.instant());
         saveAndFlush(product);

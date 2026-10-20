@@ -36,7 +36,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * The job queue and worker (K9, PLAN M5 T3) with a test handler on RULE_VALIDATE_BATCH, a type nothing else in the
+ * The job queue and worker (K9, PLAN M5 T3) with a test handler on AI_TRANSLATE_PASSPORT, a type nothing else in the
  * test run queues. The worker thread is off in tests: {@link JobWorker#runPending()} is called directly.
  */
 @IntegrationTest
@@ -59,7 +59,7 @@ class JobWorkerTest {
 
         @Override
         public JobType type() {
-            return JobType.RULE_VALIDATE_BATCH;
+            return JobType.AI_TRANSLATE_PASSPORT;
         }
 
         @Override
@@ -134,12 +134,12 @@ class JobWorkerTest {
      */
     @BeforeEach
     void onlyOwnJobs() {
-        jdbc.update("UPDATE job SET status = 'DONE' WHERE status IN ('QUEUED', 'RUNNING') AND type <> 'RULE_VALIDATE_BATCH'");
+        jdbc.update("UPDATE job SET status = 'DONE' WHERE status IN ('QUEUED', 'RUNNING') AND type <> 'AI_TRANSLATE_PASSPORT'");
     }
 
     @AfterEach
     void cleanUp() {
-        jdbc.update("UPDATE job SET status = 'DONE' WHERE type = 'RULE_VALIDATE_BATCH' AND status IN ('QUEUED', 'RUNNING')");
+        jdbc.update("UPDATE job SET status = 'DONE' WHERE type = 'AI_TRANSLATE_PASSPORT' AND status IN ('QUEUED', 'RUNNING')");
         clock.reset();
     }
 
@@ -157,9 +157,9 @@ class JobWorkerTest {
         TransactionTemplate tx = new TransactionTemplate(transactions);
         Order kept = Order.of("ok");
         Order dropped = Order.of("ok");
-        Long id = tx.execute(status -> queue.enqueue(JobType.RULE_VALIDATE_BATCH, kept));
+        Long id = tx.execute(status -> queue.enqueue(JobType.AI_TRANSLATE_PASSPORT, kept));
         tx.executeWithoutResult(status -> {
-            queue.enqueue(JobType.RULE_VALIDATE_BATCH, dropped);
+            queue.enqueue(JobType.AI_TRANSLATE_PASSPORT, dropped);
             status.setRollbackOnly();
         });
 
@@ -180,21 +180,21 @@ class JobWorkerTest {
     @Test
     void theHandlerGetsItsAttemptNumber() {
         Order order = Order.of("ok");
-        long id = queue.enqueue(JobType.RULE_VALIDATE_BATCH, order);
+        long id = queue.enqueue(JobType.AI_TRANSLATE_PASSPORT, order);
 
         worker.runPending();
 
         assertThat(handler.contexts).anySatisfy(c -> {
             assertThat(c.jobId()).isEqualTo(id);
             assertThat(c.attempt()).isEqualTo(1);
-            assertThat(c.maxAttempts()).isEqualTo(JobType.RULE_VALIDATE_BATCH.maxAttempts());
+            assertThat(c.maxAttempts()).isEqualTo(JobType.AI_TRANSLATE_PASSPORT.maxAttempts());
         });
     }
 
     @Test
     void aFailingJobIsRetriedAfter30SecondsThen2MinutesAndThenGivesUp() {
         Order order = Order.of("fail");
-        long id = queue.enqueue(JobType.RULE_VALIDATE_BATCH, order);
+        long id = queue.enqueue(JobType.AI_TRANSLATE_PASSPORT, order);
         Instant start = clock.instant();
 
         worker.runPending();
@@ -226,7 +226,7 @@ class JobWorkerTest {
     @Test
     void aPermanentFailureEndsAtOnce() {
         Order order = Order.of("permanent");
-        long id = queue.enqueue(JobType.RULE_VALIDATE_BATCH, order);
+        long id = queue.enqueue(JobType.AI_TRANSLATE_PASSPORT, order);
 
         worker.runPending();
 
@@ -240,9 +240,9 @@ class JobWorkerTest {
     void anAttemptOverItsTimeoutCountsAsFailedAndTheNextJobStillRuns() {
         Order slow = new Order(UUID.randomUUID().toString(), "sleep", 5_000);
         Order next = Order.of("ok");
-        long slowId = queue.enqueue(JobType.RULE_VALIDATE_BATCH, slow);
+        long slowId = queue.enqueue(JobType.AI_TRANSLATE_PASSPORT, slow);
         clock.advance(Duration.ofMillis(1));
-        long nextId = queue.enqueue(JobType.RULE_VALIDATE_BATCH, next);
+        long nextId = queue.enqueue(JobType.AI_TRANSLATE_PASSPORT, next);
 
         long started = System.nanoTime();
         assertThat(worker.runPending()).isEqualTo(2);
@@ -260,7 +260,7 @@ class JobWorkerTest {
         Order exhausted = Order.of("ok");
         Order recent = Order.of("ok");
         long resumableId = running(resumable, 1, now.minus(Duration.ofMinutes(6)));
-        long exhaustedId = running(exhausted, JobType.RULE_VALIDATE_BATCH.maxAttempts(), now.minus(Duration.ofMinutes(6)));
+        long exhaustedId = running(exhausted, JobType.AI_TRANSLATE_PASSPORT.maxAttempts(), now.minus(Duration.ofMinutes(6)));
         long recentId = running(recent, 1, now.minus(Duration.ofMinutes(1)));
 
         worker.runPending();
@@ -277,17 +277,17 @@ class JobWorkerTest {
     private long running(Order order, int attempts, Instant lockedAt) {
         Long id = jdbc.queryForObject("""
                 INSERT INTO job (type, payload, status, attempts, max_attempts, run_at, locked_at, locked_by)
-                VALUES ('RULE_VALIDATE_BATCH', CAST(? AS jsonb), 'RUNNING', ?, ?, ?, ?, 'old-process')
+                VALUES ('AI_TRANSLATE_PASSPORT', CAST(? AS jsonb), 'RUNNING', ?, ?, ?, ?, 'old-process')
                 RETURNING id
                 """, Long.class, "{\"tag\":\"" + order.tag() + "\",\"mode\":\"ok\",\"sleepMs\":0}", attempts,
-                JobType.RULE_VALIDATE_BATCH.maxAttempts(), Timestamp.from(lockedAt), Timestamp.from(lockedAt));
+                JobType.AI_TRANSLATE_PASSPORT.maxAttempts(), Timestamp.from(lockedAt), Timestamp.from(lockedAt));
         return id == null ? -1 : id;
     }
 
     @Test
     void anUnreadablePayloadFailsWithoutRunningTheHandler() {
         Long id = jdbc.queryForObject("""
-                INSERT INTO job (type, payload, max_attempts, run_at) VALUES ('RULE_VALIDATE_BATCH', '[1, 2]'::jsonb, 3, ?)
+                INSERT INTO job (type, payload, max_attempts, run_at) VALUES ('AI_TRANSLATE_PASSPORT', '[1, 2]'::jsonb, 3, ?)
                 RETURNING id
                 """, Long.class, Timestamp.from(clock.instant()));
 
@@ -310,18 +310,18 @@ class JobWorkerTest {
 
     @Test
     void twoWorkersNeverTakeTheSameJob() throws Exception {
-        long id = queue.enqueue(JobType.RULE_VALIDATE_BATCH, Order.of("ok"));
+        long id = queue.enqueue(JobType.AI_TRANSLATE_PASSPORT, Order.of("ok"));
         ExecutorService pool = Executors.newFixedThreadPool(2);
         try {
             CountDownLatch go = new CountDownLatch(1);
             List<Future<Optional<ClaimedJob>>> claims = List.of(
                     pool.submit(() -> {
                         go.await();
-                        return store.claim(List.of(JobType.RULE_VALIDATE_BATCH), "worker-a", clock.instant());
+                        return store.claim(List.of(JobType.AI_TRANSLATE_PASSPORT), "worker-a", clock.instant());
                     }),
                     pool.submit(() -> {
                         go.await();
-                        return store.claim(List.of(JobType.RULE_VALIDATE_BATCH), "worker-b", clock.instant());
+                        return store.claim(List.of(JobType.AI_TRANSLATE_PASSPORT), "worker-b", clock.instant());
                     }));
             go.countDown();
             long taken = 0;
@@ -363,7 +363,7 @@ class JobWorkerTest {
         Instant failedAt = clock.instant().minus(Duration.ofHours(3));
         Long id = jdbc.queryForObject("""
                 INSERT INTO job (type, payload, status, attempts, max_attempts, run_at, last_error, created_at)
-                VALUES ('RULE_VALIDATE_BATCH', CAST(? AS jsonb), 'QUEUED', 1, 3, ?, 'IllegalStateException: boom', ?)
+                VALUES ('AI_TRANSLATE_PASSPORT', CAST(? AS jsonb), 'QUEUED', 1, 3, ?, 'IllegalStateException: boom', ?)
                 RETURNING id
                 """, Long.class, json.writeValueAsString(overdue), Timestamp.from(failedAt.plusSeconds(30)),
                 Timestamp.from(failedAt));
@@ -378,7 +378,7 @@ class JobWorkerTest {
             assertThat(job(id).get("attempts")).isEqualTo(2);
 
             Order queuedAwake = Order.of("ok");
-            long next = new JobQueue(store, started, json, clock).enqueue(JobType.RULE_VALIDATE_BATCH, queuedAwake);
+            long next = new JobQueue(store, started, json, clock).enqueue(JobType.AI_TRANSLATE_PASSPORT, queuedAwake);
             awaitStatus(next, "DONE", Duration.ofSeconds(3));
         } finally {
             started.stop();
