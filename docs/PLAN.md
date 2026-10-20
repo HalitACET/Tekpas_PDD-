@@ -211,6 +211,7 @@ Plan: `docs/m6-plan.md` (uyum skoru kuralları, snapshot ve sürüm modeli, GS1 
 **Kabul:** Telefonla QR okutulur, pasaport 2 saniyede açılır. Yeni sürüm yayınlanınca aynı QR yeni sürümü gösterir.
 
 ### M7 — Tutarlılık kontrolü ve sertifika takibi
+Plan: `docs/m7-plan.md` (kural kodları, V13, eşitleme, API, tetikleyiciler, günlük tarama, AI ikinci aşama). Tasarım brifi: `docs/m7-tasarim-brifi.md` → Claude Design v0.7 (v0.3 "Uyarılar" kartı başlangıç noktası). Backend T1–T3 tasarım beklemeden, web T4 tasarımdan sonra.
 - [ ] Kural tabanlı: lif toplamı ≠ 100, süresi dolmuş sertifika, sertifika sahibi ≠ tedarikçi, eksik zorunlu alan
 - [ ] AI tabanlı: sertifika kapsamı ürün kategorisini kapsıyor mu, çelişkili beyanlar
 - [ ] Günlük `CERT_EXPIRY_SCAN` işi
