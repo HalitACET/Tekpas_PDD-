@@ -11,6 +11,8 @@ import com.tekpas.product.Product;
 import com.tekpas.product.ProductRepository;
 import com.tekpas.supplychain.SupplyStep;
 import com.tekpas.supplychain.SupplyStepRepository;
+import com.tekpas.validation.OpenIssueCounts;
+import com.tekpas.validation.dto.IssueCounts;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -50,13 +52,15 @@ class ComplianceService {
     private final SupplyStepRepository steps;
     private final ProductRepository products;
     private final DocumentRepository documents;
+    private final OpenIssueCounts openIssues;
     private final Clock clock;
 
     ComplianceService(SupplyStepRepository steps, ProductRepository products, DocumentRepository documents,
-            Clock clock) {
+            OpenIssueCounts openIssues, Clock clock) {
         this.steps = steps;
         this.products = products;
         this.documents = documents;
+        this.openIssues = openIssues;
         this.clock = clock;
     }
 
@@ -84,6 +88,8 @@ class ComplianceService {
         products.findByCompanyIdAndIdIn(companyId, targets.stream().map(Target::productId).distinct().toList())
                 .forEach(p -> productsById.put(p.getId(), p));
 
+        Map<UUID, IssueCounts> open = openIssues.of(companyId, targets.stream().map(Target::batchId).toList());
+
         for (Target target : targets) {
             Product product = productsById.get(target.productId());
             if (product == null) {
@@ -94,9 +100,10 @@ class ComplianceService {
                     .map(s -> new StepFacts(s.getId(), s.getStepType(), s.getStatus(), s.getData(),
                             docsByStep.getOrDefault(s.getId(), List.of())))
                     .toList();
+            IssueCounts counts = open.getOrDefault(target.batchId(), IssueCounts.NONE);
             result.put(target.batchId(), ComplianceScore.compute(chain, new ProductFacts(
                     product.getDeclaredFiberComposition(), product.getCategory(), target.producedFrom(),
-                    target.producedTo()), today));
+                    target.producedTo()), today, counts.errors(), counts.warnings()));
         }
         return result;
     }

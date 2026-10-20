@@ -950,6 +950,8 @@ export interface components {
             createdAt: string;
             /** Format: uuid */
             id: string;
+            /** @description Open consistency issues by severity (docs/m7-plan.md): the list's badge and the header button */
+            openIssues: components["schemas"]["IssueCounts"];
             passport?: components["schemas"]["BatchPassport"];
             /** Format: date */
             producedFrom?: string | null;
@@ -1482,7 +1484,7 @@ export interface components {
             validUntil?: string | null;
         };
         /** @enum {string} */
-        ScoreIssueCode: "NO_CHAIN" | "STEP_NOT_APPROVED" | "CERTIFICATE_EXPIRED" | "SCORE_BELOW_THRESHOLD" | "UNREVIEWED_DOCUMENTS" | "CERTIFICATE_EXPIRING";
+        ScoreIssueCode: "NO_CHAIN" | "STEP_NOT_APPROVED" | "CERTIFICATE_EXPIRED" | "ISSUES_OPEN" | "SCORE_BELOW_THRESHOLD" | "UNREVIEWED_DOCUMENTS" | "CERTIFICATE_EXPIRING" | "ISSUE_WARNINGS";
         ScoreItem: {
             code: components["schemas"]["ScoreItemCode"];
             missing?: string[] | null;

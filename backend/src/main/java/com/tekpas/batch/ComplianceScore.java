@@ -72,6 +72,15 @@ public final class ComplianceScore {
     }
 
     public static ScoreResponse compute(List<StepFacts> steps, ProductFacts product, LocalDate today) {
+        return compute(steps, product, today, 0, 0);
+    }
+
+    /**
+     * @param openErrors open blocking consistency issues of the batch (docs/m7-plan.md §4): each stops the publishing
+     * @param openWarnings open consistency warnings: counted, they do not stop it
+     */
+    public static ScoreResponse compute(List<StepFacts> steps, ProductFacts product, LocalDate today, int openErrors,
+            int openWarnings) {
         List<ScoreItem> approvedItems = new ArrayList<>();
         int approved = 0;
         for (StepFacts step : steps) {
@@ -107,6 +116,9 @@ public final class ComplianceScore {
             }
         }
         blockers.addAll(certificates.expired);
+        if (openErrors > 0) {
+            blockers.add(issue(ScoreIssueCode.ISSUES_OPEN, null, null, null, openErrors));
+        }
         if (score < THRESHOLD) {
             blockers.add(issue(ScoreIssueCode.SCORE_BELOW_THRESHOLD, null, null, null, null));
         }
@@ -117,6 +129,9 @@ public final class ComplianceScore {
             warnings.add(issue(ScoreIssueCode.UNREVIEWED_DOCUMENTS, null, null, null, unreviewed));
         }
         warnings.addAll(certificates.expiring);
+        if (openWarnings > 0) {
+            warnings.add(issue(ScoreIssueCode.ISSUE_WARNINGS, null, null, null, openWarnings));
+        }
 
         List<ScoreCriterion> criteria = List.of(
                 new ScoreCriterion(CriterionCode.STEPS_APPROVED, stepPoints, STEPS_POINTS, approvedItems),

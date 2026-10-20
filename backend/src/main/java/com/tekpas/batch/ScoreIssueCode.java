@@ -6,7 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(enumAsRef = true)
 public enum ScoreIssueCode {
     // blockers
-    NO_CHAIN, STEP_NOT_APPROVED, CERTIFICATE_EXPIRED, SCORE_BELOW_THRESHOLD,
+    NO_CHAIN, STEP_NOT_APPROVED, CERTIFICATE_EXPIRED,
+    /** Blocking consistency issues are open (M7); {@code count} is how many. */
+    ISSUES_OPEN,
+    SCORE_BELOW_THRESHOLD,
     // warnings
-    UNREVIEWED_DOCUMENTS, CERTIFICATE_EXPIRING
+    UNREVIEWED_DOCUMENTS, CERTIFICATE_EXPIRING,
+    /** Open consistency warnings (M7); they do not stop the publishing. */
+    ISSUE_WARNINGS
 }

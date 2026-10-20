@@ -240,10 +240,14 @@ export function useIssueText() {
         return t("blockerSTEP_NOT_APPROVED", { step });
       case "CERTIFICATE_EXPIRED":
         return t("blockerCERTIFICATE_EXPIRED", { step, doc, date: issue.validUntil ? date(issue.validUntil) : "" });
+      case "ISSUES_OPEN":
+        return t("blockerISSUES_OPEN", { count: issue.count ?? 0 });
       case "SCORE_BELOW_THRESHOLD":
         return t("blockerSCORE_BELOW_THRESHOLD", { score: formatPercent(score ?? 0, locale), threshold: formatPercent(threshold ?? 90, locale) });
       case "UNREVIEWED_DOCUMENTS":
         return t("warningUNREVIEWED_DOCUMENTS", { count: issue.count ?? 0 });
+      case "ISSUE_WARNINGS":
+        return t("warningISSUE_WARNINGS", { count: issue.count ?? 0 });
       case "CERTIFICATE_EXPIRING": {
         // Whole days from today (Istanbul) to the last valid day, not from this very moment.
         const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());

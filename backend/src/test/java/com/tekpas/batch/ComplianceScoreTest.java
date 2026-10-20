@@ -299,4 +299,38 @@ class ComplianceScoreTest {
         assertThat(criterion(ComplianceScore.compute(chain, PRODUCT, TODAY), CriterionCode.REQUIRED_FIELDS).earned())
                 .isEqualTo(22);
     }
+
+    // --- consistency issues (M7) ---------------------------------------------------------------------------------
+
+    @Test
+    void anOpenBlockingIssueBlocksPublishingWhateverTheScoreAndCarriesItsCount() {
+        ScoreResponse r = ComplianceScore.compute(fullChain(), PRODUCT, TODAY, 2, 0);
+
+        assertThat(r.score()).isEqualTo(100);
+        assertThat(r.publishable()).isFalse();
+        assertThat(r.blockers()).singleElement().satisfies(b -> {
+            assertThat(b.code()).isEqualTo(ScoreIssueCode.ISSUES_OPEN);
+            assertThat(b.count()).isEqualTo(2);
+        });
+    }
+
+    @Test
+    void openIssueWarningsAreCountedButDoNotBlock() {
+        ScoreResponse r = ComplianceScore.compute(fullChain(), PRODUCT, TODAY, 0, 3);
+
+        assertThat(r.publishable()).isTrue();
+        assertThat(r.blockers()).isEmpty();
+        assertThat(r.warnings()).singleElement().satisfies(w -> {
+            assertThat(w.code()).isEqualTo(ScoreIssueCode.ISSUE_WARNINGS);
+            assertThat(w.count()).isEqualTo(3);
+        });
+    }
+
+    @Test
+    void withoutOpenIssuesTheScoreIsAsBefore() {
+        List<StepFacts> chain = fullChain();
+
+        assertThat(ComplianceScore.compute(chain, PRODUCT, TODAY, 0, 0))
+                .isEqualTo(ComplianceScore.compute(chain, PRODUCT, TODAY));
+    }
 }
