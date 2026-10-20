@@ -576,6 +576,55 @@
         "required" : [ "page", "snippet" ],
         "type" : "object"
       },
+      "ExpiringCertificate" : {
+        "properties" : {
+          "batchId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "batchNo" : {
+            "type" : "string"
+          },
+          "batchStatus" : {
+            "$ref" : "#/components/schemas/BatchStatus"
+          },
+          "daysLeft" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "docType" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : "string"
+          },
+          "documentId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "holderName" : {
+            "type" : [ "string", "null" ]
+          },
+          "stepId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "supplierId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "supplierName" : {
+            "type" : [ "string", "null" ]
+          },
+          "validUntil" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        },
+        "required" : [ "batchId", "batchNo", "batchStatus", "daysLeft", "docType", "documentId", "stepId", "stepType", "validUntil" ],
+        "type" : "object"
+      },
       "Extraction" : {
         "properties" : {
           "detectedType" : {
@@ -3469,6 +3518,59 @@
           }
         },
         "summary" : "Run the rule checks of the batch",
+        "tags" : [ "issues" ]
+      }
+    },
+    "/api/v1/documents/expiring" : {
+      "get" : {
+        "description" : "Closest end first, with the step, supplier and batch each is used in; one that a newer confirmed certificate of the same type replaced is not listed. days is 1–365 (default 30).",
+        "operationId" : "listExpiringCertificates",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "days",
+          "required" : false,
+          "schema" : {
+            "default" : 30,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ExpiringCertificate"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "The certificates"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "days is out of range"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          }
+        },
+        "summary" : "Confirmed certificates ending soon or already ended",
         "tags" : [ "issues" ]
       }
     },

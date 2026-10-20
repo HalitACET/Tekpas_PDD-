@@ -1,6 +1,7 @@
 package com.tekpas.batch;
 
 import com.tekpas.supplychain.StepStatus;
+import com.tekpas.validation.ValidationTriggers;
 import jakarta.persistence.EntityManager;
 import java.time.Clock;
 import java.util.List;
@@ -20,12 +21,15 @@ public class BatchProgress {
     private final BatchRepository batches;
     private final EntityManager entityManager;
     private final JdbcTemplate jdbc;
+    private final ValidationTriggers validation;
     private final Clock clock;
 
-    public BatchProgress(BatchRepository batches, EntityManager entityManager, JdbcTemplate jdbc, Clock clock) {
+    public BatchProgress(BatchRepository batches, EntityManager entityManager, JdbcTemplate jdbc,
+            ValidationTriggers validation, Clock clock) {
         this.batches = batches;
         this.entityManager = entityManager;
         this.jdbc = jdbc;
+        this.validation = validation;
         this.clock = clock;
     }
 
@@ -35,6 +39,8 @@ public class BatchProgress {
         // The caller's step changes must be in the database before the statuses are read with SQL.
         entityManager.flush();
         Batch batch = batches.findById(batchId).orElseThrow();
+        // Every change of a chain or a request passes here, and the rules read the same data.
+        validation.batchChanged(batch.getCompanyId(), batchId);
         if (batch.getStatus() == BatchStatus.PUBLISHED) {
             return;
         }

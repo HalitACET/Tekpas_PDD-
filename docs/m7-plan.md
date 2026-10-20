@@ -64,8 +64,8 @@ Hepsi `/api/v1`, tenant JWT'den, başka firmanın kaydı 404, SUPPLIER 403.
 
 ## 5. Tetikleyiciler ve işler
 
-- **Anlık değişiklikte:** adım gönderme/onay/red, belge onayı/silme, ürün lif bileşimi güncellemesi, zincir değişikliği sonrası `RULE_VALIDATE_BATCH` işi kuyruğa girer (`enqueueUnlessRecent`, aynı parti için 10 sn içinde tek iş). İş commit sonrası çalışır; panel sekme sayacını bir sonraki okumada görür.
-- **Günlük `CERT_EXPIRY_SCAN`** (`DocumentCleanupSchedule` gibi `JobWorker.every`, İstanbul 06:00 civarı; Neon uyuması için ek yoklama yok, K9): süresi 30 gün içinde dolacak veya dolmuş onaylı sertifikası olan **tüm** partileri (yayınlanmış dahil) kontrol eder (`RULE_VALIDATE_BATCH` işlerini sıraya koyar). Yayınlanmış pasaportun snapshot'ına dokunmaz; yalnızca panelde SER-01/02 çıkar ("yayındaki sürümde süresi dolmuş sertifika" bilgisi M10'da tasarlanır).
+- **Anlık değişiklikte:** adım gönderme/onay/red, belge onayı/silme, ürün lif bileşimi güncellemesi, zincir değişikliği sonrası `RULE_VALIDATE_BATCH` işi kuyruğa girer (`enqueueUnlessQueued`: aynı partinin başlamamış bir işi sırada bekliyorsa yenisi eklenmez, o iş en yeni veriyi görür; çalışmakta olan sayılmaz). İş commit sonrası çalışır; panel sekme sayacını bir sonraki okumada görür.
+- **Günlük `CERT_EXPIRY_SCAN`** (`DocumentCleanupSchedule` gibi `JobWorker.every`: açılıştan 15 dk sonra, sonra 24 saatte bir; Neon uyuması için ek yoklama yok, K9): süresi 30 gün içinde dolacak veya dolmuş onaylı sertifikası olan **tüm** partileri (yayınlanmış dahil) kontrol eder (`RULE_VALIDATE_BATCH` işlerini sıraya koyar). Yayınlanmış pasaportun snapshot'ına dokunmaz; yalnızca panelde SER-01/02 çıkar ("yayındaki sürümde süresi dolmuş sertifika" bilgisi M10'da tasarlanır).
 - **Yayın sırasında:** eşzamanlı çalıştırma (§4).
 
 ## 6. Web (tasarım v0.7 gelince)

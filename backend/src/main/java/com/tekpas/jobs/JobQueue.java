@@ -46,6 +46,20 @@ public class JobQueue {
         return true;
     }
 
+    /**
+     * For jobs per record: queues one unless the same job (type and payload) is already waiting to start, which will
+     * work on the newest data anyway. A job already running does not count: it may have read the data before the
+     * change. Returns whether it queued.
+     */
+    public boolean enqueueUnlessQueued(JobType type, Object payload) {
+        String text = json.writeValueAsString(payload);
+        if (store.hasQueued(type, text)) {
+            return false;
+        }
+        enqueue(type, payload);
+        return true;
+    }
+
     private void wakeAfterCommit() {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

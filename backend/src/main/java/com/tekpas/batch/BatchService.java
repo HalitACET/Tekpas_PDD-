@@ -8,6 +8,7 @@ import com.tekpas.batch.dto.BatchStatusCounts;
 import com.tekpas.batch.dto.BatchUpdateRequest;
 import com.tekpas.batch.dto.ChainSummary;
 import com.tekpas.validation.OpenIssueCounts;
+import com.tekpas.validation.ValidationTriggers;
 import com.tekpas.validation.dto.IssueCounts;
 import com.tekpas.batch.dto.NextBatchNoResponse;
 import com.tekpas.batch.dto.ScoreResponse;
@@ -47,6 +48,7 @@ public class BatchService {
     private final ComplianceService compliance;
     private final PassportSummaries passportSummaries;
     private final OpenIssueCounts openIssues;
+    private final ValidationTriggers validation;
     private final JdbcTemplate jdbc;
     private final ChainService chains;
     private final SupplierService suppliers;
@@ -54,7 +56,7 @@ public class BatchService {
 
     public BatchService(BatchRepository batches, ProductRepository products, BatchNumbers numbers,
             ChainCounts chainCounts, ComplianceService compliance, PassportSummaries passportSummaries,
-            OpenIssueCounts openIssues, JdbcTemplate jdbc, ChainService chains, SupplierService suppliers, Clock clock) {
+            OpenIssueCounts openIssues, ValidationTriggers validation, JdbcTemplate jdbc, ChainService chains, SupplierService suppliers, Clock clock) {
         this.batches = batches;
         this.products = products;
         this.numbers = numbers;
@@ -62,6 +64,7 @@ public class BatchService {
         this.compliance = compliance;
         this.passportSummaries = passportSummaries;
         this.openIssues = openIssues;
+        this.validation = validation;
         this.jdbc = jdbc;
         this.chains = chains;
         this.suppliers = suppliers;
@@ -167,6 +170,9 @@ public class BatchService {
         requireDateOrder(batch.getProducedFrom(), batch.getProducedTo());
         batch.touch(clock.instant());
         saveAndFlush(batch);
+        if (request.producedFrom() != null || request.producedTo() != null) {
+            validation.batchChanged(companyId, id);
+        }
 
         Product product = products.findByIdAndCompanyId(batch.getProductId(), companyId).orElseThrow();
         return toResponse(batch, product, chainCounts.of(id),

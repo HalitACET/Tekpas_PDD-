@@ -51,7 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ValidationService {
 
     private static final Logger log = LoggerFactory.getLogger(ValidationService.class);
-    private static final ZoneId ZONE = ZoneId.of("Europe/Istanbul");
+    static final ZoneId ZONE = ZoneId.of("Europe/Istanbul");
     private static final int NOTE_MAX = 500;
 
     private final BatchRepository batches;

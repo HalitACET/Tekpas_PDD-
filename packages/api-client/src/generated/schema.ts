@@ -323,6 +323,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/documents/expiring": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Confirmed certificates ending soon or already ended
+         * @description Closest end first, with the step, supplier and batch each is used in; one that a newer confirmed certificate of the same type replaced is not listed. days is 1–365 (default 30).
+         */
+        get: operations["listExpiringCertificates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/documents/{id}": {
         parameters: {
             query?: never;
@@ -1137,6 +1157,27 @@ export interface components {
             /** Format: int32 */
             page: number;
             snippet: string;
+        };
+        ExpiringCertificate: {
+            /** Format: uuid */
+            batchId: string;
+            batchNo: string;
+            batchStatus: components["schemas"]["BatchStatus"];
+            /** Format: int32 */
+            daysLeft: number;
+            /** @enum {string} */
+            docType: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            /** Format: uuid */
+            documentId: string;
+            holderName?: string | null;
+            /** Format: uuid */
+            stepId: string;
+            stepType: components["schemas"]["StepType"];
+            /** Format: uuid */
+            supplierId?: string | null;
+            supplierName?: string | null;
+            /** Format: date */
+            validUntil: string;
         };
         Extraction: {
             /** @enum {string} */
@@ -2665,6 +2706,46 @@ export interface operations {
             };
             /** @description No such batch in this company */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    listExpiringCertificates: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The certificates */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpiringCertificate"][];
+                };
+            };
+            /** @description days is out of range */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

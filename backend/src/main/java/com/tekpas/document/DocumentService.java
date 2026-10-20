@@ -20,6 +20,7 @@ import com.tekpas.request.StepEventKind;
 import com.tekpas.request.StepEvents;
 import com.tekpas.supplychain.SupplyStep;
 import com.tekpas.supplychain.SupplyStepRepository;
+import com.tekpas.validation.ValidationTriggers;
 import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
@@ -63,13 +64,14 @@ public class DocumentService {
     private final JobQueue jobs;
     private final LlmGate gate;
     private final RateLimiter limiter;
+    private final ValidationTriggers validation;
     private final Clock clock;
     private final TransactionTemplate tx;
 
     public DocumentService(DocumentRepository documents, SupplyStepRepository steps, BatchRepository batches,
             AppUserRepository users, StepEvents events, FileStorage storage, FileInspector inspector,
-            DocumentStore store, JobQueue jobs, LlmGate gate, RateLimiter limiter, Clock clock,
-            PlatformTransactionManager transactions) {
+            DocumentStore store, JobQueue jobs, LlmGate gate, RateLimiter limiter,
+            ValidationTriggers validation, Clock clock, PlatformTransactionManager transactions) {
         this.documents = documents;
         this.steps = steps;
         this.batches = batches;
@@ -81,6 +83,7 @@ public class DocumentService {
         this.jobs = jobs;
         this.gate = gate;
         this.limiter = limiter;
+        this.validation = validation;
         this.clock = clock;
         this.tx = new TransactionTemplate(transactions);
     }
@@ -101,6 +104,8 @@ public class DocumentService {
             String name = users.findById(userId).map(u -> u.getFullName()).orElse(null);
             return new Target(companyId, step.getId(), null, userId, name);
         });
+        // A document waiting for confirmation is an issue of its own (BEL-01).
+        validation.stepChanged(companyId, stepId);
         return DocumentResponse.from(saved, null, false);
     }
 
@@ -186,6 +191,7 @@ public class DocumentService {
         if (stepId != null) {
             events.record(stepId, d.getRequestId(), StepEventKind.DOCUMENT_VERIFIED, userId, name,
                     Map.of("documentId", d.getId().toString(), "docType", d.getDocType().name()));
+            validation.stepChanged(companyId, stepId);
         }
         return DocumentResponse.from(d, name, false);
     }
@@ -269,6 +275,7 @@ public class DocumentService {
                 String name = users.findById(userId).map(u -> u.getFullName()).orElse(null);
                 events.record(d.getStepId(), d.getRequestId(), StepEventKind.DOCUMENT_REMOVED, userId, name,
                         Map.of("documentId", d.getId().toString(), "docType", d.getDocType().name()));
+                validation.stepChanged(companyId, d.getStepId());
             }
             documents.delete(d);
             return d.getFileKey();
