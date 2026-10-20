@@ -18,11 +18,11 @@ Her kontrolün **sabit kodu** vardır (`LIF-01`…); kod, önem ve kural metni �
 
 | Kod | Önem | Kural | Üretildiği yer |
 | --- | --- | --- | --- |
-| `LIF-01` | ERROR | **Etiket beyanı ile iplik/kumaş beyanı uyuşmuyor.** Ürünün etiket lif bileşimi ile onaylı veya gönderilmiş YARN ve FABRIC adımlarının `fiberComposition`'ı lif bazında karşılaştırılır; fark **3 puandan fazlaysa** (AB tekstil tüzüğündeki izin) veya etikette olmayan bir lif ya da etikette olup adımda hiç olmayan bir lif varsa uyarı. Adım başına bir uyarı. | adım |
+| `LIF-01` | ERROR | **Etiket beyanı ile iplik/kumaş beyanı uyuşmuyor.** Ürünün etiket lif bileşimi ile onaylı veya gönderilmiş YARN ve FABRIC adımlarının `fiberComposition`'ı lif bazında karşılaştırılır; fark **3 puandan fazlaysa** (AB tekstil tüzüğündeki izin) veya etikette olmayan bir lif ya da etikette olup adımda hiç olmayan bir lif varsa uyarı. Adım başına bir uyarı. **Hangi adımlar:** gönderilmiş veya onaylı, lif bileşimi dolu FABRIC adımları (etiketin anlattığı kumaştır); kumaş adımı yoksa tek bir YARN adımı (birden çok iplik karışımı tek bir bileşime karşılaştırılamaz). Etiket ya da adımın toplamı 100 değilse karşılaştırma yapılmaz, `LIF-02` söyler. | adım |
 | `LIF-02` | ERROR | Bir lif bileşiminin toplamı 100 değil (etiket veya adım). API bunu yazarken engelliyor; eski veya elle değiştirilmiş veri için güvence. | ürün / adım |
 | `SER-01` | ERROR | Onaylı sertifikanın süresi dolmuş ve **aynı adımda aynı türden geçerli sertifika yok** (skordaki `CERTIFICATE_EXPIRED` ile aynı kural, tek yerde tanımlı). | adım + belge |
 | `SER-02` | WARNING | Onaylı sertifika 30 gün içinde doluyor. | adım + belge |
-| `SER-03` | WARNING | Sertifikanın sahibi adımın tedarikçisinden farklı (ad büyük/küçük harf, noktalama, "A.Ş./Ltd./San./Tic." gibi ekler yok sayılarak karşılaştırılır; Türkçe `Folding`). | adım + belge |
+| `SER-03` | WARNING | Sertifikanın sahibi adımın tedarikçisinden farklı (ad büyük/küçük harf, noktalama ve "A.Ş./Ltd. Şti./San./Tic./Sanayi/Anonim Şirketi" gibi hukuki biçim sözcükleri yok sayılarak sözcük kümeleri eşit mi diye karşılaştırılır; Türkçe `Folding`). "Ege İplik San. A.Ş." = "EGE IPLIK"; "Ege Iplik Tekstil" ayrı bir addır (uyarı). | adım + belge |
 | `SER-04` | WARNING | Adım tipi için beklenen sertifikası yok (YARN, FABRIC, DYEING; skorun ölçütüyle aynı küme) ve adım onaylı. | adım |
 | `EKS-01` | WARNING | Ürünün etiket lif bileşimi girilmemiş. | ürün |
 | `EKS-02` | INFO | Partinin üretim tarihlerinden biri boş. | parti |
@@ -47,6 +47,8 @@ Sayısal toleranslar ve eşikler (`LIF_TOLERANCE = 3`, `EXPIRING_DAYS = 30`) tek
 - Açık ama artık bulunmuyor → kendiliğinden kapanır (`resolved = true`, `auto_resolved = true`, `resolved_by` boş).
 - Elle çözülmüş ve aynı özetle hâlâ bulunuyor → çözülmüş kalır (kimse aynı şeyi tekrar çözmek zorunda değil).
 - Elle çözülmüş ve özet değişti (veri değişti) → yeni bulgu açılır.
+- Kendiliğinden kapanmış ve aynı özetle yeniden bulunuyor → aynı satır yeniden açılır (benzersiz indeks yeni satıra izin vermez; veri yine bozulmuştur).
+- Elle çözülmüş ve artık bulunmuyor → olduğu gibi kalır (kararın kaydı).
 Eşitleme tek transaction'da partinin satırı kilitlenerek yapılır (iki eşzamanlı çalıştırma iki satır yazamaz: benzersiz indeks son savunma).
 
 ## 4. API
@@ -55,7 +57,7 @@ Hepsi `/api/v1`, tenant JWT'den, başka firmanın kaydı 404, SUPPLIER 403.
 - `POST /batches/{id}/validate` (OWNER, ADMIN, EDITOR): kuralları çalıştırır ve eşitler; cevap `IssueList` (açık sayısı, önem kırılımı, `ranAt`).
 - `GET /batches/{id}/issues?status=OPEN|RESOLVED|ALL` (okuyan herkes): bulgular, önem sırasıyla (ERROR, WARNING, INFO), sonra yeni olan üstte. Her bulgu: `id`, `code`, `severity`, `source`, `stepId`/`stepType`, `documentId`/`docType`, `params`, `createdAt`, çözüldüyse `resolvedAt`, `resolvedByName`, `autoResolved`, `note`.
 - `POST /issues/{id}/resolve` `{ note? }` (OWNER, ADMIN; yalnızca WARNING ve INFO; ERROR için 409 `ISSUE_BLOCKING`; zaten çözülmüş 409 `ALREADY_RESOLVED`).
-- `POST /issues/{id}/reopen` (OWNER, ADMIN): elle çözüleni geri açar (yanlışlıkla çözmeye karşı).
+- `POST /issues/{id}/reopen` (OWNER, ADMIN): elle çözüleni geri açar (yanlışlıkla çözmeye karşı); açık olana 409 `NOT_RESOLVED`, kendiliğinden kapanana 409 `AUTO_RESOLVED` (o, kontroller yeniden bulursa kendisi açılır).
 - `GET /documents/expiring?days=30` (okuyan herkes): onaylı sertifikalar, süresi bitmesine en yakın önce; firma bazlı, görevler sayfası ve tedarikçi listesi için.
 - Skor: `ScoreIssueCode.ISSUES_OPEN` engeli (açık ERROR sayısı `count` ile) eklenir; `ISSUE_WARNINGS` uyarısı açık WARNING sayısını taşır. Yayın uç noktası **yayından önce kontrolü eşzamanlı çalıştırır** (bayat bulgu yayını kaçırmasın) ve açık ERROR varsa 409 `PUBLISH_BLOCKED` döner (blockers listesinde `ISSUES_OPEN`).
 - `BatchResponse`'a `openIssues { errors, warnings, infos }` eklenir (listede ve başlıkta rozet için; tek sorgu).

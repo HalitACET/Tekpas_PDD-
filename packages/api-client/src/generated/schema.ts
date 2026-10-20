@@ -185,6 +185,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/batches/{id}/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The issues of the batch, most severe first
+         * @description status picks open ones (default), resolved ones or all; the counts of both sides come with every answer.
+         */
+        get: operations["listBatchIssues"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/batches/{id}/passport-preview": {
         parameters: {
             query?: never;
@@ -283,6 +303,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/batches/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run the rule checks of the batch
+         * @description Checks the batch and makes the stored issues say the same: new findings open, findings whose data was corrected close themselves, a warning a person resolved stays resolved. Answers with the open issues.
+         */
+        post: operations["validateBatch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/documents/{id}": {
         parameters: {
             query?: never;
@@ -355,6 +395,46 @@ export interface paths {
          * @description OWNER and ADMIN only. The values in the body (type, certificate number, holder, issuer, validity) become the document's real fields; they are the person's, whether they kept the proposal, corrected it or typed them. Each field is recorded as ACCEPTED, EDITED or ADDED against the reading's proposal. Works the same for a document the reading could not read (manual entry). Writes a DOCUMENT_VERIFIED event on the step. The reading itself is not changed.
          */
         post: operations["verifyDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/issues/{id}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Take back the decision on a resolved issue
+         * @description Only an issue a person resolved: one that closed itself when its data was corrected comes back by itself if the data goes wrong again.
+         */
+        post: operations["reopenIssue"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/issues/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve a warning or an info
+         * @description A person lets it stand, with an optional note. A blocking issue cannot be resolved: correct the data and it closes itself.
+         */
+        post: operations["resolveIssue"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1100,6 +1180,67 @@ export interface components {
             validFrom?: components["schemas"]["Field"];
             validUntil?: components["schemas"]["Field"];
         };
+        /** @enum {string} */
+        IssueCode: "LIF-01" | "LIF-02" | "SER-01" | "SER-02" | "SER-03" | "SER-04" | "EKS-01" | "EKS-02" | "BEL-01";
+        IssueCounts: {
+            /** Format: int32 */
+            errors: number;
+            /** Format: int32 */
+            infos: number;
+            /** Format: int32 */
+            warnings: number;
+        };
+        /** @enum {string} */
+        IssueFilter: "OPEN" | "RESOLVED" | "ALL";
+        IssueListResponse: {
+            issues: components["schemas"]["IssueResponse"][];
+            open: components["schemas"]["IssueCounts"];
+            /** Format: int32 */
+            resolved: number;
+            /** Format: date-time */
+            validatedAt?: string | null;
+        };
+        IssueParams: {
+            declared?: components["schemas"]["FiberShare"][] | null;
+            differing?: components["schemas"]["Fiber"][] | null;
+            /** @enum {string|null} */
+            docType?: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN" | null;
+            fileName?: string | null;
+            holder?: string | null;
+            label?: components["schemas"]["FiberShare"][] | null;
+            missing?: string | null;
+            supplier?: string | null;
+            /** Format: int32 */
+            total?: number | null;
+            /** Format: date */
+            validUntil?: string | null;
+        };
+        IssueResponse: {
+            autoResolved: boolean;
+            code: components["schemas"]["IssueCode"];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            documentId?: string | null;
+            /** Format: uuid */
+            id: string;
+            note?: string | null;
+            params: components["schemas"]["IssueParams"];
+            resolved: boolean;
+            /** Format: date-time */
+            resolvedAt?: string | null;
+            resolvedByName?: string | null;
+            severity: components["schemas"]["IssueSeverity"];
+            source: components["schemas"]["IssueSource"];
+            /** Format: uuid */
+            stepId?: string | null;
+            stepType?: components["schemas"]["StepType"];
+            supplierName?: string | null;
+        };
+        /** @enum {string} */
+        IssueSeverity: "INFO" | "WARNING" | "ERROR";
+        /** @enum {string} */
+        IssueSource: "RULE" | "AI";
         /** @description A closed data request link (urn:tekpas:problem:link-gone): what its holder may still see */
         LinkContext: {
             code?: string | null;
@@ -1317,6 +1458,9 @@ export interface components {
         };
         /** @enum {string} */
         RequestStatus: "SENT" | "OPENED" | "COMPLETED" | "EXPIRED" | "REVOKED";
+        ResolveRequest: {
+            note?: string | null;
+        };
         ScoreCriterion: {
             code: components["schemas"]["CriterionCode"];
             /** Format: int32 */
@@ -2175,6 +2319,48 @@ export interface operations {
             };
         };
     };
+    listBatchIssues: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["IssueFilter"];
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The issues */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IssueListResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     previewPassport: {
         parameters: {
             query?: never;
@@ -2436,6 +2622,46 @@ export interface operations {
                 };
             };
             /** @description No such batch, or supplier not in the network */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    validateBatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The open issues after the run */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IssueListResponse"];
+                };
+            };
+            /** @description Only OWNER, ADMIN and EDITOR run the checks */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2713,6 +2939,117 @@ export interface operations {
             };
             /** @description A certificate (OEKO_TEX, GOTS, GRS, BCI, OCS, BLUESIGN) needs certNo and validUntil: one NotNull error per missing field. Other types need neither. */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    reopenIssue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The reopened issue */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IssueResponse"];
+                };
+            };
+            /** @description Only OWNER and ADMIN reopen */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such issue in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description NOT_RESOLVED or AUTO_RESOLVED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    resolveIssue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ResolveRequest"];
+            };
+        };
+        responses: {
+            /** @description The resolved issue */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IssueResponse"];
+                };
+            };
+            /** @description The note is longer than 500 characters */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Only OWNER and ADMIN resolve */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such issue in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description ISSUE_BLOCKING (an error) or ALREADY_RESOLVED */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

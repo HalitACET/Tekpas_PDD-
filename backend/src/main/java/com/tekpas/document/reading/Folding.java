@@ -11,13 +11,13 @@ package com.tekpas.document.reading;
  * <p>The folding is one character to one character, so an offset found in the folded text is the same offset in
  * the original line and the value can be cut from the original (it keeps its case and its dots: İSTANBUL).
  */
-final class Folding {
+public final class Folding {
 
     private Folding() {
     }
 
     /** Same length as {@code text}. No {@code Locale} is involved: {@code Character.toLowerCase} is locale-free. */
-    static String fold(String text) {
+    public static String fold(String text) {
         char[] out = new char[text.length()];
         for (int i = 0; i < out.length; i++) {
             out[i] = fold(text.charAt(i));

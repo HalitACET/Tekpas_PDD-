@@ -47,7 +47,8 @@ public final class ComplianceScore {
     private static final int FIELDS_PRODUCT_POINTS = FIELDS_POINTS - FIELDS_STEP_POINTS;
     /** The steps whose suppliers are expected to hold certificates (docs/m6-plan.md §9 decision 2). */
     private static final Set<StepType> CERTIFICATE_STEPS = EnumSet.of(StepType.YARN, StepType.FABRIC, StepType.DYEING);
-    private static final int EXPIRING_DAYS = 30;
+    /** A confirmed certificate ending within this many days is expiring (SER-02 uses the same number). */
+    public static final int EXPIRING_DAYS = 30;
 
     /** A document of a step, as far as the score cares. */
     public record DocumentFacts(DocType type, boolean confirmed, @Nullable LocalDate validUntil) {
@@ -63,6 +64,11 @@ public final class ComplianceScore {
     }
 
     private ComplianceScore() {
+    }
+
+    /** Whether a supplier of this step is expected to hold a certificate (SER-04 uses the same set). */
+    public static boolean expectsCertificate(StepType type) {
+        return CERTIFICATE_STEPS.contains(type);
     }
 
     public static ScoreResponse compute(List<StepFacts> steps, ProductFacts product, LocalDate today) {

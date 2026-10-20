@@ -60,6 +60,14 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
             """)
     List<ScoreDocument> scoreDocumentsOf(UUID companyId, Collection<UUID> stepIds);
 
+    /** What the consistency rules read of the company's documents of these steps, in one query. */
+    @Query("""
+            select d.id as id, d.stepId as stepId, d.docType as docType, d.reviewStatus as reviewStatus,
+                   d.validUntil as validUntil, d.holderName as holderName, d.originalName as originalName
+            from Document d where d.companyId = :companyId and d.stepId in :stepIds
+            """)
+    List<RuleDocument> ruleDocumentsOf(UUID companyId, Collection<UUID> stepIds);
+
     /** The documents a person confirmed on these steps (the passport takes certificates from them), of the company. */
     @Query("""
             select d from Document d where d.companyId = :companyId and d.stepId in :stepIds
@@ -77,6 +85,24 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
         ReviewStatus getReviewStatus();
 
         @Nullable LocalDate getValidUntil();
+    }
+
+    /** @see #ruleDocumentsOf */
+    interface RuleDocument {
+
+        UUID getId();
+
+        UUID getStepId();
+
+        DocType getDocType();
+
+        ReviewStatus getReviewStatus();
+
+        @Nullable LocalDate getValidUntil();
+
+        @Nullable String getHolderName();
+
+        String getOriginalName();
     }
 
     /** @see #countByStepIds */

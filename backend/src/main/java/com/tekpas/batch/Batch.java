@@ -45,6 +45,9 @@ public class Batch {
     @Column(nullable = false, length = 20)
     private BatchStatus status;
 
+    /** When the consistency checks last ran for this batch (V13), null before the first run. */
+    private @Nullable Instant validatedAt;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -123,6 +126,14 @@ public class Batch {
     /** Set by {@code BatchProgress} from the chain (M4); a published batch keeps its status. */
     public void setStatus(BatchStatus status) {
         this.status = status;
+    }
+
+    public @Nullable Instant getValidatedAt() {
+        return validatedAt;
+    }
+
+    public void markValidated(Instant now) {
+        this.validatedAt = now;
     }
 
     public Instant getCreatedAt() {
