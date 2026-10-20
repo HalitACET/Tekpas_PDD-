@@ -676,6 +676,166 @@
         },
         "type" : "object"
       },
+      "IssueCode" : {
+        "enum" : [ "LIF-01", "LIF-02", "SER-01", "SER-02", "SER-03", "SER-04", "EKS-01", "EKS-02", "BEL-01" ],
+        "type" : "string"
+      },
+      "IssueCounts" : {
+        "properties" : {
+          "errors" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "infos" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "warnings" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "errors", "infos", "warnings" ],
+        "type" : "object"
+      },
+      "IssueFilter" : {
+        "enum" : [ "OPEN", "RESOLVED", "ALL" ],
+        "type" : "string"
+      },
+      "IssueListResponse" : {
+        "properties" : {
+          "issues" : {
+            "items" : {
+              "$ref" : "#/components/schemas/IssueResponse"
+            },
+            "type" : "array"
+          },
+          "open" : {
+            "$ref" : "#/components/schemas/IssueCounts"
+          },
+          "resolved" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "validatedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "issues", "open", "resolved" ],
+        "type" : "object"
+      },
+      "IssueParams" : {
+        "properties" : {
+          "declared" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FiberShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "differing" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Fiber"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "docType" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : [ "string", "null" ]
+          },
+          "fileName" : {
+            "type" : [ "string", "null" ]
+          },
+          "holder" : {
+            "type" : [ "string", "null" ]
+          },
+          "label" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FiberShare"
+            },
+            "type" : [ "array", "null" ]
+          },
+          "missing" : {
+            "type" : [ "string", "null" ]
+          },
+          "supplier" : {
+            "type" : [ "string", "null" ]
+          },
+          "total" : {
+            "format" : "int32",
+            "type" : [ "integer", "null" ]
+          },
+          "validUntil" : {
+            "format" : "date",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "IssueResponse" : {
+        "properties" : {
+          "autoResolved" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "$ref" : "#/components/schemas/IssueCode"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "documentId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "note" : {
+            "type" : [ "string", "null" ]
+          },
+          "params" : {
+            "$ref" : "#/components/schemas/IssueParams"
+          },
+          "resolved" : {
+            "type" : "boolean"
+          },
+          "resolvedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "resolvedByName" : {
+            "type" : [ "string", "null" ]
+          },
+          "severity" : {
+            "$ref" : "#/components/schemas/IssueSeverity"
+          },
+          "source" : {
+            "$ref" : "#/components/schemas/IssueSource"
+          },
+          "stepId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "supplierName" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "autoResolved", "code", "createdAt", "id", "params", "resolved", "severity", "source" ],
+        "type" : "object"
+      },
+      "IssueSeverity" : {
+        "enum" : [ "INFO", "WARNING", "ERROR" ],
+        "type" : "string"
+      },
+      "IssueSource" : {
+        "enum" : [ "RULE", "AI" ],
+        "type" : "string"
+      },
       "LinkContext" : {
         "description" : "A closed data request link (urn:tekpas:problem:link-gone): what its holder may still see",
         "properties" : {
@@ -1277,6 +1437,16 @@
       "RequestStatus" : {
         "enum" : [ "SENT", "OPENED", "COMPLETED", "EXPIRED", "REVOKED" ],
         "type" : "string"
+      },
+      "ResolveRequest" : {
+        "properties" : {
+          "note" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
       },
       "ScoreCriterion" : {
         "properties" : {
@@ -2859,6 +3029,63 @@
         "tags" : [ "supply-chain" ]
       }
     },
+    "/api/v1/batches/{id}/issues" : {
+      "get" : {
+        "description" : "status picks open ones (default), resolved ones or all; the counts of both sides come with every answer.",
+        "operationId" : "listBatchIssues",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/components/schemas/IssueFilter",
+            "default" : "OPEN"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IssueListResponse"
+                }
+              }
+            },
+            "description" : "The issues"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          }
+        },
+        "summary" : "The issues of the batch, most severe first",
+        "tags" : [ "issues" ]
+      }
+    },
     "/api/v1/batches/{id}/passport-preview" : {
       "get" : {
         "description" : "Steps that are not approved show as such, without data. Panel only.",
@@ -3190,6 +3417,55 @@
         },
         "summary" : "Add a step to a batch's chain",
         "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/batches/{id}/validate" : {
+      "post" : {
+        "description" : "Checks the batch and makes the stored issues say the same: new findings open, findings whose data was corrected close themselves, a warning a person resolved stays resolved. Answers with the open issues.",
+        "operationId" : "validateBatch",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IssueListResponse"
+                }
+              }
+            },
+            "description" : "The open issues after the run"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER, ADMIN and EDITOR run the checks"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          }
+        },
+        "summary" : "Run the rule checks of the batch",
+        "tags" : [ "issues" ]
       }
     },
     "/api/v1/documents/{id}" : {
@@ -3524,6 +3800,143 @@
         },
         "summary" : "Confirm what was read from a document",
         "tags" : [ "documents" ]
+      }
+    },
+    "/api/v1/issues/{id}/reopen" : {
+      "post" : {
+        "description" : "Only an issue a person resolved: one that closed itself when its data was corrected comes back by itself if the data goes wrong again.",
+        "operationId" : "reopenIssue",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IssueResponse"
+                }
+              }
+            },
+            "description" : "The reopened issue"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN reopen"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such issue in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "NOT_RESOLVED or AUTO_RESOLVED"
+          }
+        },
+        "summary" : "Take back the decision on a resolved issue",
+        "tags" : [ "issues" ]
+      }
+    },
+    "/api/v1/issues/{id}/resolve" : {
+      "post" : {
+        "description" : "A person lets it stand, with an optional note. A blocking issue cannot be resolved: correct the data and it closes itself.",
+        "operationId" : "resolveIssue",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ResolveRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IssueResponse"
+                }
+              }
+            },
+            "description" : "The resolved issue"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The note is longer than 500 characters"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN resolve"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such issue in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "ISSUE_BLOCKING (an error) or ALREADY_RESOLVED"
+          }
+        },
+        "summary" : "Resolve a warning or an info",
+        "tags" : [ "issues" ]
       }
     },
     "/api/v1/passports/{id}" : {
@@ -5541,6 +5954,9 @@
     "bearerAuth" : [ ]
   } ],
   "tags" : [ {
+    "description" : "Consistency checks of a batch: run them, read the findings, decide on the warnings (the panel's Uyarılar tab)",
+    "name" : "issues"
+  }, {
     "description" : "What waits for the manufacturer (design v0.4 48)",
     "name" : "tasks"
   }, {
