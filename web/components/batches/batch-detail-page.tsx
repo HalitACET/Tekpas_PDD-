@@ -1,7 +1,7 @@
 "use client";
 
 import type { Fiber, StepStatus } from "@tekpas/shared";
-import { Layers, Lock, MoveRight, Plus } from "lucide-react";
+import { Layers, MoveRight, Plus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -10,7 +10,7 @@ import { showErrorToast } from "@/components/common/error-toast";
 import { GuardedButton } from "@/components/common/guarded-button";
 import { EmptyState, ListError } from "@/components/common/list-states";
 import { ServerWakeStrip, useListWake } from "@/components/common/server-wake";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,25 +21,28 @@ import {
   useBatchChain,
   useCreateDefaultChain,
 } from "@/lib/api/batches";
+import { useBatchScore } from "@/lib/api/passports";
 import { useProduct } from "@/lib/api/products";
 import { ApiError } from "@/lib/api/request";
 import { canWriteCatalog } from "@/lib/auth/permissions";
 import { useSession } from "@/lib/auth/use-session";
 import { DRAWN_STEP_TYPES, isDrawn } from "@/lib/batches/chain-layout";
 import { useSetBreadcrumbDetail } from "@/lib/breadcrumb";
-import { displayGtin, fiberText, formatDateRange, formatPercent, formatQuantity } from "@/lib/format";
+import { displayGtin, fiberText, formatDateRange, formatQuantity } from "@/lib/format";
 import { queryKeys } from "@/lib/query-keys";
-import { BatchStatusChip } from "./batch-status-chip";
 import { type ChainPanel, ChainPanels, panelFor } from "./chain-panels";
+import { LifecycleChip } from "./passport/lifecycle-chip";
+import { PublishActions } from "./passport/publish-actions";
+import { QrCard } from "./passport/qr-card";
+import { ScoreCard } from "./passport/score-card";
+import { useVersionFacts } from "./passport/use-version-facts";
+import { VersionsTab } from "./passport/versions-tab";
 import { ChainLegend, type ChainNodeStep, SupplyChainCanvas, toNodeStep } from "./supply-chain";
 
-/** The publishing threshold of the compliance score (design v0.3 09). */
-const PUBLISH_THRESHOLD = 90;
-
 /**
- * Design v0.3 09 (with v0.3.1 26 and 29). M3 has no compliance score yet, so the card shows "—", "Önizle" and
- * "Pasaportu yayınla" stay locked and the reasons list what M3 can tell. Only the supply chain tab has
- * content; documents, alerts and versions follow with M5–M6.
+ * Design v0.3 09 (with v0.3.1 26 and 29) and v0.6: the batch header with the publishing actions, the supply chain and
+ * the passport versions in tabs, and the compliance score and the QR code beside them. Documents and alerts follow
+ * with M5 and M7.
  */
 export function BatchDetailPage({ id }: { id: string }) {
   const t = useTranslations("batches.detail");
@@ -85,29 +88,60 @@ export function BatchDetailPage({ id }: { id: string }) {
 function BatchDetail({ batch, chain }: { batch: BatchResponse; chain: ReturnType<typeof useBatchChain> }) {
   const t = useTranslations("batches.detail");
   const tFiber = useTranslations("enums.fiber");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const score = useBatchScore(batch.id);
+  const tab = searchParams.get("tab") === "versions" ? "versions" : "chain";
+  const hasPassport = !!batch.passport && !batch.passport.withdrawn;
+  const { live } = useVersionFacts(batch.id, hasPassport);
   const steps = useMemo(
     () =>
       (chain.data?.steps ?? []).filter((s) => isDrawn(s.stepType)).map((s) => toNodeStep(s, (f: Fiber) => tFiber(f))),
     [chain.data, tFiber],
   );
+  const selectTab = (next: "chain" | "versions") => {
+    const params = new URLSearchParams(searchParams.toString());
+    // The chain's own deep links (?step=, ?open=) belong to the chain tab only.
+    if (next === "versions") {
+      params.set("tab", "versions");
+      params.delete("step");
+      params.delete("open");
+    } else {
+      params.delete("tab");
+    }
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
 
   return (
     <TooltipProvider>
       <div className="flex flex-col gap-5">
-        <BatchHeader batch={batch} steps={chain.data ? steps : undefined} />
-        <nav aria-label={t("tabs.label")} className="flex gap-1 border-b">
-          <Tab label={t("tabs.chain")} count={String(chain.data?.steps.length ?? batch.chain.totalSteps)} active />
-          <Tab label={t("tabs.documents")} />
-          <Tab label={t("tabs.alerts")} />
-          <Tab label={t("tabs.versions")} />
-        </nav>
-        <ChainSection batch={batch} chain={chain} steps={steps} />
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+          <BatchHeader batch={batch} />
+          <PublishActions batch={batch} score={score} />
+        </div>
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+          <div className="flex min-w-0 flex-col gap-4">
+            <nav aria-label={t("tabs.label")} className="flex gap-1 border-b">
+              <Tab label={t("tabs.chain")} count={String(chain.data?.steps.length ?? batch.chain.totalSteps)} active={tab === "chain"} onSelect={() => selectTab("chain")} />
+              <Tab label={t("tabs.documents")} />
+              <Tab label={t("tabs.alerts")} />
+              <Tab label={t("tabs.versions")} count={String(batch.passport?.version ?? 0)} active={tab === "versions"} onSelect={() => selectTab("versions")} />
+            </nav>
+            {tab === "versions" ? <VersionsTab batch={batch} /> : <ChainSection batch={batch} chain={chain} steps={steps} />}
+          </div>
+          <aside className="flex flex-col gap-4">
+            <ScoreCard batch={batch} score={score} onRetry={() => void score.refetch()} />
+            {live && <QrCard passport={live} />}
+          </aside>
+        </div>
       </div>
     </TooltipProvider>
   );
 }
 
-function BatchHeader({ batch, steps }: { batch: BatchResponse; steps: ChainNodeStep[] | undefined }) {
+function BatchHeader({ batch }: { batch: BatchResponse }) {
   const t = useTranslations("batches");
   const tDetail = useTranslations("batches.detail");
   const tFiber = useTranslations("enums.fiber");
@@ -118,11 +152,11 @@ function BatchHeader({ batch, steps }: { batch: BatchResponse; steps: ChainNodeS
   const produced = formatDateRange(batch.producedFrom, batch.producedTo, locale);
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-2">
+      <div className="contents">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-mono text-[28px] leading-[34px] font-medium tracking-[-0.03em]">{batch.batchNo}</h1>
-          <BatchStatusChip status={batch.status} size="lg" />
+          <LifecycleChip batch={batch} size="lg" />
         </div>
         <p className="text-base font-medium tracking-[-0.01em]">
           {batch.product.name}{" "}
@@ -151,8 +185,6 @@ function BatchHeader({ batch, steps }: { batch: BatchResponse; steps: ChainNodeS
           )}
         </dl>
       </div>
-      <ScoreCard />
-      <PublishActions steps={steps} />
     </div>
   );
 }
@@ -166,104 +198,20 @@ function Meta({ term, children }: { term: string; children: React.ReactNode }) {
   );
 }
 
-/** "—" until passports compute the score (M6); the tick on the ring marks the 90 % threshold. */
-function ScoreCard() {
-  const t = useTranslations("batches.detail");
-  const locale = useLocale();
-  return (
-    <div className="flex shrink-0 items-center gap-3.5 self-start rounded-[10px] border bg-card px-4 py-3">
-      <span className="relative flex size-14 items-center justify-center">
-        <svg viewBox="0 0 56 56" className="absolute inset-0 size-14 -rotate-90" aria-hidden>
-          <circle cx="28" cy="28" r="22" fill="none" stroke="var(--muted)" strokeWidth="5" />
-          <line
-            x1="28"
-            y1="1"
-            x2="28"
-            y2="9"
-            transform={`rotate(${(PUBLISH_THRESHOLD / 100) * 360} 28 28)`}
-            stroke="var(--foreground)"
-            strokeWidth="1.5"
-          />
-        </svg>
-        <span className="font-mono text-sm font-semibold tracking-[-0.03em]" aria-hidden>
-          —
-        </span>
-        <span className="sr-only">{t("noScore")}</span>
-      </span>
-      <span className="flex flex-col gap-0.5">
-        <span className="text-[13px] font-semibold">{t("score")}</span>
-        <span className="text-xs text-muted-foreground">
-          {t("threshold", { threshold: formatPercent(PUBLISH_THRESHOLD, locale) })}
-        </span>
-      </span>
-    </div>
-  );
-}
-
-type Reason = { text: string; tone: "pending" | "low-confidence" };
-
-/** What M3 can say about why the passport cannot be published yet (no score, no alerts yet). */
-function useReasons(steps: ChainNodeStep[] | undefined): Reason[] {
-  const t = useTranslations("batches.detail.reasons");
-  const tStep = useTranslations("enums.stepType");
-  if (steps === undefined) return [];
-  if (steps.length === 0) return [{ text: t("noChain"), tone: "pending" }];
-  const reasons: Reason[] = [];
-  // FIBER records an origin, not a supplier.
-  const empty = steps.filter((s) => !s.filled && s.stepType !== "FIBER");
-  if (empty.length === 1) reasons.push({ text: t("unassignedOne", { step: tStep(empty[0].stepType) }), tone: "pending" });
-  else if (empty.length > 1) reasons.push({ text: t("unassignedMany", { count: empty.length }), tone: "pending" });
-  if (steps.some((s) => !s.filled && s.stepType === "FIBER")) reasons.push({ text: t("originMissing"), tone: "pending" });
-  const awaiting = steps.filter((s) => s.filled && s.status !== "APPROVED").length;
-  if (awaiting > 0) reasons.push({ text: t("awaiting", { count: awaiting }), tone: "low-confidence" });
-  return reasons;
-}
-
-const REASON_DOT: Record<Reason["tone"], string> = {
-  pending: "bg-status-pending",
-  "low-confidence": "bg-status-low-confidence",
-};
-
-function PublishActions({ steps }: { steps: ChainNodeStep[] | undefined }) {
-  const t = useTranslations("batches.detail");
-  const reasons = useReasons(steps);
-  return (
-    <div className="flex w-full shrink-0 flex-col gap-2 lg:w-[300px]">
-      <div className="flex gap-2">
-        <Button variant="secondary" disabled className="px-3 shadow-none">
-          {t("preview")}
-        </Button>
-        <Button variant="brand" disabled className="flex-1 disabled:opacity-50" aria-describedby="publish-reasons">
-          <Lock className="size-3.5" strokeWidth={2} aria-hidden />
-          {t("publish")}
-        </Button>
-      </div>
-      {reasons.length > 0 && (
-        <ul id="publish-reasons" aria-label={t("publishLocked")} className="flex flex-col gap-[3px] text-xs leading-[1.4] text-muted-foreground">
-          {reasons.map((r) => (
-            <li key={r.text} className="flex gap-1.5">
-              <span className={`mt-[7px] size-1 shrink-0 rounded-full ${REASON_DOT[r.tone]}`} aria-hidden />
-              {r.text}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-/** A tab of 09. Without a count it is not available yet (documents M5, alerts and versions M6). */
-function Tab({ label, count, active = false }: { label: string; count?: string; active?: boolean }) {
+/** A tab of 09. Without a count it is not available yet (documents M5, alerts M7); chain and versions work. */
+function Tab({ label, count, active = false, onSelect }: { label: string; count?: string; active?: boolean; onSelect?: () => void }) {
   const t = useTranslations("batches.detail.tabs");
+  const available = !!onSelect;
   return (
     <button
       type="button"
-      disabled={!active}
+      disabled={!available}
+      onClick={onSelect}
       aria-current={active ? "page" : undefined}
-      title={active ? undefined : t("unavailable")}
-      className={`flex h-10 items-center gap-2 px-3 text-[13px] disabled:cursor-not-allowed ${
+      title={available ? undefined : t("unavailable")}
+      className={`flex h-10 items-center gap-2 px-3 text-[13px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft disabled:cursor-not-allowed ${
         active ? "font-semibold text-foreground shadow-[inset_0_-2px_0_var(--foreground)]" : "font-medium text-muted-foreground"
-      }`}
+      } ${available ? "cursor-pointer hover:text-foreground" : ""}`}
     >
       {label}
       <span className="rounded-[4px] bg-muted px-1.5 py-px font-mono text-[11px] font-medium text-muted-foreground">

@@ -850,6 +850,13 @@ export interface components {
             /** Format: int32 */
             quantity: number;
         };
+        BatchPassport: {
+            /** Format: int32 */
+            score: number;
+            /** Format: int32 */
+            version: number;
+            withdrawn: boolean;
+        };
         BatchProduct: {
             gtin: string;
             /** Format: uuid */
@@ -863,6 +870,7 @@ export interface components {
             createdAt: string;
             /** Format: uuid */
             id: string;
+            passport?: components["schemas"]["BatchPassport"];
             /** Format: date */
             producedFrom?: string | null;
             /** Format: date */
