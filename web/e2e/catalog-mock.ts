@@ -496,10 +496,11 @@ export async function mockCatalogApi(
 
   const batchResponse = (batch: MockBatch) => {
     const product = store.find((p) => p.id === batch.productId)!;
-    const response: Partial<MockBatch> & { product: unknown; chain: unknown } = {
+    const response: Partial<MockBatch> & { product: unknown; chain: unknown; score: number } = {
       ...batch,
       product: { id: product.id, name: product.name, gtin: product.gtin },
       chain: chainSummary(batch.steps),
+      score: 40,
     };
     delete response.productId;
     delete response.steps;
@@ -522,6 +523,41 @@ export async function mockCatalogApi(
     if (!batch) return notFound(route);
     if (route.request().method() === "GET") return route.fulfill({ json: batchResponse(batch) });
     return route.fallback();
+  });
+
+  /**
+   * A step's panel lists its documents (M5): an unmocked call would reach the real server, get a 401 and sign the
+   * session out under the test. None by default; documents-mock.ts registers its own route after this one and wins.
+   */
+  await page.route(/\/api\/v1\/steps\/[0-9a-f-]{36}\/documents$/, (route) =>
+    route.request().method() === "GET" ? route.fulfill({ json: [] }) : route.fallback(),
+  );
+
+  /** GET /batches/{id}/score: nothing is approved in the design data, so each step blocks and the score is low. */
+  await page.route(/\/api\/v1\/batches\/[0-9a-f-]{36}\/score$/, (route) => {
+    const batch = batches.find((b) => b.id === idBefore(route, "/score"));
+    if (!batch) return notFound(route);
+    const blockers: Record<string, unknown>[] =
+      batch.steps.length === 0
+        ? [{ code: "NO_CHAIN" }]
+        : batch.steps
+            .filter((s) => s.status !== "APPROVED")
+            .map((s) => ({ code: "STEP_NOT_APPROVED", stepId: s.id, stepType: s.stepType }));
+    blockers.push({ code: "SCORE_BELOW_THRESHOLD" });
+    return route.fulfill({
+      json: {
+        score: 40,
+        threshold: 90,
+        publishable: false,
+        criteria: [
+          { code: "STEPS_APPROVED", earned: 20, possible: 50, items: [] },
+          { code: "REQUIRED_FIELDS", earned: 15, possible: 30, items: [] },
+          { code: "VALID_CERTIFICATES", earned: 5, possible: 20, items: [] },
+        ],
+        blockers,
+        warnings: [],
+      },
+    });
   });
 
   await page.route(/\/api\/v1\/batches\/[0-9a-f-]{36}\/chain$/, (route) => {

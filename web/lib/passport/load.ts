@@ -46,5 +46,8 @@ async function fetchPassport(gtin: string, batchNo: string): Promise<LoadedPassp
 export function loadPassport(gtin: string, batchNo: string): Promise<LoadedPassport> {
   return unstable_cache(() => fetchPassport(gtin, batchNo), ["passport", "v1", gtin, batchNo], {
     tags: [passportTag(gtin, batchNo)],
+    // Safety net: without REVALIDATE_SECRET (or when the refresh job fails) a republished page would stay old for ever.
+    // Stale data is served while it is fetched again, so a scan never waits for a sleeping backend.
+    revalidate: 600,
   })();
 }
