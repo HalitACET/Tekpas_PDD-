@@ -106,9 +106,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Playwright Chromium
-        working-directory: web
-        run: pnpm exec playwright install --with-deps chromium
+      # Google Chrome is preinstalled on GitHub's Ubuntu runners (playwright.config.ts uses channel "chrome").
+      - name: next build
+        run: pnpm --filter web build
 
       - name: playwright test
         run: pnpm --filter web e2e
