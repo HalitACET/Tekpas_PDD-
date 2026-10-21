@@ -1,12 +1,15 @@
 import "@/lib/i18n";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import * as NativeSplash from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { NotificationBanner } from "@/components/NotificationBanner";
 import { CaptureProvider } from "@/lib/capture";
+import { configureNotifications } from "@/lib/notifications";
 import { createQueryClient } from "@/lib/query-client";
 import { restoreSession } from "@/lib/session";
 import { useSession } from "@/lib/use-session";
@@ -15,6 +18,7 @@ import { fontAssets } from "@/theme/fonts";
 import { ThemeProvider, useTheme } from "@/theme/theme";
 
 void NativeSplash.preventAutoHideAsync();
+configureNotifications();
 
 export default function RootLayout() {
   const [queryClient] = useState(createQueryClient);
@@ -63,7 +67,7 @@ function Navigation() {
 
   const signedIn = session.status === "authenticated";
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <StatusBar style={scheme === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={signedIn}>
@@ -77,11 +81,14 @@ function Navigation() {
           <Stack.Screen name="document/approved" options={{ gestureEnabled: false }} />
           <Stack.Screen name="batch/[id]" />
           <Stack.Screen name="step/[id]" />
+          <Stack.Screen name="notifications/ask" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="notifications/denied" />
         </Stack.Protected>
         <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="login" />
         </Stack.Protected>
       </Stack>
-    </>
+      {signedIn && <NotificationBanner onOpen={(target) => router.push(target as never)} />}
+    </View>
   );
 }

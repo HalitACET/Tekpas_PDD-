@@ -257,7 +257,16 @@
     "logout": "Sign out",
     "logoutTitle": "Sign out?",
     "logoutBody": "Your e-mail and password are asked at the next sign-in. Pages not uploaded are deleted from the phone.",
-    "version": "KozaPass {{version}}"
+    "version": "KozaPass {{version}}",
+    "push": {
+      "label": "Notifications",
+      "on": "On",
+      "off": "Off",
+      "denied": "Off in the system settings",
+      "unavailable": "Not available",
+      "expoGo": "Notifications work only in the installed app. You are in Expo Go now.",
+      "openSettings": "Open Settings"
+    }
   },
   "scan": {
     "title": "Scan QR",
@@ -454,5 +463,25 @@
     "SEWING": "Sewing",
     "ACCESSORY": "Acc.",
     "PACKAGING": "Pack."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "askTitle": "We'll let you know when new data arrives",
+    "askBody": "Your phone gets a notification when a supplier sends data or a certificate is about to expire.",
+    "example": "Sample notification",
+    "exampleTitle": "New data: Yarn",
+    "exampleBody": "Ege İplik sent their data · KP-2026-0915-A",
+    "now": "now",
+    "allow": "Allow notifications",
+    "notNow": "Not now",
+    "laterNote": "You can turn them on later in Profile › Notifications.",
+    "deniedTitle": "Notifications are off",
+    "deniedBody": "Allow notifications in Settings. That is the only way new data and certificate alerts reach you.",
+    "deniedStep1": "Open Settings",
+    "deniedStep2": "KozaPass › Notifications",
+    "deniedStep3": "Turn on “Allow notifications”",
+    "openSettings": "Open Settings",
+    "failed": "Notifications could not be turned on. Check your connection and try again.",
+    "open": "Open the notification"
   }
 }

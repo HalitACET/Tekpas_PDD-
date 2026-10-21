@@ -1,11 +1,13 @@
 import Constants from "expo-constants";
-import { LogOut } from "lucide-react-native";
-import { useState } from "react";
+import { Bell, Info, LogOut } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { AppState, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Switch } from "@/components/Switch";
 import { Button, Heading, Segmented, Sheet, T } from "@/components/ui";
 import { API_URL } from "@/lib/config";
+import { type PushState, disablePush, enablePush, forgetPush, pushState } from "@/lib/notifications";
 import type { LanguagePreference, ThemePreference } from "@/lib/preferences";
 import { logout } from "@/lib/session";
 import { useSession } from "@/lib/use-session";
@@ -20,13 +22,27 @@ function initials(name: string): string {
     .join("");
 }
 
-/** Design v0.8 100a–100b: who is signed in, language and theme, the version, and signing out with a confirmation. */
+/**
+ * Design v0.8 100a–100b and v0.9 106f–106h: who is signed in, notifications on this phone, language and theme, the
+ * version, and signing out with a confirmation.
+ */
 export function ProfileScreen({ onSignedOut, onDiscardPages }: { onSignedOut?: () => void; onDiscardPages?: () => void }) {
   const { t, i18n } = useTranslation();
   const { colors, preferences, setPreferences } = useTheme();
   const session = useSession();
   const [confirming, setConfirming] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [push, setPush] = useState<PushState>();
+  const [pushBusy, setPushBusy] = useState(false);
+
+  useEffect(() => {
+    // Read again when the person comes back from the system settings.
+    const refresh = () => void pushState().then(setPush);
+    refresh();
+    const subscription = AppState.addEventListener("change", (state) => state === "active" && refresh());
+    return () => subscription.remove();
+  }, []);
+
   if (session.status !== "authenticated") return null;
   const user = session.user;
   // The language the texts are in now: the chosen one, or the phone's.
@@ -36,6 +52,7 @@ export function ProfileScreen({ onSignedOut, onDiscardPages }: { onSignedOut?: (
   const signOut = async () => {
     setLeaving(true);
     onDiscardPages?.();
+    await forgetPush();
     await logout();
     setLeaving(false);
     setConfirming(false);
@@ -71,6 +88,17 @@ export function ProfileScreen({ onSignedOut, onDiscardPages }: { onSignedOut?: (
             </T>
           </View>
         </View>
+
+        <PushRow
+          state={push}
+          busy={pushBusy}
+          onChange={(on) => {
+            setPushBusy(true);
+            (on ? enablePush() : disablePush().then(() => "off" as const))
+              .then(setPush, () => undefined)
+              .finally(() => setPushBusy(false));
+          }}
+        />
 
         <View style={{ gap: 10 }}>
           <T size={16} weight="semi">
@@ -137,7 +165,55 @@ export function ProfileScreen({ onSignedOut, onDiscardPages }: { onSignedOut?: (
   );
 }
 
+function PushRow({ state, busy, onChange }: { state?: PushState; busy: boolean; onChange: (on: boolean) => void }) {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const denied = state === "denied";
+  return (
+    <View
+      style={[
+        styles.push,
+        { backgroundColor: colors.card, borderColor: denied ? colors.status.rejected.dot : colors.border, borderWidth: denied ? 2 : 1 },
+      ]}
+    >
+      <View style={styles.pushRow}>
+        <Bell size={24} color={colors.foreground} strokeWidth={1.9} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <T size={17} weight="medium">
+            {t("profile.push.label")}
+          </T>
+          {state && (
+            <T size={15} weight={denied ? "semi" : "regular"} style={{ color: denied ? colors.status.rejected.fg : colors.foreground }}>
+              {t(`profile.push.${state}`)}
+            </T>
+          )}
+        </View>
+        <Switch
+          label={t("profile.push.label")}
+          value={state === "on"}
+          disabled={!state || state === "unavailable" || denied || busy}
+          onChange={onChange}
+        />
+      </View>
+      {denied && (
+        <Button label={t("profile.push.openSettings")} variant="secondary" height={48} onPress={() => void Linking.openSettings()} />
+      )}
+      {state === "unavailable" && (
+        <View accessibilityRole="text" style={[styles.note, { backgroundColor: colors.status.submitted.muted }]}>
+          <Info size={20} color={colors.status.submitted.fg} />
+          <T size={15} style={{ flex: 1, lineHeight: 21 }}>
+            {t("profile.push.expoGo")}
+          </T>
+        </View>
+      )}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  push: { gap: 12, paddingVertical: 14, paddingLeft: 16, paddingRight: 12, borderRadius: 14 },
+  pushRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  note: { flexDirection: "row", gap: 10, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12 },
   page: { flexGrow: 1, gap: 22, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 16 },
   card: { flexDirection: "row", alignItems: "center", gap: 14, padding: 16, borderRadius: 14, borderWidth: 1 },
   avatar: { width: 52, height: 52, borderRadius: 999, alignItems: "center", justifyContent: "center" },
