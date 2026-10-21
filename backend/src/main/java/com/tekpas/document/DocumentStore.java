@@ -59,6 +59,14 @@ class DocumentStore {
      *        target; it runs in a transaction both times
      */
     Document save(InspectedFile file, DocType docType, Supplier<Target> rules) {
+        return save(file, docType, rules, null);
+    }
+
+    /**
+     * @param clientUploadId the mobile queue's key (V15); a second document with it fails like a duplicate file
+     *        (409 DUPLICATE_DOCUMENT), and the caller answers with the first one
+     */
+    Document save(InspectedFile file, DocType docType, Supplier<Target> rules, @Nullable UUID clientUploadId) {
         Target planned = tx.execute(status -> rules.get());
         UUID id = UUID.randomUUID();
         String key = "docs/" + planned.companyId() + "/" + id;
@@ -69,9 +77,11 @@ class DocumentStore {
                 if (!now.equals(planned)) {
                     throw ConflictException.state("DOCUMENT_TARGET_CHANGED", "The upload's target changed");
                 }
-                Document saved = documents.saveAndFlush(new Document(id, now.companyId(), now.stepId(),
-                        now.requestId(), docType, key, file.displayName(), file.mimeType(), file.bytes().length,
-                        file.sha256(), file.pageCount(), now.uploadedBy(), now.uploadedByName(), clock.instant()));
+                Document document = new Document(id, now.companyId(), now.stepId(), now.requestId(), docType, key,
+                        file.displayName(), file.mimeType(), file.bytes().length, file.sha256(), file.pageCount(),
+                        now.uploadedBy(), now.uploadedByName(), clock.instant());
+                document.setClientUploadId(clientUploadId);
+                Document saved = documents.saveAndFlush(document);
                 events.record(now.stepId(), now.requestId(), StepEventKind.DOCUMENT_UPLOADED, now.uploadedBy(),
                         now.uploadedByName(), Map.of("documentId", id.toString(), "docType", docType.name(),
                                 "source", saved.source().name()));

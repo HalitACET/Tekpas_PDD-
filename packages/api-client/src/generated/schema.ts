@@ -4642,7 +4642,10 @@ export interface operations {
             query?: {
                 docType?: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
             };
-            header?: never;
+            header?: {
+                /** @description A UUID the app makes once per upload and sends again with every retry (M9 upload queue): the same key never makes a second document */
+                "Idempotency-Key"?: string;
+            };
             path: {
                 id: string;
             };
@@ -4656,6 +4659,15 @@ export interface operations {
             };
         };
         responses: {
+            /** @description The Idempotency-Key was seen before: the document that upload made */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
             /** @description Stored as one PDF; reading is queued */
             202: {
                 headers: {
@@ -4665,7 +4677,7 @@ export interface operations {
                     "application/json": components["schemas"]["DocumentResponse"];
                 };
             };
-            /** @description Field pages (PageCount) or pages[i] (FileEmpty, FileCorrupt, FileDimensions) */
+            /** @description Field pages (PageCount) or pages[i] (FileEmpty, FileCorrupt, FileDimensions), or an Idempotency-Key that is not a UUID */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -4692,7 +4704,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ApiProblem"];
                 };
             };
-            /** @description DUPLICATE_DOCUMENT, DOCUMENT_LIMIT or BATCH_PUBLISHED */
+            /** @description DUPLICATE_DOCUMENT, DOCUMENT_LIMIT, BATCH_PUBLISHED, or UPLOAD_KEY_REUSED (the Idempotency-Key belongs to an upload to another step) */
             409: {
                 headers: {
                     [name: string]: unknown;

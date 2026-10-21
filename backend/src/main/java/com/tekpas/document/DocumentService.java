@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -98,18 +99,52 @@ public class DocumentService {
         return store(companyId, userId, stepId, inspector.inspect(file), docType);
     }
 
+    /** An upload's answer; {@code repeated}: the key was seen before and this is the document it made then. */
+    public record PhotoUpload(DocumentResponse document, boolean repeated) {
+    }
+
     /**
      * The pages a phone photographed, as one PDF document (M8, docs/m8-plan.md §3.1); then exactly like
-     * {@link #upload}. Not transactional on purpose, as there.
+     * {@link #upload}. Not transactional on purpose, as there. With the upload queue's key (M9, §4.4) a repeated
+     * request answers with the document the first one made, before the pages are looked at or counted; two at the
+     * same time are told apart by the database.
      */
-    public DocumentResponse uploadPhotos(UUID companyId, UUID userId, UUID stepId, List<MultipartFile> pages,
-            @Nullable DocType docType) {
+    public PhotoUpload uploadPhotos(UUID companyId, UUID userId, UUID stepId, List<MultipartFile> pages,
+            @Nullable DocType docType, @Nullable UUID uploadKey) {
+        if (uploadKey != null) {
+            Optional<PhotoUpload> earlier = earlierUpload(companyId, stepId, uploadKey);
+            if (earlier.isPresent()) {
+                return earlier.get();
+            }
+        }
         limiter.hit("document-upload", companyId.toString(), UPLOADS_PER_COMPANY_PER_HOUR, Duration.ofHours(1));
-        return store(companyId, userId, stepId, photos.combine(pages), docType);
+        InspectedFile combined = photos.combine(pages);
+        try {
+            return new PhotoUpload(store(companyId, userId, stepId, combined, docType, uploadKey), false);
+        } catch (ConflictException e) {
+            if (uploadKey == null || !"DUPLICATE_DOCUMENT".equals(e.reason())) {
+                throw e;
+            }
+            return earlierUpload(companyId, stepId, uploadKey).orElseThrow(() -> e);
+        }
+    }
+
+    private Optional<PhotoUpload> earlierUpload(UUID companyId, UUID stepId, UUID uploadKey) {
+        return documents.findByCompanyIdAndClientUploadId(companyId, uploadKey).map(document -> {
+            if (!stepId.equals(document.getStepId())) {
+                throw ConflictException.state("UPLOAD_KEY_REUSED", "The Idempotency-Key was used for another step");
+            }
+            return new PhotoUpload(respond(companyId, List.of(document)).getFirst(), true);
+        });
     }
 
     private DocumentResponse store(UUID companyId, UUID userId, UUID stepId, InspectedFile inspected,
             @Nullable DocType docType) {
+        return store(companyId, userId, stepId, inspected, docType, null);
+    }
+
+    private DocumentResponse store(UUID companyId, UUID userId, UUID stepId, InspectedFile inspected,
+            @Nullable DocType docType, @Nullable UUID uploadKey) {
         Document saved = store.save(inspected, docType == null ? DocType.UNKNOWN : docType, () -> {
             SupplyStep step = steps.lockForUpdate(stepId, companyId)
                     .orElseThrow(() -> new NotFoundException("Step not found"));
@@ -119,7 +154,7 @@ public class DocumentService {
             requireRoom(step.getId(), inspected.sha256());
             String name = users.findById(userId).map(u -> u.getFullName()).orElse(null);
             return new Target(companyId, step.getId(), null, userId, name);
-        });
+        }, uploadKey);
         // A document waiting for confirmation is an issue of its own (BEL-01).
         validation.stepChanged(companyId, stepId);
         return DocumentResponse.from(saved, null, false);
