@@ -239,6 +239,7 @@ Plan: `docs/m9-plan.md` (QR → parti/pasaport, hızlı onay/red, push, yükleme
 Durum: kod ve Android geliştirme sürümü hazır; telefonda kabul denemesi kullanıcı kararıyla M10'dan sonra (`docs/haftalik/09-mobil-ii.md`).
 
 ### M10 — Arden demo hazırlığı
+Plan: `docs/m10-plan.md` (görevler T1–T12, gerçekçi demo verisi, kullanıcıya düşenler, kararlar). Bakım bilgisi için tasarım brifi: `docs/m10-tasarim-brifi.md` → Claude Design v1.0. M8/M9 telefon kabul denemeleri bu kilometre taşının sonunda (kullanıcı kararı).
 - [ ] Gerçekçi demo verisi (3 ürün, 5 parti, farklı tamamlanma seviyeleri, 1 süresi dolmak üzere sertifika)
 - [ ] Görsel cila, boş durumlar, yükleniyor durumları
 - [ ] Sunucu uyanık, APK hazır, 5 dakikalık demo senaryosu yazılı ve prova edilmiş
