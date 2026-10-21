@@ -257,7 +257,16 @@
     "logout": "Çıkış yap",
     "logoutTitle": "Çıkış yapılsın mı?",
     "logoutBody": "Bir sonraki girişte e-posta ve şifreniz istenir. Yüklenmemiş sayfalar telefondan silinir.",
-    "version": "KozaPass {{version}}"
+    "version": "KozaPass {{version}}",
+    "push": {
+      "label": "Bildirimler",
+      "on": "Açık",
+      "off": "Kapalı",
+      "denied": "Sistem ayarlarında kapalı",
+      "unavailable": "Kullanılamıyor",
+      "expoGo": "Bildirimler yalnızca uygulamanın kurulu sürümünde çalışır. Şu an Expo Go'dasınız.",
+      "openSettings": "Ayarlar'ı aç"
+    }
   },
   "scan": {
     "title": "QR okut",
@@ -454,5 +463,25 @@
     "SEWING": "Konf.",
     "ACCESSORY": "Aks.",
     "PACKAGING": "Amb."
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "askTitle": "Yeni veri gelince haber verelim",
+    "askBody": "Tedarikçi veri gönderdiğinde veya bir sertifikanın süresi yaklaştığında telefonunuza bildirim gelir.",
+    "example": "Örnek bildirim",
+    "exampleTitle": "Yeni veri: İplik",
+    "exampleBody": "Ege İplik verisini gönderdi · KP-2026-0915-A",
+    "now": "şimdi",
+    "allow": "Bildirimlere izin ver",
+    "notNow": "Şimdi değil",
+    "laterNote": "Sonra Profil › Bildirimler'den açabilirsiniz.",
+    "deniedTitle": "Bildirimler kapalı",
+    "deniedBody": "Ayarlar'dan bildirimlere izin verin. Yeni veri ve sertifika uyarıları ancak böyle gelir.",
+    "deniedStep1": "Ayarlar'ı açın",
+    "deniedStep2": "KozaPass › Bildirimler",
+    "deniedStep3": "“Bildirimlere izin ver”i açın",
+    "openSettings": "Ayarlar'ı aç",
+    "failed": "Bildirimler açılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+    "open": "Bildirimi aç"
   }
 }

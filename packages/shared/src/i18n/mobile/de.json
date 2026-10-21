@@ -257,7 +257,16 @@
     "logout": "Abmelden",
     "logoutTitle": "Abmelden?",
     "logoutBody": "Bei der nächsten Anmeldung werden E-Mail und Passwort abgefragt. Nicht hochgeladene Seiten werden vom Telefon gelöscht.",
-    "version": "KozaPass {{version}}"
+    "version": "KozaPass {{version}}",
+    "push": {
+      "label": "Benachrichtigungen",
+      "on": "Ein",
+      "off": "Aus",
+      "denied": "In den Systemeinstellungen aus",
+      "unavailable": "Nicht verfügbar",
+      "expoGo": "Benachrichtigungen funktionieren nur in der installierten App. Sie sind gerade in Expo Go.",
+      "openSettings": "Einstellungen öffnen"
+    }
   },
   "scan": {
     "title": "QR scannen",
@@ -454,5 +463,25 @@
     "SEWING": "Konf.",
     "ACCESSORY": "Zub.",
     "PACKAGING": "Verp."
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "askTitle": "Wir sagen Bescheid, wenn neue Daten kommen",
+    "askBody": "Ihr Telefon erhält eine Benachrichtigung, wenn ein Lieferant Daten sendet oder ein Zertifikat bald abläuft.",
+    "example": "Beispielbenachrichtigung",
+    "exampleTitle": "Neue Daten: Garn",
+    "exampleBody": "Ege İplik hat Daten gesendet · KP-2026-0915-A",
+    "now": "jetzt",
+    "allow": "Benachrichtigungen erlauben",
+    "notNow": "Nicht jetzt",
+    "laterNote": "Sie können sie später unter Profil › Benachrichtigungen einschalten.",
+    "deniedTitle": "Benachrichtigungen sind aus",
+    "deniedBody": "Erlauben Sie Benachrichtigungen in den Einstellungen. Nur so erreichen Sie neue Daten und Zertifikatswarnungen.",
+    "deniedStep1": "Einstellungen öffnen",
+    "deniedStep2": "KozaPass › Benachrichtigungen",
+    "deniedStep3": "„Benachrichtigungen erlauben“ einschalten",
+    "openSettings": "Einstellungen öffnen",
+    "failed": "Benachrichtigungen konnten nicht eingeschaltet werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "open": "Benachrichtigung öffnen"
   }
 }

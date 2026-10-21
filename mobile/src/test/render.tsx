@@ -45,10 +45,10 @@ export function resetApi() {
     const match = routes.find((r) => r.method === request.method && r.path.test(pathname));
     const answer = match?.answer();
     if (!answer || answer === "offline") throw new TypeError("Network request failed");
-    return new Response(JSON.stringify(answer.body), {
-      status: answer.status ?? 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    const status = answer.status ?? 200;
+    // 204 and the like have no body at all.
+    if (status === 204 || status === 205 || status === 304) return new Response(null, { status });
+    return new Response(JSON.stringify(answer.body), { status, headers: { "Content-Type": "application/json" } });
   }) as typeof fetch;
 }
 
