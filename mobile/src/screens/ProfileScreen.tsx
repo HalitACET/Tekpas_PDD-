@@ -11,6 +11,7 @@ import { type PushState, disablePush, enablePush, forgetPush, pushState } from "
 import type { LanguagePreference, ThemePreference } from "@/lib/preferences";
 import { logout } from "@/lib/session";
 import { useSession } from "@/lib/use-session";
+import { pendingCount, useUploadQueue } from "@/lib/use-upload-queue";
 import { useTheme } from "@/theme/theme";
 
 function initials(name: string): string {
@@ -26,7 +27,15 @@ function initials(name: string): string {
  * Design v0.8 100a–100b and v0.9 106f–106h: who is signed in, notifications on this phone, language and theme, the
  * version, and signing out with a confirmation.
  */
-export function ProfileScreen({ onSignedOut, onDiscardPages }: { onSignedOut?: () => void; onDiscardPages?: () => void }) {
+export function ProfileScreen({
+  onSignedOut,
+  onDiscardPages,
+  onOpenQueue,
+}: {
+  onSignedOut?: () => void;
+  onDiscardPages?: () => void;
+  onOpenQueue?: () => void;
+}) {
   const { t, i18n } = useTranslation();
   const { colors, preferences, setPreferences } = useTheme();
   const session = useSession();
@@ -34,6 +43,7 @@ export function ProfileScreen({ onSignedOut, onDiscardPages }: { onSignedOut?: (
   const [leaving, setLeaving] = useState(false);
   const [push, setPush] = useState<PushState>();
   const [pushBusy, setPushBusy] = useState(false);
+  const pending = pendingCount(useUploadQueue());
 
   useEffect(() => {
     // Read again when the person comes back from the system settings.
@@ -157,9 +167,26 @@ export function ProfileScreen({ onSignedOut, onDiscardPages }: { onSignedOut?: (
         <T family="serif" size={28}>
           {t("profile.logoutTitle")}
         </T>
-        <T size={16}>{t("profile.logoutBody")}</T>
+        <T size={16} style={{ lineHeight: 24 }}>
+          {pending > 0 ? t("profile.logoutPending", { count: pending }) : t("profile.logoutBody")}
+        </T>
         <Button label={t("profile.logout")} variant="destructive" busy={leaving} onPress={() => void signOut()} />
-        <Button label={t("common.giveUp")} variant="secondary" height={52} onPress={() => setConfirming(false)} />
+        {pending > 0 && onOpenQueue ? (
+          <>
+            <Button
+              label={t("profile.seeQueue")}
+              variant="secondary"
+              height={52}
+              onPress={() => {
+                setConfirming(false);
+                onOpenQueue();
+              }}
+            />
+            <Button label={t("common.giveUp")} variant="ghost" height={52} onPress={() => setConfirming(false)} />
+          </>
+        ) : (
+          <Button label={t("common.giveUp")} variant="secondary" height={52} onPress={() => setConfirming(false)} />
+        )}
       </Sheet>
     </SafeAreaView>
   );

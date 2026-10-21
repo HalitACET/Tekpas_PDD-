@@ -83,6 +83,8 @@ function Navigation() {
           <Stack.Screen name="step/[id]" />
           <Stack.Screen name="notifications/ask" options={{ gestureEnabled: false }} />
           <Stack.Screen name="notifications/denied" />
+          <Stack.Screen name="capture/queued" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="queue" />
         </Stack.Protected>
         <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="login" />

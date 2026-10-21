@@ -8,6 +8,7 @@ export default function Tasks() {
     <TasksScreen
       onOpenDocument={(id) => router.push({ pathname: "/document/[id]", params: { id } })}
       onOpenStep={(id, batch) => router.push({ pathname: "/step/[id]", params: { id, batch } })}
+      onOpenQueue={() => router.push("/queue")}
       onShoot={() => {
         capture.reset();
         router.push("/capture");

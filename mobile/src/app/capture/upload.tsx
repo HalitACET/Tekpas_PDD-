@@ -2,6 +2,7 @@ import { Redirect, router } from "expo-router";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCapture } from "@/lib/capture";
+import { queueCapture } from "@/lib/queue-capture";
 import { UploadScreen } from "@/screens/capture/UploadScreen";
 
 export default function CaptureUpload() {
@@ -31,6 +32,9 @@ export default function CaptureUpload() {
       onUploaded={onUploaded}
       onDone={onDone}
       onCancel={() => router.back()}
+      onQueue={() =>
+        void queueCapture(capture).then((id) => router.replace({ pathname: "/capture/queued", params: { id } }))
+      }
     />
   );
 }

@@ -1,4 +1,4 @@
-import { AlertTriangle, Check, RefreshCw } from "lucide-react-native";
+import { AlertTriangle, Check, Clock, RefreshCw } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
@@ -15,8 +15,11 @@ type Phase =
   | { kind: "failed"; progress: number }
   | { kind: "refused"; result: Extract<UploadResult, { ok: false }> };
 
-/** The words for the server's refusal of an upload (409, 413, 415, 400 on a page, 403). */
-function refusal(t: ReturnType<typeof useTranslation>["t"], result: Extract<UploadResult, { ok: false }>): string {
+/** The words for the server's refusal of an upload (409, 413, 415, 400 on a page, 403); the queue words it the same. */
+export function refusal(
+  t: ReturnType<typeof useTranslation>["t"],
+  result: { status?: number; reason?: string; field?: string },
+): string {
   if (result.reason === "BATCH_PUBLISHED") return t("upload.published");
   if (result.reason === "DOCUMENT_LIMIT") return t("upload.limit");
   if (result.reason === "DUPLICATE_DOCUMENT") return t("upload.duplicate");
@@ -41,6 +44,7 @@ export function UploadScreen({
   onUploaded,
   onDone,
   onCancel,
+  onQueue,
   upload = uploadPhotos,
   wait = waitForReading,
 }: {
@@ -53,6 +57,8 @@ export function UploadScreen({
   /** filled: the reading is over (not "Elle doldur", not given up). */
   onDone: (documentId: string, filled: boolean) => void;
   onCancel: () => void;
+  /** Design v0.9 107c: a broken upload may go to the queue instead of being tried again now. */
+  onQueue?: () => void;
   upload?: typeof uploadPhotos;
   wait?: typeof waitForReading;
 }) {
@@ -143,7 +149,9 @@ export function UploadScreen({
             sub={
               phase.kind === "uploading"
                 ? `${formatSize(bytes * phase.progress)} / ${formatSize(bytes)}`
-                : t("upload.uploadedSub", { count: pages.length, size: formatSize(bytes) })
+                : phase.kind === "failed"
+                  ? t("upload.brokeAt", { size: formatSize(bytes * phase.progress) })
+                  : t("upload.uploadedSub", { count: pages.length, size: formatSize(bytes) })
             }
           />
           <Stage
@@ -157,7 +165,12 @@ export function UploadScreen({
 
         {reading && phase.slow && <Banner kind="lowConfidence" title={t("upload.slowTitle")} body={t("upload.slowBody")} />}
         {phase.kind === "failed" && (
-          <Banner kind="rejected" icon={AlertTriangle} title={t("upload.failedTitle")} body={t("upload.failedBody", { count: pages.length })} />
+          <Banner
+            kind="rejected"
+            icon={AlertTriangle}
+            title={t("upload.failedTitle")}
+            body={onQueue ? t("upload.failedBodyQueue") : t("upload.failedBody", { count: pages.length })}
+          />
         )}
         {phase.kind === "refused" && (
           <Banner
@@ -172,15 +185,24 @@ export function UploadScreen({
       <BottomBar border={false}>
         {reading && phase.slow && documentId && <Button label={t("upload.manual")} onPress={() => onDone(documentId, false)} />}
         {phase.kind === "failed" && (
-          <Button
-            label={t("common.retry")}
-            variant="brand"
-            icon={RefreshCw}
-            onPress={() => {
-              setPhase({ kind: "uploading", progress: 0 });
-              void start();
-            }}
-          />
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <View style={{ flex: 1 }}>
+              <Button
+                label={t("common.retry")}
+                variant="brand"
+                icon={RefreshCw}
+                onPress={() => {
+                  setPhase({ kind: "uploading", progress: 0 });
+                  void start();
+                }}
+              />
+            </View>
+            {onQueue && (
+              <View style={{ flex: 1 }}>
+                <Button label={t("upload.queue")} variant="secondary" icon={Clock} onPress={onQueue} />
+              </View>
+            )}
+          </View>
         )}
         <Button
           label={phase.kind === "failed" || phase.kind === "refused" ? t("common.giveUp") : t("common.cancel")}

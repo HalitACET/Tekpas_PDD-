@@ -166,7 +166,9 @@
     "tooLargeBody": "Sayfa sayısını azaltın ya da ayrı belge olarak yükleyin.",
     "preparing": "Sayfa hazırlanıyor…",
     "pickTarget": "Yer değiştireceği sayfaya dokunun",
-    "page": "{{n}}. sayfa"
+    "page": "{{n}}. sayfa",
+    "offline": "Bağlantı yok. Belge kaydedilecek ve bağlantı gelince yüklenecek.",
+    "queue": "Sıraya al"
   },
   "upload": {
     "summary": "{{type}} · {{count}} sayfa",
@@ -191,7 +193,10 @@
     "duplicate": "Bu belge bu adıma zaten yüklendi.",
     "tooLarge": "Sayfalar birlikte 10 MB'tan büyük.",
     "badPage": "{{n}}. sayfa okunamadı; yeniden çekin.",
-    "forbidden": "Bu işlem için yetkiniz yok."
+    "forbidden": "Bu işlem için yetkiniz yok.",
+    "queue": "Sıraya al",
+    "brokeAt": "Bağlantı {{size}} yüklenince kesildi.",
+    "failedBodyQueue": "Şimdi tekrar deneyin ya da sıraya alın; bağlantı gelince kendiliğinden yüklenir."
   },
   "form": {
     "title": "Belge",
@@ -266,7 +271,9 @@
       "unavailable": "Kullanılamıyor",
       "expoGo": "Bildirimler yalnızca uygulamanın kurulu sürümünde çalışır. Şu an Expo Go'dasınız.",
       "openSettings": "Ayarlar'ı aç"
-    }
+    },
+    "logoutPending": "{{count}} belge henüz yüklenmedi; çıkış yaparsanız telefondan silinir.",
+    "seeQueue": "Kuyruğu gör"
   },
   "scan": {
     "title": "QR okut",
@@ -483,5 +490,42 @@
     "openSettings": "Ayarlar'ı aç",
     "failed": "Bildirimler açılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
     "open": "Bildirimi aç"
+  },
+  "queue": {
+    "title": "Yükleme kuyruğu",
+    "count": "{{count}} belge",
+    "stripWaitingOffline": "{{count}} belge yüklenmeyi bekliyor · bağlantı yok",
+    "stripWaiting": "{{count}} belge yüklenmeyi bekliyor",
+    "stripUploading": "{{count}} belge yükleniyor %{{pct}}",
+    "stripFailed": "{{count}} belge yüklenemedi",
+    "offline": "Bağlantı yok · bağlantı gelince yüklenecek",
+    "online": "Sırayla yükleniyor",
+    "uploading": "Yükleniyor %{{pct}}",
+    "waitingOffline": "Bekliyor · bağlantı yok",
+    "waiting": "Bekliyor · tekrar denenecek",
+    "uploaded": "Yüklendi, okunuyor",
+    "failed": "Yüklenemedi",
+    "line": "{{step}} · {{pages}} · {{size}}",
+    "pages": "{{count}} sayfa",
+    "retryNow": "Şimdi dene",
+    "remove": "Sil",
+    "open": "Kuyruğu aç",
+    "deleteTitle": "Belge silinsin mi?",
+    "deleteBody": "{{type}} · {{count}} sayfa telefondan silinir ve yüklenmez. Bu işlem geri alınamaz.",
+    "deleteConfirm": "Sil",
+    "cancel": "Vazgeç",
+    "emptyTitle": "Bekleyen yükleme yok",
+    "emptyBody": "Çevrimdışıyken çektiğiniz belgeler burada bekler ve bağlantı gelince yüklenir."
+  },
+  "queued": {
+    "title": "Belge sıraya alındı",
+    "sub": "Bağlantı gelince yüklenecek. Uygulamayı kapatabilirsiniz.",
+    "doc": "Belge",
+    "batch": "Parti",
+    "step": "Adım",
+    "inQueue": "Kuyrukta",
+    "docValue": "{{type}} · {{count}} sayfa",
+    "back": "Görevlere dön",
+    "another": "Başka belge çek"
   }
 }
