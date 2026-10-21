@@ -12,3 +12,9 @@ jest.mock("expo-secure-store", () => {
     __store: store,
   };
 });
+
+/* Screens sit in SafeAreaView; the library's own mock gives them a frame without a native view. */
+jest.mock("react-native-safe-area-context", () => require("react-native-safe-area-context/jest/mock").default);
+
+/* Icons are drawings without text: an empty component each (the package ships ESM only, which Jest does not run). */
+jest.mock("lucide-react-native", () => new Proxy({ __esModule: true }, { get: (target, name) => (name === "__esModule" ? true : () => null) }));
