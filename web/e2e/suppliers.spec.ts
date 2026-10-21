@@ -75,6 +75,7 @@ test("adds a supplier: type buttons, a searchable province list and a +90 phone"
   await expect(form.getByText("Biçim geçersiz.")).toBeVisible();
   await form.getByLabel("İletişim telefonu").fill("0224 000 00 99");
   await expect(form.getByText("Biçim geçersiz.")).toBeHidden();
+  await form.getByLabel("İlgili kişi").fill(" Selin Arslan ");
 
   const sent = page.waitForRequest((r) => r.url().endsWith("/api/v1/suppliers") && r.method() === "POST");
   await submit.click();
@@ -83,9 +84,10 @@ test("adds a supplier: type buttons, a searchable province list and a +90 phone"
     type: "SEWING",
     city: "Bursa",
     phone: "+902240000099",
+    contactName: "Selin Arslan",
   });
   await expect(form).toBeHidden();
-  await expect(row(page, "Aras Örme Konfeksiyon")).toContainText("+90 224 000 00 99");
+  await expect(row(page, "Aras Örme Konfeksiyon")).toContainText("Selin Arslan+90 224 000 00 99");
 });
 
 test("the province list follows Turkish letters", async ({ page }) => {
@@ -127,7 +129,7 @@ test("a supplier used in batches keeps its type; name, city and phone still chan
   await expect(row(page, "Bursa İplik A.Ş.")).toBeVisible();
 });
 
-test("a company with its own account: only the phone changes", async ({ page }) => {
+test("a company with its own account: only the phone and the contact person change", async ({ page }) => {
   await openSuppliers(page);
   await menu(page, "Ekin Aksesuar").click();
   await page.getByRole("menuitem", { name: "Düzenle" }).click();
@@ -142,11 +144,14 @@ test("a company with its own account: only the phone changes", async ({ page }) 
   await expect(form.getByRole("combobox", { name: "Şehir" })).toBeDisabled();
   await expect(form.getByRole("radio", { name: "Aksesuar" })).toBeDisabled();
 
+  await expect(form.getByLabel("İlgili kişi")).toBeEnabled();
+
   await form.getByLabel("İletişim telefonu").fill("");
+  await form.getByLabel("İlgili kişi").fill("Murat Demir");
   const sent = page.waitForRequest((r) => r.method() === "PATCH");
   await form.getByRole("button", { name: "Değişiklikleri kaydet" }).click();
-  expect((await sent).postDataJSON()).toEqual({ phone: null });
-  await expect(row(page, "Ekin Aksesuar").getByRole("cell").nth(3)).toHaveText("—Telefon yok");
+  expect((await sent).postDataJSON()).toEqual({ phone: null, contactName: "Murat Demir" });
+  await expect(row(page, "Ekin Aksesuar").getByRole("cell").nth(3)).toHaveText("Murat Demir—Telefon yok");
 });
 
 test("a supplier in use cannot be removed; 'Partileri gör' shows its batches", async ({ page }) => {

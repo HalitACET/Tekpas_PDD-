@@ -11,8 +11,14 @@ function codes(input: unknown): string[] {
 
 describe("supplierSchema", () => {
   it("accepts a valid supplier, with or without a phone", () => {
-    expect(supplierSchema.parse(valid)).toEqual(valid);
+    expect(supplierSchema.parse(valid)).toEqual({ ...valid, contactName: null });
     expect(supplierSchema.parse({ ...valid, phone: null }).phone).toBeNull();
+  });
+
+  it("trims the contact person and treats a blank one as none", () => {
+    expect(supplierSchema.parse({ ...valid, contactName: "  Selin Arslan " }).contactName).toBe("Selin Arslan");
+    expect(supplierSchema.parse({ ...valid, contactName: "   " }).contactName).toBeNull();
+    expect(codes({ ...valid, contactName: "a".repeat(101) })).toEqual(["contactName:Size"]);
   });
 
   it("reports the API's field codes", () => {

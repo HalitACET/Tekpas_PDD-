@@ -50,4 +50,13 @@ describe("supplier form", () => {
     const unchanged = supplierFormSchema.parse(supplierFormFrom(supplier)) as never;
     expect(supplierPatch(supplier, unchanged, { details: false, type: false })).toEqual({});
   });
+
+  it("sends the contact person even when the details are locked, and a cleared one as null (M10 T3)", () => {
+    const named = { ...supplier, contactName: "Mehmet Kaya" };
+    expect(supplierFormFrom(named).contactName).toBe("Mehmet Kaya");
+    const renamed = supplierFormSchema.parse({ ...supplierFormFrom(named), contactName: " Selin Arslan " }) as never;
+    expect(supplierPatch(named, renamed, { details: true, type: true })).toEqual({ contactName: "Selin Arslan" });
+    const cleared = supplierFormSchema.parse({ ...supplierFormFrom(named), contactName: "  " }) as never;
+    expect(supplierPatch(named, cleared, { details: true, type: true })).toEqual({ contactName: null });
+  });
 });

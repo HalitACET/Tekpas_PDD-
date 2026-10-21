@@ -1825,6 +1825,8 @@ export interface components {
              * @example Bursa
              */
             city: string;
+            /** @example Selin Arslan */
+            contactName?: string | null;
             name: string;
             /** @example +902240000000 */
             phone?: string | null;
@@ -1836,6 +1838,7 @@ export interface components {
             batchCount: number;
             certificates: components["schemas"]["SupplierCertificate"][];
             city?: string | null;
+            contactName?: string | null;
             editable: boolean;
             /** Format: uuid */
             id: string;
@@ -1851,6 +1854,7 @@ export interface components {
         };
         SupplierUpdateRequest: {
             city?: string | null;
+            contactName?: string | null;
             name?: string | null;
             phone?: string | null;
             /** @enum {string|null} */

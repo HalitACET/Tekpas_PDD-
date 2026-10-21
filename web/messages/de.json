@@ -731,6 +731,7 @@
         "message": "WhatsApp-Nachricht",
         "preview": "Vorschau",
         "text": "Guten Tag, {company} bittet um Ihre Daten zum Schritt {step} für die Charge {batchNo} ({product}). Sie können das Formular bis zum {deadline} über diesen Link ausfüllen:",
+        "textNamed": "Guten Tag {contact}, {company} bittet um Ihre Daten zum Schritt {step} für die Charge {batchNo} ({product}). Sie können das Formular bis zum {deadline} über diesen Link ausfüllen:",
         "signoff": "Vielen Dank, {name}",
         "revoke": "Link widerrufen",
         "revokeTitle": "Link widerrufen?",
@@ -796,6 +797,8 @@
       "phoneCountry": "Türkei, +90",
       "phonePlaceholder": "5xx xxx xx xx",
       "phoneHint": "Links für Datenanfragen können per WhatsApp an diese Nummer gesendet werden.",
+      "contact": "Ansprechperson",
+      "contactPlaceholder": "z. B. Selin Arslan",
       "lockedOwnAccount": "Dieses Unternehmen hat ein eigenes Konto; es verwaltet seine Angaben selbst.",
       "lockedType": "{count, plural, one {Dieser Lieferant wird in # Charge verwendet, daher kann sein Typ nicht geändert werden.} other {Dieser Lieferant wird in # Chargen verwendet, daher kann sein Typ nicht geändert werden.}}",
       "required": "Unternehmensname, Typ und Ort sind erforderlich",
@@ -805,7 +808,7 @@
       "submitEdit": "Änderungen speichern",
       "failed": "Der Lieferant konnte nicht gespeichert werden",
       "editSub": "{type} · {count, plural, =0 {noch in keiner Charge verwendet} one {in # Charge verwendet} other {in # Chargen verwendet}}",
-      "lockedOwnAccountBody": "Name, Typ und Ort kommen aus dem KozaPass-Konto des Unternehmens. Das Kontakttelefon können Sie ändern.",
+      "lockedOwnAccountBody": "Name, Typ und Ort kommen aus dem KozaPass-Konto des Unternehmens. Kontakttelefon und Ansprechperson können Sie ändern.",
       "cityCount": "{count, plural, one {# Provinz passt} other {# Provinzen passen}}"
     },
     "remove": {

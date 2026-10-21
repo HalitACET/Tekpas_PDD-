@@ -731,6 +731,7 @@
         "message": "WhatsApp message",
         "preview": "Preview",
         "text": "Hello, {company} would like to ask for your {step} data for batch {batchNo} ({product}). You can fill in the form until {deadline} through this link:",
+        "textNamed": "Hello {contact}, {company} would like to ask for your {step} data for batch {batchNo} ({product}). You can fill in the form until {deadline} through this link:",
         "signoff": "Thank you, {name}",
         "revoke": "Revoke link",
         "revokeTitle": "Revoke the link?",
@@ -796,6 +797,8 @@
       "phoneCountry": "Turkey, +90",
       "phonePlaceholder": "5xx xxx xx xx",
       "phoneHint": "Data request links can be shared to this number via WhatsApp.",
+      "contact": "Contact person",
+      "contactPlaceholder": "e.g. Selin Arslan",
       "lockedOwnAccount": "This company has its own account; the company manages its details.",
       "lockedType": "{count, plural, one {This supplier is used in # batch, so its type cannot change.} other {This supplier is used in # batches, so its type cannot change.}}",
       "required": "Company name, type and city are required",
@@ -805,7 +808,7 @@
       "submitEdit": "Save changes",
       "failed": "The supplier could not be saved",
       "editSub": "{type} · {count, plural, =0 {not used in any batch yet} one {used in # batch} other {used in # batches}}",
-      "lockedOwnAccountBody": "Name, type and city come from the company's KozaPass account. You can change the contact phone.",
+      "lockedOwnAccountBody": "Name, type and city come from the company's KozaPass account. You can change the contact phone and the contact person.",
       "cityCount": "{count, plural, one {# province matches} other {# provinces match}}"
     },
     "remove": {

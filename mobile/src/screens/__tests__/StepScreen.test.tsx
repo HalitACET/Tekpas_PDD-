@@ -141,6 +141,29 @@ describe("CorrectionSentScreen", () => {
     expect(create).toHaveBeenCalledTimes(1);
   });
 
+  it("names the supplier's contact person as the recipient and greets them (M10 T3)", async () => {
+    route("GET", /\/suppliers\/sup1$/, {
+      body: { id: "sup1", name: "Ege İplik", phone: "+905324182607", contactName: "Ayşe Demir" },
+    });
+    const open = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+    const create = jest.fn(async () => ({
+      id: "r1",
+      code: "7HQ2",
+      token: "tok123456",
+      createdAt: "2026-10-21T15:00:00Z",
+      expiresAt: "2026-10-28T15:00:00Z",
+      validDays: 7,
+    }));
+
+    await renderScreen(<CorrectionSentScreen step={step} batch={batch} reason="Oran uyuşmuyor." onTasks={jest.fn()} create={create} />);
+
+    expect(await screen.findByText("Ayşe Demir · Ege İplik")).toBeTruthy();
+    expect(await screen.findByText("kozapass.vercel.app/r#tok1…")).toBeTruthy();
+    await fireEvent.press(screen.getByText(t("sent.whatsapp")));
+    const text = decodeURIComponent(open.mock.calls[0][0].split("text=")[1]);
+    expect(text.startsWith("Merhaba Ayşe Demir, ")).toBe(true);
+  });
+
   it("offers to make the link again when it could not be made", async () => {
     const create = jest
       .fn()

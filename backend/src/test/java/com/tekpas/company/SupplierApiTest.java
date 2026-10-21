@@ -78,6 +78,7 @@ class SupplierApiTest {
             assertThat(body.path("type").asString()).isEqualTo("SEWING");
             assertThat(body.path("city").asString()).isEqualTo("İzmir");
             assertThat(body.path("phone").asString()).isEqualTo("+902240000000");
+            assertThat(body.path("contactName").isNull()).isTrue();
             assertThat(body.path("batchCount").asLong()).isZero();
             assertThat(body.path("latestStepStatus").isNull()).isTrue();
             assertThat(body.path("editable").asBoolean()).isTrue();
@@ -97,6 +98,22 @@ class SupplierApiTest {
             Map<String, Object> noPhone = supplier("Telefonsuz", "YARN");
             noPhone.put("phone", null);
             assertThat(fixtures.post(tenant, SUPPLIERS, noPhone)).hasStatus(201);
+            Map<String, Object> longContact = supplier("X", "YARN");
+            longContact.put("contactName", "a".repeat(101));
+            assertFieldError(fixtures.post(tenant, SUPPLIERS, longContact), "contactName", "Size");
+        }
+
+        @Test
+        void theContactPersonIsTrimmedAndABlankOneIsNone() {
+            Tenant tenant = fixtures.tenant();
+            Map<String, Object> body = supplier("Aras Örme Konfeksiyon", "SEWING");
+            body.put("contactName", "  Selin Arslan ");
+
+            assertThat(fixtures.body(fixtures.post(tenant, SUPPLIERS, body)).path("contactName").asString())
+                    .isEqualTo("Selin Arslan");
+            body.put("name", "Boş İlgili Kişi");
+            body.put("contactName", "  ");
+            assertThat(fixtures.body(fixtures.post(tenant, SUPPLIERS, body)).path("contactName").isNull()).isTrue();
         }
 
         @Test
@@ -256,8 +273,18 @@ class SupplierApiTest {
             assertThat(fixtures.body(fixtures.get(tenants.a(), uri)).path("editable").asBoolean()).isFalse();
             assertThat(fixtures.patch(tenants.a(), uri, Map.of("city", "Uşak"))).hasStatus(409);
             assertThat(fixtures.patch(tenants.a(), uri, Map.of("phone", "+905551112233"))).hasStatusOk();
-            // The phone belongs to A's link only.
-            assertThat(fixtures.body(fixtures.get(tenants.b(), uri)).path("phone").asString()).isEqualTo("+902240000000");
+            assertThat(fixtures.patch(tenants.a(), uri, Map.of("contactName", "Murat Demir"))).hasStatusOk();
+            // The phone and the contact person belong to A's link only.
+            JsonNode forB = fixtures.body(fixtures.get(tenants.b(), uri));
+            assertThat(forB.path("phone").asString()).isEqualTo("+902240000000");
+            assertThat(forB.path("contactName").isNull()).isTrue();
+            assertThat(fixtures.body(fixtures.get(tenants.a(), uri)).path("contactName").asString())
+                    .isEqualTo("Murat Demir");
+            // Left out, it stays; null clears it.
+            assertThat(fixtures.body(fixtures.patch(tenants.a(), uri, Map.of("phone", "+905551112234")))
+                    .path("contactName").asString()).isEqualTo("Murat Demir");
+            assertThat(fixtures.body(fixtures.patch(tenants.a(), uri, "{\"contactName\":null}"))
+                    .path("contactName").isNull()).isTrue();
         }
 
         @Test

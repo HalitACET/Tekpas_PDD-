@@ -460,7 +460,8 @@
     "retry": "Erneut versuchen",
     "failedTitle": "Link konnte nicht erstellt werden.",
     "failedBody": "Die Korrekturanfrage ist gespeichert; erstellen Sie den Link erneut und senden Sie ihn.",
-    "message": "Guten Tag, {{company}} bittet Sie, Ihre Daten zum Schritt {{step}} für die Charge {{batchNo}} ({{product}}) zu korrigieren: {{reason}} Sie können das Formular bis zum {{deadline}} über diesen Link aktualisieren: {{url}} Vielen Dank, {{name}}"
+    "message": "Guten Tag, {{company}} bittet Sie, Ihre Daten zum Schritt {{step}} für die Charge {{batchNo}} ({{product}}) zu korrigieren: {{reason}} Sie können das Formular bis zum {{deadline}} über diesen Link aktualisieren: {{url}} Vielen Dank, {{name}}",
+    "messageNamed": "Guten Tag {{contact}}, {{company}} bittet Sie, Ihre Daten zum Schritt {{step}} für die Charge {{batchNo}} ({{product}}) zu korrigieren: {{reason}} Sie können das Formular bis zum {{deadline}} über diesen Link aktualisieren: {{url}} Vielen Dank, {{name}}"
   },
   "stepShort": {
     "FIBER": "Faser",

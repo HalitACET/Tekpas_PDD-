@@ -2194,6 +2194,12 @@
             "minLength" : 0,
             "type" : "string"
           },
+          "contactName" : {
+            "example" : "Selin Arslan",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
           "name" : {
             "maxLength" : 200,
             "minLength" : 0,
@@ -2225,6 +2231,9 @@
             "type" : "array"
           },
           "city" : {
+            "type" : [ "string", "null" ]
+          },
+          "contactName" : {
             "type" : [ "string", "null" ]
           },
           "editable" : {
@@ -2262,6 +2271,9 @@
       "SupplierUpdateRequest" : {
         "properties" : {
           "city" : {
+            "type" : [ "string", "null" ]
+          },
+          "contactName" : {
             "type" : [ "string", "null" ]
           },
           "name" : {

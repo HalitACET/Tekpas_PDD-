@@ -58,7 +58,7 @@ public class SupplierService {
             """;
 
     private static final String SELECT = """
-            SELECT c.id, c.name, c.type, c.city, cs.phone, cs.created_at AS linked_at,
+            SELECT c.id, c.name, c.type, c.city, cs.phone, cs.contact_name, cs.created_at AS linked_at,
                    (c.created_by_company_id = :me
                     AND NOT EXISTS (SELECT 1 FROM app_user u WHERE u.company_id = c.id)) AS editable,
                    (SELECT count(DISTINCT s.batch_id) FROM supply_step s JOIN batch b ON b.id = s.batch_id
@@ -116,8 +116,9 @@ public class SupplierService {
         Company supplier = companies.saveAndFlush(
                 Company.supplier(request.name().trim(), request.type(), request.city().trim(), companyId));
         jdbc.update("""
-                INSERT INTO company_supplier (manufacturer_id, supplier_id, phone) VALUES (:me, :supplier, :phone)
-                """, link(companyId, supplier.getId(), nullable(request.phone())));
+                INSERT INTO company_supplier (manufacturer_id, supplier_id, phone, contact_name)
+                VALUES (:me, :supplier, :phone, :contact)
+                """, link(companyId, supplier.getId(), nullable(request.phone()), nullable(request.contactName())));
         return get(companyId, supplier.getId());
     }
 
@@ -151,7 +152,12 @@ public class SupplierService {
         companies.saveAndFlush(company);
         if (request.phone() != null) {
             jdbc.update("UPDATE company_supplier SET phone = :phone WHERE manufacturer_id = :me AND supplier_id = :supplier",
-                    link(companyId, supplierId, nullable(request.phone().orElse(null))));
+                    link(companyId, supplierId, nullable(request.phone().orElse(null)), null));
+        }
+        if (request.contactName() != null) {
+            jdbc.update("""
+                    UPDATE company_supplier SET contact_name = :contact WHERE manufacturer_id = :me AND supplier_id = :supplier
+                    """, link(companyId, supplierId, null, nullable(request.contactName().orElse(null))));
         }
         return get(companyId, supplierId);
     }
@@ -220,7 +226,7 @@ public class SupplierService {
         return suppliers.stream().map(r -> {
             List<SupplierCertificate> own = new ArrayList<>(bySupplier.getOrDefault(r.id(), List.of()));
             own.sort(java.util.Comparator.comparing(SupplierCertificate::type));
-            return new SupplierResponse(r.id(), r.name(), r.type(), r.city(), r.phone(), r.batchCount(),
+            return new SupplierResponse(r.id(), r.name(), r.type(), r.city(), r.phone(), r.contactName(), r.batchCount(),
                     r.latestStepStatus(), r.latestStepAt(), r.editable(), r.linkedAt(), own);
         }).toList();
     }
@@ -235,11 +241,13 @@ public class SupplierService {
         return params;
     }
 
-    private static Map<String, Object> link(UUID companyId, UUID supplierId, @Nullable String phone) {
+    private static Map<String, Object> link(UUID companyId, UUID supplierId, @Nullable String phone,
+            @Nullable String contact) {
         Map<String, Object> params = new HashMap<>();
         params.put("me", companyId);
         params.put("supplier", supplierId);
         params.put("phone", phone);
+        params.put("contact", contact);
         return params;
     }
 
@@ -251,6 +259,7 @@ public class SupplierService {
                 CompanyType.valueOf(rs.getString("type")),
                 rs.getString("city"),
                 rs.getString("phone"),
+                rs.getString("contact_name"),
                 rs.getLong("batch_count"),
                 status == null ? null : StepStatus.valueOf(status),
                 rs.getTimestamp("latest_at") == null ? null : rs.getTimestamp("latest_at").toInstant(),

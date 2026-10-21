@@ -25,6 +25,13 @@ export const supplierSchema = z.object({
     .regex(PHONE_PATTERN, { error: "Pattern" })
     .nullish()
     .transform((v) => v ?? null),
+  /** The person the manufacturer talks to there (M10 T3); blank → null, as the backend stores it. */
+  contactName: z
+    .string()
+    .trim()
+    .max(100, { error: "Size" })
+    .nullish()
+    .transform((v) => v || null),
 });
 
 export type SupplierInput = z.input<typeof supplierSchema>;

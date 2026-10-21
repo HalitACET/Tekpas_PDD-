@@ -14,13 +14,15 @@ import org.jspecify.annotations.Nullable;
  *
  * @param type YARN, FABRIC, DYEHOUSE, SEWING or ACCESSORY (field error SupplierType otherwise)
  * @param phone E.164, e.g. +902240000000; data request links can be shared to it via WhatsApp (M4)
+ * @param contactName the person the manufacturer talks to there; greets them in the data request message (46a)
  */
 public record SupplierCreateRequest(
         @NotBlank @Size(max = 200) String name,
         @NotNull CompanyType type,
         @Schema(description = "One of Turkey's 81 provinces (field error City otherwise)", example = "Bursa")
         @NotBlank @Size(max = 100) @City String city,
-        @Schema(example = "+902240000000") @Nullable @Pattern(regexp = SupplierCreateRequest.E164) String phone) {
+        @Schema(example = "+902240000000") @Nullable @Pattern(regexp = SupplierCreateRequest.E164) String phone,
+        @Schema(example = "Selin Arslan") @Nullable @Size(max = 100) String contactName) {
 
     public static final String E164 = "^\\+[1-9][0-9]{6,14}$";
 }
