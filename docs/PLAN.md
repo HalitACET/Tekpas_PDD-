@@ -221,6 +221,7 @@ Plan: `docs/m7-plan.md` (kural kodları, V13, eşitleme, API, tetikleyiciler, g�
 **Kabul:** Lif toplamı %95 girilen partide kırmızı uyarı çıkar, pasaport yayınlanmadan önce gösterilir.
 
 ### M8 — Mobil I
+Plan: `docs/m8-plan.md` (kapsam, fotoğraf → tek PDF ucu, onay bekleyen belgeler ucu, mobil yığın, ölçüm, kararlar). Tasarım brifi: `docs/m8-tasarim-brifi.md` → Claude Design v0.8 (mobil). Backend ve mobil iskelet tasarım beklemeden, ekranlar tasarımdan sonra.
 - [ ] Expo iskeleti, giriş (SecureStore), Görevlerim
 - [ ] Kamera → çok sayfalı fotoğraf → sıkıştır → yükle → AI sonucu → düzenle → onayla
 
