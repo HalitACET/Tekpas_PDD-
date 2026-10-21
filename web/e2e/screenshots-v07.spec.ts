@@ -42,6 +42,25 @@ async function prepare(page: Page, scheme: Scheme) {
       { ...base, id: "ser01", code: "SER-01", severity: "ERROR", stepId: yarn, stepType: "YARN", supplierName: "Bursa İplik San.", params: { docType: "GOTS", validUntil: "2026-09-29" } },
       { ...base, id: "ser02", code: "SER-02", severity: "WARNING", stepId: dyeing, stepType: "DYEING", supplierName: "Çınar Boya Apre", params: { docType: "OEKO_TEX", validUntil: "2026-10-15" } },
       { ...base, id: "ser03", code: "SER-03", severity: "WARNING", stepId: fabric, stepType: "FABRIC", supplierName: "Denizli Örme Tekstil", params: { docType: "GOTS", holder: "Denizli Tekstil Holding A.Ş.", supplier: "Denizli Örme Tekstil" } },
+      {
+        ...base,
+        id: "ai01",
+        code: "AI-01",
+        severity: "WARNING",
+        source: "AI",
+        stepId: fabric,
+        stepType: "FABRIC",
+        supplierName: "Denizli Örme Tekstil",
+        documentId: "d-gots",
+        params: {
+          docType: "GOTS",
+          confidence: 0.7,
+          evidence: [
+            { source: "DOCUMENT", docType: "GOTS", stepType: "FABRIC", supplier: "Denizli Örme Tekstil", quote: "Products: woven fabrics (dyed, finished)" },
+            { source: "STEP", stepType: "FABRIC", supplier: "Denizli Örme Tekstil", quote: "Süprem örme" },
+          ],
+        },
+      },
       { ...base, id: "eks02", code: "EKS-02", severity: "INFO", params: { missing: "TO" } },
     ],
     resolved: [],
@@ -64,6 +83,19 @@ for (const scheme of ["light", "dark"] as const) {
     await shoot(page, `78-uyarilar-${scheme}`);
   });
 }
+
+test("79j AI önerisi kartı (light, dark)", async ({ page }) => {
+  for (const scheme of ["light", "dark"] as const) {
+    await prepare(page, scheme);
+    await page.goto(`/batches/${BATCH}?tab=alerts`);
+    const card = page.getByRole("article", { name: /AI-01/ });
+    await card.scrollIntoViewIfNeeded();
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(400);
+    await card.screenshot({ path: `${OUT}/79j-ai-onerisi-${scheme}.png` });
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  }
+});
 
 test("80 Çözme formu ve 81 Çözülenler (light)", async ({ page }) => {
   await prepare(page, "light");

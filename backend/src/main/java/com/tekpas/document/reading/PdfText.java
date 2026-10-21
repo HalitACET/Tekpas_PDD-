@@ -14,7 +14,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
  * page content (no images, scripts, forms or embedded files). PDFBox keeps its buffers in temporary files rather
  * than the heap (the Render instance has 512 MB).
  */
-final class PdfText {
+public final class PdfText {
 
     /** Pages read at most; the upload already refuses longer PDFs. */
     static final int MAX_PAGES = 20;
@@ -22,7 +22,7 @@ final class PdfText {
     private PdfText() {
     }
 
-    static List<String> pages(byte[] pdf) throws IOException {
+    public static List<String> pages(byte[] pdf) throws IOException {
         try (PDDocument doc = Loader.loadPDF(new RandomAccessReadBuffer(pdf), "", null, null,
                 IOUtils.createTempFileOnlyStreamCache())) {
             int count = Math.min(doc.getNumberOfPages(), MAX_PAGES);

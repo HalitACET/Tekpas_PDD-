@@ -263,9 +263,13 @@ public final class ConsistencyRules {
 
     private static Finding finding(IssueCode code, @Nullable UUID stepId, @Nullable UUID documentId, IssueParams params,
             String data, String message) {
-        String fingerprint = code.code() + ":" + (stepId == null ? "-" : stepId) + ":"
-                + (documentId == null ? "-" : documentId) + ":" + digest(data);
-        return new Finding(code, stepId, documentId, params, fingerprint, message);
+        return new Finding(code, stepId, documentId, params, fingerprint(code, stepId, documentId, data), message);
+    }
+
+    /** "LIF-01:step:document:digest": the same finding again has the same one (the AI check uses it too). */
+    static String fingerprint(IssueCode code, @Nullable UUID stepId, @Nullable UUID documentId, String data) {
+        return code.code() + ":" + (stepId == null ? "-" : stepId) + ":" + (documentId == null ? "-" : documentId)
+                + ":" + digest(data);
     }
 
     private static int total(List<FiberShare> composition) {

@@ -48,6 +48,12 @@ public class Batch {
     /** When the consistency checks last ran for this batch (V13), null before the first run. */
     private @Nullable Instant validatedAt;
 
+    /** When the AI checks last answered for this batch (V14), and the digest of what they were given. */
+    private @Nullable Instant aiValidatedAt;
+
+    @Column(length = 64)
+    private @Nullable String aiInputSha256;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -134,6 +140,20 @@ public class Batch {
 
     public void markValidated(Instant now) {
         this.validatedAt = now;
+    }
+
+    public @Nullable Instant getAiValidatedAt() {
+        return aiValidatedAt;
+    }
+
+    public @Nullable String getAiInputSha256() {
+        return aiInputSha256;
+    }
+
+    /** The AI checks answered for this input; the same input is not sent again. */
+    public void markAiValidated(Instant now, String inputSha256) {
+        this.aiValidatedAt = now;
+        this.aiInputSha256 = inputSha256;
     }
 
     public Instant getCreatedAt() {

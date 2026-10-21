@@ -26,7 +26,14 @@ public enum IssueCode {
     /** A production date of the batch is empty. */
     EKS_02("EKS-02", IssueSeverity.INFO),
     /** A document waits for a person's confirmation and is not in the passport. */
-    BEL_01("BEL-01", IssueSeverity.INFO);
+    BEL_01("BEL-01", IssueSeverity.INFO),
+    /**
+     * AI suggestion: a certificate's scope may not cover what the step made or the product is (docs/m7-plan.md §8).
+     * Never blocking: the AI proposes, a person decides (CLAUDE.md rule 5).
+     */
+    AI_01("AI-01", IssueSeverity.WARNING),
+    /** AI suggestion: two declarations of the batch (label, steps, certificates) may contradict each other. */
+    AI_02("AI-02", IssueSeverity.WARNING);
 
     private final String code;
     private final IssueSeverity severity;

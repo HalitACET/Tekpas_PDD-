@@ -1708,7 +1708,23 @@
         "rule": "Document awaiting approval",
         "title": "“{file}” awaits approval; it is not in the passport until approved.",
         "meta": "{supplier}{step} step · {doc}"
+      },
+      "AI-01": {
+        "title": "The scope of {doc} may not cover this step or the product.",
+        "meta": "{supplier}{step} step · {doc}"
+      },
+      "AI-02": {
+        "title": "{left} and {right} may contradict each other.",
+        "meta": "{where}"
       }
-    }
+    },
+    "confidence": "confidence {value}",
+    "aiNote": "The AI suggests, you decide.",
+    "evidence": {
+      "PRODUCT": "Product and label",
+      "STEP": "{who} declaration",
+      "DOCUMENT": "{doc} · read from the document"
+    },
+    "productMeta": "Product data"
   }
 }

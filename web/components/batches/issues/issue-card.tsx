@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CircleAlert, Clock, Info, Lock, TriangleAlert } from "lucide-react";
+import { Check, CircleAlert, Clock, Info, Lock, Sparkles, TriangleAlert } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
@@ -9,7 +9,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/lib/api/request";
 import { type Issue, issueReason, useReopenIssue, useResolveIssue } from "@/lib/api/issues";
-import { formatWhen } from "@/lib/format";
+import { formatPercent, formatWhen } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { SEVERITY_TONE, useIssueView } from "./use-issue-view";
 
@@ -52,7 +52,7 @@ export function IssueCard({
   const [forming, setForming] = useState(false);
   const [note, setNote] = useState("");
   const tone = SEVERITY_TONE[issue.severity];
-  const Icon = issue.resolved ? Check : ICON[issue.severity];
+  const Icon = issue.resolved ? Check : issue.source === "AI" ? Sparkles : ICON[issue.severity];
   const blocking = issue.severity === "ERROR";
   const error = resolve.error ?? reopen.error;
 
@@ -81,6 +81,10 @@ export function IssueCard({
           return [{ key: "product", label: t("actions.openProduct"), href: productHref }];
         case "BEL-01":
           return [step ? { key: "doc", label: t("actions.openDocument"), href: step, primary: true } : undefined];
+        case "AI-01":
+          return [step ? { key: "doc", label: t("actions.openDocument"), href: step } : undefined];
+        case "AI-02":
+          return [goToStep];
         default:
           return [goToStep];
       }
@@ -134,7 +138,19 @@ export function IssueCard({
             {t(`severity.${issue.severity}`)}
           </span>
           <span className="rounded-[4px] border border-input px-1.5 py-px font-mono text-[11px] font-medium">{view.code}</span>
-          <span className="text-xs text-muted-foreground">{t("rule", { name: view.rule })}</span>
+          {view.ai ? (
+            <>
+              <span className="inline-flex items-center gap-[5px] rounded-full bg-brand-muted py-0.5 pr-2 pl-1.5 text-[11px] font-medium text-brand-text">
+                <Sparkles className="size-[11px]" strokeWidth={2} aria-hidden />
+                {t("ai")}
+              </span>
+              <span className="font-mono text-[11px] text-muted-foreground">
+                {t("confidence", { value: formatPercent(Math.round(view.ai.confidence * 100), locale) })}
+              </span>
+            </>
+          ) : (
+            <span className="text-xs text-muted-foreground">{t("rule", { name: view.rule })}</span>
+          )}
           <span className="ml-auto font-mono text-[11px] text-muted-foreground">{formatWhen(issue.createdAt, new Date(), locale)}</span>
         </div>
         <strong className={cn("text-[15px] leading-[1.4] font-medium tracking-[-0.01em] text-pretty", issue.resolved && "text-muted-foreground")}>
@@ -168,6 +184,12 @@ export function IssueCard({
           </div>
         )}
 
+        {view.ai && (
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Info className="size-3" strokeWidth={1.75} aria-hidden />
+            {t("aiNote")}
+          </span>
+        )}
         {error && <ErrorLine error={error} />}
 
         {issue.resolved ? (

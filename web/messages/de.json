@@ -1708,7 +1708,23 @@
         "rule": "Dokument wartet auf Freigabe",
         "title": "„{file}“ wartet auf Freigabe; bis dahin ist es nicht im Pass.",
         "meta": "{supplier}Schritt {step} · {doc}"
+      },
+      "AI-01": {
+        "title": "Der Geltungsbereich von {doc} deckt diesen Schritt oder das Produkt möglicherweise nicht ab.",
+        "meta": "{supplier}Schritt {step} · {doc}"
+      },
+      "AI-02": {
+        "title": "{left} und {right} widersprechen sich möglicherweise.",
+        "meta": "{where}"
       }
-    }
+    },
+    "confidence": "Konfidenz {value}",
+    "aiNote": "Die KI schlägt vor, Sie entscheiden.",
+    "evidence": {
+      "PRODUCT": "Produkt und Etikett",
+      "STEP": "Angabe von {who}",
+      "DOCUMENT": "{doc} · aus dem Dokument gelesen"
+    },
+    "productMeta": "Produktdaten"
   }
 }

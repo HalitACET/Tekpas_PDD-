@@ -1,5 +1,6 @@
 package com.tekpas.validation;
 
+import com.tekpas.ai.LlmGate;
 import com.tekpas.batch.Batch;
 import com.tekpas.batch.BatchRepository;
 import com.tekpas.common.error.ConflictException;
@@ -10,6 +11,8 @@ import com.tekpas.company.CompanyRepository;
 import com.tekpas.document.DocumentRepository;
 import com.tekpas.document.DocumentRepository.RuleDocument;
 import com.tekpas.document.ReviewStatus;
+import com.tekpas.jobs.JobQueue;
+import com.tekpas.jobs.JobType;
 import com.tekpas.product.Product;
 import com.tekpas.product.ProductRepository;
 import com.tekpas.supplychain.StepData;
@@ -61,11 +64,13 @@ public class ValidationService {
     private final CompanyRepository companies;
     private final AppUserRepository users;
     private final ValidationIssueRepository issues;
+    private final LlmGate gate;
+    private final JobQueue jobs;
     private final Clock clock;
 
     public ValidationService(BatchRepository batches, ProductRepository products, SupplyStepRepository steps,
             DocumentRepository documents, CompanyRepository companies, AppUserRepository users,
-            ValidationIssueRepository issues, Clock clock) {
+            ValidationIssueRepository issues, LlmGate gate, JobQueue jobs, Clock clock) {
         this.batches = batches;
         this.products = products;
         this.steps = steps;
@@ -73,6 +78,8 @@ public class ValidationService {
         this.companies = companies;
         this.users = users;
         this.issues = issues;
+        this.gate = gate;
+        this.jobs = jobs;
         this.clock = clock;
     }
 
@@ -98,6 +105,11 @@ public class ValidationService {
         issues.saveAll(result.created());
         batch.markValidated(now);
         batches.save(batch);
+        // Then the AI checks, where the LLM gate opens for the company (docs/m7-plan.md §8): suggestions only, after
+        // the commit; an unchanged batch is not sent again.
+        if (gate.opensFor(companyId)) {
+            jobs.enqueueUnlessQueued(JobType.AI_VALIDATE_BATCH, new AiValidateBatchJob.Payload(companyId, batch.getId()));
+        }
         log.debug("Checked batch {}: {} new, {} seen, {} closed, {} reopened", batch.getId(), result.created().size(),
                 result.seen(), result.closed(), result.reopened());
     }
