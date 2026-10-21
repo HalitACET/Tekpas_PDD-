@@ -202,6 +202,81 @@ describe("createApiClient", () => {
   });
 });
 
+/**
+ * The phone's answer: Expo's fetch (Expo SDK 57) returns its own class that implements Response but does not extend
+ * it, so `instanceof Response` is false. Before the fix every request on the phone failed with openapi-fetch's
+ * "onResponse: must return new Response()" (M8 phone trial).
+ */
+class ForeignResponse {
+  constructor(private readonly inner: Response) {}
+  get status() {
+    return this.inner.status;
+  }
+  get statusText() {
+    return this.inner.statusText;
+  }
+  get ok() {
+    return this.inner.ok;
+  }
+  get headers() {
+    return this.inner.headers;
+  }
+  get body() {
+    return this.inner.body;
+  }
+  json() {
+    return this.inner.json();
+  }
+  text() {
+    return this.inner.text();
+  }
+  arrayBuffer() {
+    return this.inner.arrayBuffer();
+  }
+  clone() {
+    return new ForeignResponse(this.inner.clone());
+  }
+}
+
+describe("a fetch whose answers are not instances of Response (Expo on the phone)", () => {
+  const foreign = (fetch: typeof globalThis.fetch & Mock) =>
+    mockFetch(async (input) => new ForeignResponse(await fetch(input)) as unknown as Response);
+
+  it("reads answers that the middlewares leave alone", async () => {
+    const server = fakeServer();
+    const api = createApiClient({ baseUrl: BASE, fetch: foreign(server.fetch), getAccessToken: () => "t1" });
+
+    const { data, response } = await api.GET("/api/v1/auth/me");
+
+    expect(response.status).toBe(200);
+    expect(data).toEqual(me);
+  });
+
+  it("reads a login refusal and the answer of a retry after a refresh", async () => {
+    const server = fakeServer();
+    let token = "t1";
+    const api = createApiClient({
+      baseUrl: BASE,
+      fetch: foreign(server.fetch),
+      getAccessToken: () => token,
+      refreshAccessToken: async () => {
+        token = "t2";
+        return true;
+      },
+    });
+
+    const login = await api.POST("/api/v1/auth/login", {
+      body: { email: "a@test.example", password: "x", client: "MOBILE" },
+    });
+    expect(hasProblemType(login.error, ProblemTypes.invalidCredentials)).toBe(true);
+
+    server.rotate("t2");
+    const { data, response } = await api.GET("/api/v1/auth/me");
+    expect(response.status).toBe(200);
+    expect(data).toEqual(me);
+  });
+});
+
 describe("auth endpoints", () => {
   it("never sends the (possibly expired) access token to login, refresh or logout", async () => {
     const seen: [string, string | null][] = [];

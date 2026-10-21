@@ -102,7 +102,7 @@ export async function discardBody(response: Response): Promise<void> {
 function wakingPageMiddleware(): Middleware {
   return {
     async onResponse({ response }) {
-      if (!isWakingPage(response)) return response;
+      if (!isWakingPage(response)) return undefined;
       await discardBody(response);
       return new Response(null, {
         status: 503,
@@ -141,15 +141,17 @@ function authMiddleware(options: ApiClientOptions): Middleware {
       const original = pending.get(id);
       pending.delete(id);
       if (response.status !== 401) {
-        return response;
+        return undefined;
       }
 
+      let answer: Response | undefined;
       if (refresh && original && (await refresh())) {
-        const retried = await (options.fetch ?? globalThis.fetch)(await withToken(original));
+        const retried = await standardResponse(await (options.fetch ?? globalThis.fetch)(await withToken(original)));
         if (retried.status !== 401) {
           return retried;
         }
         response = retried;
+        answer = retried;
       }
 
       if (onUnauthorized) {
@@ -159,12 +161,28 @@ function authMiddleware(options: ApiClientOptions): Middleware {
           .catch(() => undefined);
         onUnauthorized(isProblem(body) ? body : undefined, request);
       }
-      return response;
+      return answer;
     },
     onError({ id }) {
       pending.delete(id);
     },
   };
+}
+
+/** Statuses whose answer has no body: a Response with one, even empty, cannot be built for them. */
+const NULL_BODY_STATUSES = [101, 204, 205, 304];
+
+/**
+ * openapi-fetch takes only an instance of the global Response from a middleware ("must return new Response()").
+ * Expo's fetch (the phone's global fetch in Expo SDK 57) answers with its own class that implements Response without
+ * extending it, so a middleware hands back undefined when it changes nothing, and copies an answer it fetched itself.
+ */
+async function standardResponse(
+  response: Pick<Response, "status" | "statusText" | "headers" | "arrayBuffer">,
+): Promise<Response> {
+  if (response instanceof Response) return response;
+  const body = NULL_BODY_STATUSES.includes(response.status) ? null : await response.arrayBuffer();
+  return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
 }
 
 function isNoRefreshPath(request: Request): boolean {
