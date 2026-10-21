@@ -37,8 +37,6 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 
 Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 🟡 sürüyor · ⬜ sırada
 
-M8: ekranlar ve uçlar tamam; kabul ölçümü (telefonda, gerçek Gemini ile 10 sn) bekliyor.
-
 | # | Kilometre taşı | Durum |
 | --- | --- | :-: |
 | M1 | Temel altyapı: monorepo, JWT, API sözleşmesi, CI, canlıya çıkış, giriş ve panel | ✅ |
@@ -48,7 +46,7 @@ M8: ekranlar ve uçlar tamam; kabul ölçümü (telefonda, gerçek Gemini ile 10
 | M5 | Belge ve AI çıkarımı: sertifika yükleme, okuma, onay | ✅ |
 | M6 | Pasaport ve QR: uyum skoru, sürümlü ve değişmez yayın, GS1 Digital Link QR, herkese açık sayfa | ✅ |
 | M7 | Tutarlılık kontrolü ve sertifika takibi: kural kodlu uyarılar, AI önerileri, günlük sertifika taraması | ✅ |
-| M8 | Mobil I: görevler, kamerayla çok sayfalı belge, AI okuması ve onay (Expo) | 🟡 |
+| M8 | Mobil I: görevler, kamerayla çok sayfalı belge, AI okuması ve onay (Expo) | ✅ |
 | M9 | Mobil II: QR okutma, hızlı onay, bildirimler | ⬜ |
 | M10 | Demo hazırlığı | ⬜ |
 | M11 | Çok dil ve Excel içe aktarma | ⬜ |
@@ -97,6 +95,12 @@ Tasarım Claude Design v0.3 (ve ek çerçeveleri v0.3.1, v0.3.2, v0.4) ile yapı
 | <img src="docs/design/impl-v0.7/79j-ai-onerisi-light.png" alt="AI önerisi kartı: GOTS kapsamı, belgeden okunan alıntı ve tedarikçi beyanı" width="440"> | <img src="docs/design/impl-v0.7/79j-ai-onerisi-dark.png" alt="AI önerisi kartı, koyu tema" width="440"> |
 | **Başlık, skor ve zincir kodları** | **Görevler:** süresi yaklaşan sertifikalar |
 | <img src="docs/design/impl-v0.7/86a-baslik-skor-light.png" alt="Parti başlığında engelleyici uyarı düğmesi, skor kartında Uyarılar bağlantısı" width="440"> | <img src="docs/design/impl-v0.7/89a-gorevler-sertifikalar-light.png" alt="Görevler sayfasında süresi dolan ve dolmak üzere olan sertifikalar" width="440"> |
+
+**M8, mobil uygulama** (Claude Design v0.8): telefondan, Expo Go, koyu tema. Fotoğraftan dolu forma 4,0 sn.
+
+| Görevler | Adım seç | AI'ın okuduğu form | Alanlar | Onaylandı |
+| --- | --- | --- | --- | --- |
+| <img src="docs/haftalik/img/08-gorevler.png" alt="Görevler: onay bekleyen belgeler, sekme rozetinde 9 görev" width="160"> | <img src="docs/haftalik/img/08-adim-sec.png" alt="Belge hangi adıma ait: lif, iplik, kumaş, boya ve konfeksiyon adımları" width="160"> | <img src="docs/haftalik/img/08-form-ai.png" alt="Belge formu: çekilen sayfa, Yükle → dolu form 4,0 sn, AI 2 alanı okudu" width="160"> | <img src="docs/haftalik/img/08-form-alanlar.png" alt="Sarı alanlar: sertifika no ve sahip, AI okudu yüzde 60" width="160"> | <img src="docs/haftalik/img/08-onaylandi.png" alt="Belge onaylandı: GOTS, sertifika no, parti ve geçerlilik" width="160"> |
 
 ## Mimari
 

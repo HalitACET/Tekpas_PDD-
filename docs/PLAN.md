@@ -226,7 +226,7 @@ Plan: `docs/m8-plan.md` (kapsam, fotoğraf → tek PDF ucu, onay bekleyen belgel
 - [x] Kamera → çok sayfalı fotoğraf → sıkıştır → yükle → AI sonucu → düzenle → onayla (PR #66, #68)
 
 **Kabul:** Telefonda sertifika fotoğrafı çekilir, 10 saniye içinde form dolu gelir.
-Durum: sunucu tarafı yerelde ölçüldü (iki sayfa yükleme + okuma işi ~1,4 sn, Gemini hariç; `docs/haftalik/08-mobil-i.md`). Telefonda gerçek Gemini ile ölçüm bekliyor; uygulama geliştirme sürümünde süreyi formda gösteriyor.
+Durum: ✅ telefonda (Expo Go, gerçek Gemini, `gemini-3.5-flash-lite`) "Yükle → dolu form" 4,0 sn (`docs/haftalik/08-mobil-i.md`).
 
 ### M9 — Mobil II
 - [ ] QR okutma (parti etiketi → özet + zincir; ürün QR → pasaport)

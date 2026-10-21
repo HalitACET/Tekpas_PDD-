@@ -14,8 +14,9 @@ const CAMERA_BG = "#0B0D11";
 /** How large a prepared page is on the phone; 0 when it cannot be told (the upload checks the total again). */
 async function sizeOf(uri: string): Promise<number> {
   try {
+    // Not blob(): with Expo's fetch it copies the page through base64 into React Native's blob store (M8 phone trial).
     const response = await fetch(uri);
-    return (await response.blob()).size;
+    return (await response.arrayBuffer()).byteLength;
   } catch {
     return 0;
   }
