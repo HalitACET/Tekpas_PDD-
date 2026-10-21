@@ -16,6 +16,8 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
 
     Optional<Document> findByIdAndCompanyId(UUID id, UUID companyId);
 
+    Optional<Document> findByCompanyIdAndClientUploadId(UUID companyId, UUID clientUploadId);
+
     /**
      * The document's step id (null when it has none); an empty list means no such document in the company. Read as
      * a scalar so that no stale entity is left in the session before the locks are taken (step first, then document).

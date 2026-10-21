@@ -9,6 +9,7 @@ import com.tekpas.document.dto.AwaitingDocument;
 import com.tekpas.document.dto.DocumentResponse;
 import com.tekpas.document.dto.VerifyDocumentRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -82,19 +84,25 @@ public class DocumentController {
             description = "1 to 10 JPG or PNG pages, 10 MB together (the mobile app, M8). The server checks every page, "
                     + "draws it again without its metadata (location, camera), scales it to 2000 px at most and joins "
                     + "the pages into one PDF; then it is stored and read like an uploaded document.")
+    @ApiResponse(responseCode = "200", description = "The Idempotency-Key was seen before: the document that upload made")
     @ApiResponse(responseCode = "202", description = "Stored as one PDF; reading is queued")
     @ApiResponse(responseCode = "400", description = "Field pages (PageCount) or pages[i] (FileEmpty, FileCorrupt, "
-            + "FileDimensions)")
+            + "FileDimensions), or an Idempotency-Key that is not a UUID")
     @ApiResponse(responseCode = "403", description = "Read-only or supplier user")
     @ApiResponse(responseCode = "404", description = "No such step in this company")
-    @ApiResponse(responseCode = "409", description = "DUPLICATE_DOCUMENT, DOCUMENT_LIMIT or BATCH_PUBLISHED")
+    @ApiResponse(responseCode = "409", description = "DUPLICATE_DOCUMENT, DOCUMENT_LIMIT, BATCH_PUBLISHED, or "
+            + "UPLOAD_KEY_REUSED (the Idempotency-Key belongs to an upload to another step)")
     @ApiResponse(responseCode = "413", description = "Larger than 10 MB together (field pages, code FileTooLarge)")
     @ApiResponse(responseCode = "415", description = "A page is not a JPG or PNG (field pages[i], code FileType)")
     @ApiResponse(responseCode = "429", description = "Too many uploads (Retry-After)")
     public ResponseEntity<DocumentResponse> uploadDocumentPhotos(@PathVariable UUID id,
-            @RequestPart("pages") List<MultipartFile> pages, @RequestParam(required = false) @Nullable DocType docType) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(service.uploadPhotos(currentUser.companyId(), currentUser.userId(), id, pages, docType));
+            @RequestPart("pages") List<MultipartFile> pages, @RequestParam(required = false) @Nullable DocType docType,
+            @Parameter(description = "A UUID the app makes once per upload and sends again with every retry (M9 "
+                    + "upload queue): the same key never makes a second document")
+            @RequestHeader(name = "Idempotency-Key", required = false) @Nullable UUID idempotencyKey) {
+        DocumentService.PhotoUpload upload = service.uploadPhotos(currentUser.companyId(), currentUser.userId(), id,
+                pages, docType, idempotencyKey);
+        return ResponseEntity.status(upload.repeated() ? HttpStatus.OK : HttpStatus.ACCEPTED).body(upload.document());
     }
 
     @GetMapping("/documents/awaiting-review")

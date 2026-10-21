@@ -5860,6 +5860,15 @@
             "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
             "type" : "string"
           }
+        }, {
+          "description" : "A UUID the app makes once per upload and sends again with every retry (M9 upload queue): the same key never makes a second document",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
         } ],
         "requestBody" : {
           "content" : {
@@ -5881,6 +5890,16 @@
           }
         },
         "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentResponse"
+                }
+              }
+            },
+            "description" : "The Idempotency-Key was seen before: the document that upload made"
+          },
           "202" : {
             "content" : {
               "application/json" : {
@@ -5899,7 +5918,7 @@
                 }
               }
             },
-            "description" : "Field pages (PageCount) or pages[i] (FileEmpty, FileCorrupt, FileDimensions)"
+            "description" : "Field pages (PageCount) or pages[i] (FileEmpty, FileCorrupt, FileDimensions), or an Idempotency-Key that is not a UUID"
           },
           "403" : {
             "content" : {
@@ -5929,7 +5948,7 @@
                 }
               }
             },
-            "description" : "DUPLICATE_DOCUMENT, DOCUMENT_LIMIT or BATCH_PUBLISHED"
+            "description" : "DUPLICATE_DOCUMENT, DOCUMENT_LIMIT, BATCH_PUBLISHED, or UPLOAD_KEY_REUSED (the Idempotency-Key belongs to an upload to another step)"
           },
           "413" : {
             "content" : {

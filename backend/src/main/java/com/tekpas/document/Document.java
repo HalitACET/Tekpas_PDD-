@@ -109,6 +109,10 @@ public class Document {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
+    /** The mobile upload queue's key (V15): the same key never makes a second document. */
+    @Column(updatable = false)
+    private @Nullable UUID clientUploadId;
+
     protected Document() {
     }
 
@@ -131,6 +135,15 @@ public class Document {
         this.uploadedBy = uploadedBy;
         this.uploadedByName = uploadedByName;
         this.createdAt = now;
+    }
+
+    /** Before the first save only. */
+    public void setClientUploadId(@Nullable UUID clientUploadId) {
+        this.clientUploadId = clientUploadId;
+    }
+
+    public @Nullable UUID getClientUploadId() {
+        return clientUploadId;
     }
 
     public UUID getId() {
