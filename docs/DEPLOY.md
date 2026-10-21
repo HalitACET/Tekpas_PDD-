@@ -201,6 +201,7 @@ Belgeler (sertifika, teknik föy) Supabase Storage'da durur; backend ona REST il
    | `STORAGE_SUPABASE_URL` | `https://<ref>.supabase.co` (`https://` zorunlu, yoksa açılış durur) |
    | `STORAGE_SUPABASE_SERVICE_KEY` | service_role anahtarı |
    | `STORAGE_BUCKET` | `tekpas-docs` |
+   | `STORAGE_REMOVE_ORPHANS` | girilmez (varsayılan `false`). Günlük tarama, hiçbir belgenin göstermediği `docs/` nesnelerini yalnızca log'a yazar (`storage object(s) without a document`). Log'daki listeyi kontrol ettikten sonra bir günlüğüne `true` yapılırsa siler (M10 T6). |
 
    Eksik değişken, `https` olmayan URL veya geçersiz bucket adı **açılışta** hata verir (mesaj değeri yazmaz, değişkenin adını yazar).
 5. Doğrulama: M5 T2'den sonra panelden küçük bir belge yükle, Supabase → Storage → `tekpas-docs` içinde `docs/<firma>/<belge>` nesnesini gör. Anahtarın yeni "secret key" biçimi değil klasik `service_role` olması beklenir; yükleme 4xx/401 verirse log'daki `Storage upload failed (HTTP …)` durum koduna bak.

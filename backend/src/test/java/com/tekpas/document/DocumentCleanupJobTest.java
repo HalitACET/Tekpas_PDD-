@@ -161,7 +161,7 @@ class DocumentCleanupJobTest {
         worker.runPending();
 
         assertThat(jdbc.queryForObject("SELECT status FROM job WHERE id = ?", String.class, id)).isEqualTo("DONE");
-        // The row is gone; the object stays until the storage answers (it is unreferenced, not visible to anyone).
+        // The row is gone; the object stays until the storage answers (unreferenced, OrphanObjectScan reports it).
         assertThat(exists(doc)).isFalse();
     }
 }

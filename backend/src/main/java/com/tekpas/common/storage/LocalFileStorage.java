@@ -6,6 +6,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -55,6 +57,28 @@ final class LocalFileStorage implements FileStorage {
             Files.deleteIfExists(pathOf(key));
         } catch (IOException e) {
             throw new StorageException("Local storage delete failed", e);
+        }
+    }
+
+    @Override
+    public List<StoredObject> list(String prefix) {
+        Path folder = pathOf(prefix);
+        if (!Files.isDirectory(folder)) {
+            return List.of();
+        }
+        try (Stream<Path> files = Files.walk(folder)) {
+            return files.filter(Files::isRegularFile).map(this::objectOf).toList();
+        } catch (IOException | java.io.UncheckedIOException e) {
+            throw new StorageException("Local storage listing failed", e);
+        }
+    }
+
+    private StoredObject objectOf(Path file) {
+        try {
+            String key = root.relativize(file).toString().replace(java.io.File.separatorChar, '/');
+            return new StoredObject(key, Files.getLastModifiedTime(file).toInstant());
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
         }
     }
 

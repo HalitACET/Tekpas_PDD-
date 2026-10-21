@@ -2,6 +2,7 @@ package com.tekpas.common.storage;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 /** The default when no provider is configured: the application starts, uploads answer 503. */
@@ -24,6 +25,11 @@ final class DisabledFileStorage implements FileStorage {
 
     @Override
     public void delete(String key) {
+        throw new StorageUnavailableException();
+    }
+
+    @Override
+    public List<StoredObject> list(String prefix) {
         throw new StorageUnavailableException();
     }
 }

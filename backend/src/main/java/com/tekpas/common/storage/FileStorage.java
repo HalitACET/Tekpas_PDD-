@@ -2,6 +2,7 @@ package com.tekpas.common.storage;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -30,4 +31,10 @@ public interface FileStorage {
 
     /** Removes the object; a missing object is not an error. */
     void delete(String key);
+
+    /**
+     * Every object under the folder {@code prefix} (e.g. {@code docs}), at any depth, for maintenance such as
+     * finding objects no document points to (M10 T6).
+     */
+    List<StoredObject> list(String prefix);
 }
