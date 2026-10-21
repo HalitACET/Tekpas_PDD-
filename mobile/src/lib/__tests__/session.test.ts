@@ -1,5 +1,13 @@
 import * as SecureStore from "expo-secure-store";
-import { REFRESH_TOKEN_KEY, getSessionState, login, logout, resetSessionForTests, restoreSession } from "../session";
+import {
+  REFRESH_TOKEN_KEY,
+  SERVER_TIMEOUT_MS,
+  getSessionState,
+  login,
+  logout,
+  resetSessionForTests,
+  restoreSession,
+} from "../session";
 
 const store = (SecureStore as unknown as { __store: Map<string, string> }).__store;
 const user = {
@@ -49,6 +57,27 @@ describe("session", () => {
     expect(store.get(REFRESH_TOKEN_KEY)).toBe("r1");
     expect([...store.values()]).not.toContain("gizli-parola");
     expect(getSessionState()).toEqual({ status: "authenticated", user });
+  });
+
+  it("gives up on an address that never answers, at login and on app start", async () => {
+    jest.useFakeTimers();
+    try {
+      // A phone on another network than the computer: the request neither answers nor fails.
+      routes["POST /api/v1/auth/login"] = () => new Promise<Response>(() => {});
+      routes["POST /api/v1/auth/refresh"] = () => new Promise<Response>(() => {});
+
+      const attempt = login("elif@karaca.example", "gizli-parola");
+      await jest.advanceTimersByTimeAsync(SERVER_TIMEOUT_MS);
+      expect(await attempt).toBe("unreachable");
+
+      store.set(REFRESH_TOKEN_KEY, "r1");
+      const restoring = restoreSession();
+      await jest.advanceTimersByTimeAsync(SERVER_TIMEOUT_MS);
+      expect(await restoring).toEqual({ status: "unreachable" });
+      expect(store.get(REFRESH_TOKEN_KEY)).toBe("r1");
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it("says wrong credentials once for both fields and stores nothing", async () => {
