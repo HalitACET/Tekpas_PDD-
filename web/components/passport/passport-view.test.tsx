@@ -76,8 +76,12 @@ describe("PassportView, published", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Organik Pamuk Polo" })).toBeInTheDocument();
     expect(screen.getByText("Tişört")).toBeInTheDocument();
-    // Once under the title and once in the QR verification list.
-    expect(screen.getAllByText("(01) 02012345000025 · (10) KP-2026-0915-A")).toHaveLength(2);
+    // Once under the title (each identifier unbroken) and once in the QR verification list.
+    const ids = "(01) 02012345000025 · (10) KP-2026-0915-A";
+    const exactly = (_: string, el: Element | null) =>
+      el?.textContent === ids && ![...el.children].some((child) => child.textContent === ids);
+    expect(screen.getAllByText(exactly)).toHaveLength(2);
+    expect(screen.getByText("(10) KP-2026-0915-A")).toHaveClass("whitespace-nowrap");
     expect(screen.getByText(/Doğrulanmış pasaport · Sürüm 2 · 28 Eki 2026/)).toBeInTheDocument();
     const fiber = screen.getByRole("region", { name: "Kumaş ve malzeme bileşimi" });
     expect(within(fiber).getByText("%95")).toBeInTheDocument();
