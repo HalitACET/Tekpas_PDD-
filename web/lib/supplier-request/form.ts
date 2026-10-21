@@ -99,9 +99,14 @@ export function decimalText(value: number | string | null | undefined): string {
   return value == null ? "" : String(value).replace(".", ",");
 }
 
-/** The previous submission (45) filled back into the form; the sender stays empty (the API does not return it). */
-export function valuesFrom(data: StepData | undefined): SubmissionValues {
+/** The previous submission (45) filled back into the form, with its sender when a correction names one. */
+export function valuesFrom(
+  data: StepData | undefined,
+  sender?: { submitterName?: string | null; submitterRole?: string | null } | null,
+): SubmissionValues {
   const values = emptyValues();
+  values.submitterName = sender?.submitterName ?? "";
+  values.submitterRole = sender?.submitterRole ?? "";
   if (!data) return values;
   if (data.fiberComposition?.length) {
     values.fibers = data.fiberComposition.map((s) => ({ fiber: s.fiber, percent: String(s.percent) }));

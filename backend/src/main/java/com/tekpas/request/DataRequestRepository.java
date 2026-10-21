@@ -24,6 +24,9 @@ public interface DataRequestRepository extends JpaRepository<DataRequest, UUID> 
 
     List<DataRequest> findByStepIdAndStatusIn(UUID stepId, Collection<RequestStatus> statuses);
 
+    /** The step's latest submission, whose sender a correction form starts with. */
+    Optional<DataRequest> findFirstByStepIdAndStatusOrderByCompletedAtDesc(UUID stepId, RequestStatus status);
+
     /** Newest first, for the chain's per-step summary. */
     List<DataRequest> findByStepIdInOrderByCreatedAtDesc(Collection<UUID> stepIds);
 }

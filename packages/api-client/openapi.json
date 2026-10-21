@@ -1491,6 +1491,12 @@
           },
           "reason" : {
             "type" : "string"
+          },
+          "submitterName" : {
+            "type" : [ "string", "null" ]
+          },
+          "submitterRole" : {
+            "type" : [ "string", "null" ]
           }
         },
         "required" : [ "at", "byName", "fields", "reason" ],

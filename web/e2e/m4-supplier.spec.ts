@@ -183,7 +183,7 @@ test("fabric and sewing forms use the same pieces: the fabric type, and the coun
   await expect(page.getByText("Kumaş tipini yazın")).toBeVisible();
 });
 
-test("45: a correction opens on the form with the reason on top, the marked section and the previous data", async ({ page }) => {
+test("45: a correction opens on the form with the reason on top, the marked section, the previous data and its sender", async ({ page }) => {
   const api = await mockPublicRequest(page, { view: correctionView() });
   await openLink(page);
 
@@ -197,16 +197,16 @@ test("45: a correction opens on the form with the reason on top, the marked sect
   await expect(fibres).toContainText("Düzeltme istenen alan");
   await expect(page.getByRole("region", { name: "Enerji" })).not.toContainText("Düzeltme istenen alan");
   await expect(fibres).toBeInViewport();
-  // The previous data stands; the sender is asked again.
+  // The previous data stands, and so does its sender (M10 T2).
   await expect(page.getByLabel("Yüzde").first()).toHaveValue("80");
   await expect(page.getByLabel("Menşe ülke")).toHaveValue("TR");
   await expect(page.getByLabel("İplik numarası")).toHaveValue("30/1");
   await expect(page.getByLabel("Enerji tüketimi")).toHaveValue("3,4");
-  await expect(page.getByLabel("Ad soyad")).toHaveValue("");
+  await expect(page.getByLabel("Ad soyad")).toHaveValue("Ahmet Kaya");
+  await expect(page.getByLabel("Göreviniz")).toHaveValue("Kalite sorumlusu");
 
   await page.getByLabel("Yüzde").first().fill("95");
   await page.getByLabel("Yüzde").nth(1).fill("5");
-  await page.getByLabel("Ad soyad").fill("Ahmet Kaya");
   await page.getByRole("button", { name: "Düzeltilmiş verileri gönder" }).click();
   await expect(heading(page)).toHaveText("Verileriniz Karaca Tekstil A.Ş. firmasına iletildi");
   expect(api.submits).toHaveLength(1);

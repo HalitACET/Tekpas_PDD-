@@ -154,6 +154,16 @@ describe("valuesFrom", () => {
       energyKwhPerKg: "3,4",
       yarnCount: "30/1",
       submitterName: "",
+      submitterRole: "",
+    });
+  });
+
+  it("starts a correction with the sender of the data being corrected (M10 T2)", () => {
+    const values = valuesFrom({ originCountry: "TR" }, { submitterName: "Ahmet Kaya", submitterRole: "Kalite sorumlusu" });
+    expect(values).toMatchObject({ originCountry: "TR", submitterName: "Ahmet Kaya", submitterRole: "Kalite sorumlusu" });
+    expect(valuesFrom(undefined, { submitterName: "Ahmet Kaya", submitterRole: null })).toMatchObject({
+      submitterName: "Ahmet Kaya",
+      submitterRole: "",
     });
   });
 });

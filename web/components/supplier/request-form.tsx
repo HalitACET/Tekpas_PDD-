@@ -396,7 +396,7 @@ export function RequestForm({
   const sections = sectionsFor(type);
   const form = useForm<SubmissionValues>({
     resolver: zodResolver(submissionSchema(type)) as never,
-    defaultValues: valuesFrom(view.data),
+    defaultValues: valuesFrom(view.data, rejection),
   });
   const send = useSubmitPublicRequest(token);
   const [banner, setBanner] = useState<Banner | undefined>();
