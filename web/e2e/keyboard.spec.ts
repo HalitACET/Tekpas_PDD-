@@ -137,9 +137,12 @@ test.describe("mobile panel (390 × 800)", () => {
     // While the modal is open the page behind it is hidden from assistive tech, so query by attribute.
     await expect(page.locator('button[aria-label="Menüyü aç"]')).toHaveAttribute("aria-expanded", "true");
     await expectTouchTargets(page, drawer);
+    // The trap takes focus a moment after the drawer shows (CI caught the first Tab leaving it), so wait for it.
+    const focusInDrawer = () => drawer.evaluate((el) => el.contains(document.activeElement));
+    await expect.poll(focusInDrawer).toBe(true);
     for (let i = 0; i < 12; i++) {
       await tab(page);
-      expect(await drawer.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+      await expect.poll(focusInDrawer).toBe(true);
     }
     await page.keyboard.press("Escape");
     await expect(drawer).toBeHidden();
