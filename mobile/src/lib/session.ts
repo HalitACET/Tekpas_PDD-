@@ -84,6 +84,11 @@ function refreshOnce(): Promise<RefreshResult> {
   return refreshInFlight;
 }
 
+/** One shared refresh for a request the API client does not make (the upload with progress); true when it worked. */
+export function refreshSession(): Promise<boolean> {
+  return refreshOnce().then((result) => result === "ok");
+}
+
 /** On app start: the stored refresh token, if any, becomes a session. */
 export async function restoreSession(): Promise<SessionState> {
   if (state.status === "authenticated") return state;

@@ -76,30 +76,109 @@ describe("waitForReading", () => {
   });
 });
 
+/** A stand-in for XMLHttpRequest: records the request and answers as the test says. */
+class FakeXhr {
+  static sent: FakeXhr[] = [];
+  static answers: ((xhr: FakeXhr) => void)[] = [];
+  method = "";
+  url = "";
+  headers: Record<string, string> = {};
+  body: unknown;
+  status = 0;
+  responseText = "";
+  upload: { onprogress?: (e: { lengthComputable: boolean; loaded: number; total: number }) => void } = {};
+  onload?: () => void;
+  onerror?: () => void;
+  ontimeout?: () => void;
+  onabort?: () => void;
+  open(method: string, url: string) {
+    this.method = method;
+    this.url = url;
+  }
+  setRequestHeader(name: string, value: string) {
+    this.headers[name] = value;
+  }
+  getResponseHeader() {
+    return null;
+  }
+  abort() {
+    this.onabort?.();
+  }
+  send(body: unknown) {
+    this.body = body;
+    FakeXhr.sent.push(this);
+    const answer = FakeXhr.answers.shift();
+    if (answer) answer(this);
+  }
+  respond(status: number, body: unknown) {
+    this.status = status;
+    this.responseText = JSON.stringify(body);
+    this.onload?.();
+  }
+}
+
+const xhr = () => new FakeXhr() as unknown as XMLHttpRequest;
+
 describe("uploadPhotos", () => {
-  it("sends the pages as one multipart request to the step, with the type", async () => {
-    responses = [() => json({ id: "d9", extractionStatus: "QUEUED" }, 202)];
-
-    const result = await uploadPhotos("s1", [{ uri: "file:///a.jpg" }, { uri: "file:///b.jpg" }], "GOTS");
-
-    expect(result).toEqual({ ok: true, document: { id: "d9", extractionStatus: "QUEUED" } });
-    const url = new URL(requests[0].url);
-    expect(url.pathname).toBe("/api/v1/steps/s1/documents/photos");
-    expect(url.searchParams.get("docType")).toBe("GOTS");
-    expect(requests[0].method).toBe("POST");
+  beforeEach(() => {
+    FakeXhr.sent = [];
+    FakeXhr.answers = [];
   });
 
-  it("answers a refusal and a lost connection without throwing", async () => {
-    responses = [
-      () => json({ type: "urn:tekpas:problem:conflict", title: "Conflict", status: 409, reason: "BATCH_PUBLISHED" }, 409),
+  it("sends the pages as one multipart request to the step, with the type, and reports the progress", async () => {
+    FakeXhr.answers = [
+      (x) => {
+        x.upload.onprogress?.({ lengthComputable: true, loaded: 50, total: 100 });
+        x.respond(202, { id: "d9", extractionStatus: "QUEUED" });
+      },
     ];
-    expect(await uploadPhotos("s1", [{ uri: "file:///a.jpg" }])).toEqual({
+    const progress: number[] = [];
+
+    const result = await uploadPhotos("s1", [{ uri: "file:///a.jpg" }, { uri: "file:///b.jpg" }], {
+      docType: "GOTS",
+      onProgress: (f) => progress.push(f),
+      xhr,
+    });
+
+    expect(result).toEqual({ ok: true, document: { id: "d9", extractionStatus: "QUEUED" } });
+    const url = new URL(FakeXhr.sent[0].url);
+    expect(url.pathname).toBe("/api/v1/steps/s1/documents/photos");
+    expect(url.searchParams.get("docType")).toBe("GOTS");
+    expect(FakeXhr.sent[0].method).toBe("POST");
+    expect(FakeXhr.sent[0].body).toBeInstanceOf(FormData);
+    expect(progress).toEqual([0.5, 1]);
+  });
+
+  it("answers a refusal with its reason and the page it was about", async () => {
+    FakeXhr.answers = [
+      (x) => x.respond(409, { status: 409, reason: "BATCH_PUBLISHED", requestId: "r1" }),
+      (x) => x.respond(400, { status: 400, errors: [{ field: "pages[1]", code: "UNREADABLE" }] }),
+    ];
+
+    expect(await uploadPhotos("s1", [{ uri: "file:///a.jpg" }], { xhr })).toEqual({
       ok: false,
       status: 409,
       reason: "BATCH_PUBLISHED",
-      requestId: undefined,
+      field: undefined,
+      code: undefined,
+      requestId: "r1",
     });
+    expect(await uploadPhotos("s1", [{ uri: "file:///a.jpg" }, { uri: "file:///b.jpg" }], { xhr })).toMatchObject({
+      ok: false,
+      status: 400,
+      field: "pages[1]",
+    });
+  });
 
-    expect(await uploadPhotos("s1", [{ uri: "file:///a.jpg" }])).toEqual({ ok: false });
+  it("answers a lost connection and a cancel without throwing", async () => {
+    FakeXhr.answers = [(x) => x.onerror?.()];
+    expect(await uploadPhotos("s1", [{ uri: "file:///a.jpg" }], { xhr })).toEqual({ ok: false });
+
+    const controller = new AbortController();
+    FakeXhr.answers = [() => controller.abort()];
+    expect(await uploadPhotos("s1", [{ uri: "file:///a.jpg" }], { xhr, signal: controller.signal })).toEqual({
+      ok: false,
+      aborted: true,
+    });
   });
 });
