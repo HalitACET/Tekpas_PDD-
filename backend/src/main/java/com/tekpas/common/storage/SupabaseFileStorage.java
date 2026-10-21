@@ -1,9 +1,15 @@
 package com.tekpas.common.storage;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +24,7 @@ import org.springframework.web.util.UriUtils;
 /**
  * Supabase Storage over its REST API (no S3 protocol, no SDK): {@code POST /object/{bucket}/{key}} to store,
  * {@code POST /object/sign/{bucket}/{key}} for a signed link, {@code GET /object/authenticated/{bucket}/{key}} to
- * read, {@code DELETE /object/{bucket}/{key}}. The
+ * read, {@code DELETE /object/{bucket}/{key}}, {@code POST /object/list/{bucket}} to list a folder. The
  * service role key stays in this class: it is sent as a bearer token and never logged or put in a message.
  * The bucket must be private; downloads only ever happen through short signed links.
  */
@@ -29,7 +35,15 @@ final class SupabaseFileStorage implements FileStorage {
     private static final Duration MAX_TTL = Duration.ofHours(1);
     private static final String SIGNED_PREFIX = "/object/sign/";
 
+    /** Page size of a folder listing. */
+    static final int LIST_LIMIT = 1000;
+
     private record SignedUrl(String signedURL) {
+    }
+
+    /** A listing entry: a folder has no id. */
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record Entry(String name, @Nullable String id, @Nullable Instant created_at) {
     }
 
     private final String apiBase;
@@ -125,6 +139,44 @@ final class SupabaseFileStorage implements FileStorage {
         } catch (RestClientException e) {
             throw failed("delete", e);
         }
+    }
+
+    /** Folder by folder, page by page: Supabase lists one level of a folder per call. */
+    @Override
+    public List<StoredObject> list(String prefix) {
+        List<StoredObject> objects = new ArrayList<>();
+        Deque<String> folders = new ArrayDeque<>(List.of(StorageKeys.require(prefix)));
+        URI uri = URI.create(apiBase + "/object/list/" + UriUtils.encodePathSegment(bucket, StandardCharsets.UTF_8));
+        while (!folders.isEmpty()) {
+            String folder = folders.pop();
+            for (int offset = 0; ; offset += LIST_LIMIT) {
+                Entry[] page;
+                try {
+                    page = client.post().uri(uri).contentType(MediaType.APPLICATION_JSON)
+                            .body(Map.of("prefix", folder, "limit", LIST_LIMIT, "offset", offset,
+                                    "sortBy", Map.of("column", "name", "order", "asc")))
+                            .retrieve()
+                            .body(Entry[].class);
+                } catch (RestClientException e) {
+                    throw failed("listing", e);
+                }
+                if (page == null) {
+                    break;
+                }
+                for (Entry entry : page) {
+                    String key = folder + "/" + entry.name();
+                    if (entry.id() == null) {
+                        folders.push(StorageKeys.require(key));
+                    } else {
+                        objects.add(new StoredObject(key, entry.created_at() == null ? Instant.EPOCH : entry.created_at()));
+                    }
+                }
+                if (page.length < LIST_LIMIT) {
+                    break;
+                }
+            }
+        }
+        return objects;
     }
 
     private URI objectUri(String operation, String key) {

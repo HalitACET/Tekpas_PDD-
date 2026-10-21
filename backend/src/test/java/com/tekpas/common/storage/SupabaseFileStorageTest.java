@@ -11,8 +11,11 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
@@ -34,6 +37,8 @@ class SupabaseFileStorageTest {
     private HttpServer server;
     private final List<Seen> seen = new CopyOnWriteArrayList<>();
     private final AtomicReference<Reply> reply = new AtomicReference<>(new Reply(200, "{}"));
+    /** Answers in order before {@link #reply} takes over. */
+    private final Queue<Reply> replies = new ConcurrentLinkedQueue<>();
     private final AtomicReference<Duration> delay = new AtomicReference<>(Duration.ZERO);
     private SupabaseFileStorage storage;
 
@@ -68,7 +73,8 @@ class SupabaseFileStorageTest {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        Reply r = reply.get();
+        Reply queued = replies.poll();
+        Reply r = queued == null ? reply.get() : queued;
         byte[] out = r.body().getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(r.status(), out.length == 0 ? -1 : out.length);
@@ -102,6 +108,40 @@ class SupabaseFileStorageTest {
         storage.put("docs/c1/big", content, "image/png");
 
         assertThat(seen.get(0).body()).hasSize(content.length);
+    }
+
+    @Test
+    void listWalksIntoEveryFolderAndPagesThroughLongOnes() {
+        String at = "\"created_at\":\"2026-10-01T09:00:00.000Z\",\"updated_at\":\"2026-10-01T09:00:00.000Z\"";
+        replies.add(new Reply(200, "[{\"name\":\"c1\",\"id\":null,\"metadata\":null},"
+                + "{\"name\":\"loose\",\"id\":\"i0\"," + at + ",\"metadata\":{\"size\":3}}]"));
+        StringBuilder full = new StringBuilder("[");
+        for (int i = 0; i < SupabaseFileStorage.LIST_LIMIT; i++) {
+            full.append(i == 0 ? "" : ",").append("{\"name\":\"d").append(i).append("\",\"id\":\"i").append(i)
+                    .append("\",").append(at).append('}');
+        }
+        replies.add(new Reply(200, full.append(']').toString()));
+        replies.add(new Reply(200, "[{\"name\":\"last\",\"id\":\"z\"," + at + "}]"));
+
+        List<StoredObject> objects = storage.list("docs");
+
+        assertThat(objects).hasSize(SupabaseFileStorage.LIST_LIMIT + 2);
+        assertThat(objects.get(0)).isEqualTo(new StoredObject("docs/loose", Instant.parse("2026-10-01T09:00:00Z")));
+        assertThat(objects).extracting(StoredObject::key).contains("docs/c1/d0", "docs/c1/d999", "docs/c1/last");
+        assertThat(seen).extracting(Seen::path).containsOnly("/storage/v1/object/list/tekpas-docs");
+        assertThat(seen).extracting(s -> new String(s.body(), StandardCharsets.UTF_8)).satisfiesExactly(
+                b -> assertThat(b).contains("\"prefix\":\"docs\"").contains("\"offset\":0"),
+                b -> assertThat(b).contains("\"prefix\":\"docs/c1\"").contains("\"offset\":0"),
+                b -> assertThat(b).contains("\"prefix\":\"docs/c1\"").contains("\"offset\":1000"));
+        assertThat(seen.get(0).authorization()).isEqualTo("Bearer " + SERVICE_KEY);
+    }
+
+    @Test
+    void aFailedListingNamesOnlyTheStatus() {
+        reply.set(new Reply(500, "{\"message\":\"echo " + SERVICE_KEY + "\"}"));
+
+        assertThatThrownBy(() -> storage.list("docs")).isInstanceOf(StorageException.class)
+                .hasMessage("Storage listing failed (HTTP 500)");
     }
 
     @Test

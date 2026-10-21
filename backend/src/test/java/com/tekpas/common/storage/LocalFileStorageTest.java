@@ -37,6 +37,18 @@ class LocalFileStorageTest {
     }
 
     @Test
+    void listFindsEveryFileUnderTheFolderWithSlashedKeys() {
+        LocalFileStorage storage = new LocalFileStorage(root);
+        storage.put("docs/c1/d1", new byte[] {1}, "application/pdf");
+        storage.put("docs/c2/d2", new byte[] {2}, "application/pdf");
+        storage.put("other/x", new byte[] {3}, "application/pdf");
+
+        assertThat(storage.list("docs")).extracting(StoredObject::key).containsExactlyInAnyOrder("docs/c1/d1", "docs/c2/d2");
+        assertThat(storage.list("docs")).allSatisfy(o -> assertThat(o.createdAt()).isNotNull());
+        assertThat(storage.list("none")).isEmpty();
+    }
+
+    @Test
     void deleteIsIdempotent() {
         LocalFileStorage storage = new LocalFileStorage(root);
         storage.put("docs/c1/d1", new byte[] {1}, "application/pdf");

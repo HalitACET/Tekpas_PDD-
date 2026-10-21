@@ -23,7 +23,8 @@ import org.springframework.transaction.support.TransactionTemplate;
  * Removes what suppliers uploaded through a link that closed without a submission (expired or revoked), 7 days
  * after it closed (docs/m5-plan.md §7.5). A document someone verified stays, as does anything of a submitted
  * link or uploaded from the panel. Runs once a day ({@code DOCUMENT_CLEANUP}); each removal leaves a
- * {@code DOCUMENT_REMOVED} event with the reason. Queued daily by {@link DocumentCleanupSchedule}.
+ * {@code DOCUMENT_REMOVED} event with the reason. Then {@link OrphanObjectScan} looks for storage objects without a
+ * document; a storage that cannot be listed does not fail the job. Queued daily by {@link DocumentCleanupSchedule}.
  */
 @Component
 class DocumentCleanupJob implements JobHandler<DocumentCleanupJob.Payload> {
@@ -46,14 +47,16 @@ class DocumentCleanupJob implements JobHandler<DocumentCleanupJob.Payload> {
     private final DocumentStore store;
     private final Clock clock;
     private final TransactionTemplate tx;
+    private final OrphanObjectScan orphans;
 
     DocumentCleanupJob(JdbcTemplate jdbc, StepEvents events, DocumentStore store, Clock clock,
-            PlatformTransactionManager transactions) {
+            PlatformTransactionManager transactions, OrphanObjectScan orphans) {
         this.jdbc = jdbc;
         this.events = events;
         this.store = store;
         this.clock = clock;
         this.tx = new TransactionTemplate(transactions);
+        this.orphans = orphans;
     }
 
     @Override
@@ -86,6 +89,11 @@ class DocumentCleanupJob implements JobHandler<DocumentCleanupJob.Payload> {
         } while (due.size() == BATCH && !Thread.currentThread().isInterrupted());
         if (removed > 0) {
             log.info("Removed {} document(s) of links closed without a submission", removed);
+        }
+        try {
+            orphans.run();
+        } catch (RuntimeException e) {
+            log.warn("Storage scan for objects without a document failed: {}", e.getMessage());
         }
     }
 

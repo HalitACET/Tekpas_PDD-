@@ -7,13 +7,17 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 /**
  * {@code STORAGE_PROVIDER} ({@code none}, {@code local}, {@code supabase}), {@code STORAGE_LOCAL_DIR},
- * {@code STORAGE_SUPABASE_URL}, {@code STORAGE_SUPABASE_SERVICE_KEY}, {@code STORAGE_BUCKET}.
+ * {@code STORAGE_SUPABASE_URL}, {@code STORAGE_SUPABASE_SERVICE_KEY}, {@code STORAGE_BUCKET},
+ * {@code STORAGE_REMOVE_ORPHANS}.
+ *
+ * @param removeOrphans whether the daily scan removes objects no document points to; reported only by default
  */
 @ConfigurationProperties("tekpas.storage")
 public record StorageProperties(
         @DefaultValue("NONE") Provider provider,
         @DefaultValue(".storage") Path localDir,
-        @DefaultValue Supabase supabase) {
+        @DefaultValue Supabase supabase,
+        @DefaultValue("false") boolean removeOrphans) {
 
     public enum Provider { NONE, LOCAL, SUPABASE }
 

@@ -90,6 +90,8 @@ tekpas:
       url: ${STORAGE_SUPABASE_URL:}
       service-key: ${STORAGE_SUPABASE_SERVICE_KEY:}
       bucket: ${STORAGE_BUCKET:}
+    # The daily scan for objects no document points to (M10 T6) only reports them unless this is true.
+    remove-orphans: ${STORAGE_REMOVE_ORPHANS:false}
   ai:
     llm:
       # LLM reading of what the rules cannot read (scans, photos), docs/m5-plan.md §3. Off unless switched on; even

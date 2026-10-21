@@ -4,11 +4,14 @@ import com.tekpas.common.storage.FileStorage;
 import com.tekpas.common.storage.MissingObjectException;
 import com.tekpas.common.storage.StorageException;
 import com.tekpas.common.storage.StorageUnavailableException;
+import com.tekpas.common.storage.StoredObject;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jspecify.annotations.Nullable;
@@ -16,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 /** In-memory storage for the integration tests; can be told to fail and to hand out local file URIs. */
 public class FakeFileStorage implements FileStorage {
 
-    public record Stored(byte[] bytes, String contentType) {
+    public record Stored(byte[] bytes, String contentType, Instant createdAt) {
     }
 
     private final Map<String, Stored> objects = new ConcurrentHashMap<>();
@@ -27,7 +30,7 @@ public class FakeFileStorage implements FileStorage {
     @Override
     public void put(String key, byte[] content, String contentType) {
         check();
-        if (objects.putIfAbsent(key, new Stored(content.clone(), contentType)) != null) {
+        if (objects.putIfAbsent(key, new Stored(content.clone(), contentType, Instant.now())) != null) {
             throw new StorageException("Storage object already exists");
         }
     }
@@ -69,6 +72,18 @@ public class FakeFileStorage implements FileStorage {
             throw new StorageUnavailableException();
         }
         objects.remove(key);
+    }
+
+    @Override
+    public List<StoredObject> list(String prefix) {
+        check();
+        return objects.entrySet().stream().filter(e -> e.getKey().startsWith(prefix + "/"))
+                .map(e -> new StoredObject(e.getKey(), e.getValue().createdAt())).toList();
+    }
+
+    /** An object stored at {@code createdAt}, e.g. one left behind long ago. */
+    public void putAt(String key, Instant createdAt) {
+        objects.put(key, new Stored(new byte[] {1}, "application/pdf", createdAt));
     }
 
     private void check() {
