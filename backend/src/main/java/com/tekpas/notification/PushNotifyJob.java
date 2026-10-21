@@ -50,7 +50,7 @@ class PushNotifyJob implements JobHandler<PushNotifyJob.Payload> {
     private record Recipient(String token, String locale) {
     }
 
-    private record Submission(UUID companyId, String stepType, String batchNo, @Nullable String supplier) {
+    private record Submission(UUID companyId, UUID batchId, String stepType, String batchNo, @Nullable String supplier) {
     }
 
     private final JdbcTemplate jdbc;
@@ -89,18 +89,19 @@ class PushNotifyJob implements JobHandler<PushNotifyJob.Payload> {
             throw new JobFailedPermanently("STEP_SUBMITTED without a step");
         }
         List<Submission> found = jdbc.query("""
-                SELECT b.company_id, s.step_type, b.batch_no, c.name
+                SELECT b.company_id, b.id, s.step_type, b.batch_no, c.name
                 FROM supply_step s JOIN batch b ON b.id = s.batch_id
                 LEFT JOIN company c ON c.id = s.supplier_company_id
                 WHERE s.id = ? AND s.status = 'SUBMITTED'""",
-                (rs, n) -> new Submission(rs.getObject(1, UUID.class), rs.getString(2), rs.getString(3),
-                        rs.getString(4)), payload.stepId());
+                (rs, n) -> new Submission(rs.getObject(1, UUID.class), rs.getObject(2, UUID.class), rs.getString(3),
+                        rs.getString(4), rs.getString(5)), payload.stepId());
         if (found.isEmpty()) {
             // Reviewed (or removed) before the job ran: nothing is waiting any more.
             return;
         }
         Submission s = found.getFirst();
-        String url = "/step/" + payload.stepId();
+        // The app's review screen reads the step from its batch's chain.
+        String url = "/step/" + payload.stepId() + "?batch=" + s.batchId();
         send(s.companyId(), locale -> {
             ResourceBundle texts = texts(locale);
             String step = texts.getString("step." + s.stepType());

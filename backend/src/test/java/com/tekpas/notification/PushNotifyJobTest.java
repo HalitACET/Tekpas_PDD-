@@ -68,7 +68,7 @@ class PushNotifyJobTest {
         }
     }
 
-    record Setup(Tenant owner, String batchNo, String yarnStep, String supplierName) {
+    record Setup(Tenant owner, String batchId, String batchNo, String yarnStep, String supplierName) {
     }
 
     Setup setup(Tenant owner) {
@@ -83,7 +83,7 @@ class PushNotifyJobTest {
         String yarn = chain.path("steps").valueStream().filter(s -> s.path("stepType").asString().equals("YARN"))
                 .findFirst().orElseThrow().path("id").asString();
         assertThat(fixtures.patch(owner, "/api/v1/steps/" + yarn, Map.of("supplierId", supplierId))).hasStatusOk();
-        return new Setup(owner, batch.path("batchNo").asString(), yarn, supplierName);
+        return new Setup(owner, batch.path("id").asString(), batch.path("batchNo").asString(), yarn, supplierName);
     }
 
     void submit(Setup s) {
@@ -127,7 +127,7 @@ class PushNotifyJobTest {
         PushMessage tr = sent.stream().filter(m -> m.to().equals(ownerPhone)).findFirst().orElseThrow();
         assertThat(tr.title()).isEqualTo("Yeni veri: İplik");
         assertThat(tr.body()).isEqualTo(s.supplierName() + " verisini gönderdi · " + s.batchNo());
-        assertThat(tr.data()).containsEntry("url", "/step/" + s.yarnStep());
+        assertThat(tr.data()).containsEntry("url", "/step/" + s.yarnStep() + "?batch=" + s.batchId());
         PushMessage en = sent.stream().filter(m -> m.to().equals(adminPhone)).findFirst().orElseThrow();
         assertThat(en.title()).isEqualTo("New data: Yarn");
         assertThat(en.body()).isEqualTo(s.supplierName() + " sent their data · " + s.batchNo());

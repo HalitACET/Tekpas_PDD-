@@ -11,9 +11,17 @@ export const queryKeys = {
     awaiting: () => [...queryKeys.documents.all, "awaiting-review"] as const,
     detail: (id: string) => [...queryKeys.documents.all, "detail", id] as const,
   },
+  steps: {
+    documents: (id: string) => ["steps", id, "documents"] as const,
+  },
+  suppliers: {
+    detail: (id: string) => ["suppliers", "detail", id] as const,
+  },
   batches: {
     all: ["batches"] as const,
     list: (q: string) => [...queryKeys.batches.all, "list", q] as const,
     chain: (id: string) => [...queryKeys.batches.all, "chain", id] as const,
+    detail: (id: string) => [...queryKeys.batches.all, "detail", id] as const,
+    score: (id: string) => [...queryKeys.batches.all, "score", id] as const,
   },
 };

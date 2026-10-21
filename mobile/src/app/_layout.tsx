@@ -75,6 +75,8 @@ function Navigation() {
           <Stack.Screen name="capture/upload" options={{ gestureEnabled: false }} />
           <Stack.Screen name="document/[id]" />
           <Stack.Screen name="document/approved" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="batch/[id]" />
+          <Stack.Screen name="step/[id]" />
         </Stack.Protected>
         <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="login" />

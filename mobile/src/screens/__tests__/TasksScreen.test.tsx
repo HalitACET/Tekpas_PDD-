@@ -39,36 +39,38 @@ beforeEach(() => {
 });
 
 describe("TasksScreen", () => {
-  it("lists the waiting documents with their reading, and opens one", async () => {
+  it("lists the submitted data and the waiting documents, and opens them", async () => {
     serve({
       review: [{ kind: "STEP_SUBMITTED", batchId: "b2", batchNo: "KP-2026-0920-B", productName: "Tişört", stepId: "s9", stepType: "DYEING", supplierName: "Boya AŞ" }],
       certs: [{ batchId: "b1", batchNo: "KP-1", batchStatus: "COLLECTING", daysLeft: 12, docType: "OEKO_TEX", documentId: "d7", stepId: "s2", stepType: "FABRIC", supplierName: "Kumaş AŞ", validUntil: "2026-11-02" }],
     });
     const onOpenDocument = jest.fn();
+    const onOpenStep = jest.fn();
 
-    await renderScreen(<TasksScreen onOpenDocument={onOpenDocument} onShoot={jest.fn()} now={now} />);
+    await renderScreen(<TasksScreen onOpenDocument={onOpenDocument} onOpenStep={onOpenStep} onShoot={jest.fn()} now={now} />);
 
     expect(await screen.findByText(t("tasks.docsMine"))).toBeTruthy();
     expect(screen.getByText(t("tasks.aiReadLow", { count: 2 }))).toBeTruthy();
     expect(screen.getByText(t("tasks.data"))).toBeTruthy();
-    expect(screen.getByText(t("tasks.dataNote"))).toBeTruthy();
     expect(screen.getByText(t("tasks.certs"))).toBeTruthy();
     expect(screen.getByText("Kumaş AŞ")).toBeTruthy();
 
     await fireEvent.press(screen.getByLabelText(`GOTS KP-2026-0915-A`));
     expect(onOpenDocument).toHaveBeenCalledWith("d1");
+    await fireEvent.press(screen.getByLabelText(`KP-2026-0920-B ${t("stepType.DYEING")}`));
+    expect(onOpenStep).toHaveBeenCalledWith("s9", "b2");
   });
 
   it("says when nothing is waiting", async () => {
     serve({ docs: [] });
 
-    await renderScreen(<TasksScreen onOpenDocument={jest.fn()} onShoot={jest.fn()} now={now} />);
+    await renderScreen(<TasksScreen onOpenDocument={jest.fn()} onOpenStep={jest.fn()} onShoot={jest.fn()} now={now} />);
 
     expect(await screen.findByText(t("tasks.emptyTitle"))).toBeTruthy();
   });
 
   it("shows an error card with a way to try again when the server does not answer", async () => {
-    await renderScreen(<TasksScreen onOpenDocument={jest.fn()} onShoot={jest.fn()} now={now} />);
+    await renderScreen(<TasksScreen onOpenDocument={jest.fn()} onOpenStep={jest.fn()} onShoot={jest.fn()} now={now} />);
 
     expect(await screen.findByText(t("tasks.errorTitle"))).toBeTruthy();
     expect(screen.getByText(t("common.retry"))).toBeTruthy();
@@ -79,7 +81,7 @@ describe("TasksScreen", () => {
     serve();
     const onShoot = jest.fn();
 
-    await renderScreen(<TasksScreen onOpenDocument={jest.fn()} onShoot={onShoot} now={now} />);
+    await renderScreen(<TasksScreen onOpenDocument={jest.fn()} onOpenStep={jest.fn()} onShoot={onShoot} now={now} />);
 
     expect(await screen.findByText(t("tasks.viewerNote"))).toBeTruthy();
     await fireEvent.press(screen.getByText(t("tasks.shoot")));
