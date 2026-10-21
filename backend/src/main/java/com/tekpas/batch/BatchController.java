@@ -94,6 +94,18 @@ public class BatchController {
         return service.nextBatchNo(currentUser.companyId());
     }
 
+    @GetMapping("/lookup")
+    @Operation(operationId = "lookupBatch", summary = "The company's batch behind a scanned GS1 Digital Link",
+            description = "gtin: GTIN-8/12/13/14 with a valid check digit (normalized to 14 digits), batchNo: the AI "
+                    + "(10) batch number (upper-cased), as in /01/{gtin}/10/{batchNo}. An unreadable code, another "
+                    + "company's batch and an unknown one all answer 404; the app then opens the public passport.")
+    @ApiResponse(responseCode = "200", description = "The batch")
+    @ApiResponse(responseCode = "403", description = "Supplier users have no access")
+    @ApiResponse(responseCode = "404", description = "No such batch in this company, or not a valid code")
+    public BatchResponse lookupBatch(@RequestParam String gtin, @RequestParam String batchNo) {
+        return service.lookup(currentUser.companyId(), gtin, batchNo);
+    }
+
     @GetMapping("/{id}")
     @Operation(operationId = "getBatch", summary = "A batch with its product and supply chain progress")
     @ApiResponse(responseCode = "200", description = "The batch")

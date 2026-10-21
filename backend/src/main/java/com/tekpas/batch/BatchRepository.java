@@ -32,6 +32,13 @@ public interface BatchRepository extends JpaRepository<Batch, UUID> {
             """)
     Optional<BatchRow> findRow(UUID id, UUID companyId);
 
+    /** The company's batch a GS1 Digital Link stands for: the product's GTIN (14 digits) and the batch number. */
+    @Query("""
+            select b.id from Batch b join Product p on p.id = b.productId
+            where b.companyId = :companyId and p.gtin = :gtin and b.batchNo = :batchNo
+            """)
+    Optional<UUID> findIdByGs1(UUID companyId, String gtin, String batchNo);
+
     /**
      * @param q a LIKE pattern from {@code PageQuery.containsPattern}, matched against batch no, production order
      *     no, product name and GTIN
