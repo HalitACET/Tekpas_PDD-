@@ -166,7 +166,9 @@
     "tooLargeBody": "Nehmen Sie weniger Seiten auf oder laden Sie sie als eigenes Dokument hoch.",
     "preparing": "Seite wird vorbereitet…",
     "pickTarget": "Tippen Sie auf die Seite zum Tauschen",
-    "page": "Seite {{n}}"
+    "page": "Seite {{n}}",
+    "offline": "Keine Verbindung. Das Dokument wird gespeichert und hochgeladen, sobald die Verbindung zurück ist.",
+    "queue": "In die Warteschlange"
   },
   "upload": {
     "summary": "{{type}} · {{count}} Seiten",
@@ -191,7 +193,10 @@
     "duplicate": "Dieses Dokument ist für diesen Schritt bereits hochgeladen.",
     "tooLarge": "Die Seiten sind zusammen größer als 10 MB.",
     "badPage": "Seite {{n}} war nicht lesbar; nehmen Sie sie neu auf.",
-    "forbidden": "Dafür fehlt Ihnen die Berechtigung."
+    "forbidden": "Dafür fehlt Ihnen die Berechtigung.",
+    "queue": "In die Warteschlange",
+    "brokeAt": "Die Verbindung brach nach {{size}} ab.",
+    "failedBodyQueue": "Versuchen Sie es jetzt erneut oder stellen Sie es in die Warteschlange; es wird von selbst hochgeladen, sobald die Verbindung zurück ist."
   },
   "form": {
     "title": "Dokument",
@@ -266,7 +271,9 @@
       "unavailable": "Nicht verfügbar",
       "expoGo": "Benachrichtigungen funktionieren nur in der installierten App. Sie sind gerade in Expo Go.",
       "openSettings": "Einstellungen öffnen"
-    }
+    },
+    "logoutPending": "{{count}} Dokumente sind noch nicht hochgeladen; beim Abmelden werden sie vom Telefon gelöscht.",
+    "seeQueue": "Warteschlange ansehen"
   },
   "scan": {
     "title": "QR scannen",
@@ -483,5 +490,42 @@
     "openSettings": "Einstellungen öffnen",
     "failed": "Benachrichtigungen konnten nicht eingeschaltet werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
     "open": "Benachrichtigung öffnen"
+  },
+  "queue": {
+    "title": "Upload-Warteschlange",
+    "count": "{{count}} Dokumente",
+    "stripWaitingOffline": "{{count}} Dokumente warten auf den Upload · keine Verbindung",
+    "stripWaiting": "{{count}} Dokumente warten auf den Upload",
+    "stripUploading": "{{count}} Dokument wird hochgeladen {{pct}} %",
+    "stripFailed": "{{count}} Dokumente konnten nicht hochgeladen werden",
+    "offline": "Keine Verbindung · Upload, sobald sie zurück ist",
+    "online": "Wird nacheinander hochgeladen",
+    "uploading": "Wird hochgeladen {{pct}} %",
+    "waitingOffline": "Wartet · keine Verbindung",
+    "waiting": "Wartet · neuer Versuch folgt",
+    "uploaded": "Hochgeladen, wird gelesen",
+    "failed": "Konnte nicht hochgeladen werden",
+    "line": "{{step}} · {{pages}} · {{size}}",
+    "pages": "{{count}} Seiten",
+    "retryNow": "Jetzt versuchen",
+    "remove": "Löschen",
+    "open": "Warteschlange öffnen",
+    "deleteTitle": "Dokument löschen?",
+    "deleteBody": "{{type}} · {{count}} Seiten werden vom Telefon gelöscht und nicht hochgeladen. Das lässt sich nicht rückgängig machen.",
+    "deleteConfirm": "Löschen",
+    "cancel": "Abbrechen",
+    "emptyTitle": "Nichts wartet auf den Upload",
+    "emptyBody": "Offline fotografierte Dokumente warten hier und werden hochgeladen, sobald die Verbindung zurück ist."
+  },
+  "queued": {
+    "title": "Dokument in der Warteschlange",
+    "sub": "Es wird hochgeladen, sobald die Verbindung zurück ist. Sie können die App schließen.",
+    "doc": "Dokument",
+    "batch": "Charge",
+    "step": "Schritt",
+    "inQueue": "In der Warteschlange",
+    "docValue": "{{type}} · {{count}} Seiten",
+    "back": "Zurück zu den Aufgaben",
+    "another": "Weiteres Dokument fotografieren"
   }
 }

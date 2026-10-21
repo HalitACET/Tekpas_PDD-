@@ -25,6 +25,8 @@ export interface UploadOptions {
   /** 0–1, as the bytes leave the phone (design v0.8 97a). */
   onProgress?: (fraction: number) => void;
   signal?: AbortSignal;
+  /** The upload queue's key (M9): the server never makes a second document for it (200 answers the first one). */
+  idempotencyKey?: string;
   /** Tests: the request class. */
   xhr?: () => XMLHttpRequest;
 }
@@ -50,6 +52,7 @@ function send(stepId: string, pages: { uri: string }[], options: UploadOptions):
     const token = currentAccessToken();
     if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     xhr.setRequestHeader("Accept", "application/json");
+    if (options.idempotencyKey) xhr.setRequestHeader("Idempotency-Key", options.idempotencyKey);
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable && event.total > 0) options.onProgress?.(event.loaded / event.total);
     };

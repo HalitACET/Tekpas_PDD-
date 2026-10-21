@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronLeft, Plus, RotateCcw, Trash2, Upload } from "lucide-react-native";
+import { AlertTriangle, ChevronLeft, Clock, Plus, RotateCcw, Trash2, Upload, WifiOff } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
@@ -25,6 +25,8 @@ export function ReviewScreen({
   onSwap,
   onType,
   onUpload,
+  offline = false,
+  onQueue,
 }: {
   subtitle: string;
   pages: Page[];
@@ -36,6 +38,9 @@ export function ReviewScreen({
   onSwap: (a: number, b: number) => void;
   onType: (type: DocType | undefined) => void;
   onUpload: () => void;
+  /** Design v0.9 107a: without a connection the document goes to the upload queue. */
+  offline?: boolean;
+  onQueue?: () => void;
 }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -65,6 +70,14 @@ export function ReviewScreen({
           </T>
         }
       />
+      {offline && (
+        <View accessibilityRole="alert" style={[styles.offline, { backgroundColor: colors.primary }]}>
+          <WifiOff size={18} color={colors.primaryForeground} />
+          <T size={15} style={{ flex: 1, lineHeight: 21, color: colors.primaryForeground }}>
+            {t("review.offline")}
+          </T>
+        </View>
+      )}
       <ScrollView contentContainerStyle={styles.page}>
         {limit && <Banner kind="lowConfidence" title={t("review.limitTitle", { max: MAX_PAGES })} body={t("review.limitBody")} />}
         {tooLarge && <Banner kind="rejected" icon={AlertTriangle} title={t("review.tooLargeTitle")} body={t("review.tooLargeBody")} />}
@@ -158,7 +171,11 @@ export function ReviewScreen({
         <T size={15} tone="muted" style={{ textAlign: "center" }}>
           {t("review.size", { count: pages.length, size: formatSize(bytes) })}
         </T>
-        <Button label={t("review.upload")} variant="brand" icon={Upload} disabled={pages.length === 0 || tooLarge} onPress={onUpload} />
+        {offline && onQueue ? (
+          <Button label={t("review.queue")} variant="brand" icon={Clock} disabled={pages.length === 0 || tooLarge} onPress={onQueue} />
+        ) : (
+          <Button label={t("review.upload")} variant="brand" icon={Upload} disabled={pages.length === 0 || tooLarge} onPress={onUpload} />
+        )}
       </BottomBar>
     </SafeAreaView>
   );
@@ -166,6 +183,7 @@ export function ReviewScreen({
 
 const styles = StyleSheet.create({
   page: { gap: 18, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16 },
+  offline: { flexDirection: "row", alignItems: "flex-start", gap: 10, paddingVertical: 12, paddingHorizontal: 20 },
   grid: { flexDirection: "row", flexWrap: "wrap" },
   thumb: { aspectRatio: 3 / 4, borderRadius: 10, overflow: "hidden", backgroundColor: "#E9E4DA" },
   badge: { position: "absolute", left: 6, top: 6, minWidth: 26, height: 26, paddingHorizontal: 6, borderRadius: 999, alignItems: "center", justifyContent: "center" },

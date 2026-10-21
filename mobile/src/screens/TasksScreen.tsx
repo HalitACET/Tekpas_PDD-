@@ -1,13 +1,14 @@
-import { AlertTriangle, Camera, ChevronRight, Lock, RefreshCw, WifiOff, CheckCircle2 } from "lucide-react-native";
+import { AlertTriangle, Camera, ChevronRight, Clock, Lock, RefreshCw, Upload, WifiOff, CheckCircle2 } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BottomBar, Button, Card, Chip, Count, Heading, Skeleton, T, Tag } from "@/components/ui";
 import { formatToday, formatWhen } from "@/lib/format";
 import { ApiError, useAwaitingDocuments, useExpiringCertificates, useTasks } from "@/lib/queries";
 import { certificateTasks, readingChip } from "@/lib/tasks";
 import { useSession } from "@/lib/use-session";
+import { useUploadQueue } from "@/lib/use-upload-queue";
 import { useTheme } from "@/theme/theme";
 
 /** The open tasks of the task list, the tab badge counts the same. */
@@ -33,11 +34,13 @@ export function TasksScreen({
   onOpenDocument,
   onOpenStep,
   onShoot,
+  onOpenQueue = () => undefined,
   now = new Date(),
 }: {
   onOpenDocument: (id: string) => void;
   onOpenStep: (stepId: string, batchId: string) => void;
   onShoot: () => void;
+  onOpenQueue?: () => void;
   now?: Date;
 }) {
   const { t } = useTranslation();
@@ -86,6 +89,8 @@ export function TasksScreen({
           </T>
         )}
       </View>
+
+      <QueueStrip onOpen={onOpenQueue} />
 
       {failed && haveData && (
         <View accessibilityRole="alert" style={[styles.offline, { backgroundColor: colors.primary }]}>
@@ -228,6 +233,54 @@ export function TasksScreen({
   );
 }
 
+/**
+ * Design v0.9 107d–107f: what the upload queue is doing, one line: an upload going up (with its share), refused ones,
+ * or the ones waiting (for a connection when there is none). A tap opens the queue.
+ */
+function QueueStrip({ onOpen }: { onOpen: () => void }) {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const queue = useUploadQueue();
+  const uploading = queue.items.find((i) => i.status === "uploading");
+  const refused = queue.items.filter((i) => i.status === "failed").length;
+  const waiting = queue.items.filter((i) => i.status === "waiting").length;
+  const pct = uploading ? Math.round(uploading.progress * 100) : 0;
+  const strip = uploading
+    ? { bg: colors.muted, fg: colors.foreground, Icon: Upload, text: t("queue.stripUploading", { count: 1, pct }) }
+    : refused > 0
+      ? { bg: colors.status.rejected.muted, fg: colors.status.rejected.fg, Icon: AlertTriangle, text: t("queue.stripFailed", { count: refused }) }
+      : waiting > 0
+        ? {
+            bg: colors.primary,
+            fg: colors.primaryForeground,
+            Icon: queue.online ? Clock : WifiOff,
+            text: queue.online ? t("queue.stripWaiting", { count: waiting }) : t("queue.stripWaitingOffline", { count: waiting }),
+          }
+        : undefined;
+  if (!strip) return null;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${strip.text}. ${t("queue.open")}`}
+      onPress={onOpen}
+      style={[styles.queue, { backgroundColor: strip.bg }]}
+    >
+      <View style={styles.rowTop}>
+        <strip.Icon size={20} color={strip.fg} />
+        <T size={15} weight="semi" style={{ flex: 1, color: strip.fg, lineHeight: 20 }}>
+          {strip.text}
+        </T>
+        <ChevronRight size={20} color={strip.fg} style={{ width: 32 }} />
+      </View>
+      {uploading && (
+        <View style={[styles.queueTrack, { backgroundColor: colors.card }]}>
+          <View style={{ width: `${pct}%`, height: "100%", backgroundColor: colors.foreground, borderRadius: 999 }} />
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
 function Group({ title, count, brand = false, children }: { title: string; count: number; brand?: boolean; children: React.ReactNode }) {
   return (
     <View style={{ gap: 10 }} accessibilityRole="list" accessibilityLabel={title}>
@@ -278,4 +331,6 @@ const styles = StyleSheet.create({
   certRow: { minHeight: 88, justifyContent: "center", gap: 6, paddingVertical: 12, paddingHorizontal: 16 },
   rowTop: { flexDirection: "row", alignItems: "center", gap: 8 },
   errorCard: { padding: 20, gap: 14 },
+  queue: { minHeight: 56, marginHorizontal: 16, marginBottom: 10, justifyContent: "center", gap: 8, paddingVertical: 10, paddingLeft: 14, paddingRight: 8, borderRadius: 12 },
+  queueTrack: { height: 6, marginRight: 6, borderRadius: 999, overflow: "hidden" },
 });

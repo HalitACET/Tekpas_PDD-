@@ -166,7 +166,9 @@
     "tooLargeBody": "Take fewer pages or upload them as a separate document.",
     "preparing": "Preparing the page…",
     "pickTarget": "Tap the page to swap with",
-    "page": "Page {{n}}"
+    "page": "Page {{n}}",
+    "offline": "No connection. The document is saved and goes up when the connection is back.",
+    "queue": "Queue it"
   },
   "upload": {
     "summary": "{{type}} · {{count}} pages",
@@ -191,7 +193,10 @@
     "duplicate": "This document is already uploaded for this step.",
     "tooLarge": "The pages together are larger than 10 MB.",
     "badPage": "Page {{n}} could not be read; take it again.",
-    "forbidden": "You are not allowed to do this."
+    "forbidden": "You are not allowed to do this.",
+    "queue": "Queue it",
+    "brokeAt": "The connection broke after {{size}}.",
+    "failedBodyQueue": "Try again now or queue it; it goes up by itself when the connection is back."
   },
   "form": {
     "title": "Document",
@@ -266,7 +271,9 @@
       "unavailable": "Not available",
       "expoGo": "Notifications work only in the installed app. You are in Expo Go now.",
       "openSettings": "Open Settings"
-    }
+    },
+    "logoutPending": "{{count}} documents are not uploaded yet; signing out deletes them from the phone.",
+    "seeQueue": "See the queue"
   },
   "scan": {
     "title": "Scan QR",
@@ -483,5 +490,42 @@
     "openSettings": "Open Settings",
     "failed": "Notifications could not be turned on. Check your connection and try again.",
     "open": "Open the notification"
+  },
+  "queue": {
+    "title": "Upload queue",
+    "count": "{{count}} documents",
+    "stripWaitingOffline": "{{count}} documents waiting to upload · no connection",
+    "stripWaiting": "{{count}} documents waiting to upload",
+    "stripUploading": "{{count}} document uploading {{pct}}%",
+    "stripFailed": "{{count}} documents could not be uploaded",
+    "offline": "No connection · they go up when it is back",
+    "online": "Uploading one by one",
+    "uploading": "Uploading {{pct}}%",
+    "waitingOffline": "Waiting · no connection",
+    "waiting": "Waiting · will try again",
+    "uploaded": "Uploaded, being read",
+    "failed": "Could not be uploaded",
+    "line": "{{step}} · {{pages}} · {{size}}",
+    "pages": "{{count}} pages",
+    "retryNow": "Try now",
+    "remove": "Delete",
+    "open": "Open the queue",
+    "deleteTitle": "Delete the document?",
+    "deleteBody": "{{type}} · {{count}} pages are deleted from the phone and not uploaded. This cannot be undone.",
+    "deleteConfirm": "Delete",
+    "cancel": "Cancel",
+    "emptyTitle": "Nothing waiting to upload",
+    "emptyBody": "Documents photographed offline wait here and go up when the connection is back."
+  },
+  "queued": {
+    "title": "Document queued",
+    "sub": "It goes up when the connection is back. You can close the app.",
+    "doc": "Document",
+    "batch": "Batch",
+    "step": "Step",
+    "inQueue": "In the queue",
+    "docValue": "{{type}} · {{count}} pages",
+    "back": "Back to tasks",
+    "another": "Photograph another document"
   }
 }
