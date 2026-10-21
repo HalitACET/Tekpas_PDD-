@@ -230,12 +230,13 @@ Durum: ✅ telefonda (Expo Go, gerçek Gemini, `gemini-3.5-flash-lite`) "Yükle 
 
 ### M9 — Mobil II
 Plan: `docs/m9-plan.md` (QR → parti/pasaport, hızlı onay/red, push, yükleme kuyruğu, Expo Go sınırı, kararlar). Tasarım brifi: `docs/m9-tasarim-brifi.md` → Claude Design v0.9. Backend tasarım beklemeden, ekranlar tasarımdan sonra; push kabulü Android telefonda geliştirme sürümü ve Firebase (FCM) ile (kullanıcı kararı, `m9-plan.md` §10.1).
-- [ ] QR okutma (parti etiketi → özet + zincir; ürün QR → pasaport)
-- [ ] Hızlı onay / red
-- [ ] Push bildirimleri (Expo)
-- [ ] Zayıf bağlantıda yükleme kuyruğu
+- [x] QR okutma (parti etiketi → özet + zincir; ürün QR → pasaport) (PR #74, #78)
+- [x] Hızlı onay / red (PR #78)
+- [x] Push bildirimleri (Expo) (PR #74, #77, #79)
+- [x] Zayıf bağlantıda yükleme kuyruğu (PR #75, #80)
 
 **Kabul:** Tedarikçi veri gönderince üreticinin telefonuna bildirim gelir, bildirimden onaylanır.
+Durum: kod ve Android geliştirme sürümü hazır; telefonda kabul denemesi kullanıcı kararıyla M10'dan sonra (`docs/haftalik/09-mobil-ii.md`).
 
 ### M10 — Arden demo hazırlığı
 - [ ] Gerçekçi demo verisi (3 ürün, 5 parti, farklı tamamlanma seviyeleri, 1 süresi dolmak üzere sertifika)

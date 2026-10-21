@@ -32,6 +32,7 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 6. **QR pasaport:** Onaylanan parti için GS1 Digital Link QR'lı, çok dilli ve herkese açık bir pasaport yayınlanır. Yayınlanan sürüm değişmez; değişiklik yeni sürüm demektir.
 7. **Tutarlılık kontrolü:** Kurallar etiket beyanı ile iplik/kumaş beyanını, sertifika sürelerini, sertifika sahibini ve eksik alanları denetler. Her bulgunun sabit bir kodu vardır (`LIF-01`, `SER-02`…). Engelleyici uyarı yayını durdurur ve veri düzelince kendiliğinden kapanır; diğerlerini yetkili biri notla "çözüldü" yapar. Süresi dolan sertifikalar her gün taranır ve Görevler'de listelenir. Demo firmasında AI da öneride bulunur (sertifika kapsamı, çelişen beyanlar); her öneri verideki bir alıntıya dayanır, engelleyici olmaz.
 8. **Mobil uygulama (sahada):** Kalite sorumlusu telefonla giriş yapar ve onayını bekleyen belgeleri, tedarikçiden gelen verileri, süresi yaklaşan sertifikaları görür. Sertifikanın sayfalarını kamerayla çeker; sayfalar küçültülüp yüklenir, sunucuda meta verisi temizlenip tek PDF olur. AI okuması düzenlenebilir bir form olarak gelir: her alanın kaynağı ve güveni görünür, güveni düşük alan sarıdır. Yetkili kişi kontrol edip onaylar.
+9. **Sahada hızlı iş (mobil):** Ürün etiketindeki QR okutulunca firmanın partisinin özeti ve zinciri açılır; başka bir partinin kodu herkese açık pasaportu açar. Tedarikçinin gönderdiği veri telefondan onaylanır ya da gerekçeyle düzeltme istenir; yeni bağlantı WhatsApp'tan gider. Veri gelince yöneticinin telefonuna bildirim düşer. Bağlantı yokken çekilen belge telefonda bekler ve bağlantı gelince kendiliğinden yüklenir, iki kez gitmez.
 
 ## Kilometre taşları
 
@@ -47,7 +48,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M6 | Pasaport ve QR: uyum skoru, sürümlü ve değişmez yayın, GS1 Digital Link QR, herkese açık sayfa | ✅ |
 | M7 | Tutarlılık kontrolü ve sertifika takibi: kural kodlu uyarılar, AI önerileri, günlük sertifika taraması | ✅ |
 | M8 | Mobil I: görevler, kamerayla çok sayfalı belge, AI okuması ve onay (Expo) | ✅ |
-| M9 | Mobil II: QR okutma, hızlı onay, bildirimler | ⬜ |
+| M9 | Mobil II: QR okutma, hızlı onay ve düzeltme, bildirimler, zayıf bağlantıda yükleme kuyruğu | 🟡 |
 | M10 | Demo hazırlığı | ⬜ |
 | M11 | Çok dil ve Excel içe aktarma | ⬜ |
 | M12 | Detaylı roller, denetim izi, test | ⬜ |
