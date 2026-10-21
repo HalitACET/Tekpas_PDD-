@@ -61,7 +61,7 @@ describe("UploadScreen", () => {
 
     await renderScreen(<UploadScreen {...base} upload={upload} wait={wait} onUploaded={onUploaded} onDone={onDone} />);
 
-    await waitFor(() => expect(onDone).toHaveBeenCalledWith("d9"));
+    await waitFor(() => expect(onDone).toHaveBeenCalledWith("d9", true));
     expect(onUploaded).toHaveBeenCalledWith(expect.objectContaining({ id: "d9" }));
     expect(upload.mock.calls[0][0]).toBe("s1");
   });
@@ -80,7 +80,8 @@ describe("UploadScreen", () => {
     expect(screen.getByText(t("upload.failedBody", { count: 2 }))).toBeTruthy();
     await fireEvent.press(screen.getByText(t("common.retry")));
 
-    await waitFor(() => expect(onDone).toHaveBeenCalledWith("d9"));
+    // The reading never answered: the form opens, but not as a filled one.
+    await waitFor(() => expect(onDone).toHaveBeenCalledWith("d9", false));
     expect(upload).toHaveBeenCalledTimes(2);
   });
 

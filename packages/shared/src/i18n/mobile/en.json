@@ -236,7 +236,8 @@
     "loadError": "The document could not be loaded",
     "stepLine": "{{step}} · {{supplier}}",
     "readingNow": "The document is still being read; the fields fill in once it is done.",
-    "saveFailed": "The approval could not be saved."
+    "saveFailed": "The approval could not be saved.",
+    "devTiming": "Upload → filled form: {{s}} s"
   },
   "success": {
     "title": "Document approved",

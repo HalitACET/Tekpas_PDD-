@@ -236,7 +236,8 @@
     "loadError": "Belge yüklenemedi",
     "stepLine": "{{step}} · {{supplier}}",
     "readingNow": "Belge hâlâ okunuyor; sonuç gelince alanlar dolar.",
-    "saveFailed": "Onay kaydedilemedi."
+    "saveFailed": "Onay kaydedilemedi.",
+    "devTiming": "Yükle → dolu form: {{s}} sn"
   },
   "success": {
     "title": "Belge onaylandı",

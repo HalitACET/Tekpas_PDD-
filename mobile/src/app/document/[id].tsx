@@ -7,7 +7,7 @@ import { DocumentFormScreen } from "@/screens/DocumentFormScreen";
 /** The form of a document: the one just photographed (its pages are still on the phone) or one from the task list. */
 export default function DocumentForm() {
   const { t } = useTranslation();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, ms } = useLocalSearchParams<{ id: string; ms?: string }>();
   const capture = useCapture();
   const awaiting = useAwaitingDocuments();
   const fromCapture = capture.documentId === id;
@@ -28,6 +28,7 @@ export default function DocumentForm() {
       stepLine={stepLine}
       supplierName={supplierName}
       localPages={fromCapture ? capture.pages : undefined}
+      timingMs={__DEV__ && ms ? Number(ms) : undefined}
       onBack={back}
       onTasks={() => router.dismissTo("/")}
       onApproved={(approved) => {
