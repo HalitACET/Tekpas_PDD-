@@ -1,8 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render } from "@testing-library/react-native";
+import { configure, render } from "@testing-library/react-native";
 import type { ReactElement } from "react";
 import i18n from "@/lib/i18n";
 import type { SessionState, SessionUser } from "@/lib/session";
+
+// A shared CI runner renders a file's first screen slowly (modules load cold, the web tests run beside): findBy and
+// waitFor wait up to 5 s, a test up to 20 s (package.json).
+configure({ asyncUtilTimeout: 5000 });
 
 /** The signed-in person a screen test sees; set it before rendering. */
 export const testSession: { state: SessionState } = { state: { status: "anonymous" } };
