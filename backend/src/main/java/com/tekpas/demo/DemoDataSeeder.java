@@ -19,7 +19,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  * the {@code demo} profile, idempotent, and the password hash is produced here from {@code DEMO_PASSWORD}
  * instead of being committed. Nilüfer Giyim gets three products and five DRAFT batches; their GTINs are in the
  * GS1 restricted circulation range (020–029), which is never assigned to a brand, so a demo passport cannot
- * point at a real product. Supply chains follow in M3.
+ * point at a real product. What happens in the batches is {@link DemoScenario} (M10).
  */
 @Component
 @Profile("demo")
@@ -108,13 +108,15 @@ public class DemoDataSeeder implements ApplicationRunner {
     private final TransactionTemplate tx;
     private final PasswordEncoder passwordEncoder;
     private final DemoProperties properties;
+    private final DemoScenario scenario;
 
     public DemoDataSeeder(JdbcTemplate jdbc, TransactionTemplate tx, PasswordEncoder passwordEncoder,
-            DemoProperties properties) {
+            DemoProperties properties, DemoScenario scenario) {
         this.jdbc = jdbc;
         this.tx = tx;
         this.passwordEncoder = passwordEncoder;
         this.properties = properties;
+        this.scenario = scenario;
     }
 
     @Override
@@ -124,6 +126,8 @@ public class DemoDataSeeder implements ApplicationRunner {
             return;
         }
         tx.executeWithoutResult(status -> seed());
+        // After the base rows are committed: the scenario publishes a passport, which runs its own transactions.
+        scenario.applyIfNeeded();
     }
 
     private void seed() {
