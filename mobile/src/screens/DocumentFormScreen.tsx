@@ -95,6 +95,7 @@ export function DocumentFormScreen({
   onBack,
   onApproved,
   onTasks,
+  timingMs,
 }: {
   documentId: string;
   batchNo?: string;
@@ -104,6 +105,8 @@ export function DocumentFormScreen({
   onBack: () => void;
   onApproved: (approved: Approved) => void;
   onTasks: () => void;
+  /** Development builds only: from "Yükle" to this filled form, for the acceptance measurement. */
+  timingMs?: number;
 }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -192,6 +195,11 @@ export function DocumentFormScreen({
           </View>
         )}
         <View style={{ paddingHorizontal: 16, paddingTop: 14, gap: 10 }}>
+          {timingMs !== undefined && (
+            <T family="mono" size={14} tone="muted">
+              {t("form.devTiming", { s: (timingMs / 1000).toFixed(1) })}
+            </T>
+          )}
           {doc && !readingDone(doc) && <Banner kind="submitted" icon={Info} title={t("form.readingNow")} />}
           {unreadable && <Banner kind="rejected" icon={AlertCircle} title={t("form.manualTitle")} body={t("form.manualBody")} />}
           {summary && summary.count > 0 && (

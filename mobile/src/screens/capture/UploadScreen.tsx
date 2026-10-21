@@ -50,7 +50,8 @@ export function UploadScreen({
   pages: Page[];
   docType?: DocType;
   onUploaded: (document: DocumentResponse) => void;
-  onDone: (documentId: string) => void;
+  /** filled: the reading is over (not "Elle doldur", not given up). */
+  onDone: (documentId: string, filled: boolean) => void;
   onCancel: () => void;
   upload?: typeof uploadPhotos;
   wait?: typeof waitForReading;
@@ -88,7 +89,7 @@ export function UploadScreen({
       signal: controller.signal,
       onSlow: () => setPhase((p) => (p.kind === "reading" ? { ...p, slow: true } : p)),
     });
-    if (!controller.signal.aborted) onDone(read?.id ?? result.document.id);
+    if (!controller.signal.aborted) onDone(read?.id ?? result.document.id, !!read);
   }, [docType, onDone, onUploaded, pages, stepId, upload, wait]);
 
   useEffect(() => {
@@ -169,7 +170,7 @@ export function UploadScreen({
         )}
       </View>
       <BottomBar border={false}>
-        {reading && phase.slow && documentId && <Button label={t("upload.manual")} onPress={() => onDone(documentId)} />}
+        {reading && phase.slow && documentId && <Button label={t("upload.manual")} onPress={() => onDone(documentId, false)} />}
         {phase.kind === "failed" && (
           <Button
             label={t("common.retry")}

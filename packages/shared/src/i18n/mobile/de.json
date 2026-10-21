@@ -236,7 +236,8 @@
     "loadError": "Das Dokument konnte nicht geladen werden",
     "stepLine": "{{step}} · {{supplier}}",
     "readingNow": "Das Dokument wird noch gelesen; die Felder füllen sich danach.",
-    "saveFailed": "Die Freigabe konnte nicht gespeichert werden."
+    "saveFailed": "Die Freigabe konnte nicht gespeichert werden.",
+    "devTiming": "Hochladen → ausgefülltes Formular: {{s}} s"
   },
   "success": {
     "title": "Dokument freigegeben",
