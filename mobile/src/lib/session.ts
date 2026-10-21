@@ -56,6 +56,26 @@ export const api = createApiClient({
   },
 });
 
+/**
+ * The answer of `run`, or `fallback` once `ms` have passed without one; the request is aborted then. Not
+ * AbortSignal.timeout: on the phone a login to an address nobody answers on waited for minutes with it (M8 trial), and
+ * the screen must come back even if the request ignores the abort.
+ */
+export function withTimeout<T>(ms: number, fallback: T, run: (signal: AbortSignal) => Promise<T>): Promise<T> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<T>((resolve) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      resolve(fallback);
+    }, ms);
+  });
+  return Promise.race([run(controller.signal), timeout]).finally(() => clearTimeout(timer));
+}
+
+/** How long a request may wait for a sleeping server (Render wakes in 30–60 s) before the screen gives up. */
+export const SERVER_TIMEOUT_MS = 60_000;
+
 type RefreshResult = "ok" | "rejected" | "unavailable";
 let refreshInFlight: Promise<RefreshResult> | undefined;
 
@@ -67,17 +87,19 @@ function refreshOnce(): Promise<RefreshResult> {
   refreshInFlight ??= (async (): Promise<RefreshResult> => {
     const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
     if (!refreshToken) return "rejected";
-    try {
-      const { data, response } = await api.POST("/api/v1/auth/refresh", { body: { refreshToken } });
-      if (data?.accessToken && data.refreshToken) {
-        await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, data.refreshToken);
-        accessToken = data.accessToken;
-        return "ok";
+    return withTimeout<RefreshResult>(SERVER_TIMEOUT_MS, "unavailable", async (signal) => {
+      try {
+        const { data, response } = await api.POST("/api/v1/auth/refresh", { body: { refreshToken }, signal });
+        if (data?.accessToken && data.refreshToken) {
+          await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, data.refreshToken);
+          accessToken = data.accessToken;
+          return "ok";
+        }
+        return response.status >= 500 ? "unavailable" : "rejected";
+      } catch {
+        return "unavailable";
       }
-      return response.status >= 500 ? "unavailable" : "rejected";
-    } catch {
-      return "unavailable";
-    }
+    });
   })().finally(() => {
     refreshInFlight = undefined;
   });
@@ -117,14 +139,16 @@ export async function restoreSession(): Promise<SessionState> {
 /** invalid: wrong e-mail or password (one message for both); unreachable: no answer; unavailable: a server error. */
 export type LoginResult = "ok" | "invalid" | "unavailable" | "unreachable";
 
-export const LOGIN_TIMEOUT_MS = 60_000;
-
 /** The password only travels in this request; it is never stored. */
-export async function login(email: string, password: string): Promise<LoginResult> {
+export function login(email: string, password: string): Promise<LoginResult> {
+  return withTimeout<LoginResult>(SERVER_TIMEOUT_MS, "unreachable", (signal) => attemptLogin(email, password, signal));
+}
+
+async function attemptLogin(email: string, password: string, signal: AbortSignal): Promise<LoginResult> {
   try {
     const { data, response } = await api.POST("/api/v1/auth/login", {
       body: { email, password, client: "MOBILE" },
-      signal: AbortSignal.timeout(LOGIN_TIMEOUT_MS),
+      signal,
     });
     if (!data) {
       if (response.status === 400 || response.status === 401) return "invalid";
@@ -133,7 +157,7 @@ export async function login(email: string, password: string): Promise<LoginResul
     if (!data.refreshToken) return "unavailable";
     await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, data.refreshToken);
     accessToken = data.accessToken;
-    const { data: me } = await api.GET("/api/v1/auth/me");
+    const { data: me } = await api.GET("/api/v1/auth/me", { signal });
     if (!me) return "unavailable";
     setState({ status: "authenticated", user: me });
     return "ok";
