@@ -229,7 +229,7 @@ Plan: `docs/m8-plan.md` (kapsam, fotoğraf → tek PDF ucu, onay bekleyen belgel
 Durum: ✅ telefonda (Expo Go, gerçek Gemini, `gemini-3.5-flash-lite`) "Yükle → dolu form" 4,0 sn (`docs/haftalik/08-mobil-i.md`).
 
 ### M9 — Mobil II
-Plan: `docs/m9-plan.md` (QR → parti/pasaport, hızlı onay/red, push, yükleme kuyruğu, Expo Go sınırı, kararlar). Tasarım brifi: `docs/m9-tasarim-brifi.md` → Claude Design v0.9. Backend tasarım beklemeden, ekranlar tasarımdan sonra; push için geliştirme sürümü ve FCM kullanıcı onayı bekliyor (`m9-plan.md` §10.1).
+Plan: `docs/m9-plan.md` (QR → parti/pasaport, hızlı onay/red, push, yükleme kuyruğu, Expo Go sınırı, kararlar). Tasarım brifi: `docs/m9-tasarim-brifi.md` → Claude Design v0.9. Backend tasarım beklemeden, ekranlar tasarımdan sonra; push kabulü Android telefonda geliştirme sürümü ve Firebase (FCM) ile (kullanıcı kararı, `m9-plan.md` §10.1).
 - [ ] QR okutma (parti etiketi → özet + zincir; ürün QR → pasaport)
 - [ ] Hızlı onay / red
 - [ ] Push bildirimleri (Expo)

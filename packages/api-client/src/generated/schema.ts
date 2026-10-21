@@ -102,6 +102,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/batches/lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The company's batch behind a scanned GS1 Digital Link
+         * @description gtin: GTIN-8/12/13/14 with a valid check digit (normalized to 14 digits), batchNo: the AI (10) batch number (upper-cased), as in /01/{gtin}/10/{batchNo}. An unreadable code, another company's batch and an unknown one all answer 404; the app then opens the public passport.
+         */
+        get: operations["lookupBatch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/batches/next-batch-no": {
         parameters: {
             query?: never;
@@ -476,6 +496,30 @@ export interface paths {
          */
         post: operations["resolveIssue"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/push-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Receive notifications on this phone
+         * @description Binds the Expo push token to the current user; a token another user had moves to this one (the phone changed hands). Calling it again only marks the token as seen.
+         */
+        put: operations["registerPushToken"];
+        post?: never;
+        /**
+         * Stop notifications on this phone
+         * @description On sign-out and when notifications are switched off in the app. The token goes in the query: its brackets are not allowed in a path.
+         */
+        delete: operations["removePushToken"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1575,6 +1619,11 @@ export interface components {
             /** Format: date-time */
             submittedAt: string;
         };
+        PushTokenRequest: {
+            /** @enum {string} */
+            platform: "ANDROID" | "IOS";
+            token: string;
+        };
         RefreshRequest: {
             refreshToken: string;
         };
@@ -2136,6 +2185,47 @@ export interface operations {
             };
             /** @description The product already has a batch with this number */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    lookupBatch: {
+        parameters: {
+            query: {
+                gtin: string;
+                batchNo: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The batch */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchResponse"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company, or not a valid code */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3241,6 +3331,84 @@ export interface operations {
             };
             /** @description ISSUE_BLOCKING (an error) or ALREADY_RESOLVED */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    registerPushToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Registered */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not an Expo push token, or no platform */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    removePushToken: {
+        parameters: {
+            query: {
+                token: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Supplier users have no access */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Not one of the current user's tokens */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

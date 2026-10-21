@@ -103,6 +103,12 @@ tekpas:
       model: ${GEMINI_MODEL:}
       timeout: ${GEMINI_TIMEOUT:PT20S}
       max-output-tokens: ${GEMINI_MAX_OUTPUT_TOKENS:1024}
+  push:
+    # Push notifications through Expo's push service (docs/m9-plan.md §4.3): OWNER and ADMIN phones hear about new
+    # supplier data and expiring certificates. Off unless switched on: nothing leaves the server.
+    enabled: ${PUSH_ENABLED:false}
+    # Only needed when "enhanced security for push" is on in the EAS dashboard.
+    access-token: ${EXPO_ACCESS_TOKEN:}
   jobs:
     # Background jobs (K9). Tests switch the worker thread off and run the jobs themselves (JobWorker.runPending).
     worker-enabled: ${JOBS_WORKER_ENABLED:true}

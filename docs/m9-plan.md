@@ -4,7 +4,7 @@
 
 **Kabul (PLAN):** **Tedarikçi veri gönderince üreticinin telefonuna bildirim gelir, bildirimden onaylanır.**
 
-Bu belge plandır; kod yok. Kararlar §10'da; ikisi kullanıcının onayını bekliyor (§10.1).
+Bu belge plandır; kod yok. Kararlar §10'da; push ile ilgili ikisini kullanıcı verdi (§10.1).
 
 **Dayandığı kurallar:**
 - Kural 1: tenant, başka firmanın kaydına 404.
@@ -62,7 +62,7 @@ Bu belge plandır; kod yok. Kararlar §10'da; ikisi kullanıcının onayını be
 - `PUT /me/push-tokens` `{ token, platform }`: giriş yapan kullanıcıya bağlar.
   - Aynı token başka kullanıcıdaysa (telefonda kullanıcı değişti) bu kullanıcıya taşınır.
   - `last_seen_at` güncellenir. Token biçimi `ExponentPushToken[…]` olarak doğrulanır.
-- `DELETE /me/push-tokens/{token}`: çıkışta ve Profil'de bildirim kapatılınca. Yalnızca kendi token'ı silinir, başkasınınki 404.
+- `DELETE /me/push-tokens?token=…`: çıkışta ve Profil'de bildirim kapatılınca. Yalnızca kendi token'ı silinir, başkasınınki 404.
 - Yeni tablo yok.
 
 ### 4.3 Gönderim
@@ -180,9 +180,6 @@ Video ya da ekran görüntüleriyle haftalık nota.
 6. **Çift yükleme sunucuda önlenir** (`Idempotency-Key`); istemcinin "bir kez gönderdim" varsayımına güvenilmez.
 7. **Yeni bağımlılıklar yalnızca Expo'nun kendi modülleri:** `expo-notifications` (CLAUDE.md yığınında var), `expo-dev-client`, `expo-file-system`, `expo-network`. Hepsi `npx expo install` ile, ücretsiz.
 
-### 10.1 Kullanıcının onayını bekleyen kararlar
-- **A. Firebase (FCM):** Android'de push için Google'ın Firebase projesi gerekiyor (ücretsiz). Bu projeye yeni bir üçüncü parti servis olarak eklenecek; kimlik bilgisi yalnızca EAS'ta durur.
-- **B. Kabul hangi telefonda yapılacak:**
-  - Android telefon (önerilen, ücretsiz) mı, iPhone mu?
-  - iPhone ise ücretli Apple Developer hesabı ($99/yıl) gerekir, bu da "hepsi ücretsiz katman" kuralına aykırı.
-  - Android telefon yoksa: bilgisayarda Google Play imajlı Android emülatörü ile kabul.
+### 10.1 Kullanıcının verdiği kararlar (21.10.2026)
+- **A. Firebase (FCM) onaylandı.** Android'de push için Google'ın Firebase projesi (ücretsiz) kullanılır; kimlik bilgisi yalnızca EAS'ta durur, repoya girmez.
+- **B. Kabul Android telefonda, geliştirme sürümüyle yapılır.** iOS push (ücretli Apple hesabı) kapsam dışı.

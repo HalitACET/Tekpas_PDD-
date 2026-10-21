@@ -13,14 +13,14 @@ import org.springframework.test.context.ActiveProfiles;
 /**
  * Full application against Testcontainers Postgres, driven through MockMvc (security filters included).
  * Provides {@link TestFixtures}, a {@link MutableClock}, an in-memory {@link FakeFileStorage} and a
- * {@link FakeAiClient} (the LLM gate stays closed unless a test switches it on).
+ * {@link FakeAiClient} (the LLM gate stays closed unless a test switches it on) and a {@link FakeExpoPushClient}.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import({TestcontainersConfiguration.class, TestClockConfiguration.class, TestStorageConfiguration.class,
-        TestAiConfiguration.class, TestFixtures.class})
+        TestAiConfiguration.class, TestPushConfiguration.class, TestFixtures.class})
 @ActiveProfiles("test")
 public @interface IntegrationTest {
 }

@@ -9,6 +9,7 @@ import com.tekpas.company.AppUserRepository;
 import com.tekpas.company.CompanyRepository;
 import com.tekpas.document.DocumentRepository;
 import com.tekpas.document.dto.PublicDocument;
+import com.tekpas.notification.PushNotifications;
 import com.tekpas.product.ProductRepository;
 import com.tekpas.request.dto.LinkContext;
 import com.tekpas.request.dto.PublicRejection;
@@ -45,11 +46,13 @@ public class PublicRequestService {
     private final StepEvents events;
     private final DocumentRepository documents;
     private final LlmGate llmGate;
+    private final PushNotifications pushes;
     private final Clock clock;
 
     public PublicRequestService(DataRequestRepository requests, SupplyStepRepository steps, BatchRepository batches,
             ProductRepository products, CompanyRepository companies, AppUserRepository users, BatchProgress progress,
-            StepEvents events, DocumentRepository documents, LlmGate llmGate, Clock clock) {
+            StepEvents events, DocumentRepository documents, LlmGate llmGate, PushNotifications pushes,
+            Clock clock) {
         this.requests = requests;
         this.steps = steps;
         this.batches = batches;
@@ -60,6 +63,7 @@ public class PublicRequestService {
         this.events = events;
         this.documents = documents;
         this.llmGate = llmGate;
+        this.pushes = pushes;
         this.clock = clock;
     }
 
@@ -127,6 +131,7 @@ public class PublicRequestService {
         request.complete(name, role, now);
         events.record(step.getId(), request.getId(), StepEventKind.SUBMITTED, null, name, null);
         progress.refresh(step.getBatchId());
+        pushes.stepSubmitted(step.getId());
         return new PublicSubmitResponse(RequestTokens.code(request.getId()), now, link.manufacturerName());
     }
 
