@@ -48,7 +48,7 @@
   - Ölçüm: Render'daki imajın aynısı Docker'da 0,1 CPU / 512 MB ile çalıştırıldı, açılış sırasında 3 sn'de bir iş parçacığı dökümü alındı.
   - Lazy init yalnızca işi ilk isteğe kaydırıyor (ilk cevap 162 → 163 sn). Flyway doğrulaması 0,6 sn. Mevcut CDS arşivi %30 kazandırıyor.
   - En pahalı tek kalem: Spring Data JPA'nın 24 `@Query` metnini açılışta ANTLR ile ayrıştırması. Regex tabanlı işleyiciyle ilk cevap 162 → 141 sn (-%13); 654 backend testi yeşil.
-  - Değişiklik `exp/query-enhancer` dalında bekliyor; prod'a kullanıcı kararıyla.
+  - Kullanıcı onayıyla uygulandı (`JpaRepositoriesConfig`). İzin verilen her sıralama alanını deneyen testler eklendi.
 - **OCR'da ön işleme belirleyici:** bozuk fotoğraf işlemesiz 20 sn ve 2/9 doğru; Otsu eşiklemeyle 0,9 sn ve 9/9 doğru.
 - **Diğerleri:**
   - **Migration numarası kaydı:** planda ilgili kişi V16'ya yazılmıştı, demo senaryosu önce geldiği için V17 oldu; plan düzeltildi.
@@ -69,7 +69,6 @@
 - **T8 Bakım bilgisi (ISO 3758):** Claude Design v1.0 bekleniyor.
 - **T7 Gerçek istemci IP'si:** canlıda Render loglarında başlık kontrolü (kullanıcı).
 - **Kullanıcı kararları:**
-  - Regex sorgu işleyicisi (-%13 açılış).
   - Java 25 AOT önbelleği ölçümü.
   - OCR'ın web'e alınması.
   - Demodan sonra sıfırlama yolu.

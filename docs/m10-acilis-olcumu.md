@@ -6,7 +6,7 @@
 - Zamanın büyük kısmı Spring, Hibernate ve sınıf yüklemenin 0,1 CPU'da ağır çalışmasına gidiyor. Uygulamaya özgü ağır bir bean yok.
 - Ölçülen tek somut kazanç: `@Query` metinlerinin açılışta ANTLR ile ayrıştırılmasını kapatmak. İlk cevap 162 sn'den 141 sn'ye iniyor (**-%13**), bütün testler geçiyor.
 - Lazy init cevap süresini kısaltmıyor, işi yalnızca ilk isteğe kaydırıyor. Flyway doğrulaması 0,6 sn, hedef değil.
-- **Prod'a bir şey uygulanmadı** (plan: yalnızca kullanıcı onayıyla). Öneriler §4'te.
+- **Prod'a giren tek değişiklik regex sorgu işleyicisi** (kullanıcı onayıyla, 22.10.2026). Diğer öneriler §4'te.
 
 ## 1. Yöntem
 
@@ -52,10 +52,10 @@
 
 ## 4. Öneriler (karar kullanıcının)
 
-1. **Regex sorgu işleyicisi (önerilir, -%13):**
-   - `@EnableJpaRepositories(queryEnhancerSelector = …)` ile `@Query` metinleri için `QueryEnhancerFactories.fallback()` seçilir. Yaklaşık 20 satırlık bir yapılandırma sınıfı; `exp/query-enhancer` dalında hazır, merge edilmedi.
+1. **Regex sorgu işleyicisi (-%13, uygulandı):**
+   - `@EnableJpaRepositories(queryEnhancerSelector = …)` ile `@Query` metinleri için `QueryEnhancerFactories.fallback()` seçilir. `JpaRepositoriesConfig` (yaklaşık 20 satır).
    - **Bedeli:** sıralama ve sayma sorgusu türetme ANTLR yerine düzenli ifadelerle yapılır. Sayfalı iki sorgunun ikisi de kendi `countQuery`'sini veriyor; sıralama alanları `PageQuery` ile beyaz listede.
-   - **Güvence:** bu ayarla bütün backend testleri koşuldu: 654 test, hepsi yeşil.
+   - **Güvence:** bu ayarla bütün backend testleri yeşil. Ayrıca parti ve ürün listelerinde izin verilen her sıralama alanı, iki yönde ve aramayla birlikte deneniyor.
    - **Etki:** Render'da tahminen 8–10 sn.
 2. **Java 25 ve AOT önbelleği (araştırılmalı):**
    - JDK 24'te gelen AOT önbelleği (JEP 483), sınıfları yüklenmiş ve bağlanmış hâlde saklar. JDK 25'te yöntem profilleri de eklendi (JEP 515).

@@ -461,6 +461,28 @@ class BatchApiTest {
             assertThat(ids(tenant, "?sort=batchNo,desc")).containsExactly(poloBatch, shirtBatch);
         }
 
+        /**
+         * Every whitelisted sort field, both ways, together with the search filter: the @Query's sorting is added by
+         * Spring Data's regex query enhancer (JpaRepositoriesConfig), so each field must still become valid JPQL.
+         */
+        @Test
+        void everySortFieldWorksWithTheSearchInBothDirections() {
+            Tenant tenant = fixtures.tenant();
+            String shirtBatch = create(tenant, with(batch(createProduct(tenant, "Keten Gömlek").path("id").asString()),
+                    "batchNo", "KG-1")).path("id").asString();
+            String poloBatch = create(tenant, with(batch(createProduct(tenant, "Organik Polo").path("id").asString()),
+                    "batchNo", "OP-1")).path("id").asString();
+
+            for (String field : List.of("batchNo", "createdAt", "updatedAt", "producedFrom", "quantity", "productName")) {
+                for (String direction : List.of("asc", "desc")) {
+                    assertThat(ids(tenant, "?q=-1&sort=" + field + "," + direction))
+                            .as(field + "," + direction).containsExactlyInAnyOrder(shirtBatch, poloBatch);
+                }
+            }
+            assertThat(ids(tenant, "?q=-1&sort=productName,desc")).containsExactly(poloBatch, shirtBatch);
+            assertThat(ids(tenant, "?q=-1&sort=batchNo")).containsExactly(shirtBatch, poloBatch);
+        }
+
         @Test
         void productFilterOfAnotherCompanyFindsNothing() {
             TenantPair tenants = fixtures.twoTenants();
