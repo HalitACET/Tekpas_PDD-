@@ -47,8 +47,14 @@ ISO 3758 sembolleri GINETEX'in tescilli işaretleridir. Tasarım:
 
 Karar kullanıcınındır; bu çerçevelerde çizgi ikon kullanılsın.
 
-## D. Kapsam dışı (çizilmesin)
+## D. Tedarikçinin ilgili kişisi (kodda var, tasarım onayı için)
+M10 T3'te tedarikçiye isteğe bağlı **"İlgili kişi"** eklendi (en fazla 100 karakter; telefon gibi üreticinin bu tedarikçiyle bağına ait). Mevcut bileşenlerle kodlandı; çerçevesi yok. Lütfen şu üç yeri çiz ya da düzelt:
+1. **Tedarikçi ekle / düzenle diyaloğu** (v0.3.2 36a/36b): bugün "Şehir | İletişim telefonu" satırının altında tam genişlikte "İlgili kişi" alanı, yer tutucu "örn. Selin Arslan". Kendi hesabı olan firmada (36a, ad/tip/şehir kilitli) telefon gibi düzenlenebilir.
+2. **Tedarikçiler listesi** (v0.3.1 27, "İletişim" sütunu): kişi adı üstte (13 px), telefon altında (mono). Kişi yoksa yalnızca telefon.
+3. **Veri talep et** (v0.4 46a): kişi varsa üstte kişinin adı ve baş harfleri, altında "firma · şehir". Mesaj "Merhaba {ad}," ile başlar. Unvan yok ("Murat Bey" değil): cinsiyet tahmini gerekirdi.
+
+## E. Kapsam dışı (çizilmesin)
 Mobil uygulamada bakım bilgisi, Excel içe aktarmada bakım sütunu (M11), etiket basımı.
 
 ## Teslim
-Çerçeve numaraları **120'den** başlar. Her çerçeve açık ve koyu PNG; `.dc.html` bileşenleri `docs/design/v1.0/` altına.
+Çerçeve numaraları **120'den** başlar (A, B), D bölümü **130'dan**. Her çerçeve açık ve koyu PNG; `.dc.html` bileşenleri `docs/design/v1.0/` altına.
