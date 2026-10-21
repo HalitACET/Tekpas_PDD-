@@ -85,6 +85,44 @@ jobs:
             console.log("/ is dynamic (not in prerender-manifest).");
           '
 
+  # Playwright against a production build with the API mocked in the browser (no backend). The screenshot
+  # runs stay local (playwright.config.ts).
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      # The tests expect Türkiye's dates and times; the mocks are built in Node, the pages render in the browser.
+      TZ: Europe/Istanbul
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Playwright Chromium
+        working-directory: web
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: playwright test
+        run: pnpm --filter web e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: |
+            web/playwright-report
+            web/test-results
+          retention-days: 7
+
   contract:
     name: contract
     needs: backend
