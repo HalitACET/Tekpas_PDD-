@@ -26,8 +26,8 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 
 1. **Ürün:** Üretici ürününü GTIN, kategori ve etiketteki lif bileşimiyle tanımlar. GTIN'in GS1 kontrol hanesi ve lif toplamının %100 olması doğrulanır.
 2. **Parti:** Her üretim emri için bir parti açılır. Pasaport parti düzeyindedir, çünkü her partinin tedarik zinciri farklı olabilir.
-3. **Tedarik zinciri:** Üretici tedarikçi ağını (iplikçi, kumaşçı, boyahane, konfeksiyon) kurar. Her partinin zinciri lif → iplik → kumaş → boya → konfeksiyon adımlarıyla çizilir; yeni parti zincirini ürünün son partisinden kopyalar, adımlara ağdaki tedarikçiler atanır ve düğümün rengi adımın durumunu gösterir. Üretici bir adım için veri talep eder; bağlantıyı WhatsApp'tan paylaşır.
-4. **Tedarikçi sayfası:** Tedarikçi, telefondan hesapsız açtığı bağlantıdaki formu doldurur ve tek seferde gönderir. Üretici gelen veriyi panelde inceler, onaylar ya da hazır bir seçimle alanı işaretleyip düzeltme ister; "Görevler" sayfası bekleyen işleri ve süresi dolan bağlantıları toplar. Bağlantının gizli kısmı yalnızca adreste durur (sunucuya ve log'lara gitmez).
+3. **Tedarik zinciri:** Üretici tedarikçi ağını (iplikçi, kumaşçı, boyahane, konfeksiyon) kurar. Her partinin zinciri lif → iplik → kumaş → boya → konfeksiyon adımlarıyla çizilir; yeni parti zincirini ürünün son partisinden kopyalar, adımlara ağdaki tedarikçiler atanır ve düğümün rengi adımın durumunu gösterir. Üretici bir adım için veri talep eder; bağlantıyı WhatsApp'tan paylaşır, mesaj tedarikçideki ilgili kişiye adıyla hitap eder.
+4. **Tedarikçi sayfası:** Tedarikçi, telefondan hesapsız açtığı bağlantıdaki formu doldurur ve tek seferde gönderir. Üretici gelen veriyi panelde inceler, onaylar ya da hazır bir seçimle alanı işaretleyip düzeltme ister (tedarikçinin formu önceki veriler ve gönderenle dolu açılır); "Görevler" sayfası bekleyen işleri ve süresi dolan bağlantıları toplar. Bağlantının gizli kısmı yalnızca adreste durur (sunucuya ve log'lara gitmez).
 5. **Belge ve AI:** Sertifikalar (OEKO-TEX, GOTS…) yüklenir, AI alanları okur ve tutarlılığı kontrol eder. AI önerir, insan onaylar.
 6. **QR pasaport:** Onaylanan parti için GS1 Digital Link QR'lı, çok dilli ve herkese açık bir pasaport yayınlanır. Yayınlanan sürüm değişmez; değişiklik yeni sürüm demektir.
 7. **Tutarlılık kontrolü:** Kurallar etiket beyanı ile iplik/kumaş beyanını, sertifika sürelerini, sertifika sahibini ve eksik alanları denetler. Her bulgunun sabit bir kodu vardır (`LIF-01`, `SER-02`…). Engelleyici uyarı yayını durdurur ve veri düzelince kendiliğinden kapanır; diğerlerini yetkili biri notla "çözüldü" yapar. Süresi dolan sertifikalar her gün taranır ve Görevler'de listelenir. Demo firmasında AI da öneride bulunur (sertifika kapsamı, çelişen beyanlar); her öneri verideki bir alıntıya dayanır, engelleyici olmaz.
@@ -49,7 +49,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M7 | Tutarlılık kontrolü ve sertifika takibi: kural kodlu uyarılar, AI önerileri, günlük sertifika taraması | ✅ |
 | M8 | Mobil I: görevler, kamerayla çok sayfalı belge, AI okuması ve onay (Expo) | ✅ |
 | M9 | Mobil II: QR okutma, hızlı onay ve düzeltme, bildirimler, zayıf bağlantıda yükleme kuyruğu | 🟡 |
-| M10 | Demo hazırlığı | ⬜ |
+| M10 | Demo hazırlığı: gerçekçi demo verisi, tedarikçi ilgili kişisi, e2e CI'da, açılış ölçümü, demo senaryosu | 🟡 |
 | M11 | Çok dil ve Excel içe aktarma | ⬜ |
 | M12 | Detaylı roller, denetim izi, test | ⬜ |
 | M13 | Bitirme teslimi | ⬜ |

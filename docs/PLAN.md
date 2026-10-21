@@ -240,18 +240,18 @@ Durum: kod ve Android geliştirme sürümü hazır; telefonda kabul denemesi kul
 
 ### M10 — Arden demo hazırlığı
 Plan: `docs/m10-plan.md` (görevler T1–T12, gerçekçi demo verisi, kullanıcıya düşenler, kararlar). Bakım bilgisi için tasarım brifi: `docs/m10-tasarim-brifi.md` → Claude Design v1.0. M8/M9 telefon kabul denemeleri bu kilometre taşının sonunda (kullanıcı kararı).
-- [ ] Gerçekçi demo verisi (3 ürün, 5 parti, farklı tamamlanma seviyeleri, 1 süresi dolmak üzere sertifika)
-- [ ] Görsel cila, boş durumlar, yükleniyor durumları
-- [ ] Sunucu uyanık, APK hazır, 5 dakikalık demo senaryosu yazılı ve prova edilmiş
-- [ ] e2e testleri CI'da çalışsın (şu an yalnızca yerelde; `pnpm --filter web exec playwright test`)
+- [x] Gerçekçi demo verisi (3 ürün, 5 parti, farklı tamamlanma seviyeleri, 1 süresi dolmak üzere sertifika) _Sonuç (PR #83):_ `DemoScenario` (yalnızca `demo` profili, V16 `demo_scenario`, bir kez uygulanır): parti 1 yayında, 2 yayına hazır, 3'te gönderilmiş kumaş ve AI'ın okuduğu GOTS belgesi, 4'te LIF-01, 5 taslak; Uludağ'ın sertifikası 20 gün içinde bitiyor. Sentetik PDF'ler PDFBox ile, AI çağrısı yok. Pasaportu olan parti yeniden uygulanmaz.
+- [x] Görsel cila, boş durumlar, yükleniyor durumları _Sonuç (PR #90):_ demo verisiyle bütün ekranlar gezildi; çevrilmemiş anahtar, hata kutusu, konsol hatası yok. Pasaportun GS1 satırı 375 px'te parti numarasından bölünüyordu, düzeltildi.
+- [ ] Sunucu uyanık, APK hazır, 5 dakikalık demo senaryosu yazılı ve prova edilmiş _Durum:_ senaryo yazılı (`docs/m10-demo-senaryosu.md`, PR #91), APK hazır (M9); prova ve demo günü cron'u kullanıcıyla.
+- [x] e2e testleri CI'da çalışsın _Sonuç (PR #86):_ `e2e` job'u: Next build + Playwright (Chrome, mock API), 138 test ~5 dk; başarısızlıkta rapor/ekran görüntüsü/trace artefakt. Ekran görüntüsü koşuları yerelde kalır.
 - [ ] Genel 600/dk sayacı kasıtlı doldurulursa herkes 1 dk etkilenir; Vercel IP başlığı doğrulanınca IP bazlıya dönülecek (aşağıdaki madde).
-- [ ] Düzeltme formunda (v0.4 45) gönderen ad ve görev önceki gönderimden dolsun (`PublicRequestView`'a alanlar eklenecek; şimdi boş açılıyor).
-- [ ] Tedarikçiye isteğe bağlı "ilgili kişi" alanı (v0.4 46a'daki "Ahmet Kaya" kartı, WhatsApp mesajında adıyla hitap): backend, 15'teki diyalog, 14'teki liste. Şimdilik kartta firma adı, mesaj "Merhaba," ile başlar.
+- [x] Düzeltme formunda (v0.4 45) gönderen ad ve görev önceki gönderimden dolsun _Sonuç (PR #84):_ `PublicRejection.submitterName/submitterRole` (adımın son tamamlanan talebinden).
+- [x] Tedarikçiye isteğe bağlı "ilgili kişi" alanı _Sonuç (PR #85):_ V17 `company_supplier.contact_name` (bağa ait); web formu ve listesi, 46a'da kişi üstte, mesaj "Merhaba {kişi},"; mobil düzeltme ekranında alıcı. Unvanlı hitap yok (cinsiyet tahmini gerekirdi).
 - [ ] Public rate limit için gerçek istemci IP'si: Vercel'in kendi başlığı (`x-real-ip` veya `x-vercel-forwarded-for`) Render'a ulaşıyor mu, canlıda doğrula; ulaşıyorsa `ClientIp` onu okusun ve IP başına sınırlar (M4) yeniden açılsın. Şimdilik genel sayaç + token başına sayaç.
-- [ ] Açılışı hızlandırma / Render araştırması: soğuk başlangıç 100–150 sn ("Started TekpasApplication in" 75–83 sn). Render'da önce/sonra ölç: lazy init, gereksiz auto-config, Flyway validate. Prod'a lazy init kullanıcı onayıyla. Uyuyan sunucuda erken kesilen isteğin uyanmayı iptal edip etmediği canlıda ölçülemedi (cron gün içinde uyanık tutuyor); burada bak.
+- [x] Açılışı hızlandırma / Render araştırması _Sonuç (PR #89, `docs/m10-acilis-olcumu.md`):_ Render imajı 0,1 CPU / 512 MB ile yerelde: ilk cevap ort. 162 sn; lazy init kazandırmıyor, Flyway 0,6 sn, CDS -%30. `@Query`'lerin ANTLR ile ayrıştırılması yerine regex işleyici -%13 (`exp/query-enhancer`, kullanıcı kararı bekliyor). Erken kesilen istek sorusu canlıda bakılacak. Eski not: soğuk başlangıç 100–150 sn ("Started TekpasApplication in" 75–83 sn). Render'da önce/sonra ölç: lazy init, gereksiz auto-config, Flyway validate. Prod'a lazy init kullanıcı onayıyla. Uyuyan sunucuda erken kesilen isteğin uyanmayı iptal edip etmediği canlıda ölçülemedi (cron gün içinde uyanık tutuyor); burada bak.
 
-- [ ] Depoda kayıtsız dosya taraması (M5 T3'ten): satırı olmayan `docs/` nesnelerini bul ve sil (`docs/m5-plan.md` §10)
-- [ ] Tarayıcıda OCR araştırması (tesseract.js; M5 kararı 3, `docs/m5-plan.md` §10)
+- [x] Depoda kayıtsız dosya taraması _Sonuç (PR #87):_ `FileStorage.list`, günlük `DOCUMENT_CLEANUP`'ın sonunda `OrphanObjectScan`: 1 saatten eski, hiçbir belgenin göstermediği `docs/` nesneleri log'a; silme `STORAGE_REMOVE_ORPHANS=true` ile.
+- [x] Tarayıcıda OCR araştırması _Sonuç (PR #88, `docs/m10-ocr-arastirmasi.md`):_ ön işlemeyle ~1 sn/sayfa, sentetik sertifikada 9/9; ilk indirme ~5 MB; PDF ve React Native'de yok. Kod yok, karar M11/M12.
 - [ ] Bakım bilgisi (ISO 3758 sembolleri): `product.care_info`, ürün formu, pasaport sayfası bölümü ve uyum skorunun ürün alanı (M6'dan ertelendi, `docs/m6-plan.md` §9 karar 9; snapshot `schemaVersion: 2`)
 **Kabul:** Demo senaryosu baştan sona hatasız, internet yavaşken bile çalışıyor.
 
