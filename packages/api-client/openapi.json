@@ -46,6 +46,66 @@
         },
         "required" : [ "status", "title", "type" ]
       },
+      "AwaitingDocument" : {
+        "properties" : {
+          "batchId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "batchNo" : {
+            "type" : "string"
+          },
+          "batchStatus" : {
+            "$ref" : "#/components/schemas/BatchStatus"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "docType" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : "string"
+          },
+          "extractionMethod" : {
+            "enum" : [ "TEXT_RULES", "LLM", "NONE" ],
+            "type" : [ "string", "null" ]
+          },
+          "extractionStatus" : {
+            "enum" : [ "QUEUED", "RUNNING", "READ", "PARTIAL", "UNREADABLE", "FAILED" ],
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "lowConfidence" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "originalName" : {
+            "type" : "string"
+          },
+          "proposedFields" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "stepId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "supplierName" : {
+            "type" : [ "string", "null" ]
+          },
+          "uploadedByName" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "batchId", "batchNo", "batchStatus", "createdAt", "docType", "extractionStatus", "id", "lowConfidence", "originalName", "proposedFields", "stepId", "stepType" ],
+        "type" : "object"
+      },
       "BatchCreateRequest" : {
         "properties" : {
           "batchNo" : {
@@ -3557,6 +3617,39 @@
         "tags" : [ "issues" ]
       }
     },
+    "/api/v1/documents/awaiting-review" : {
+      "get" : {
+        "description" : "The company's unconfirmed documents whose reading is over (read, partly read, unreadable or failed), at most 50, each with its batch, step and supplier (the mobile Görevlerim, M8).",
+        "operationId" : "listDocumentsAwaitingReview",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/AwaitingDocument"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "The documents"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier user"
+          }
+        },
+        "summary" : "Documents read and waiting for a person, newest first",
+        "tags" : [ "documents" ]
+      }
+    },
     "/api/v1/documents/expiring" : {
       "get" : {
         "description" : "Closest end first, with the step, supplier and batch each is used in; one that a newer confirmed certificate of the same type replaced is not listed. days is 1–365 (default 30).",
@@ -5593,6 +5686,132 @@
           }
         },
         "summary" : "Upload a certificate or technical sheet to a step",
+        "tags" : [ "documents" ]
+      }
+    },
+    "/api/v1/steps/{id}/documents/photos" : {
+      "post" : {
+        "description" : "1 to 10 JPG or PNG pages, 10 MB together (the mobile app, M8). The server checks every page, draws it again without its metadata (location, camera), scales it to 2000 px at most and joins the pages into one PDF; then it is stored and read like an uploaded document.",
+        "operationId" : "uploadDocumentPhotos",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "docType",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "properties" : {
+                  "pages" : {
+                    "items" : {
+                      "format" : "binary",
+                      "type" : "string"
+                    },
+                    "type" : "array"
+                  }
+                },
+                "required" : [ "pages" ],
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "202" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentResponse"
+                }
+              }
+            },
+            "description" : "Stored as one PDF; reading is queued"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Field pages (PageCount) or pages[i] (FileEmpty, FileCorrupt, FileDimensions)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Read-only or supplier user"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such step in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "DUPLICATE_DOCUMENT, DOCUMENT_LIMIT or BATCH_PUBLISHED"
+          },
+          "413" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Larger than 10 MB together (field pages, code FileTooLarge)"
+          },
+          "415" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "A page is not a JPG or PNG (field pages[i], code FileType)"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many uploads (Retry-After)"
+          }
+        },
+        "summary" : "Upload the photographed pages of one document",
         "tags" : [ "documents" ]
       }
     },

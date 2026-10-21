@@ -65,13 +65,14 @@ public class DocumentService {
     private final LlmGate gate;
     private final RateLimiter limiter;
     private final ValidationTriggers validation;
+    private final PhotoPages photos;
     private final Clock clock;
     private final TransactionTemplate tx;
 
     public DocumentService(DocumentRepository documents, SupplyStepRepository steps, BatchRepository batches,
             AppUserRepository users, StepEvents events, FileStorage storage, FileInspector inspector,
             DocumentStore store, JobQueue jobs, LlmGate gate, RateLimiter limiter,
-            ValidationTriggers validation, Clock clock, PlatformTransactionManager transactions) {
+            ValidationTriggers validation, PhotoPages photos, Clock clock, PlatformTransactionManager transactions) {
         this.documents = documents;
         this.steps = steps;
         this.batches = batches;
@@ -84,6 +85,7 @@ public class DocumentService {
         this.gate = gate;
         this.limiter = limiter;
         this.validation = validation;
+        this.photos = photos;
         this.clock = clock;
         this.tx = new TransactionTemplate(transactions);
     }
@@ -93,7 +95,21 @@ public class DocumentService {
             @Nullable DocType docType) {
         // Counted before the file is looked at, so rejected files use up the allowance too.
         limiter.hit("document-upload", companyId.toString(), UPLOADS_PER_COMPANY_PER_HOUR, Duration.ofHours(1));
-        InspectedFile inspected = inspector.inspect(file);
+        return store(companyId, userId, stepId, inspector.inspect(file), docType);
+    }
+
+    /**
+     * The pages a phone photographed, as one PDF document (M8, docs/m8-plan.md §3.1); then exactly like
+     * {@link #upload}. Not transactional on purpose, as there.
+     */
+    public DocumentResponse uploadPhotos(UUID companyId, UUID userId, UUID stepId, List<MultipartFile> pages,
+            @Nullable DocType docType) {
+        limiter.hit("document-upload", companyId.toString(), UPLOADS_PER_COMPANY_PER_HOUR, Duration.ofHours(1));
+        return store(companyId, userId, stepId, photos.combine(pages), docType);
+    }
+
+    private DocumentResponse store(UUID companyId, UUID userId, UUID stepId, InspectedFile inspected,
+            @Nullable DocType docType) {
         Document saved = store.save(inspected, docType == null ? DocType.UNKNOWN : docType, () -> {
             SupplyStep step = steps.lockForUpdate(stepId, companyId)
                     .orElseThrow(() -> new NotFoundException("Step not found"));

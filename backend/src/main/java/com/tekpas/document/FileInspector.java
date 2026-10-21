@@ -33,7 +33,7 @@ class FileInspector {
     record InspectedFile(byte[] bytes, String mimeType, String sha256, int pageCount, String displayName) {
     }
 
-    private enum Kind {
+    enum Kind {
         PDF("application/pdf", ".pdf"), PNG("image/png", ".png"), JPEG("image/jpeg", ".jpg");
 
         final String mime;
@@ -70,7 +70,7 @@ class FileInspector {
                 FileNames.display(file.getOriginalFilename(), kind.extension));
     }
 
-    private static @Nullable Kind kindOf(byte[] b) {
+    static @Nullable Kind kindOf(byte[] b) {
         if (startsWith(b, '%', 'P', 'D', 'F', '-')) {
             return Kind.PDF;
         }
@@ -119,7 +119,7 @@ class FileInspector {
     }
 
     /** Width times height from the image header; the pixels themselves are never decoded. */
-    private static int checkedImage(byte[] bytes) {
+    static int checkedImage(byte[] bytes) {
         try (ImageInputStream in = ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {
             Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
             if (!readers.hasNext()) {
@@ -147,7 +147,7 @@ class FileInspector {
         }
     }
 
-    private static String sha256(byte[] bytes) {
+    static String sha256(byte[] bytes) {
         try {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
         } catch (NoSuchAlgorithmException e) {
