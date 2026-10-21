@@ -9,16 +9,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/** Expo's push service in tests: records every call; tokens can be marked gone, a call can be made to fail. */
+/**
+ * Expo's push service in tests: records every call; tokens can be marked gone, and calls to given tokens can be made
+ * to fail (only those: the test database is shared, other tests' notifications run in the same worker).
+ */
 public class FakeExpoPushClient implements ExpoPushClient {
 
     private final List<List<PushMessage>> calls = new ArrayList<>();
     private final Set<String> gone = new HashSet<>();
+    private final Set<String> failing = new HashSet<>();
     private int failures;
 
     @Override
     public synchronized List<PushTicket> send(List<PushMessage> messages) {
-        if (failures > 0) {
+        if (failures > 0 && messages.stream().anyMatch(m -> failing.contains(m.to()))) {
             failures--;
             throw new PushUnavailableException("Expo push answered 503");
         }
@@ -42,13 +46,16 @@ public class FakeExpoPushClient implements ExpoPushClient {
         gone.add(token);
     }
 
-    public synchronized void failNext(int times) {
+    /** The next {@code times} calls that carry one of these tokens fail as if Expo were down. */
+    public synchronized void failFor(Set<String> tokens, int times) {
+        failing.addAll(tokens);
         failures = times;
     }
 
     public synchronized void reset() {
         calls.clear();
         gone.clear();
+        failing.clear();
         failures = 0;
     }
 }

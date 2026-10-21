@@ -61,6 +61,13 @@ class PushNotifyJobTest {
         jdbc.update("DELETE FROM job WHERE type = 'CERT_EXPIRY_SCAN'");
     }
 
+    /** Every due job, also those other tests left behind: one run takes a limited number. */
+    void drain() {
+        while (worker.runPending() > 0) {
+            // next round
+        }
+    }
+
     record Setup(Tenant owner, String batchNo, String yarnStep, String supplierName) {
     }
 
@@ -112,7 +119,7 @@ class PushNotifyJobTest {
         Setup s = setup(owner);
 
         submit(s);
-        worker.runPending();
+        drain();
 
         List<com.tekpas.notification.PushMessage> sent =
                 expo.sentTo(Set.of(ownerPhone, adminPhone, editorPhone, viewerPhone, strangerPhone));
@@ -135,7 +142,7 @@ class PushNotifyJobTest {
         Setup s = setup(owner);
 
         submit(s);
-        worker.runPending();
+        drain();
 
         assertThat(expo.sentTo(Set.of(gone, kept))).hasSize(2);
         assertThat(jdbc.queryForList("SELECT expo_token FROM push_token WHERE user_id = ?", String.class,
@@ -144,7 +151,7 @@ class PushNotifyJobTest {
         Setup reviewed = setup(owner);
         submit(reviewed);
         assertThat(fixtures.post(owner, "/api/v1/steps/" + reviewed.yarnStep() + "/approve", Map.of())).hasStatusOk();
-        worker.runPending();
+        drain();
         assertThat(expo.sentTo(Set.of(kept))).hasSize(1);
     }
 
@@ -155,14 +162,14 @@ class PushNotifyJobTest {
         for (int i = 0; i < 101; i++) {
             phones.add(phone(owner));
         }
-        expo.failNext(1);
+        expo.failFor(phones, 1);
 
         queue.enqueue(JobType.PUSH_NOTIFY, PushNotifyJob.Payload.certificatesExpiring(owner.company().getId(), 2));
-        worker.runPending();
+        drain();
         assertThat(expo.sentTo(phones)).isEmpty();
 
         clock.advance(Duration.ofSeconds(31));
-        worker.runPending();
+        drain();
         List<PushMessage> sent = expo.sentTo(phones);
         assertThat(sent).hasSize(101);
         assertThat(expo.calls()).filteredOn(call -> phones.contains(call.getFirst().to()))
@@ -176,14 +183,14 @@ class PushNotifyJobTest {
         Tenant owner = fixtures.tenant();
         String ownerPhone = phone(owner);
         Setup s = setup(owner);
-        worker.runPending();
+        drain();
         LocalDate today = LocalDate.ofInstant(clock.instant(), ZoneId.of("Europe/Istanbul"));
         certificate(owner, s.yarnStep(), "GOTS", today.plusDays(30));
         certificate(owner, s.yarnStep(), "OEKO_TEX", today.plusDays(30));
         certificate(owner, s.yarnStep(), "GRS", today.plusDays(12));
 
         queue.enqueue(JobType.CERT_EXPIRY_SCAN, Map.of());
-        worker.runPending();
+        drain();
 
         assertThat(expo.sentTo(Set.of(ownerPhone))).singleElement().satisfies(m -> {
             assertThat(m.title()).isEqualTo("Sertifika süreleri");
