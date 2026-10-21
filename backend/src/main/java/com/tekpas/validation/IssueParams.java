@@ -11,8 +11,9 @@ import org.jspecify.annotations.Nullable;
 /**
  * What a card fills its sentence and its comparison boxes with, as typed optional fields (one record for all
  * codes, like StepData): LIF-01 label, declared and the differing fibres; LIF-02 the composition and its total;
- * SER-* the document type, its end of validity and the two names; BEL-01 the file name; EKS-02 which date is missing.
- * Never the days left: those change every day and are worked out where they are shown.
+ * SER-* the document type, its end of validity and the two names; BEL-01 the file name; EKS-02 which date is missing;
+ * AI-* the server's confidence and the quotes that tie the suggestion to the batch's data. Never the days left: those
+ * change every day and are worked out where they are shown.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record IssueParams(
@@ -25,9 +26,25 @@ public record IssueParams(
         @Nullable String holder,
         @Nullable String supplier,
         @Nullable String fileName,
-        @Nullable String missing) {
+        @Nullable String missing,
+        @Nullable Double confidence,
+        @Nullable List<IssueEvidence> evidence) {
 
     public static final IssueParams EMPTY = new IssueParams(null, null, null, null, null, null, null, null, null, null);
+
+    /** The rules' parameters: everything but the AI's confidence and evidence. */
+    public IssueParams(@Nullable List<FiberShare> label, @Nullable List<FiberShare> declared,
+            @Nullable List<Fiber> differing, @Nullable Integer total, @Nullable DocType docType,
+            @Nullable LocalDate validUntil, @Nullable String holder, @Nullable String supplier,
+            @Nullable String fileName, @Nullable String missing) {
+        this(label, declared, differing, total, docType, validUntil, holder, supplier, fileName, missing, null, null);
+    }
+
+    /** An AI suggestion's parameters. */
+    public static IssueParams ofSuggestion(@Nullable DocType docType, double confidence, List<IssueEvidence> evidence) {
+        return new IssueParams(null, null, null, null, docType, null, null, null, null, null, confidence,
+                List.copyOf(evidence));
+    }
 
     public static IssueParams ofDocument(DocType type, @Nullable LocalDate validUntil) {
         return new IssueParams(null, null, null, null, type, validUntil, null, null, null, null);

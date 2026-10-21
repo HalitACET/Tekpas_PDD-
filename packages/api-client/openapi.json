@@ -576,6 +576,10 @@
         "required" : [ "page", "snippet" ],
         "type" : "object"
       },
+      "EvidenceSource" : {
+        "enum" : [ "PRODUCT", "STEP", "DOCUMENT" ],
+        "type" : "string"
+      },
       "ExpiringCertificate" : {
         "properties" : {
           "batchId" : {
@@ -730,7 +734,7 @@
         "type" : "object"
       },
       "IssueCode" : {
-        "enum" : [ "LIF-01", "LIF-02", "SER-01", "SER-02", "SER-03", "SER-04", "EKS-01", "EKS-02", "BEL-01" ],
+        "enum" : [ "LIF-01", "LIF-02", "SER-01", "SER-02", "SER-03", "SER-04", "EKS-01", "EKS-02", "BEL-01", "AI-01", "AI-02" ],
         "type" : "string"
       },
       "IssueCounts" : {
@@ -749,6 +753,28 @@
           }
         },
         "required" : [ "errors", "infos", "warnings" ],
+        "type" : "object"
+      },
+      "IssueEvidence" : {
+        "properties" : {
+          "docType" : {
+            "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
+            "type" : [ "string", "null" ]
+          },
+          "quote" : {
+            "type" : "string"
+          },
+          "source" : {
+            "$ref" : "#/components/schemas/EvidenceSource"
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "supplier" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "quote", "source" ],
         "type" : "object"
       },
       "IssueFilter" : {
@@ -780,6 +806,10 @@
       },
       "IssueParams" : {
         "properties" : {
+          "confidence" : {
+            "format" : "double",
+            "type" : [ "number", "null" ]
+          },
           "declared" : {
             "items" : {
               "$ref" : "#/components/schemas/FiberShare"
@@ -795,6 +825,12 @@
           "docType" : {
             "enum" : [ "OEKO_TEX", "GOTS", "GRS", "BCI", "OCS", "BLUESIGN", "LAB_REPORT", "SDS", "INVOICE", "TECH_SHEET", "OTHER", "UNKNOWN" ],
             "type" : [ "string", "null" ]
+          },
+          "evidence" : {
+            "items" : {
+              "$ref" : "#/components/schemas/IssueEvidence"
+            },
+            "type" : [ "array", "null" ]
           },
           "fileName" : {
             "type" : [ "string", "null" ]

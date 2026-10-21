@@ -30,7 +30,7 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 4. **Tedarikçi sayfası:** Tedarikçi, telefondan hesapsız açtığı bağlantıdaki formu doldurur ve tek seferde gönderir. Üretici gelen veriyi panelde inceler, onaylar ya da hazır bir seçimle alanı işaretleyip düzeltme ister; "Görevler" sayfası bekleyen işleri ve süresi dolan bağlantıları toplar. Bağlantının gizli kısmı yalnızca adreste durur (sunucuya ve log'lara gitmez).
 5. **Belge ve AI:** Sertifikalar (OEKO-TEX, GOTS…) yüklenir, AI alanları okur ve tutarlılığı kontrol eder. AI önerir, insan onaylar.
 6. **QR pasaport:** Onaylanan parti için GS1 Digital Link QR'lı, çok dilli ve herkese açık bir pasaport yayınlanır. Yayınlanan sürüm değişmez; değişiklik yeni sürüm demektir.
-7. **Tutarlılık kontrolü:** Kurallar etiket beyanı ile iplik/kumaş beyanını, sertifika sürelerini, sertifika sahibini ve eksik alanları denetler. Her bulgunun sabit bir kodu vardır (`LIF-01`, `SER-02`…). Engelleyici uyarı yayını durdurur ve veri düzelince kendiliğinden kapanır; diğerlerini yetkili biri notla "çözüldü" yapar. Süresi dolan sertifikalar her gün taranır ve Görevler'de listelenir.
+7. **Tutarlılık kontrolü:** Kurallar etiket beyanı ile iplik/kumaş beyanını, sertifika sürelerini, sertifika sahibini ve eksik alanları denetler. Her bulgunun sabit bir kodu vardır (`LIF-01`, `SER-02`…). Engelleyici uyarı yayını durdurur ve veri düzelince kendiliğinden kapanır; diğerlerini yetkili biri notla "çözüldü" yapar. Süresi dolan sertifikalar her gün taranır ve Görevler'de listelenir. Demo firmasında AI da öneride bulunur (sertifika kapsamı, çelişen beyanlar); her öneri verideki bir alıntıya dayanır, engelleyici olmaz.
 
 ## Kilometre taşları
 
@@ -44,7 +44,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M4 | Veri talebi ve tedarikçi sayfası: bağlantı, gönderim, onay ve red, görevler | ✅ |
 | M5 | Belge ve AI çıkarımı: sertifika yükleme, okuma, onay | ✅ |
 | M6 | Pasaport ve QR: uyum skoru, sürümlü ve değişmez yayın, GS1 Digital Link QR, herkese açık sayfa | ✅ |
-| M7 | Tutarlılık kontrolü ve sertifika takibi (kural tabanlı kontroller, uyarılar, günlük sertifika taraması; AI kontrolleri sırada) | 🟡 |
+| M7 | Tutarlılık kontrolü ve sertifika takibi: kural kodlu uyarılar, AI önerileri, günlük sertifika taraması | ✅ |
 | M8 | Mobil I: görevler, kamera ile belge | ⬜ |
 | M9 | Mobil II: QR okutma, hızlı onay, bildirimler | ⬜ |
 | M10 | Demo hazırlığı | ⬜ |
@@ -90,6 +90,8 @@ Tasarım Claude Design v0.3 (ve ek çerçeveleri v0.3.1, v0.3.2, v0.4) ile yapı
 | <img src="docs/design/impl-v0.7/78-uyarilar-light.png" alt="Uyarılar sekmesi: engelleyici LIF-01 kartı, etiket ve iplik beyanı yan yana, açık tema" width="440"> | <img src="docs/design/impl-v0.7/78-uyarilar-dark.png" alt="Uyarılar sekmesi, koyu tema" width="440"> |
 | **Çözme formu:** not isteğe bağlı | **Çözülenler** |
 | <img src="docs/design/impl-v0.7/80-cozme-formu-light.png" alt="Uyarı kartında satır içi çözme formu" width="440"> | <img src="docs/design/impl-v0.7/81-cozulenler-light.png" alt="Çözülen uyarılar: kim çözdü, ne zaman, not" width="440"> |
+| **AI önerisi:** kanıt alıntıları ve sunucunun güveni | **AI önerisi** (koyu) |
+| <img src="docs/design/impl-v0.7/79j-ai-onerisi-light.png" alt="AI önerisi kartı: GOTS kapsamı, belgeden okunan alıntı ve tedarikçi beyanı" width="440"> | <img src="docs/design/impl-v0.7/79j-ai-onerisi-dark.png" alt="AI önerisi kartı, koyu tema" width="440"> |
 | **Başlık, skor ve zincir kodları** | **Görevler:** süresi yaklaşan sertifikalar |
 | <img src="docs/design/impl-v0.7/86a-baslik-skor-light.png" alt="Parti başlığında engelleyici uyarı düğmesi, skor kartında Uyarılar bağlantısı" width="440"> | <img src="docs/design/impl-v0.7/89a-gorevler-sertifikalar-light.png" alt="Görevler sayfasında süresi dolan ve dolmak üzere olan sertifikalar" width="440"> |
 

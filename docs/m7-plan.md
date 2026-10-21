@@ -86,6 +86,14 @@ Hepsi `/api/v1`, tenant JWT'den, başka firmanın kaydı 404, SUPPLIER 403.
 
 Yalnızca `LlmGate` izin verirse (bayrak + anahtar + demo firması, kural 4) ve yalnızca öneri olarak (`source = AI`, kural 5): `AI-01` sertifika kapsamı ürün kategorisini kapsıyor mu, `AI-02` çelişkili beyanlar. Kural kontrolleri çalıştıktan sonra `AI_VALIDATE_BATCH` işi (mevcut tür); sonuç `INFO`/`WARNING`, asla ERROR (AI yayını engelleyemez), güven skoru sunucuda atanır. Kural yolu tek başına demoyu taşır (M5'teki ilke). Bu aşama kural altyapısı merge edildikten sonra ayrı PR'lardadır.
 
+**Uygulama (T5):**
+- **Veri sayfası:** ürün (`P`), adımlar zincir sırasıyla (`S1`…, tedarikçinin beyanı JSON olarak) ve onaylı belgeler (`D1`…, alanları ve PDF metin katmanının ilk 6000 karakteri; en fazla 8 belge). Onaylanmamış belge gönderilmez (kural 5). Sayfa, her çağrıda rastgele değer taşıyan işaretler arasında kullanıcı mesajı olarak gider; talimat `prompts/consistency-check.md`, araç yok, cevap şemaya bağlı.
+- **Cevap güvenilmez girdi:** yalnızca `AI-01`/`AI-02`, yalnızca sayfadaki referanslar; her bulgu "kanıt" alıntılarına dayanır ve **her alıntı adı verilen kaynakta aranır**, bulunamayan bulgu atılır. `AI-01` en az bir belge alıntısı, `AI-02` iki farklı kaynaktan alıntı ister. En fazla 5 bulgu.
+- **Güven sunucunun:** alıntılar olduğu gibi bulunduysa 0,7, ancak büyük/küçük harf ve Türkçe noktalar yok sayılarak bulunduysa 0,6 (her zaman 0,8'in altında). Önem sabit `WARNING`; modelin önem ya da güven alanları okunmaz.
+- **Kartta modelin cümlesi yok:** başlık çeviri dosyasından, kutular sunucunun bulduğu alıntılar ve kaynaklarıdır.
+- **Kimlik:** `AI-01` belge + ürün kategorisi, `AI-02` iki kaynağın kimliği; aynı çelişkinin başka sözlerle tekrarı yeni bulgu olmaz.
+- **Ne zaman:** her kural kontrolünden sonra, kapı açıksa `AI_VALIDATE_BATCH` kuyruğa girer (bekleyen varsa yenisi eklenmez). İş, gönderilecek sayfanın özetini (model + sayfa, SHA-256) partide saklananla karşılaştırır: değişmediyse çağrı yapılmaz (V14 `batch.ai_input_sha256`). Hiç beyan ve onaylı belge yoksa da çağrı yapılmaz. Günlük sınır (`LlmBudget`) dolduysa atlanır; ağ hatası yeniden denenir, ret ve kota vazgeçer, kural sonucu geçerli kalır.
+
 ## 9. Kararlar (onay bekleyen yok; itiraz edilebilir)
 
 1. **ERROR elle çözülmez**, yayını engeller; WARNING/INFO çözülebilir. (Tasarım v0.3 "Engelleyici / Uyarı / Kontrol" üçlüsüyle uyumlu.)

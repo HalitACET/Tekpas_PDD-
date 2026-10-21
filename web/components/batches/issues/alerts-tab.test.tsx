@@ -105,6 +105,75 @@ describe("AlertsTab", () => {
     expect(within(info).getByText("Üretim tarihleri girilmemiş.")).toBeInTheDocument();
   });
 
+  it("shows an AI suggestion with its badge, the server's confidence, the quotes it rests on and the note that a person decides", () => {
+    state.open = ok(
+      list(
+        [
+          issue({
+            id: "ai1",
+            code: "AI-01",
+            source: "AI",
+            stepId: "s3",
+            stepType: "FABRIC",
+            supplierName: "Demirtaş Örme",
+            documentId: "d1",
+            params: {
+              docType: "GOTS",
+              confidence: 0.7,
+              evidence: [
+                { source: "DOCUMENT", docType: "GOTS", stepType: "FABRIC", supplier: "Demirtaş Örme", quote: "Scope: woven fabrics" },
+                { source: "STEP", stepType: "FABRIC", supplier: "Demirtaş Örme", quote: "Süprem örme" },
+              ],
+            },
+          }),
+        ],
+        { errors: 0, warnings: 1, infos: 0 },
+      ),
+    );
+    renderWithIntl(<AlertsTab batch={batch} />);
+
+    const card = screen.getByRole("article", { name: /AI-01/ });
+    expect(within(card).getByText("AI önerisi")).toBeInTheDocument();
+    expect(within(card).getByText("güven %70")).toBeInTheDocument();
+    expect(within(card).queryByText(/^Kural ·/)).not.toBeInTheDocument();
+    expect(within(card).getByText("GOTS sertifikası kapsamı bu adımı ya da ürünü kapsamıyor olabilir.")).toBeInTheDocument();
+    expect(within(card).getByText("GOTS sertifikası · belgeden okunan")).toBeInTheDocument();
+    expect(within(card).getByText("“Scope: woven fabrics”")).toHaveClass("text-status-rejected-foreground");
+    expect(within(card).getByText("Demirtaş Örme beyanı")).toBeInTheDocument();
+    expect(within(card).getByText("AI önerir, siz karar verirsiniz.")).toBeInTheDocument();
+    // A suggestion is a warning: a person may let it stand.
+    expect(within(card).getByRole("button", { name: "Çözüldü" })).toBeEnabled();
+    expect(within(card).getByRole("link", { name: "Belgeyi aç" })).toHaveAttribute("href", "/batches/b1?step=s3");
+  });
+
+  it("names both sides of an AI contradiction in its title", () => {
+    state.open = ok(
+      list([
+        issue({
+          id: "ai2",
+          code: "AI-02",
+          source: "AI",
+          stepId: "s2",
+          stepType: "YARN",
+          supplierName: "Ege İplik",
+          params: {
+            confidence: 0.6,
+            evidence: [
+              { source: "PRODUCT", quote: "ELASTANE 5%" },
+              { source: "STEP", stepType: "YARN", supplier: "Ege İplik", quote: "ORGANIC_COTTON 100" },
+            ],
+          },
+        }),
+      ]),
+    );
+    renderWithIntl(<AlertsTab batch={batch} />);
+
+    const card = screen.getByRole("article", { name: /AI-02/ });
+    expect(within(card).getByText("Ürün ve etiket ile Ege İplik beyanı çelişiyor olabilir.")).toBeInTheDocument();
+    expect(within(card).getByText("güven %60")).toBeInTheDocument();
+    expect(within(card).getByRole("link", { name: "Adıma git" })).toBeInTheDocument();
+  });
+
   it("counts both sides in the filter and shows when the checks last ran", () => {
     renderWithIntl(<AlertsTab batch={batch} />);
 

@@ -1158,6 +1158,8 @@ export interface components {
             page: number;
             snippet: string;
         };
+        /** @enum {string} */
+        EvidenceSource: "PRODUCT" | "STEP" | "DOCUMENT";
         ExpiringCertificate: {
             /** Format: uuid */
             batchId: string;
@@ -1224,7 +1226,7 @@ export interface components {
             validUntil?: components["schemas"]["Field"];
         };
         /** @enum {string} */
-        IssueCode: "LIF-01" | "LIF-02" | "SER-01" | "SER-02" | "SER-03" | "SER-04" | "EKS-01" | "EKS-02" | "BEL-01";
+        IssueCode: "LIF-01" | "LIF-02" | "SER-01" | "SER-02" | "SER-03" | "SER-04" | "EKS-01" | "EKS-02" | "BEL-01" | "AI-01" | "AI-02";
         IssueCounts: {
             /** Format: int32 */
             errors: number;
@@ -1232,6 +1234,14 @@ export interface components {
             infos: number;
             /** Format: int32 */
             warnings: number;
+        };
+        IssueEvidence: {
+            /** @enum {string|null} */
+            docType?: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN" | null;
+            quote: string;
+            source: components["schemas"]["EvidenceSource"];
+            stepType?: components["schemas"]["StepType"];
+            supplier?: string | null;
         };
         /** @enum {string} */
         IssueFilter: "OPEN" | "RESOLVED" | "ALL";
@@ -1244,10 +1254,13 @@ export interface components {
             validatedAt?: string | null;
         };
         IssueParams: {
+            /** Format: double */
+            confidence?: number | null;
             declared?: components["schemas"]["FiberShare"][] | null;
             differing?: components["schemas"]["Fiber"][] | null;
             /** @enum {string|null} */
             docType?: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN" | null;
+            evidence?: components["schemas"]["IssueEvidence"][] | null;
             fileName?: string | null;
             holder?: string | null;
             label?: components["schemas"]["FiberShare"][] | null;

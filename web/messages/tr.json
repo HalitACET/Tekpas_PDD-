@@ -1708,7 +1708,23 @@
         "rule": "Onay bekleyen belge",
         "title": "“{file}” belgesi onay bekliyor; onaylanana kadar pasaporta girmez.",
         "meta": "{supplier}{step} adımı · {doc}"
+      },
+      "AI-01": {
+        "title": "{doc} kapsamı bu adımı ya da ürünü kapsamıyor olabilir.",
+        "meta": "{supplier}{step} adımı · {doc}"
+      },
+      "AI-02": {
+        "title": "{left} ile {right} çelişiyor olabilir.",
+        "meta": "{where}"
       }
-    }
+    },
+    "confidence": "güven {value}",
+    "aiNote": "AI önerir, siz karar verirsiniz.",
+    "evidence": {
+      "PRODUCT": "Ürün ve etiket",
+      "STEP": "{who} beyanı",
+      "DOCUMENT": "{doc} · belgeden okunan"
+    },
+    "productMeta": "Ürün bilgisi"
   }
 }

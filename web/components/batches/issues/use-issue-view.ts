@@ -14,6 +14,8 @@ export interface CompareBox {
 export interface IssueView {
   /** "LIF-01" */
   code: string;
+  /** An AI suggestion: the server's confidence, 0–1 (the card shows "AI önerisi" instead of the rule). */
+  ai?: { confidence: number };
   rule: string;
   title: string;
   meta: string;
@@ -173,6 +175,34 @@ export function useIssueView(): (issue: Issue) => IssueView {
           meta: t("codes.BEL-01.meta", { supplier, step, doc }),
           compare: [],
         };
+      case "AI-01":
+      case "AI-02": {
+        // The model's own words are never shown: the sentence is ours, the boxes are the quotes the server found in the
+        // batch's data, each with where it is from.
+        const evidence = p.evidence ?? [];
+        const sourceOf = (e: (typeof evidence)[number]) =>
+          e.source === "DOCUMENT"
+            ? t("evidence.DOCUMENT", { doc: e.docType ? tDoc(e.docType) : "" })
+            : e.source === "STEP"
+              ? t("evidence.STEP", { who: e.supplier ?? (e.stepType ? tStep(e.stepType) : "") })
+              : t("evidence.PRODUCT");
+        const compare = evidence.map((e, i) => ({
+          label: sourceOf(e),
+          parts: [{ text: `“${e.quote}”`, bad: code === "AI-01" ? e.source === "DOCUMENT" : i === 0 }],
+        }));
+        const ai = { confidence: p.confidence ?? 0 };
+        if (code === "AI-01") {
+          return { ...base, ai, rule: "", title: t("codes.AI-01.title", { doc }), meta: t("codes.AI-01.meta", { supplier, step, doc }), compare };
+        }
+        return {
+          ...base,
+          ai,
+          rule: "",
+          title: t("codes.AI-02.title", { left: compare[0]?.label ?? "", right: compare[1]?.label ?? "" }),
+          meta: t("codes.AI-02.meta", { where: issue.stepType ? t("codes.LIF-01.meta", { supplier, step }) : t("productMeta") }),
+          compare,
+        };
+      }
       default:
         return { code: String(code), rule: t("unknownRule"), title: t("unknownTitle"), meta: [supplier.replace(/ · $/, ""), step].filter(Boolean).join(" · "), compare: [] };
     }
