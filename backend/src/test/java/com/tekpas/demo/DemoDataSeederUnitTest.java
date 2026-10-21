@@ -15,10 +15,11 @@ class DemoDataSeederUnitTest {
         JdbcTemplate jdbc = mock(JdbcTemplate.class);
         TransactionTemplate tx = mock(TransactionTemplate.class);
         PasswordEncoder encoder = mock(PasswordEncoder.class);
+        DemoScenario scenario = mock(DemoScenario.class);
 
-        new DemoDataSeeder(jdbc, tx, encoder, new DemoProperties("  ")).run(null);
-        new DemoDataSeeder(jdbc, tx, encoder, new DemoProperties(null)).run(null);
+        new DemoDataSeeder(jdbc, tx, encoder, new DemoProperties("  "), scenario).run(null);
+        new DemoDataSeeder(jdbc, tx, encoder, new DemoProperties(null), scenario).run(null);
 
-        verifyNoInteractions(jdbc, tx, encoder);
+        verifyNoInteractions(jdbc, tx, encoder, scenario);
     }
 }
