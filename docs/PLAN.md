@@ -222,10 +222,11 @@ Plan: `docs/m7-plan.md` (kural kodları, V13, eşitleme, API, tetikleyiciler, g�
 
 ### M8 — Mobil I
 Plan: `docs/m8-plan.md` (kapsam, fotoğraf → tek PDF ucu, onay bekleyen belgeler ucu, mobil yığın, ölçüm, kararlar). Tasarım brifi: `docs/m8-tasarim-brifi.md` → Claude Design v0.8 (mobil). Backend ve mobil iskelet tasarım beklemeden, ekranlar tasarımdan sonra.
-- [ ] Expo iskeleti, giriş (SecureStore), Görevlerim
-- [ ] Kamera → çok sayfalı fotoğraf → sıkıştır → yükle → AI sonucu → düzenle → onayla
+- [x] Expo iskeleti, giriş (SecureStore), Görevlerim (PR #67, #68)
+- [x] Kamera → çok sayfalı fotoğraf → sıkıştır → yükle → AI sonucu → düzenle → onayla (PR #66, #68)
 
 **Kabul:** Telefonda sertifika fotoğrafı çekilir, 10 saniye içinde form dolu gelir.
+Durum: sunucu tarafı yerelde ölçüldü (iki sayfa yükleme + okuma işi ~1,4 sn, Gemini hariç; `docs/haftalik/08-mobil-i.md`). Telefonda gerçek Gemini ile ölçüm bekliyor; uygulama geliştirme sürümünde süreyi formda gösteriyor.
 
 ### M9 — Mobil II
 - [ ] QR okutma (parti etiketi → özet + zincir; ürün QR → pasaport)

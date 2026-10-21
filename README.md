@@ -31,10 +31,13 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 5. **Belge ve AI:** Sertifikalar (OEKO-TEX, GOTS…) yüklenir, AI alanları okur ve tutarlılığı kontrol eder. AI önerir, insan onaylar.
 6. **QR pasaport:** Onaylanan parti için GS1 Digital Link QR'lı, çok dilli ve herkese açık bir pasaport yayınlanır. Yayınlanan sürüm değişmez; değişiklik yeni sürüm demektir.
 7. **Tutarlılık kontrolü:** Kurallar etiket beyanı ile iplik/kumaş beyanını, sertifika sürelerini, sertifika sahibini ve eksik alanları denetler. Her bulgunun sabit bir kodu vardır (`LIF-01`, `SER-02`…). Engelleyici uyarı yayını durdurur ve veri düzelince kendiliğinden kapanır; diğerlerini yetkili biri notla "çözüldü" yapar. Süresi dolan sertifikalar her gün taranır ve Görevler'de listelenir. Demo firmasında AI da öneride bulunur (sertifika kapsamı, çelişen beyanlar); her öneri verideki bir alıntıya dayanır, engelleyici olmaz.
+8. **Mobil uygulama (sahada):** Kalite sorumlusu telefonla giriş yapar ve onayını bekleyen belgeleri, tedarikçiden gelen verileri, süresi yaklaşan sertifikaları görür. Sertifikanın sayfalarını kamerayla çeker; sayfalar küçültülüp yüklenir, sunucuda meta verisi temizlenip tek PDF olur. AI okuması düzenlenebilir bir form olarak gelir: her alanın kaynağı ve güveni görünür, güveni düşük alan sarıdır. Yetkili kişi kontrol edip onaylar.
 
 ## Kilometre taşları
 
 Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 🟡 sürüyor · ⬜ sırada
+
+M8: ekranlar ve uçlar tamam; kabul ölçümü (telefonda, gerçek Gemini ile 10 sn) bekliyor.
 
 | # | Kilometre taşı | Durum |
 | --- | --- | :-: |
@@ -45,7 +48,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M5 | Belge ve AI çıkarımı: sertifika yükleme, okuma, onay | ✅ |
 | M6 | Pasaport ve QR: uyum skoru, sürümlü ve değişmez yayın, GS1 Digital Link QR, herkese açık sayfa | ✅ |
 | M7 | Tutarlılık kontrolü ve sertifika takibi: kural kodlu uyarılar, AI önerileri, günlük sertifika taraması | ✅ |
-| M8 | Mobil I: görevler, kamera ile belge | ⬜ |
+| M8 | Mobil I: görevler, kamerayla çok sayfalı belge, AI okuması ve onay (Expo) | 🟡 |
 | M9 | Mobil II: QR okutma, hızlı onay, bildirimler | ⬜ |
 | M10 | Demo hazırlığı | ⬜ |
 | M11 | Çok dil ve Excel içe aktarma | ⬜ |
@@ -180,6 +183,8 @@ cd backend && ./mvnw spring-boot:run               # API :8080, Swagger: /swagge
 pnpm --filter web dev                              # web :3000, dil ?lang=tr|en|de
 pnpm --filter mobile start                         # Expo; QR'ı Expo Go ile okut
 ```
+
+Telefon `localhost`'a ulaşamaz: `mobile/.env.example`'ı `mobile/.env` olarak kopyalayıp `EXPO_PUBLIC_API_URL`'e bilgisayarın yerel ağ adresini yazın (ör. `http://192.168.1.5:8080`, telefon ve bilgisayar aynı Wi-Fi'da).
 
 Varsayılan profiller `local` ve `demo`'dur: `local` docker compose değerlerine bağlanır, `demo` örnek firma, ürün ve partileri yükler. Postgres 5433'te çalışır (5432 başka bir kurulum için boş bırakıldı).
 
