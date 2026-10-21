@@ -39,6 +39,11 @@
   - Kök neden: Playwright sunucuyu `pnpm build && pnpm start` ile açıyordu. Testler bitince `pnpm` kapandı ama altındaki `next-server` açık kaldı, job da onu bekledi.
   - Çözüm: CI'da build ayrı adımda alınıyor, sunucu `node …/next start` ile doğrudan açılıyor.
 - **CI UTC, testler Türkiye saati bekliyor:** Node'daki mock'lar için `TZ=Europe/Istanbul`, tarayıcı için `timezoneId: "Europe/Istanbul"`.
+- **CI'da arada bir kalan mobil klavye testi (PR #92):** CI makinesi yavaş olduğu için yerelde görünmeyen iki zamanlama hatası ortaya çıktı.
+  - İlk Tab, çekmecenin odak tuzağı devreye girmeden basılıyordu. Çözüm: odak çekmeceye girene kadar bekleniyor.
+  - Menü açılış animasyonu sürerken (ölçek 0,95→1) 44 px'lik düğmeler 42 px ölçülüyordu. Çözüm: ölçüm animasyonlar bitince yapılıyor.
+  - İddiaların ikisi de aynı kaldı.
+- **Yerelde açık backend e2e'yi bozuyor:** mock'lanmamış istekler 8080'deki gerçek API'ye gidip 401 alıyor. e2e yerelde backend kapalıyken koşulmalı; CI'da backend yok.
 - **Açılışın asıl yükü:**
   - Ölçüm: Render'daki imajın aynısı Docker'da 0,1 CPU / 512 MB ile çalıştırıldı, açılış sırasında 3 sn'de bir iş parçacığı dökümü alındı.
   - Lazy init yalnızca işi ilk isteğe kaydırıyor (ilk cevap 162 → 163 sn). Flyway doğrulaması 0,6 sn. Mevcut CDS arşivi %30 kazandırıyor.
@@ -53,7 +58,7 @@
 - **Backend:** toplam 654 test, hepsi yeşil.
   - Yeni testler: demo senaryosu (beş parti, public pasaport 200, LIF-01, bekleyen belge, süresi yaklaşan sertifika, ikinci açılışta değişiklik yok), ilgili kişi, kayıtsız dosya taraması (4), Supabase ve yerel listeleme (3).
 - **Web:** birim testleri (form, şema, pasaport) ve e2e (46a'da adlı hitap, tedarikçi formunda ilgili kişi, düzeltme formunda dolu gönderen).
-- **e2e artık CI'da:** 138 test.
+- **e2e artık CI'da:** 138 test, kararsız iki zamanlama hatası giderildi (PR #92).
 - **Mobil:** düzeltme ekranı alıcı ve selamlama testi.
 - **Henüz yapılmadı:** demo provası ve telefon kabul denemeleri (M8/M9). Kullanıcıyla, sonda.
 
