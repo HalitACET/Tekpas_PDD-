@@ -24,6 +24,11 @@ mobile/ios/
 *.apk
 *.aab
 
+# Firebase (M9 push): the app config file goes to EAS as a secret file variable, the service account key
+# never leaves the owner's machine (docs/mobil-push-kurulumu.md).
+mobile/google-services.json
+*-firebase-adminsdk-*.json
+
 # IDE / OS
 .idea/
 .vscode/*
