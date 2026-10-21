@@ -107,6 +107,8 @@ test.describe("mobile panel (390 × 800)", () => {
 
   /** Every visible button/link inside the scope is at least 44 × 44 px (design G mobile). */
   async function expectTouchTargets(page: Page, scope: Locator) {
+    // Measure the settled layout: a sheet that is still scaling in (0.95 → 1) reads 42 px for a 44 px button.
+    await scope.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
     const small = await scope.locator("button:visible, a:visible").evaluateAll((elements) =>
       elements
         .map((el) => ({ name: el.getAttribute("aria-label") ?? el.textContent?.trim(), r: el.getBoundingClientRect() }))
@@ -137,9 +139,12 @@ test.describe("mobile panel (390 × 800)", () => {
     // While the modal is open the page behind it is hidden from assistive tech, so query by attribute.
     await expect(page.locator('button[aria-label="Menüyü aç"]')).toHaveAttribute("aria-expanded", "true");
     await expectTouchTargets(page, drawer);
+    // The trap takes focus a moment after the drawer shows (CI caught the first Tab leaving it), so wait for it.
+    const focusInDrawer = () => drawer.evaluate((el) => el.contains(document.activeElement));
+    await expect.poll(focusInDrawer).toBe(true);
     for (let i = 0; i < 12; i++) {
       await tab(page);
-      expect(await drawer.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+      await expect.poll(focusInDrawer).toBe(true);
     }
     await page.keyboard.press("Escape");
     await expect(drawer).toBeHidden();
