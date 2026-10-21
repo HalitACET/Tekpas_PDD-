@@ -145,6 +145,7 @@ export function login(email: string, password: string): Promise<LoginResult> {
 }
 
 async function attemptLogin(email: string, password: string, signal: AbortSignal): Promise<LoginResult> {
+  let step = "login";
   try {
     const { data, response } = await api.POST("/api/v1/auth/login", {
       body: { email, password, client: "MOBILE" },
@@ -155,13 +156,17 @@ async function attemptLogin(email: string, password: string, signal: AbortSignal
       return [502, 503, 504].includes(response.status) ? "unreachable" : "unavailable";
     }
     if (!data.refreshToken) return "unavailable";
+    step = "store";
     await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, data.refreshToken);
     accessToken = data.accessToken;
+    step = "me";
     const { data: me } = await api.GET("/api/v1/auth/me", { signal });
     if (!me) return "unavailable";
     setState({ status: "authenticated", user: me });
     return "ok";
-  } catch {
+  } catch (error) {
+    // A development build says where a login failed; the person sees only "no connection" (M8 phone trial).
+    if (__DEV__) console.warn(`[login] ${step}: ${String(error)}`);
     return "unreachable";
   }
 }
