@@ -1,0 +1,26 @@
+{
+  "common": {
+    "brand": "KozaPass",
+    "loading": "Yükleniyor…",
+    "retry": "Tekrar dene",
+    "cancel": "Vazgeç"
+  },
+  "session": {
+    "starting": "Sunucu uyanıyor, bu bir dakika kadar sürebilir.",
+    "unreachable": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin."
+  },
+  "errors": {
+    "network": "Bağlantı yok. İnternete bağlanınca tekrar deneyin.",
+    "server": "Sunucu şu an yanıt vermiyor. Birazdan tekrar deneyin.",
+    "other": "Beklenmeyen bir hata oluştu.",
+    "meta": "HTTP {{status}}",
+    "metaWithId": "HTTP {{status}} · istek {{id}}"
+  },
+  "upload": {
+    "tooLarge": "Sayfalar birlikte 10 MB'tan büyük. Daha az sayfa çekin.",
+    "tooMany": "En fazla {{max}} sayfa yüklenebilir."
+  },
+  "reading": {
+    "slow": "Okuma uzun sürüyor. Alanları elle de doldurabilirsiniz."
+  }
+}
