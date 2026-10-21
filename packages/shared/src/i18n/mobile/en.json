@@ -1,0 +1,26 @@
+{
+  "common": {
+    "brand": "KozaPass",
+    "loading": "Loading…",
+    "retry": "Try again",
+    "cancel": "Cancel"
+  },
+  "session": {
+    "starting": "The server is waking up, this can take about a minute.",
+    "unreachable": "The server could not be reached. Check your connection and try again."
+  },
+  "errors": {
+    "network": "No connection. Try again once you are online.",
+    "server": "The server is not answering right now. Try again in a moment.",
+    "other": "Something unexpected went wrong.",
+    "meta": "HTTP {{status}}",
+    "metaWithId": "HTTP {{status}} · request {{id}}"
+  },
+  "upload": {
+    "tooLarge": "The pages together are larger than 10 MB. Take fewer pages.",
+    "tooMany": "At most {{max}} pages can be uploaded."
+  },
+  "reading": {
+    "slow": "Reading takes long. You can also fill in the fields yourself."
+  }
+}
