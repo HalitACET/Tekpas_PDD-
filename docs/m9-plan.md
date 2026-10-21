@@ -123,6 +123,7 @@ Bu belge plandır; kod yok. Kararlar §10'da; push ile ilgili ikisini kullanıc�
   - `expo-dev-client`, `app.json`'da `android.package`, EAS proje kimliği.
   - FCM V1 kimlik bilgisi EAS'a yüklenir; repoya girmez (kural 3).
   - Ücretsiz EAS Build ile Android APK. Expo Go M8 akışları için kullanılmaya devam eder.
+  - Firebase ve EAS kurulumu adım adım: `docs/mobil-push-kurulumu.md`. Android paket adı `com.tekpas.mobile`.
 
 ## 6. Ölçüm (kabul)
 
