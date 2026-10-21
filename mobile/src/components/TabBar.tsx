@@ -10,38 +10,45 @@ const ICONS = { index: ListChecks, scan: ScanLine, profile: User } as const;
 const LABELS = { index: "tabs.tasks", scan: "tabs.scan", profile: "tabs.profile" } as const;
 
 /**
- * Design v0.8 tab bar: 64 pt over the bottom inset, Görevler with the open task count in brand red, "Tara · Yakında"
- * shown but closed until QR scanning arrives (M9), Profil.
+ * Design v0.8–v0.9 tab bar: 64 pt over the bottom inset, Görevler with the open task count in brand red, Tara (the QR
+ * scanner, dark like the camera behind it), Profil.
  */
 export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const total = useTaskTotal();
+  const dark = state.routes[state.index]?.name === "scan";
   return (
     <View
       accessibilityRole="tablist"
-      style={[styles.bar, { paddingBottom: insets.bottom, height: 64 + insets.bottom, borderTopColor: colors.border, backgroundColor: colors.card }]}
+      style={[
+        styles.bar,
+        {
+          paddingBottom: insets.bottom,
+          height: 64 + insets.bottom,
+          borderTopColor: dark ? "rgba(255,255,255,0.12)" : colors.border,
+          backgroundColor: dark ? "#0B0D11" : colors.card,
+        },
+      ]}
     >
       {state.routes.map((route, index) => {
         const name = route.name as keyof typeof ICONS;
         const Icon = ICONS[name];
         if (!Icon) return null;
         const active = state.index === index;
-        const off = name === "scan";
-        const color = active ? colors.foreground : colors.mutedForeground;
+        const color = dark ? (active ? "#FFFFFF" : "rgba(255,255,255,0.72)") : active ? colors.foreground : colors.mutedForeground;
         const badge = name === "index" && total ? total : undefined;
         return (
           <Pressable
             key={route.key}
             accessibilityRole="tab"
-            accessibilityState={{ selected: active, disabled: off }}
+            accessibilityState={{ selected: active }}
             accessibilityLabel={badge ? `${t(LABELS[name])}, ${t("tabs.badge", { count: badge })}` : t(LABELS[name])}
-            disabled={off}
             onPress={() => {
               const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
               if (!active && !event.defaultPrevented) navigation.navigate(route.name);
             }}
-            style={[styles.tab, { opacity: off ? 0.55 : 1 }]}
+            style={styles.tab}
           >
             <View>
               <Icon size={26} color={color} strokeWidth={active ? 2.2 : 1.8} />

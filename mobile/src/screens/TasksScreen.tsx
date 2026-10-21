@@ -1,4 +1,4 @@
-import { AlertTriangle, Camera, ChevronRight, Lock, Monitor, RefreshCw, WifiOff, CheckCircle2 } from "lucide-react-native";
+import { AlertTriangle, Camera, ChevronRight, Lock, RefreshCw, WifiOff, CheckCircle2 } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
@@ -26,15 +26,17 @@ function submitted<T extends { kind: string }>(items: T[]): T[] {
 }
 
 /**
- * Design v0.8 92a–92g: the documents waiting for a person (a tap opens the form), the data suppliers sent (shown only,
- * approved on the web), the certificates running out, and "Belge çek" at the bottom (closed for a viewer).
+ * Design v0.8 92a–92g and v0.9 105a: the data suppliers sent (a tap opens its review), the documents waiting for a
+ * person (a tap opens the form), the certificates running out, and "Belge çek" at the bottom (closed for a viewer).
  */
 export function TasksScreen({
   onOpenDocument,
+  onOpenStep,
   onShoot,
   now = new Date(),
 }: {
   onOpenDocument: (id: string) => void;
+  onOpenStep: (stepId: string, batchId: string) => void;
   onShoot: () => void;
   now?: Date;
 }) {
@@ -125,8 +127,39 @@ export function TasksScreen({
           </View>
         ) : (
           <>
+            {data.length > 0 && (
+              <Group title={t("tasks.data")} count={data.length} brand>
+                {data.map((d) => (
+                  <Card
+                    key={`${d.kind}-${d.stepId}`}
+                    onPress={d.stepId ? () => onOpenStep(d.stepId!, d.batchId) : undefined}
+                    accessibilityLabel={`${d.batchNo} ${d.stepType ? t(`stepType.${d.stepType}`) : d.productName}`}
+                    style={styles.dataRow}
+                  >
+                    <View style={{ flex: 1, gap: 4 }}>
+                      <View style={styles.rowTop}>
+                        <T family="mono" weight="medium" size={14} tone="muted">
+                          {d.batchNo}
+                        </T>
+                        {d.at && (
+                          <T size={14} tone="muted" style={{ marginLeft: "auto" }}>
+                            {formatWhen(d.at, now, t("tasks.yesterday"))}
+                          </T>
+                        )}
+                      </View>
+                      <T size={17} weight="medium">
+                        {d.supplierName && d.stepType
+                          ? t("tasks.stepLine", { step: t(`stepType.${d.stepType}`), supplier: d.supplierName })
+                          : d.productName}
+                      </T>
+                    </View>
+                    <ChevronRight size={22} color={colors.mutedForeground} style={{ width: 32 }} />
+                  </Card>
+                ))}
+              </Group>
+            )}
             {docs.data!.length > 0 && (
-              <Group title={reviewer ? t("tasks.docsMine") : t("tasks.docsOthers")} count={docs.data!.length} brand>
+              <Group title={reviewer ? t("tasks.docsMine") : t("tasks.docsOthers")} count={docs.data!.length}>
                 {docs.data!.map((d) => {
                   const chip = readingChip(d);
                   return (
@@ -155,35 +188,6 @@ export function TasksScreen({
                     </Card>
                   );
                 })}
-              </Group>
-            )}
-            {data.length > 0 && (
-              <Group title={t("tasks.data")} count={data.length}>
-                {data.map((d) => (
-                  <Card key={`${d.kind}-${d.stepId}`} style={styles.dataRow}>
-                    <View style={styles.rowTop}>
-                      <T family="mono" weight="medium" size={14} tone="muted">
-                        {d.batchNo}
-                      </T>
-                      {d.at && (
-                        <T size={14} tone="muted" style={{ marginLeft: "auto" }}>
-                          {formatWhen(d.at, now, t("tasks.yesterday"))}
-                        </T>
-                      )}
-                    </View>
-                    <T size={17} weight="medium">
-                      {d.supplierName && d.stepType
-                        ? t("tasks.stepLine", { step: t(`stepType.${d.stepType}`), supplier: d.supplierName })
-                        : d.productName}
-                    </T>
-                  </Card>
-                ))}
-                <View style={styles.note}>
-                  <Monitor size={18} color={colors.mutedForeground} />
-                  <T size={15} tone="muted">
-                    {t("tasks.dataNote")}
-                  </T>
-                </View>
               </Group>
             )}
             {certRows.length > 0 && (
@@ -270,9 +274,8 @@ const styles = StyleSheet.create({
   emptyIcon: { width: 64, height: 64, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   groupHead: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 4 },
   docRow: { minHeight: 96, flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 14, paddingLeft: 16, paddingRight: 8 },
-  dataRow: { minHeight: 72, justifyContent: "center", gap: 4, paddingVertical: 12, paddingHorizontal: 16 },
+  dataRow: { minHeight: 76, flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, paddingLeft: 16, paddingRight: 8 },
   certRow: { minHeight: 88, justifyContent: "center", gap: 6, paddingVertical: 12, paddingHorizontal: 16 },
   rowTop: { flexDirection: "row", alignItems: "center", gap: 8 },
-  note: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 4 },
   errorCard: { padding: 20, gap: 14 },
 });
