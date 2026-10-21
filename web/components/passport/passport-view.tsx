@@ -166,8 +166,10 @@ export function PassportView({ snapshot, mode, verificationCode, today, host }: 
           {manufacturer.name}
           {manufacturer.city ? ` · ${manufacturer.city}, ${manufacturer.country}` : ` · ${manufacturer.country}`}
         </span>
-        <span className="font-mono text-sm tabular-nums break-all hyphens-none">
-          (01) {passport.gtin} · (10) {passport.batchNo}
+        {/* Breaks only at " · ": a batch number (20 characters at most) is never split at its hyphens. */}
+        <span className="font-mono text-sm tabular-nums">
+          <span className="whitespace-nowrap">(01) {passport.gtin}</span> ·{" "}
+          <span className="whitespace-nowrap">(10) {passport.batchNo}</span>
         </span>
         <span
           className={`mt-1 inline-flex min-h-[30px] max-w-full items-center gap-[7px] self-start rounded-full py-1 pr-3 pl-[9px] text-sm font-medium ${TONE[chip.tone].chip}`}
