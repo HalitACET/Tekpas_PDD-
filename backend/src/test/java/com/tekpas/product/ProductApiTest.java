@@ -373,6 +373,23 @@ class ProductApiTest {
             assertThat(second.path("page").asInt()).isEqualTo(1);
         }
 
+        /** Every whitelisted sort field, both ways, with the search filter (regex query enhancer, JpaRepositoriesConfig). */
+        @Test
+        void everySortFieldWorksWithTheSearchInBothDirections() {
+            Tenant tenant = fixtures.tenant();
+            for (String name : List.of("Polo B", "Polo A")) {
+                create(tenant, with(product(TestGtins.gtin13()), "name", name));
+            }
+
+            for (String field : List.of("name", "gtin", "createdAt", "updatedAt")) {
+                for (String direction : List.of("asc", "desc")) {
+                    assertThat(names(tenant, "?q=polo&sort=" + field + "," + direction))
+                            .as(field + "," + direction).containsExactlyInAnyOrder("Polo A", "Polo B");
+                }
+            }
+            assertThat(names(tenant, "?q=polo&sort=name,desc")).containsExactly("Polo B", "Polo A");
+        }
+
         @Test
         void invalidPagingAndSortAreFieldErrors() {
             Tenant tenant = fixtures.tenant();
