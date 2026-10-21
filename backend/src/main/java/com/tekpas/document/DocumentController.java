@@ -5,6 +5,7 @@ import com.tekpas.common.security.ReadAccess;
 import com.tekpas.common.security.ReviewAccess;
 import com.tekpas.common.security.WriteAccess;
 import com.tekpas.document.DocumentService.FileLink;
+import com.tekpas.document.dto.AwaitingDocument;
 import com.tekpas.document.dto.DocumentResponse;
 import com.tekpas.document.dto.VerifyDocumentRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,10 +43,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class DocumentController {
 
     private final DocumentService service;
+    private final AwaitingDocuments awaiting;
     private final CurrentUser currentUser;
 
-    public DocumentController(DocumentService service, CurrentUser currentUser) {
+    public DocumentController(DocumentService service, AwaitingDocuments awaiting, CurrentUser currentUser) {
         this.service = service;
+        this.awaiting = awaiting;
         this.currentUser = currentUser;
     }
 
@@ -71,6 +74,37 @@ public class DocumentController {
             @RequestPart("file") MultipartFile file, @RequestParam(required = false) @Nullable DocType docType) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(service.upload(currentUser.companyId(), currentUser.userId(), id, file, docType));
+    }
+
+    @PostMapping(path = "/steps/{id}/documents/photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @WriteAccess
+    @Operation(operationId = "uploadDocumentPhotos", summary = "Upload the photographed pages of one document",
+            description = "1 to 10 JPG or PNG pages, 10 MB together (the mobile app, M8). The server checks every page, "
+                    + "draws it again without its metadata (location, camera), scales it to 2000 px at most and joins "
+                    + "the pages into one PDF; then it is stored and read like an uploaded document.")
+    @ApiResponse(responseCode = "202", description = "Stored as one PDF; reading is queued")
+    @ApiResponse(responseCode = "400", description = "Field pages (PageCount) or pages[i] (FileEmpty, FileCorrupt, "
+            + "FileDimensions)")
+    @ApiResponse(responseCode = "403", description = "Read-only or supplier user")
+    @ApiResponse(responseCode = "404", description = "No such step in this company")
+    @ApiResponse(responseCode = "409", description = "DUPLICATE_DOCUMENT, DOCUMENT_LIMIT or BATCH_PUBLISHED")
+    @ApiResponse(responseCode = "413", description = "Larger than 10 MB together (field pages, code FileTooLarge)")
+    @ApiResponse(responseCode = "415", description = "A page is not a JPG or PNG (field pages[i], code FileType)")
+    @ApiResponse(responseCode = "429", description = "Too many uploads (Retry-After)")
+    public ResponseEntity<DocumentResponse> uploadDocumentPhotos(@PathVariable UUID id,
+            @RequestPart("pages") List<MultipartFile> pages, @RequestParam(required = false) @Nullable DocType docType) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(service.uploadPhotos(currentUser.companyId(), currentUser.userId(), id, pages, docType));
+    }
+
+    @GetMapping("/documents/awaiting-review")
+    @Operation(operationId = "listDocumentsAwaitingReview", summary = "Documents read and waiting for a person, newest first",
+            description = "The company's unconfirmed documents whose reading is over (read, partly read, unreadable or "
+                    + "failed), at most 50, each with its batch, step and supplier (the mobile Görevlerim, M8).")
+    @ApiResponse(responseCode = "200", description = "The documents")
+    @ApiResponse(responseCode = "403", description = "Supplier user")
+    public List<AwaitingDocument> listDocumentsAwaitingReview() {
+        return awaiting.of(currentUser.companyId());
     }
 
     @GetMapping("/steps/{id}/documents")

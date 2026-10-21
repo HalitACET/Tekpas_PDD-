@@ -323,6 +323,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/documents/awaiting-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Documents read and waiting for a person, newest first
+         * @description The company's unconfirmed documents whose reading is over (read, partly read, unreadable or failed), at most 50, each with its batch, step and supplier (the mobile Görevlerim, M8).
+         */
+        get: operations["listDocumentsAwaitingReview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/documents/expiring": {
         parameters: {
             query?: never;
@@ -803,6 +823,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/steps/{id}/documents/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload the photographed pages of one document
+         * @description 1 to 10 JPG or PNG pages, 10 MB together (the mobile app, M8). The server checks every page, draws it again without its metadata (location, camera), scales it to 2000 px at most and joins the pages into one PDF; then it is stored and read like an uploaded document.
+         */
+        post: operations["uploadDocumentPhotos"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/steps/{id}/reject": {
         parameters: {
             query?: never;
@@ -936,6 +976,32 @@ export interface components {
             title: string;
             /** @example urn:tekpas:problem:validation */
             type: string;
+        };
+        AwaitingDocument: {
+            /** Format: uuid */
+            batchId: string;
+            batchNo: string;
+            batchStatus: components["schemas"]["BatchStatus"];
+            /** Format: date-time */
+            createdAt: string;
+            /** @enum {string} */
+            docType: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            /** @enum {string|null} */
+            extractionMethod?: "TEXT_RULES" | "LLM" | "NONE" | null;
+            /** @enum {string} */
+            extractionStatus: "QUEUED" | "RUNNING" | "READ" | "PARTIAL" | "UNREADABLE" | "FAILED";
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            lowConfidence: number;
+            originalName: string;
+            /** Format: int32 */
+            proposedFields: number;
+            /** Format: uuid */
+            stepId: string;
+            stepType: components["schemas"]["StepType"];
+            supplierName?: string | null;
+            uploadedByName?: string | null;
         };
         BatchCreateRequest: {
             /** @example KP-2026-1003-A */
@@ -2728,6 +2794,35 @@ export interface operations {
             };
         };
     };
+    listDocumentsAwaitingReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The documents */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AwaitingDocument"][];
+                };
+            };
+            /** @description Supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     listExpiringCertificates: {
         parameters: {
             query?: {
@@ -4365,6 +4460,99 @@ export interface operations {
             };
             /** @description File storage is not configured (STORAGE_PROVIDER) */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    uploadDocumentPhotos: {
+        parameters: {
+            query?: {
+                docType?: "OEKO_TEX" | "GOTS" | "GRS" | "BCI" | "OCS" | "BLUESIGN" | "LAB_REPORT" | "SDS" | "INVOICE" | "TECH_SHEET" | "OTHER" | "UNKNOWN";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    pages: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Stored as one PDF; reading is queued */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+            /** @description Field pages (PageCount) or pages[i] (FileEmpty, FileCorrupt, FileDimensions) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Read-only or supplier user */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such step in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description DUPLICATE_DOCUMENT, DOCUMENT_LIMIT or BATCH_PUBLISHED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Larger than 10 MB together (field pages, code FileTooLarge) */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description A page is not a JPG or PNG (field pages[i], code FileType) */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Too many uploads (Retry-After) */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

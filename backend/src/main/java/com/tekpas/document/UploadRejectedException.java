@@ -11,8 +11,36 @@ import org.springframework.http.HttpStatus;
  */
 public class UploadRejectedException extends InvalidFieldsException {
 
+    private final HttpStatus status;
+    private final String code;
+    private final String message;
+
     private UploadRejectedException(HttpStatus status, String code, String message) {
-        super(status, new FieldViolation("file", code, message));
+        this(status, code, message, "file");
+    }
+
+    private UploadRejectedException(HttpStatus status, String code, String message, String field) {
+        super(status, new FieldViolation(field, code, message));
+        this.status = status;
+        this.code = code;
+        this.message = message;
+    }
+
+    /** The same refusal for one page of a photo upload: field {@code pages[index]} (M8). */
+    UploadRejectedException onPage(int index) {
+        return new UploadRejectedException(status, code, message, "pages[" + index + "]");
+    }
+
+    /** A photo upload with no page or more than {@code max} (field pages, code PageCount). */
+    static UploadRejectedException pageCount(int max) {
+        return new UploadRejectedException(HttpStatus.BAD_REQUEST, "PageCount",
+                "Between 1 and " + max + " pages are accepted", "pages");
+    }
+
+    /** The photos together are larger than one document may be (field pages, code FileTooLarge). */
+    static UploadRejectedException pagesTooLarge() {
+        return new UploadRejectedException(HttpStatus.CONTENT_TOO_LARGE, "FileTooLarge",
+                "The pages together are larger than 10 MB", "pages");
     }
 
     public static UploadRejectedException tooLarge() {

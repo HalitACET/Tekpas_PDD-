@@ -75,6 +75,19 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
             """)
     List<Document> confirmedOfSteps(UUID companyId, Collection<UUID> stepIds);
 
+    /**
+     * The company's documents whose reading is over and that nobody confirmed yet, newest first (M8 Görevlerim). A
+     * document of a closed link that was never submitted has no step and is not listed.
+     */
+    @Query("""
+            select d from Document d where d.companyId = :companyId and d.stepId is not null
+              and d.reviewStatus = com.tekpas.document.ReviewStatus.UNREVIEWED
+              and d.extractionStatus not in (com.tekpas.document.ExtractionStatus.QUEUED,
+                                             com.tekpas.document.ExtractionStatus.RUNNING)
+            order by d.createdAt desc, d.id
+            """)
+    List<Document> awaitingReview(UUID companyId, org.springframework.data.domain.Pageable page);
+
     /** @see #scoreDocumentsOf */
     interface ScoreDocument {
 
