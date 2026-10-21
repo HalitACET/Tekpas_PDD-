@@ -1574,6 +1574,20 @@
         "required" : [ "code", "manufacturerName", "submittedAt" ],
         "type" : "object"
       },
+      "PushTokenRequest" : {
+        "properties" : {
+          "platform" : {
+            "enum" : [ "ANDROID", "IOS" ],
+            "type" : "string"
+          },
+          "token" : {
+            "pattern" : "Expo(nent)?PushToken\\[[A-Za-z0-9_-]{1,170}\\]",
+            "type" : "string"
+          }
+        },
+        "required" : [ "platform", "token" ],
+        "type" : "object"
+      },
       "RefreshRequest" : {
         "properties" : {
           "refreshToken" : {
@@ -2836,6 +2850,61 @@
           }
         },
         "summary" : "Create a DRAFT batch of a product",
+        "tags" : [ "batches" ]
+      }
+    },
+    "/api/v1/batches/lookup" : {
+      "get" : {
+        "description" : "gtin: GTIN-8/12/13/14 with a valid check digit (normalized to 14 digits), batchNo: the AI (10) batch number (upper-cased), as in /01/{gtin}/10/{batchNo}. An unreadable code, another company's batch and an unknown one all answer 404; the app then opens the public passport.",
+        "operationId" : "lookupBatch",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "gtin",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "batchNo",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BatchResponse"
+                }
+              }
+            },
+            "description" : "The batch"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company, or not a valid code"
+          }
+        },
+        "summary" : "The company's batch behind a scanned GS1 Digital Link",
         "tags" : [ "batches" ]
       }
     },
@@ -4172,6 +4241,88 @@
         },
         "summary" : "Resolve a warning or an info",
         "tags" : [ "issues" ]
+      }
+    },
+    "/api/v1/me/push-tokens" : {
+      "delete" : {
+        "description" : "On sign-out and when notifications are switched off in the app. The token goes in the query: its brackets are not allowed in a path.",
+        "operationId" : "removePushToken",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Removed"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Not one of the current user's tokens"
+          }
+        },
+        "summary" : "Stop notifications on this phone",
+        "tags" : [ "notifications" ]
+      },
+      "put" : {
+        "description" : "Binds the Expo push token to the current user; a token another user had moves to this one (the phone changed hands). Calling it again only marks the token as seen.",
+        "operationId" : "registerPushToken",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PushTokenRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "Registered"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Not an Expo push token, or no platform"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Supplier users have no access"
+          }
+        },
+        "summary" : "Receive notifications on this phone",
+        "tags" : [ "notifications" ]
       }
     },
     "/api/v1/passports/{id}" : {
@@ -6318,9 +6469,6 @@
     "description" : "Consistency checks of a batch: run them, read the findings, decide on the warnings (the panel's Uyarılar tab)",
     "name" : "issues"
   }, {
-    "description" : "What waits for the manufacturer (design v0.4 48)",
-    "name" : "tasks"
-  }, {
     "description" : "Login, token refresh, logout and the current user",
     "name" : "auth"
   }, {
@@ -6342,11 +6490,17 @@
     "description" : "Certificates and technical sheets of a step (M5)",
     "name" : "documents"
   }, {
-    "description" : "Passport versions of a batch: publish, preview, withdraw (the panel; the public page is a separate, login-free endpoint)",
-    "name" : "passports"
-  }, {
     "description" : "Product models (one GTIN each) of the current company",
     "name" : "products"
+  }, {
+    "description" : "What waits for the manufacturer (design v0.4 48)",
+    "name" : "tasks"
+  }, {
+    "description" : "The current user's phones for push notifications",
+    "name" : "notifications"
+  }, {
+    "description" : "Passport versions of a batch: publish, preview, withdraw (the panel; the public page is a separate, login-free endpoint)",
+    "name" : "passports"
   }, {
     "description" : "A batch's supply chain: steps and the links between them (a DAG)",
     "name" : "supply-chain"

@@ -299,7 +299,7 @@ class JobWorkerTest {
 
     @Test
     void jobsWithoutAHandlerHereStayQueued() {
-        long id = queue.enqueue(JobType.PUSH_NOTIFY, Map.of("token", "x"));
+        long id = queue.enqueue(JobType.IMPORT_EXCEL, Map.of("file", "x"));
 
         worker.runPending();
 

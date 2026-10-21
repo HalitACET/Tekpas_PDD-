@@ -19,6 +19,7 @@ import com.tekpas.common.error.NotFoundException;
 import com.tekpas.company.SupplierService;
 import com.tekpas.common.persistence.Constraints;
 import com.tekpas.common.web.PageResponse;
+import com.tekpas.passport.Gs1DigitalLink;
 import com.tekpas.product.Product;
 import com.tekpas.product.ProductRepository;
 import com.tekpas.supplychain.ChainService;
@@ -94,6 +95,17 @@ public class BatchService {
         BatchRow row = batches.findRow(id, companyId).orElseThrow(BatchService::notFound);
         return toResponse(row, chainCounts.of(id), compliance.of(companyId, ComplianceService.Target.of(row)).score(),
                 passportSummaries.of(companyId, java.util.List.of(id)).get(id), openIssuesOf(companyId, id));
+    }
+
+    /**
+     * The company's batch behind a scanned GS1 Digital Link (docs/m9-plan.md §4.1). An unreadable code is answered
+     * like an unknown one, and another company's batch like a missing one (CLAUDE.md rule 1).
+     */
+    @Transactional(readOnly = true)
+    public BatchResponse lookup(UUID companyId, String gtin, String batchNo) {
+        Gs1DigitalLink.Key key = Gs1DigitalLink.parse(gtin, batchNo).orElseThrow(BatchService::notFound);
+        UUID id = batches.findIdByGs1(companyId, key.gtin(), key.batchNo()).orElseThrow(BatchService::notFound);
+        return get(companyId, id);
     }
 
     /** How the batch's compliance score adds up, what blocks publishing and what deserves a look. */
