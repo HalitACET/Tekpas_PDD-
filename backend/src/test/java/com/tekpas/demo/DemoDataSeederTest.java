@@ -137,8 +137,9 @@ class DemoDataSeederTest {
 
         // The fifth batch is still being set up: no dyehouse and no sewing workshop assigned.
         assertThat(suppliers.path("content").valueStream().map(s -> s.path("name").asString() + ":"
-                + s.path("batchCount").asLong())).containsExactlyInAnyOrder("Demirtaş Örme Kumaş A.Ş.:5",
-                "Ege İplik San. Ltd.:5", "İnegöl Fason Dikim:4", "Uludağ Boya Terbiye:4");
+                + s.path("batchCount").asLong() + ":" + s.path("contactName").asString()))
+                .containsExactlyInAnyOrder("Demirtaş Örme Kumaş A.Ş.:5:Selin Arslan", "Ege İplik San. Ltd.:5:Mehmet Kaya",
+                        "İnegöl Fason Dikim:4:Hakan Demir", "Uludağ Boya Terbiye:4:Zeynep Arslan");
         assertThat(chain.path("steps").valueStream().map(s -> s.path("stepType").asString() + ":"
                 + s.path("status").asString())).containsExactly("FIBER:APPROVED", "YARN:APPROVED", "FABRIC:SUBMITTED",
                 "DYEING:PENDING", "SEWING:PENDING");

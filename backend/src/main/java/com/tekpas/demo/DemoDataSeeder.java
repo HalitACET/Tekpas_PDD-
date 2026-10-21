@@ -76,15 +76,15 @@ public class DemoDataSeeder implements ApplicationRunner {
             new DemoBatch(uuid("30000000-0000-0000-0000-000000000005"), PRODUCTS.get(2).id(), "KP-2026-0918-A",
                     "UE-2026-1171", 1200, LocalDate.of(2026, 9, 18), LocalDate.of(2026, 9, 30)));
 
-    record DemoSupplier(UUID id, String phone) {
+    record DemoSupplier(UUID id, String phone, String contactName) {
     }
 
     /** Demo phone numbers: the 000 exchange is not assigned in Türkiye. */
     static final List<DemoSupplier> SUPPLIERS = List.of(
-            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000002"), "+902580000001"),
-            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000003"), "+902240000002"),
-            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000004"), "+902240000003"),
-            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000005"), "+902240000004"));
+            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000002"), "+902580000001", "Mehmet Kaya"),
+            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000003"), "+902240000002", "Selin Arslan"),
+            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000004"), "+902240000003", "Zeynep Arslan"),
+            new DemoSupplier(uuid("00000000-0000-0000-0000-000000000005"), "+902240000004", "Hakan Demir"));
 
     record DemoStep(String type, @Nullable UUID supplier, String status, String data) {
     }
@@ -171,7 +171,10 @@ public class DemoDataSeeder implements ApplicationRunner {
                 USERS.size(), PRODUCTS.size(), BATCHES.size(), SUPPLIERS.size());
     }
 
-    /** Nilüfer Giyim's network: the four other demo companies, created by Nilüfer, with demo phone numbers. */
+    /**
+     * Nilüfer Giyim's network: the four other demo companies, created by Nilüfer, with demo phone numbers and the
+     * person Nilüfer talks to there (filled in once, a later change stays).
+     */
     private void seedSupplierNetwork() {
         for (DemoSupplier sup : SUPPLIERS) {
             jdbc.update("UPDATE company SET created_by_company_id = ? WHERE id = ? AND created_by_company_id IS NULL",
@@ -180,6 +183,10 @@ public class DemoDataSeeder implements ApplicationRunner {
                     INSERT INTO company_supplier (manufacturer_id, supplier_id, phone) VALUES (?, ?, ?)
                     ON CONFLICT DO NOTHING
                     """, NILUFER, sup.id(), sup.phone());
+            jdbc.update("""
+                    UPDATE company_supplier SET contact_name = ?
+                    WHERE manufacturer_id = ? AND supplier_id = ? AND contact_name IS NULL
+                    """, sup.contactName(), NILUFER, sup.id());
         }
     }
 

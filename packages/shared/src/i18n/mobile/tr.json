@@ -460,7 +460,8 @@
     "retry": "Tekrar dene",
     "failedTitle": "Bağlantı oluşturulamadı.",
     "failedBody": "Düzeltme talebi kaydedildi; bağlantıyı yeniden oluşturup gönderin.",
-    "message": "Merhaba, {{company}} olarak {{batchNo}} partisi ({{product}}) için {{step}} verilerinizde düzeltme rica ediyoruz: {{reason}} Formu {{deadline}} tarihine kadar bu bağlantıdan güncelleyebilirsiniz: {{url}} Teşekkürler, {{name}}"
+    "message": "Merhaba, {{company}} olarak {{batchNo}} partisi ({{product}}) için {{step}} verilerinizde düzeltme rica ediyoruz: {{reason}} Formu {{deadline}} tarihine kadar bu bağlantıdan güncelleyebilirsiniz: {{url}} Teşekkürler, {{name}}",
+    "messageNamed": "Merhaba {{contact}}, {{company}} olarak {{batchNo}} partisi ({{product}}) için {{step}} verilerinizde düzeltme rica ediyoruz: {{reason}} Formu {{deadline}} tarihine kadar bu bağlantıdan güncelleyebilirsiniz: {{url}} Teşekkürler, {{name}}"
   },
   "stepShort": {
     "FIBER": "Lif",

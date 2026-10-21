@@ -532,10 +532,13 @@ export function CorrectionSentScreen({
   const url = link ? `${WEB_URL.replace(/\/+$/, "")}/r#${link.token}` : undefined;
   const shown = url ? `${url.replace(/^https?:\/\//, "").split("#")[0]}#${link!.token.slice(0, 4)}…` : undefined;
   const phone = supplier.data?.phone;
+  // The person the manufacturer talks to there (M10 T3), else whoever sent the data.
+  const contactName = supplier.data?.contactName ?? undefined;
   const stepName = t(`stepType.${step.stepType}`);
   const message =
     link && url
-      ? t("sent.message", {
+      ? t(contactName ? "sent.messageNamed" : "sent.message", {
+          contact: contactName,
           company: user?.company.name ?? "",
           batchNo: batch.batchNo,
           product: batch.product.name,
@@ -546,7 +549,7 @@ export function CorrectionSentScreen({
           name: user?.fullName ?? "",
         })
       : "";
-  const contact = [step.submission?.name, step.supplier?.name].filter(Boolean).join(" · ");
+  const contact = [contactName ?? step.submission?.name, step.supplier?.name].filter(Boolean).join(" · ");
   const rows: { k: string; v: string; mono?: boolean; spin?: boolean }[] = [
     { k: t("sent.to"), v: contact || t("sent.none") },
     { k: t("sent.phone"), v: phone ? formatPhone(phone) : t("sent.none"), mono: !!phone },

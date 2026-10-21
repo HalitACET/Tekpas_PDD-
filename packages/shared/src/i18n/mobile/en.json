@@ -460,7 +460,8 @@
     "retry": "Try again",
     "failedTitle": "Could not create the link.",
     "failedBody": "The correction request is saved; create the link again and send it.",
-    "message": "Hello, {{company}} asks you to correct your {{step}} data for batch {{batchNo}} ({{product}}): {{reason}} You can update the form until {{deadline}} through this link: {{url}} Thank you, {{name}}"
+    "message": "Hello, {{company}} asks you to correct your {{step}} data for batch {{batchNo}} ({{product}}): {{reason}} You can update the form until {{deadline}} through this link: {{url}} Thank you, {{name}}",
+    "messageNamed": "Hello {{contact}}, {{company}} asks you to correct your {{step}} data for batch {{batchNo}} ({{product}}): {{reason}} You can update the form until {{deadline}} through this link: {{url}} Thank you, {{name}}"
   },
   "stepShort": {
     "FIBER": "Fibre",

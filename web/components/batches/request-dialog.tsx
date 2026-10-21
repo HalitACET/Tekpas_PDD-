@@ -121,7 +121,9 @@ function RequestBody({
   const supplierName = step.supplier?.name ?? "";
   const city = step.supplier?.city;
   const phone = supplier.data?.phone;
-  const initials = supplierName
+  // 46a: the person to talk to on top, the company under them; the company alone when nobody is named (M10 T3).
+  const contact = supplier.data?.contactName ?? undefined;
+  const initials = (contact ?? supplierName)
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
@@ -140,7 +142,7 @@ function RequestBody({
   const shown = url?.replace(/^https?:\/\//, "");
   const message =
     link &&
-    `${t("text", { company, batchNo, product: productName, step: locale === "de" ? stepName : stepName.toLocaleLowerCase(locale), deadline: shortDate(link.expiresAt) })}`;
+    `${t(contact ? "textNamed" : "text", { contact: contact ?? "", company, batchNo, product: productName, step: locale === "de" ? stepName : stepName.toLocaleLowerCase(locale), deadline: shortDate(link.expiresAt) })}`;
   const active = !!link && !revoked;
 
   const changeDays = (days: number) => {
@@ -180,8 +182,12 @@ function RequestBody({
             {initials}
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-px">
-            <span className="truncate text-[13px] font-medium">{supplierName}</span>
-            {city && <span className="text-xs text-muted-foreground">{city}</span>}
+            <span className="truncate text-[13px] font-medium">{contact ?? supplierName}</span>
+            {contact ? (
+              <span className="truncate text-xs text-muted-foreground">{city ? `${supplierName} · ${city}` : supplierName}</span>
+            ) : (
+              city && <span className="text-xs text-muted-foreground">{city}</span>
+            )}
           </span>
           <span className="font-mono text-xs">{phone ? formatPhone(phone) : t("noPhone")}</span>
         </div>

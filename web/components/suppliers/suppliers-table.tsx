@@ -87,8 +87,11 @@ export function SupplierRow({
       <span role="cell" className="text-muted-foreground">
         {supplier.city}
       </span>
-      <span role="cell" className="font-mono text-xs">
-        {supplier.phone ? formatPhone(supplier.phone) : <Missing reason={t("noPhone")} />}
+      <span role="cell" className="flex min-w-0 flex-col gap-0.5">
+        {supplier.contactName && <span className="truncate text-[13px]">{supplier.contactName}</span>}
+        <span className="font-mono text-xs">
+          {supplier.phone ? formatPhone(supplier.phone) : <Missing reason={t("noPhone")} />}
+        </span>
       </span>
       <span role="cell" className="flex flex-wrap gap-1">
         {supplier.certificates.length === 0 ? (

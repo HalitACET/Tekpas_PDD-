@@ -27,7 +27,7 @@ Bu belge plandır; kod yok. PLAN'daki M10 listesi (demo verisi, cila, demo gün�
 | --- | --- | --- | --- |
 | T1 | **Gerçekçi demo verisi** (§3) | Hayır | Hayır |
 | T2 | **Düzeltme formunda gönderen adı ve görevi önceki gönderimden dolsun** (`PublicRequestView`) | Hayır (v0.4 45 var) | Hayır |
-| T3 | **Tedarikçiye "ilgili kişi"** (V16 `company_supplier.contact_name`), web 14/15'te alan, WhatsApp mesajında adıyla hitap, mobil düzeltme ekranında alıcı | Hayır (v0.4 46a var) | Hayır |
+| T3 | **Tedarikçiye "ilgili kişi"** (V17 `company_supplier.contact_name`; V16 demo senaryosuna gitti), web 14/15'te alan, WhatsApp mesajında adıyla hitap, mobil düzeltme ekranında alıcı | Hayır (v0.4 46a var) | Hayır |
 | T4 | **e2e CI'da:** GitHub Actions'ta Playwright (Chromium, mock API), başarısızlıkta ekran görüntüleri artefakt | Hayır | Hayır |
 | T5 | **Açılışı hızlandırma:** yerelde ölç (lazy init, gereksiz auto-config, Flyway). Ölçüm ve öneri yazılır; prod'a yalnızca kullanıcı onayıyla | Hayır | Prod değişikliği için onay |
 | T6 | **Depoda kayıtsız dosya taraması:** `docs/` nesneleri ile `document` satırları karşılaştırılır. Varsayılan olarak yalnızca rapor; silme ayrı bir bayrakla | Hayır | Hayır |

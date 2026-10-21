@@ -8,10 +8,11 @@ export interface SupplierFormValues {
   type: SupplierType | "";
   city: string;
   phone: string;
+  contactName: string;
 }
 
 export function emptySupplierForm(): SupplierFormValues {
-  return { name: "", type: "", city: "", phone: "" };
+  return { name: "", type: "", city: "", phone: "", contactName: "" };
 }
 
 export function supplierFormFrom(supplier: SupplierResponse): SupplierFormValues {
@@ -20,6 +21,7 @@ export function supplierFormFrom(supplier: SupplierResponse): SupplierFormValues
     type: supplier.type as SupplierType,
     city: supplier.city ?? "",
     phone: nationalFromPhone(supplier.phone),
+    contactName: supplier.contactName ?? "",
   };
 }
 
@@ -39,12 +41,13 @@ export const supplierFormSchema = z.preprocess(
 export type SupplierFormOutput = z.output<typeof supplierSchema>;
 
 export function supplierCreateBody(output: SupplierFormOutput): SupplierCreateRequest {
-  return { name: output.name, type: output.type, city: output.city, phone: output.phone };
+  return { name: output.name, type: output.type, city: output.city, phone: output.phone, contactName: output.contactName };
 }
 
 /**
  * PATCH with only what changed. Name, type and city are left out while locked (the company manages its own
- * details, or the type is tied to chain steps); the phone belongs to the link and always may change.
+ * details, or the type is tied to chain steps); the phone and the contact person belong to the link and always may
+ * change.
  */
 export function supplierPatch(
   supplier: SupplierResponse,
@@ -58,5 +61,6 @@ export function supplierPatch(
     if (output.city !== supplier.city) patch.city = output.city;
   }
   if (output.phone !== (supplier.phone ?? null)) patch.phone = output.phone;
+  if (output.contactName !== (supplier.contactName ?? null)) patch.contactName = output.contactName;
   return patch;
 }

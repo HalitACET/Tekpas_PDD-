@@ -319,6 +319,7 @@ export interface MockSupplier {
   type: "YARN" | "FABRIC" | "DYEHOUSE" | "SEWING" | "ACCESSORY";
   city: string;
   phone: string | null;
+  contactName?: string | null;
   batchCount: number;
   latestStepStatus: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED" | null;
   latestStepAt: string | null;
@@ -851,6 +852,7 @@ export async function mockCatalogApi(
         type: body.type,
         city: body.city,
         phone: body.phone ?? null,
+        contactName: body.contactName ?? null,
         batchCount: 0,
         latestStepStatus: null,
         latestStepAt: null,

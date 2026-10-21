@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { mockAuthApi } from "./api-mock";
-import { designTasks, mockCatalogApi, NOW } from "./catalog-mock";
+import { designSuppliers, designTasks, type MockSupplier, mockCatalogApi, NOW } from "./catalog-mock";
 
 /** M4 on the panel side (design v0.4 46–48): links, review, the fibre origin and the tasks page. */
 
@@ -10,7 +10,11 @@ const BATCH_0918 = "30000000-0000-4000-8000-000000000002";
 const BATCH_0917 = "30000000-0000-4000-8000-000000000003";
 const BATCH_0927 = "30000000-0000-4000-8000-000000000001";
 
-async function open(page: Page, path: string, { role, tasks }: { role?: string; tasks?: unknown } = {}) {
+async function open(
+  page: Page,
+  path: string,
+  { role, tasks, suppliers }: { role?: string; tasks?: unknown; suppliers?: MockSupplier[] } = {},
+) {
   await page.clock.install({ time: NOW });
   // window.open (WhatsApp) is recorded instead of opening a tab.
   await page.addInitScript(() => {
@@ -21,7 +25,7 @@ async function open(page: Page, path: string, { role, tasks }: { role?: string; 
     };
   });
   await mockAuthApi(page, { signedIn: true, role });
-  await mockCatalogApi(page, tasks === undefined ? {} : { tasks });
+  await mockCatalogApi(page, { ...(tasks === undefined ? {} : { tasks }), ...(suppliers ? { suppliers } : {}) });
   await page.goto(path);
 }
 
@@ -59,6 +63,19 @@ test("46a: 'Veri talep et' creates the link at once, with its deadline and the W
   const [url] = await opened(page);
   expect(url).toMatch(/^https:\/\/wa\.me\/902240000005\?text=/);
   expect(decodeURIComponent(url.split("text=")[1])).toContain("/r#tok0001");
+});
+
+test("46a: a named contact person is shown above the company and greeted in the message (M10 T3)", async ({ page }) => {
+  const suppliers = designSuppliers().map((s) => (s.name === "Gökçe Konfeksiyon" ? { ...s, contactName: "Kerem Çınar" } : s));
+  await open(page, `/batches/${BATCH_0917}`, { suppliers });
+  await chain(page).getByRole("button", { name: "Konfeksiyon adımı: Gökçe Konfeksiyon" }).click();
+  await sheet(page, "Gökçe Konfeksiyon").getByRole("button", { name: "Veri talep et" }).click();
+
+  const dialog = sheet(page, "Veri talep et");
+  await expect(dialog).toContainText("KÇKerem ÇınarGökçe Konfeksiyon · İzmir");
+  await expect(dialog).toContainText(
+    "Merhaba Kerem Çınar, Karaca Tekstil A.Ş. olarak KP-2026-0917-C partisi (Keten gömlek, lacivert) için konfeksiyon verilerinizi rica ediyoruz.",
+  );
 });
 
 test("46b/c: revoking needs a confirmation, then the link is struck out and a new one can be made", async ({ page }) => {

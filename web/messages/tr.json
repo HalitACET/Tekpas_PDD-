@@ -731,6 +731,7 @@
         "message": "WhatsApp mesajı",
         "preview": "Önizleme",
         "text": "Merhaba, {company} olarak {batchNo} partisi ({product}) için {step} verilerinizi rica ediyoruz. Formu {deadline} tarihine kadar bu bağlantıdan doldurabilirsiniz:",
+        "textNamed": "Merhaba {contact}, {company} olarak {batchNo} partisi ({product}) için {step} verilerinizi rica ediyoruz. Formu {deadline} tarihine kadar bu bağlantıdan doldurabilirsiniz:",
         "signoff": "Teşekkürler, {name}",
         "revoke": "Bağlantıyı geri al",
         "revokeTitle": "Bağlantı geri alınsın mı?",
@@ -796,6 +797,8 @@
       "phoneCountry": "Türkiye, +90",
       "phonePlaceholder": "5xx xxx xx xx",
       "phoneHint": "Veri talep bağlantıları bu numaraya WhatsApp ile paylaşılabilir.",
+      "contact": "İlgili kişi",
+      "contactPlaceholder": "örn. Selin Arslan",
       "lockedOwnAccount": "Bu firmanın kendi hesabı var; bilgilerini firma yönetir.",
       "lockedType": "Bu tedarikçi {count} partide kullanıldığı için tipi değiştirilemez.",
       "required": "Firma adı, tip ve şehir gerekli",
@@ -805,7 +808,7 @@
       "submitEdit": "Değişiklikleri kaydet",
       "failed": "Tedarikçi kaydedilemedi",
       "editSub": "{type} · {count, plural, =0 {henüz partide kullanılmıyor} other {# partide kullanılıyor}}",
-      "lockedOwnAccountBody": "Ad, tip ve şehir firmanın KozaPass hesabından gelir. İletişim telefonunu değiştirebilirsiniz.",
+      "lockedOwnAccountBody": "Ad, tip ve şehir firmanın KozaPass hesabından gelir. İletişim telefonunu ve ilgili kişiyi değiştirebilirsiniz.",
       "cityCount": "{count} il eşleşti"
     },
     "remove": {

@@ -73,7 +73,7 @@ function SupplierForm({
   const tType = useTranslations("enums.companyType");
   const tField = useTranslations("errors.field");
   const tConflict = useTranslations("errors.conflict");
-  const ids = { name: useId(), type: useId(), city: useId(), phone: useId(), lock: useId(), typeLock: useId() };
+  const ids = { name: useId(), type: useId(), city: useId(), phone: useId(), contact: useId(), lock: useId(), typeLock: useId() };
   const supplier = state.kind === "edit" ? state.supplier : undefined;
   const locks = {
     details: supplier !== undefined && !supplier.editable,
@@ -232,6 +232,17 @@ function SupplierForm({
             </span>
           </Field>
         </div>
+
+        <Field label={t("contact")} htmlFor={ids.contact} error={message(formState.errors.contactName?.message)}>
+          <Input
+            id={ids.contact}
+            autoComplete="off"
+            placeholder={t("contactPlaceholder")}
+            aria-invalid={formState.errors.contactName ? true : undefined}
+            className={INPUT}
+            {...register("contactName")}
+          />
+        </Field>
       </div>
 
       <div className="flex items-center gap-2 border-t px-6 py-3.5">
