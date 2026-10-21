@@ -79,14 +79,22 @@ public class PublicRequestService {
         }
         SupplyStep step = link.step();
         PublicRejection rejection = step.getStatus() == StepStatus.REJECTED && step.getRejectionReason() != null
-                ? new PublicRejection(step.getRejectionReason(), step.getRejectionFields(),
-                        step.getRejectedAt() == null ? now : step.getRejectedAt(),
-                        nameOf(step.getRejectedBy(), link.manufacturerName()))
+                ? rejection(step, step.getRejectionReason(), link, now)
                 : null;
         return new PublicRequestView(RequestTokens.code(request.getId()), link.manufacturerName(),
                 link.requesterName(), link.productName(), link.batch().getBatchNo(), step.getStepType(),
                 request.getExpiresAt(), step.getData(), rejection, documentsOf(step, request),
                 llmGate.opensFor(link.batch().getCompanyId()));
+    }
+
+    private PublicRejection rejection(SupplyStep step, String reason, Link link, Instant now) {
+        DataRequest previous = requests.findFirstByStepIdAndStatusOrderByCompletedAtDesc(step.getId(),
+                RequestStatus.COMPLETED).orElse(null);
+        return new PublicRejection(reason, step.getRejectionFields(),
+                step.getRejectedAt() == null ? now : step.getRejectedAt(),
+                nameOf(step.getRejectedBy(), link.manufacturerName()),
+                previous == null ? null : previous.getSubmitterName(),
+                previous == null ? null : previous.getSubmitterRole());
     }
 
     /** What an upload through the link may touch: the open link, its step (still fillable) and the owner company. */

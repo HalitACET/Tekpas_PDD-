@@ -1593,6 +1593,8 @@ export interface components {
             byName: string;
             fields: string[];
             reason: string;
+            submitterName?: string | null;
+            submitterRole?: string | null;
         };
         PublicRequestView: {
             aiReading: boolean;

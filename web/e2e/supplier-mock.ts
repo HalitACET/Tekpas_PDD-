@@ -51,6 +51,8 @@ export function correctionView() {
       fields: ["fiberComposition"],
       at: new Date(2026, 9, 8, 15, 12).toISOString(),
       byName: "Elif Yılmaz",
+      submitterName: "Ahmet Kaya",
+      submitterRole: "Kalite sorumlusu",
     },
   });
 }
@@ -251,6 +253,8 @@ export function documentsCorrectionView(kind: "unreadable" | "expired", previous
       fields: ["documents"],
       at: new Date(2026, 9, 8, 15, 12).toISOString(),
       byName: "Elif Yılmaz",
+      submitterName: "Ahmet Kaya",
+      submitterRole: "Kalite sorumlusu",
     },
   };
 }

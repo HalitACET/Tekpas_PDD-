@@ -512,6 +512,9 @@ class DataRequestApiTest {
                     .containsExactly("fiberComposition");
             assertThat(view.path("rejection").path("byName").asString()).isEqualTo(s.tenant().user().getFullName());
             assertThat(view.path("data").path("yarnCount").asString()).isEqualTo("Ne 30/1");
+            // The form starts with the sender of the data being corrected.
+            assertThat(view.path("rejection").path("submitterName").asString()).isEqualTo("Ahmet Kaya");
+            assertThat(view.path("rejection").path("submitterRole").asString()).isEqualTo("Kalite sorumlusu");
 
             assertThat(submit(token, yarnForm())).hasStatusOk();
             JsonNode resubmitted = stepNode(chain(s.tenant(), s.batchId()), "YARN");
