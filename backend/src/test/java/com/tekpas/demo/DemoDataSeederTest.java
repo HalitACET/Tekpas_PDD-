@@ -163,6 +163,10 @@ class DemoDataSeederTest {
         // 2: every blocker cleared.
         JsonNode score = get(token, "/api/v1/batches/" + DemoDataSeeder.BATCHES.get(1).id() + "/score");
         assertThat(score.path("publishable").asBoolean()).isTrue();
+        // Its product has care instructions; the linen shirt of the fifth batch has none (design v1.0 120d).
+        assertThat(score.path("careInstructionsMissing").asBoolean()).isFalse();
+        assertThat(get(token, "/api/v1/batches/" + DemoDataSeeder.BATCHES.get(4).id() + "/score")
+                .path("careInstructionsMissing").asBoolean()).isTrue();
         assertThat(score.path("score").asInt()).isGreaterThanOrEqualTo(score.path("threshold").asInt());
         // 3: the knitter's GOTS certificate, read by the AI, waits for a person.
         JsonNode awaiting = get(token, "/api/v1/documents/awaiting-review");

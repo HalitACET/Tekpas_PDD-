@@ -103,7 +103,7 @@ class ComplianceService {
             IssueCounts counts = open.getOrDefault(target.batchId(), IssueCounts.NONE);
             result.put(target.batchId(), ComplianceScore.compute(chain, new ProductFacts(
                     product.getDeclaredFiberComposition(), product.getCategory(), target.producedFrom(),
-                    target.producedTo()), today, counts.errors(), counts.warnings()));
+                    target.producedTo(), product.getCareInfo() != null), today, counts.errors(), counts.warnings()));
         }
         return result;
     }

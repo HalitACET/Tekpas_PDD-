@@ -111,7 +111,7 @@ class PassportApiTest {
         assertThat(batchStatus(owner, s.batchId())).isEqualTo("PUBLISHED");
 
         JsonNode snap = detail(owner, v.path("id").asString()).path("snapshot");
-        assertThat(snap.path("schemaVersion").asInt()).isEqualTo(1);
+        assertThat(snap.path("schemaVersion").asInt()).isEqualTo(2);
         assertThat(snap.path("passport").path("version").asInt()).isEqualTo(1);
         assertThat(snap.path("passport").path("gtin").asString()).isEqualTo(s.gtin());
         assertThat(snap.path("passport").path("batchNo").asString()).isEqualTo(s.batchNo());
@@ -122,6 +122,8 @@ class PassportApiTest {
         assertThat(snap.path("product").path("fiberComposition").get(0).path("fiber").asString())
                 .isEqualTo("ORGANIC_COTTON");
         assertThat(snap.path("batch").path("producedFrom").asString()).isEqualTo("2026-09-01");
+        // The product has no care instructions: the page shows no care section.
+        assertThat(snap.path("product").path("care").isNull()).isTrue();
 
         JsonNode chain = snap.path("supplyChain");
         assertThat(chain.valueStream().map(x -> x.path("type").asString())).containsExactly("FIBER", "YARN", "FABRIC",
@@ -168,6 +170,34 @@ class PassportApiTest {
                 .path("snapshot");
         assertThat(snap.propertyNames()).containsExactlyInAnyOrder("schemaVersion", "passport", "manufacturer",
                 "product", "batch", "supplyChain", "certificates");
+    }
+
+    /** M10 T8: the care instructions as they were when the version was published (design v1.0 121a). */
+    @Test
+    void theCareInstructionsAreFrozenWithTheVersion() throws IOException {
+        Tenant owner = fixtures.tenant();
+        Setup s = t.publishable(owner);
+        String product = "/api/v1/products/" + s.productId();
+        assertThat(fixtures.patch(owner, product, java.util.Map.of("careInfo", java.util.Map.of(
+                "washing", java.util.Map.of("symbol", "WASH_40", "gentleness", "GENTLE"),
+                "ironing", java.util.Map.of("symbol", "IRON_MEDIUM"),
+                "note", "Ters çevirerek yıkayın.")))).hasStatusOk();
+
+        JsonNode v = published(owner, s.batchId());
+        assertThat(fixtures.patch(owner, product, "{\"careInfo\":null}")).hasStatusOk();
+
+        JsonNode care = fixtures.body(fixtures.get(owner, "/api/v1/passports/" + v.path("id").asString()))
+                .path("snapshot").path("product").path("care");
+        assertThat(care.path("washing").path("symbol").asString()).isEqualTo("WASH_40");
+        assertThat(care.path("washing").path("gentleness").asString()).isEqualTo("GENTLE");
+        assertThat(care.path("ironing").path("symbol").asString()).isEqualTo("IRON_MEDIUM");
+        assertThat(care.path("bleaching").isNull()).isTrue();
+        assertThat(care.path("note").asString()).isEqualTo("Ters çevirerek yıkayın.");
+        assertThat(care.path("noteLanguage").asString()).isEqualTo("tr");
+        JsonNode open = fixtures.body(fixtures.mvc().get()
+                .uri("/api/v1/public/passports/01/" + s.gtin() + "/10/" + s.batchNo()).exchange());
+        assertThat(open.path("snapshot").path("product").path("care").path("washing").path("symbol").asString())
+                .isEqualTo("WASH_40");
     }
 
     @Test

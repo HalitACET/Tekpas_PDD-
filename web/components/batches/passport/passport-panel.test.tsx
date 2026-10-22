@@ -60,6 +60,7 @@ const ready: ScoreResponse = {
   score: 96,
   threshold: 90,
   publishable: true,
+  careInstructionsMissing: false,
   criteria: [
     { code: "STEPS_APPROVED", earned: 50, possible: 50, items: [{ code: "STEP_APPROVED", stepId: "s1", stepType: "YARN", ok: true }] },
     { code: "REQUIRED_FIELDS", earned: 30, possible: 30, items: [] },

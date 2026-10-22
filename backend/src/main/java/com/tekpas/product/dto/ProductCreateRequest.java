@@ -2,6 +2,7 @@ package com.tekpas.product.dto;
 
 import com.tekpas.product.FiberShare;
 import com.tekpas.product.ProductCategory;
+import com.tekpas.product.care.CareInfo;
 import com.tekpas.product.validation.FiberDuplicate;
 import com.tekpas.product.validation.FiberTotal;
 import com.tekpas.product.validation.GtinCheckDigit;
@@ -17,6 +18,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * @param gtin GTIN-8, -12, -13 or -14; stored and returned as 14 digits
  * @param declaredFiberComposition whole percentages that add up to 100, each fiber at most once
+ * @param careInfo care instructions (design v1.0 120a); empty instructions are stored as none
  */
 public record ProductCreateRequest(
         @Schema(example = "02012345000018") @NotNull @GtinFormat @GtinCheckDigit String gtin,
@@ -24,5 +26,6 @@ public record ProductCreateRequest(
         @NotBlank @Size(max = 200) String name,
         @NotNull ProductCategory category,
         @Nullable @Size(max = 2000) String description,
-        @Nullable @Valid @FiberTotal @FiberDuplicate List<FiberShare> declaredFiberComposition) {
+        @Nullable @Valid @FiberTotal @FiberDuplicate List<FiberShare> declaredFiberComposition,
+        @Nullable @Valid CareInfo careInfo) {
 }

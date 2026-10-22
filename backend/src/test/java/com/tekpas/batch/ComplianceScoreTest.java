@@ -89,6 +89,21 @@ class ComplianceScoreTest {
         assertThat(r.criteria()).extracting(ScoreCriterion::possible).containsExactly(50, 30, 20);
     }
 
+    /** Design v1.0 120d: a note on the score card, never points or a blocker. */
+    @Test
+    void missingCareInstructionsAreANoteAndCostNothing() {
+        ProductFacts withCare = new ProductFacts(PRODUCT.fibers(), PRODUCT.category(), PRODUCT.producedFrom(),
+                PRODUCT.producedTo(), true);
+
+        ScoreResponse without = ComplianceScore.compute(fullChain(), PRODUCT, TODAY);
+        ScoreResponse with = ComplianceScore.compute(fullChain(), withCare, TODAY);
+
+        assertThat(without.careInstructionsMissing()).isTrue();
+        assertThat(with.careInstructionsMissing()).isFalse();
+        assertThat(without.score()).isEqualTo(with.score()).isEqualTo(100);
+        assertThat(without.publishable()).isTrue();
+    }
+
     @Test
     void theCriteriaAddUpToTheScore() {
         List<StepFacts> chain = List.of(approved(StepType.FIBER), approved(StepType.YARN, cert(DocType.GOTS, "2027-03-13")),
