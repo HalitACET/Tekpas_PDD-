@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -30,6 +31,8 @@ public class AccessLogFilter extends OncePerRequestFilter {
     /** Segments after which the next segment is a link token (web /r/{token}, M4 data request links). */
     private static final Set<String> TOKEN_PARENTS = Set.of("r");
     private static final String PUBLIC_PREFIX = "/api/v1/public/";
+    /** Set by Vercel itself, so a client cannot forge them (unlike the first X-Forwarded-For entry). */
+    private static final List<String> VERCEL_IP_HEADERS = List.of("x-real-ip", "x-vercel-forwarded-for");
     private static final Pattern UUID = Pattern.compile(
             "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     /**
@@ -58,14 +61,21 @@ public class AccessLogFilter extends OncePerRequestFilter {
             int status = failed ? HttpServletResponse.SC_INTERNAL_SERVER_ERROR : response.getStatus();
             String path = maskPath(request.getRequestURI());
             if (path.startsWith(PUBLIC_PREFIX)) {
-                // How many proxies appended to X-Forwarded-For (no addresses): checks the client IP rule
-                // (ClientIp, tekpas.client-ip.trusted-proxies) against the live chain.
-                log.info("{} {} {} {}ms xff={}", request.getMethod(), path, status, millis,
-                        ClientIp.hops(request).size());
+                // How many proxies appended to X-Forwarded-For and which of Vercel's own client IP headers
+                // arrived (names only, never addresses): checks the client IP rule (ClientIp,
+                // tekpas.client-ip.trusted-proxies) against the live chain.
+                log.info("{} {} {} {}ms xff={} vercel={}", request.getMethod(), path, status, millis,
+                        ClientIp.hops(request).size(), vercelHeaders(request));
             } else {
                 log.info("{} {} {} {}ms", request.getMethod(), path, status, millis);
             }
         }
+    }
+
+    /** Vercel's client IP headers present on the request, by name ("none" when neither arrived). */
+    static String vercelHeaders(HttpServletRequest request) {
+        List<String> present = VERCEL_IP_HEADERS.stream().filter(h -> request.getHeader(h) != null).toList();
+        return present.isEmpty() ? "none" : String.join(",", present);
     }
 
     /** The path with link tokens replaced by {@value #MASK}; the query string is never part of it. */
