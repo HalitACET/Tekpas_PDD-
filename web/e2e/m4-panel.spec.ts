@@ -42,7 +42,8 @@ test("46a: 'Veri talep et' creates the link at once, with its deadline and the W
 
   const dialog = sheet(page, "Veri talep et");
   await expect(dialog).toContainText("Gökçe Konfeksiyon · Konfeksiyon adımı · KP-2026-0917-C");
-  await expect(dialog).toContainText("İzmir");
+  // No contact person: the company on top, its initials, and the city with a note (design v1.0 132b).
+  await expect(dialog).toContainText("GKGökçe Konfeksiyonİzmir · ilgili kişi girilmemiş");
   await expect(dialog).toContainText("+90 224 000 00 05");
   await expect(dialog.getByRole("radio", { name: "7 gün" })).toHaveAttribute("aria-checked", "true");
   await expect(dialog).toContainText("10.10.2026 Cumartesi");
@@ -65,7 +66,7 @@ test("46a: 'Veri talep et' creates the link at once, with its deadline and the W
   expect(decodeURIComponent(url.split("text=")[1])).toContain("/r#tok0001");
 });
 
-test("46a: a named contact person is shown above the company and greeted in the message (M10 T3)", async ({ page }) => {
+test("46a: a named contact person is shown above the company and greeted in the message (v1.0 132a)", async ({ page }) => {
   const suppliers = designSuppliers().map((s) => (s.name === "Gökçe Konfeksiyon" ? { ...s, contactName: "Kerem Çınar" } : s));
   await open(page, `/batches/${BATCH_0917}`, { suppliers });
   await chain(page).getByRole("button", { name: "Konfeksiyon adımı: Gökçe Konfeksiyon" }).click();
@@ -73,8 +74,9 @@ test("46a: a named contact person is shown above the company and greeted in the 
 
   const dialog = sheet(page, "Veri talep et");
   await expect(dialog).toContainText("KÇKerem ÇınarGökçe Konfeksiyon · İzmir");
+  // Greeted by first name (design v1.0 132a).
   await expect(dialog).toContainText(
-    "Merhaba Kerem Çınar, Karaca Tekstil A.Ş. olarak KP-2026-0917-C partisi (Keten gömlek, lacivert) için konfeksiyon verilerinizi rica ediyoruz.",
+    "Merhaba Kerem, Karaca Tekstil A.Ş. olarak KP-2026-0917-C partisi (Keten gömlek, lacivert) için konfeksiyon verilerinizi rica ediyoruz.",
   );
 });
 

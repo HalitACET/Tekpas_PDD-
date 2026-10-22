@@ -121,12 +121,13 @@ function RequestBody({
   const supplierName = step.supplier?.name ?? "";
   const city = step.supplier?.city;
   const phone = supplier.data?.phone;
-  // 46a: the person to talk to on top, the company under them; the company alone when nobody is named (M10 T3).
+  // Design v1.0 132a/b: the person to talk to on top and the company under them, greeted by first name; without
+  // one, the company on top and "ilgili kişi girilmemiş" under it.
   const contact = supplier.data?.contactName ?? undefined;
+  const firstName = contact?.split(/\s+/)[0];
   const initials = (contact ?? supplierName)
     .split(/\s+/)
     .filter(Boolean)
-    .slice(0, 2)
     .map((w) => w[0]!.toLocaleUpperCase(locale))
     .join("");
 
@@ -142,7 +143,7 @@ function RequestBody({
   const shown = url?.replace(/^https?:\/\//, "");
   const message =
     link &&
-    `${t(contact ? "textNamed" : "text", { contact: contact ?? "", company, batchNo, product: productName, step: locale === "de" ? stepName : stepName.toLocaleLowerCase(locale), deadline: shortDate(link.expiresAt) })}`;
+    `${t(firstName ? "textNamed" : "text", { contact: firstName ?? "", company, batchNo, product: productName, step: locale === "de" ? stepName : stepName.toLocaleLowerCase(locale), deadline: shortDate(link.expiresAt) })}`;
   const active = !!link && !revoked;
 
   const changeDays = (days: number) => {
@@ -183,11 +184,17 @@ function RequestBody({
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-px">
             <span className="truncate text-[13px] font-medium">{contact ?? supplierName}</span>
-            {contact ? (
-              <span className="truncate text-xs text-muted-foreground">{city ? `${supplierName} · ${city}` : supplierName}</span>
-            ) : (
-              city && <span className="text-xs text-muted-foreground">{city}</span>
-            )}
+            <span className="truncate text-xs text-muted-foreground">
+              {contact
+                ? city
+                  ? `${supplierName} · ${city}`
+                  : supplierName
+                : supplier.data
+                  ? city
+                    ? `${city} · ${t("noContact")}`
+                    : t("noContact")
+                  : city}
+            </span>
           </span>
           <span className="font-mono text-xs">{phone ? formatPhone(phone) : t("noPhone")}</span>
         </div>

@@ -795,7 +795,8 @@
         "creating": "Link wird erstellt…",
         "createFailed": "Der Link konnte nicht erstellt werden",
         "revokeFailed": "Der Link konnte nicht widerrufen werden",
-        "deadlineFailed": "Die Frist konnte nicht geändert werden"
+        "deadlineFailed": "Die Frist konnte nicht geändert werden",
+        "noContact": "keine Ansprechperson angegeben"
       },
       "documentCount": "{count, plural, one {# Dokument} other {# Dokumente}}",
       "documentsPending": "Ein Dokument wartet auf Freigabe"
@@ -860,8 +861,9 @@
       "submitEdit": "Änderungen speichern",
       "failed": "Der Lieferant konnte nicht gespeichert werden",
       "editSub": "{type} · {count, plural, =0 {noch in keiner Charge verwendet} one {in # Charge verwendet} other {in # Chargen verwendet}}",
-      "lockedOwnAccountBody": "Name, Typ und Ort kommen aus dem KozaPass-Konto des Unternehmens. Kontakttelefon und Ansprechperson können Sie ändern.",
-      "cityCount": "{count, plural, one {# Provinz passt} other {# Provinzen passen}}"
+      "lockedOwnAccountBody": "Name, Typ und Ort kommen aus dem KozaPass-Konto des Unternehmens. Das Kontakttelefon können Sie ändern.",
+      "cityCount": "{count, plural, one {# Provinz passt} other {# Provinzen passen}}",
+      "optional": "Optional"
     },
     "remove": {
       "title": "Lieferantenverknüpfung entfernen",

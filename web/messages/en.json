@@ -795,7 +795,8 @@
         "creating": "Creating the link…",
         "createFailed": "The link could not be created",
         "revokeFailed": "The link could not be revoked",
-        "deadlineFailed": "The deadline could not be changed"
+        "deadlineFailed": "The deadline could not be changed",
+        "noContact": "no contact person entered"
       },
       "documentCount": "{count, plural, one {# document} other {# documents}}",
       "documentsPending": "A document waits for approval"
@@ -860,8 +861,9 @@
       "submitEdit": "Save changes",
       "failed": "The supplier could not be saved",
       "editSub": "{type} · {count, plural, =0 {not used in any batch yet} one {used in # batch} other {used in # batches}}",
-      "lockedOwnAccountBody": "Name, type and city come from the company's KozaPass account. You can change the contact phone and the contact person.",
-      "cityCount": "{count, plural, one {# province matches} other {# provinces match}}"
+      "lockedOwnAccountBody": "Name, type and city come from the company's KozaPass account. You can change the contact phone.",
+      "cityCount": "{count, plural, one {# province matches} other {# provinces match}}",
+      "optional": "Optional"
     },
     "remove": {
       "title": "Remove supplier link",

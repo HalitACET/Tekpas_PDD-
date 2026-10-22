@@ -139,7 +139,7 @@ test("a company with its own account: only the phone and the contact person chan
   await expect(form).toContainText("Aksesuar · 2 partide kullanılıyor");
   await expect(form.getByText("Bu firmanın kendi hesabı var; bilgilerini firma yönetir.")).toBeVisible();
   await expect(form.getByText("Ad, tip ve şehir firmanın KozaPass hesabından gelir.")).toBeVisible();
-  await expect(form.getByText(/WhatsApp/)).toHaveCount(0);
+  await expect(form.getByText("Veri talep bağlantıları bu numaraya WhatsApp ile paylaşılabilir.")).toBeVisible();
   await expect(form.getByLabel("Firma adı")).toBeDisabled();
   await expect(form.getByRole("combobox", { name: "Şehir" })).toBeDisabled();
   await expect(form.getByRole("radio", { name: "Aksesuar" })).toBeDisabled();
