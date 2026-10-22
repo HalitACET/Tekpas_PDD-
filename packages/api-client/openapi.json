@@ -1,6 +1,17 @@
 {
   "components" : {
     "schemas" : {
+      "AcceptInvitationRequest" : {
+        "properties" : {
+          "password" : {
+            "maxLength" : 72,
+            "minLength" : 10,
+            "type" : "string"
+          }
+        },
+        "required" : [ "password" ],
+        "type" : "object"
+      },
       "ApiProblem" : {
         "description" : "RFC 7807 problem detail",
         "properties" : {
@@ -1625,6 +1636,32 @@
         "required" : [ "fileName", "id", "previous", "sizeBytes", "uploadedAt" ],
         "type" : "object"
       },
+      "PublicInvitationView" : {
+        "properties" : {
+          "companyName" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "expiresAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "fullName" : {
+            "type" : "string"
+          },
+          "invitedByName" : {
+            "type" : [ "string", "null" ]
+          },
+          "role" : {
+            "enum" : [ "OWNER", "ADMIN", "EDITOR", "SUPPLIER", "VIEWER" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "companyName", "email", "expiresAt", "fullName", "role" ],
+        "type" : "object"
+      },
       "PublicPassportResponse" : {
         "properties" : {
           "snapshot" : {
@@ -2669,6 +2706,78 @@
         "required" : [ "entries" ],
         "type" : "object"
       },
+      "UserInvitation" : {
+        "properties" : {
+          "expiresAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "token" : {
+            "type" : "string"
+          },
+          "user" : {
+            "$ref" : "#/components/schemas/UserResponse"
+          }
+        },
+        "required" : [ "expiresAt", "token", "user" ],
+        "type" : "object"
+      },
+      "UserInviteRequest" : {
+        "properties" : {
+          "email" : {
+            "format" : "email",
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "fullName" : {
+            "maxLength" : 150,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "role" : {
+            "enum" : [ "OWNER", "ADMIN", "EDITOR", "SUPPLIER", "VIEWER" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "fullName", "role" ],
+        "type" : "object"
+      },
+      "UserResponse" : {
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "fullName" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "invitationExpiresAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "lastLoginAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "role" : {
+            "enum" : [ "OWNER", "ADMIN", "EDITOR", "SUPPLIER", "VIEWER" ],
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "ACTIVE", "INVITED", "INVITATION_EXPIRED", "INACTIVE" ],
+            "type" : "string"
+          },
+          "you" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "email", "fullName", "id", "role", "status", "you" ],
+        "type" : "object"
+      },
       "UserSummary" : {
         "properties" : {
           "company" : {
@@ -2693,6 +2802,18 @@
           }
         },
         "required" : [ "company", "email", "fullName", "id", "locale", "role" ],
+        "type" : "object"
+      },
+      "UserUpdateRequest" : {
+        "properties" : {
+          "active" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "role" : {
+            "enum" : [ "OWNER", "ADMIN", "EDITOR", "SUPPLIER", "VIEWER" ],
+            "type" : [ "string", "null" ]
+          }
+        },
         "type" : "object"
       },
       "Verification" : {
@@ -5576,6 +5697,134 @@
         "tags" : [ "supply-chain" ]
       }
     },
+    "/api/v1/public/invitation" : {
+      "get" : {
+        "operationId" : "openInvitation",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Invitation-Token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicInvitationView"
+                }
+              }
+            },
+            "description" : "The invitation"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Unknown link (INVITATION_INVALID)"
+          },
+          "410" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "INVITATION_EXPIRED or INVITATION_USED"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many requests (Retry-After)"
+          }
+        },
+        "summary" : "Who invites whom, before choosing a password",
+        "tags" : [ "public-invitations" ]
+      }
+    },
+    "/api/v1/public/invitation/accept" : {
+      "post" : {
+        "description" : "The link is used up. Then the person logs in with the e-mail and this password.",
+        "operationId" : "acceptInvitation",
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-Invitation-Token",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "Joined"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed (password: 10 to 72 characters)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Unknown link (INVITATION_INVALID)"
+          },
+          "410" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "INVITATION_EXPIRED or INVITATION_USED"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many requests (Retry-After)"
+          }
+        },
+        "summary" : "Choose a password; the account opens",
+        "tags" : [ "public-invitations" ]
+      }
+    },
     "/api/v1/public/passports/01/{gtin}/10/{batch}" : {
       "get" : {
         "description" : "gtin: GTIN-8/12/13/14 (normalized to 14 digits), batch: the AI (10) batch number (upper-cased). Always the newest version; older versions are not public. Never published or unreadable code: 404 PASSPORT_NOT_FOUND. Withdrawn: 410 PASSPORT_WITHDRAWN with the date.",
@@ -7119,6 +7368,235 @@
         "summary" : "The company's open tasks and the menu badge count",
         "tags" : [ "tasks" ]
       }
+    },
+    "/api/v1/users" : {
+      "get" : {
+        "operationId" : "listUsers",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/UserResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "The users, by name"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN"
+          }
+        },
+        "summary" : "The company's users, suppliers' users left out",
+        "tags" : [ "users" ]
+      }
+    },
+    "/api/v1/users/invitations" : {
+      "post" : {
+        "description" : "No e-mail is sent: the link (/davet#<token>, 7 days) is shared by the owner. The token is in this answer only.",
+        "operationId" : "inviteUser",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserInviteRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInvitation"
+                }
+              }
+            },
+            "description" : "Invited"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed (InviteRole for a supplier role)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only the OWNER"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "The e-mail is already registered (field error Unique)"
+          }
+        },
+        "summary" : "Invite a colleague: an inactive user and a one-time link",
+        "tags" : [ "users" ]
+      }
+    },
+    "/api/v1/users/{id}" : {
+      "patch" : {
+        "description" : "A deactivated user is signed out everywhere; their work and audit entries stay.",
+        "operationId" : "updateUser",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UserUpdateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description" : "Updated"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Validation failed (InviteRole for a supplier role)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only the OWNER"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such user in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "SELF (own account), LAST_OWNER (the company's last active owner), INVITATION_PENDING (not joined yet: renew the invitation)"
+          }
+        },
+        "summary" : "Change a user's role, deactivate or reactivate",
+        "tags" : [ "users" ]
+      }
+    },
+    "/api/v1/users/{id}/invitations" : {
+      "post" : {
+        "operationId" : "renewUserInvitation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserInvitation"
+                }
+              }
+            },
+            "description" : "Renewed"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only the OWNER"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such user in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "NOT_INVITED: the user has already joined"
+          }
+        },
+        "summary" : "A new invitation link; the old one stops working",
+        "tags" : [ "users" ]
+      }
     }
   },
   "security" : [ {
@@ -7140,6 +7618,9 @@
     "description" : "The current company's supplier network",
     "name" : "suppliers"
   }, {
+    "description" : "Joining a company with an invitation link (no account yet)",
+    "name" : "public-invitations"
+  }, {
     "description" : "Production batches of the current company; a passport is published per batch",
     "name" : "batches"
   }, {
@@ -7160,6 +7641,9 @@
   }, {
     "description" : "Excel imports of products: template, upload, result (docs/m11-plan.md §4)",
     "name" : "imports"
+  }, {
+    "description" : "The company's users and their roles (PLAN.md §2, docs/m12-plan.md §5)",
+    "name" : "users"
   }, {
     "description" : "The current user's phones for push notifications",
     "name" : "notifications"

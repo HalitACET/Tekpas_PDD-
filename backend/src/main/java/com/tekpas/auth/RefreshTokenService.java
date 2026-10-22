@@ -90,6 +90,11 @@ public class RefreshTokenService {
         find(rawToken).ifPresent(token -> revokeFamily(token, clock.instant()));
     }
 
+    /** Every session of a user, e.g. when the user is deactivated (M12). */
+    public void revokeAllOf(UUID userId) {
+        repository.revokeAllOf(userId, clock.instant());
+    }
+
     public void revokeFamily(UUID familyId) {
         repository.revokeFamily(familyId, clock.instant());
     }

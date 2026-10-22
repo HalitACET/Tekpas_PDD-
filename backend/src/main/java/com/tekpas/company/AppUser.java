@@ -58,6 +58,28 @@ public class AppUser {
         this.active = true;
     }
 
+    /** Invited (M12): inactive, with a password nobody knows, until the invitation link is used. */
+    public static AppUser invited(UUID companyId, String email, String unusablePasswordHash, String fullName,
+            UserRole role) {
+        AppUser user = new AppUser(companyId, email, unusablePasswordHash, fullName, role);
+        user.active = false;
+        return user;
+    }
+
+    /** The invitation link was used: the password chosen there, and the account opens. */
+    public void acceptInvitation(String passwordHash) {
+        this.passwordHash = passwordHash;
+        this.active = true;
+    }
+
+    public void changeRole(UserRole role) {
+        this.role = role;
+    }
+
+    public void activate() {
+        this.active = true;
+    }
+
     public void recordLogin(Instant at) {
         this.lastLoginAt = at;
     }

@@ -767,6 +767,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Who invites whom, before choosing a password */
+        get: operations["openInvitation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/invitation/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Choose a password; the account opens
+         * @description The link is used up. Then the person logs in with the e-mail and this password.
+         */
+        post: operations["acceptInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/passports/01/{gtin}/10/{batch}": {
         parameters: {
             query?: never;
@@ -1092,10 +1129,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The company's users, suppliers' users left out */
+        get: operations["listUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invite a colleague: an inactive user and a one-time link
+         * @description No e-mail is sent: the link (/davet#<token>, 7 days) is shared by the owner. The token is in this answer only.
+         */
+        post: operations["inviteUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change a user's role, deactivate or reactivate
+         * @description A deactivated user is signed out everywhere; their work and audit entries stay.
+         */
+        patch: operations["updateUser"];
+        trace?: never;
+    };
+    "/api/v1/users/{id}/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A new invitation link; the old one stops working */
+        post: operations["renewUserInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AcceptInvitationRequest: {
+            password: string;
+        };
         /** @description RFC 7807 problem detail */
         ApiProblem: {
             detail?: string | null;
@@ -1742,6 +1856,16 @@ export interface components {
             /** Format: date-time */
             uploadedAt: string;
         };
+        PublicInvitationView: {
+            companyName: string;
+            email: string;
+            /** Format: date-time */
+            expiresAt: string;
+            fullName: string;
+            invitedByName?: string | null;
+            /** @enum {string} */
+            role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
+        };
         PublicPassportResponse: {
             snapshot: components["schemas"]["PassportSnapshot"];
             verificationCode: string;
@@ -2092,6 +2216,34 @@ export interface components {
         TranslationsUpdateRequest: {
             entries: components["schemas"]["Entry"][];
         };
+        UserInvitation: {
+            /** Format: date-time */
+            expiresAt: string;
+            token: string;
+            user: components["schemas"]["UserResponse"];
+        };
+        UserInviteRequest: {
+            /** Format: email */
+            email: string;
+            fullName: string;
+            /** @enum {string} */
+            role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
+        };
+        UserResponse: {
+            email: string;
+            fullName: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            invitationExpiresAt?: string | null;
+            /** Format: date-time */
+            lastLoginAt?: string | null;
+            /** @enum {string} */
+            role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
+            /** @enum {string} */
+            status: "ACTIVE" | "INVITED" | "INVITATION_EXPIRED" | "INACTIVE";
+            you: boolean;
+        };
         UserSummary: {
             company: components["schemas"]["CompanySummary"];
             email: string;
@@ -2101,6 +2253,11 @@ export interface components {
             locale: string;
             /** @enum {string} */
             role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
+        };
+        UserUpdateRequest: {
+            active?: boolean | null;
+            /** @enum {string|null} */
+            role?: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER" | null;
         };
         Verification: {
             /** @enum {string|null} */
@@ -4371,6 +4528,115 @@ export interface operations {
             };
         };
     };
+    openInvitation: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Invitation-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The invitation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicInvitationView"];
+                };
+            };
+            /** @description Unknown link (INVITATION_INVALID) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description INVITATION_EXPIRED or INVITATION_USED */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Too many requests (Retry-After) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    acceptInvitation: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Invitation-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptInvitationRequest"];
+            };
+        };
+        responses: {
+            /** @description Joined */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed (password: 10 to 72 characters) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Unknown link (INVITATION_INVALID) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description INVITATION_EXPIRED or INVITATION_USED */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Too many requests (Retry-After) */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     getPublicPassport: {
         parameters: {
             query?: never;
@@ -5597,6 +5863,197 @@ export interface operations {
             };
             /** @description Supplier users have no access */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    listUsers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The users, by name */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"][];
+                };
+            };
+            /** @description Only OWNER and ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    inviteUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserInviteRequest"];
+            };
+        };
+        responses: {
+            /** @description Invited */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserInvitation"];
+                };
+            };
+            /** @description Validation failed (InviteRole for a supplier role) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Only the OWNER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description The e-mail is already registered (field error Unique) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    updateUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Validation failed (InviteRole for a supplier role) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Only the OWNER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such user in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description SELF (own account), LAST_OWNER (the company's last active owner), INVITATION_PENDING (not joined yet: renew the invitation) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    renewUserInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Renewed */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserInvitation"];
+                };
+            };
+            /** @description Only the OWNER */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such user in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description NOT_INVITED: the user has already joined */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
