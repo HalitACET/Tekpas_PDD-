@@ -666,6 +666,30 @@
         "enum" : [ "GRID", "SOLAR", "WIND", "NATURAL_GAS", "COAL", "BIOMASS", "OTHER" ],
         "type" : "string"
       },
+      "Entry" : {
+        "properties" : {
+          "approved" : {
+            "type" : "boolean"
+          },
+          "field" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "language" : {
+            "minLength" : 1,
+            "pattern" : "^(tr|en|de)$",
+            "type" : "string"
+          },
+          "text" : {
+            "maxLength" : 2000,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "approved", "field", "language" ],
+        "type" : "object"
+      },
       "Evidence" : {
         "properties" : {
           "page" : {
@@ -1263,9 +1287,15 @@
               "$ref" : "#/components/schemas/SnapshotStep"
             },
             "type" : "array"
+          },
+          "translations" : {
+            "items" : {
+              "$ref" : "#/components/schemas/SnapshotTranslation"
+            },
+            "type" : "array"
           }
         },
-        "required" : [ "batch", "certificates", "manufacturer", "passport", "product", "schemaVersion", "supplyChain" ],
+        "required" : [ "batch", "certificates", "manufacturer", "passport", "product", "schemaVersion", "supplyChain", "translations" ],
         "type" : "object"
       },
       "PassportStatus" : {
@@ -2008,6 +2038,24 @@
         },
         "type" : "object"
       },
+      "SnapshotTranslation" : {
+        "properties" : {
+          "aiAssisted" : {
+            "type" : "boolean"
+          },
+          "field" : {
+            "type" : "string"
+          },
+          "language" : {
+            "type" : "string"
+          },
+          "text" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "aiAssisted", "field", "language", "text" ],
+        "type" : "object"
+      },
       "StepCreateRequest" : {
         "properties" : {
           "inputStepIds" : {
@@ -2451,6 +2499,94 @@
           }
         },
         "required" : [ "accessToken", "expiresIn", "tokenType" ],
+        "type" : "object"
+      },
+      "TranslationEntry" : {
+        "properties" : {
+          "aiSuggested" : {
+            "type" : "boolean"
+          },
+          "approved" : {
+            "type" : "boolean"
+          },
+          "approvedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "approvedByName" : {
+            "type" : [ "string", "null" ]
+          },
+          "language" : {
+            "type" : "string"
+          },
+          "stale" : {
+            "type" : "boolean"
+          },
+          "text" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "aiSuggested", "approved", "language", "stale" ],
+        "type" : "object"
+      },
+      "TranslationField" : {
+        "properties" : {
+          "field" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "enum" : [ "PRODUCT_DESCRIPTION", "CARE_NOTE", "FABRIC_TYPE", "DYE_PROCESS_OTHER" ],
+            "type" : "string"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "sourceLanguage" : {
+            "type" : "string"
+          },
+          "stepType" : {
+            "$ref" : "#/components/schemas/StepType"
+          },
+          "translations" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TranslationEntry"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "field", "kind", "source", "sourceLanguage", "translations" ],
+        "type" : "object"
+      },
+      "TranslationsResponse" : {
+        "properties" : {
+          "aiAvailable" : {
+            "type" : "boolean"
+          },
+          "fields" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TranslationField"
+            },
+            "type" : "array"
+          },
+          "suggesting" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "aiAvailable", "fields", "suggesting" ],
+        "type" : "object"
+      },
+      "TranslationsUpdateRequest" : {
+        "properties" : {
+          "entries" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Entry"
+            },
+            "maxItems" : 60,
+            "minItems" : 0,
+            "type" : "array"
+          }
+        },
+        "required" : [ "entries" ],
         "type" : "object"
       },
       "UserSummary" : {
@@ -3715,6 +3851,171 @@
         },
         "summary" : "Add a step to a batch's chain",
         "tags" : [ "supply-chain" ]
+      }
+    },
+    "/api/v1/batches/{id}/translations" : {
+      "get" : {
+        "description" : "Product description, care note, a step's fabric type and \"other\" dyeing process; the product name and names of companies and places are not translated.",
+        "operationId" : "getTranslations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TranslationsResponse"
+                }
+              }
+            },
+            "description" : "The texts"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          }
+        },
+        "summary" : "The batch's free texts and their translations",
+        "tags" : [ "translations" ]
+      },
+      "put" : {
+        "description" : "Only approved translations of the texts as they are now go into the next published version. Changing an AI suggestion makes it the user's.",
+        "operationId" : "saveTranslations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TranslationsUpdateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TranslationsResponse"
+                }
+              }
+            },
+            "description" : "Saved"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "TranslationField, TranslationLanguage or a validation error"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          }
+        },
+        "summary" : "Edit, approve or remove translations",
+        "tags" : [ "translations" ]
+      }
+    },
+    "/api/v1/batches/{id}/translations/suggest" : {
+      "post" : {
+        "description" : "Queues one suggestion for the texts without an approved or hand-written translation; the suggestions arrive unapproved. Poll GET until suggesting is false.",
+        "operationId" : "suggestTranslations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "202" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TranslationsResponse"
+                }
+              }
+            },
+            "description" : "Queued"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Only OWNER and ADMIN"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such batch in this company"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "AI_NOT_AVAILABLE (not a demo company or the LLM is off) or NOTHING_TO_TRANSLATE"
+          }
+        },
+        "summary" : "Ask the AI for translations (demo companies only)",
+        "tags" : [ "translations" ]
       }
     },
     "/api/v1/batches/{id}/validate" : {
@@ -6567,6 +6868,9 @@
   "tags" : [ {
     "description" : "Consistency checks of a batch: run them, read the findings, decide on the warnings (the panel's Uyarılar tab)",
     "name" : "issues"
+  }, {
+    "description" : "Translations of a batch's free texts for its passport, approved before publishing (docs/m11-plan.md §3)",
+    "name" : "translations"
   }, {
     "description" : "Login, token refresh, logout and the current user",
     "name" : "auth"

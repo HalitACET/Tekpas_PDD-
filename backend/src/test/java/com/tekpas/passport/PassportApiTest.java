@@ -111,7 +111,7 @@ class PassportApiTest {
         assertThat(batchStatus(owner, s.batchId())).isEqualTo("PUBLISHED");
 
         JsonNode snap = detail(owner, v.path("id").asString()).path("snapshot");
-        assertThat(snap.path("schemaVersion").asInt()).isEqualTo(2);
+        assertThat(snap.path("schemaVersion").asInt()).isEqualTo(3);
         assertThat(snap.path("passport").path("version").asInt()).isEqualTo(1);
         assertThat(snap.path("passport").path("gtin").asString()).isEqualTo(s.gtin());
         assertThat(snap.path("passport").path("batchNo").asString()).isEqualTo(s.batchNo());
@@ -169,7 +169,7 @@ class PassportApiTest {
         JsonNode snap = fixtures.body(fixtures.get(owner, "/api/v1/passports/" + v.path("id").asString()))
                 .path("snapshot");
         assertThat(snap.propertyNames()).containsExactlyInAnyOrder("schemaVersion", "passport", "manufacturer",
-                "product", "batch", "supplyChain", "certificates");
+                "product", "batch", "supplyChain", "certificates", "translations");
     }
 
     /** M10 T8: the care instructions as they were when the version was published (design v1.0 121a). */

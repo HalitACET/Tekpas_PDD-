@@ -62,6 +62,7 @@ const snapshot: PassportSnapshot = {
     { key: "c1", type: "GOTS", certNo: "CU 1047561-GOTS-2026", holder: "Ege İplik", issuer: "Control Union", validFrom: "2026-03-14", validUntil: "2027-03-13" },
     { key: "c2", type: "OEKO_TEX", certNo: "21.HTR.40817", holder: "Demirtaş Örme Kumaş", issuer: "Hohenstein", validFrom: "2025-11-06", validUntil: "2026-11-05" },
   ],
+  translations: [],
 };
 
 function show(over: Partial<React.ComponentProps<typeof PassportView>> = {}) {

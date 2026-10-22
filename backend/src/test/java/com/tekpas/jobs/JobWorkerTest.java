@@ -27,20 +27,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * The job queue and worker (K9, PLAN M5 T3) with a test handler on AI_TRANSLATE_PASSPORT, a type nothing else in the
+ * The job queue and worker (K9, PLAN M5 T3) with a test handler on AI_TRANSLATE_PASSPORT. The test runs its own
+ * worker that knows only that handler (the application's own handler of the type stays out of it), so any other type
+ * has no handler here. AI_TRANSLATE_PASSPORT is a type nothing else in the
  * test run queues. The worker thread is off in tests: {@link JobWorker#runPending()} is called directly.
  */
 @IntegrationTest
-@Import(JobWorkerTest.Handlers.class)
 class JobWorkerTest {
 
     /** What the test handler does with a payload. */
@@ -95,26 +93,16 @@ class JobWorkerTest {
         }
     }
 
-    @TestConfiguration(proxyBeanMethods = false)
-    static class Handlers {
-
-        @Bean
-        TestHandler testHandler() {
-            return new TestHandler();
-        }
-    }
-
     @Autowired
     JobQueue queue;
 
-    @Autowired
+    /** This test's worker: the test handler only, thread off like every worker in tests. */
     JobWorker worker;
 
     @Autowired
     JobStore store;
 
-    @Autowired
-    TestHandler handler;
+    final TestHandler handler = new TestHandler();
 
     @Autowired
     JdbcTemplate jdbc;
@@ -134,6 +122,7 @@ class JobWorkerTest {
      */
     @BeforeEach
     void onlyOwnJobs() {
+        worker = new JobWorker(handlers(), store, json, clock, false);
         jdbc.update("UPDATE job SET status = 'DONE' WHERE status IN ('QUEUED', 'RUNNING') AND type <> 'AI_TRANSLATE_PASSPORT'");
     }
 
@@ -141,6 +130,12 @@ class JobWorkerTest {
     void cleanUp() {
         jdbc.update("UPDATE job SET status = 'DONE' WHERE type = 'AI_TRANSLATE_PASSPORT' AND status IN ('QUEUED', 'RUNNING')");
         clock.reset();
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private ObjectProvider<JobHandler<?>> handlers() {
+        return (ObjectProvider) new StaticListableBeanFactory(Map.of("testHandler", handler))
+                .getBeanProvider(JobHandler.class);
     }
 
     private Map<String, Object> job(long id) {
@@ -367,9 +362,7 @@ class JobWorkerTest {
                 RETURNING id
                 """, Long.class, json.writeValueAsString(overdue), Timestamp.from(failedAt.plusSeconds(30)),
                 Timestamp.from(failedAt));
-        ObjectProvider<JobHandler<?>> handlers = (ObjectProvider) new StaticListableBeanFactory(
-                Map.of("testHandler", handler)).getBeanProvider(JobHandler.class);
-        JobWorker started = new JobWorker(handlers, store, json, clock, true);
+        JobWorker started = new JobWorker(handlers(), store, json, clock, true);
         try {
             started.start(); // what the ApplicationReadyEvent does on a cold start
 

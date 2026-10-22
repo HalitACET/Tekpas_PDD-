@@ -122,6 +122,11 @@ public class TestFixtures {
                 .contentType(MediaType.APPLICATION_JSON).content(toJson(body)).exchange();
     }
 
+    public MvcTestResult put(Tenant tenant, String uri, Object body) {
+        return mvc.put().uri(uri).header(HttpHeaders.AUTHORIZATION, tenant.bearer())
+                .contentType(MediaType.APPLICATION_JSON).content(toJson(body)).exchange();
+    }
+
     public MvcTestResult delete(Tenant tenant, String uri) {
         return mvc.delete().uri(uri).header(HttpHeaders.AUTHORIZATION, tenant.bearer()).exchange();
     }

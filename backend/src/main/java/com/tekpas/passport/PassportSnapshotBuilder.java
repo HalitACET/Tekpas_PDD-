@@ -14,6 +14,7 @@ import com.tekpas.passport.snapshot.SnapshotPassport;
 import com.tekpas.passport.snapshot.SnapshotProduct;
 import com.tekpas.passport.snapshot.SnapshotStep;
 import com.tekpas.passport.snapshot.SnapshotStepData;
+import com.tekpas.passport.translation.PassportTranslations;
 import com.tekpas.product.Product;
 import com.tekpas.product.ProductRepository;
 import com.tekpas.supplychain.StepData;
@@ -54,14 +55,16 @@ class PassportSnapshotBuilder {
     private final CompanyRepository companies;
     private final DocumentRepository documents;
     private final NamedParameterJdbcTemplate jdbc;
+    private final PassportTranslations translations;
 
     PassportSnapshotBuilder(SupplyStepRepository steps, ProductRepository products, CompanyRepository companies,
-            DocumentRepository documents, NamedParameterJdbcTemplate jdbc) {
+            DocumentRepository documents, NamedParameterJdbcTemplate jdbc, PassportTranslations translations) {
         this.steps = steps;
         this.products = products;
         this.companies = companies;
         this.documents = documents;
         this.jdbc = jdbc;
+        this.translations = translations;
     }
 
     Built build(UUID companyId, Batch batch, int version, @Nullable Instant publishedAt, LocalDate today) {
@@ -121,7 +124,8 @@ class PassportSnapshotBuilder {
                 new SnapshotManufacturer(manufacturer.getName(), manufacturer.getCity(), manufacturer.getCountry()),
                 new SnapshotProduct(product.getName(), product.getCategory(), product.getDescription(),
                         product.getDeclaredFiberComposition(), product.getCareInfo()),
-                new SnapshotBatch(batch.getProducedFrom(), batch.getProducedTo()), snapshotSteps, certificates);
+                new SnapshotBatch(batch.getProducedFrom(), batch.getProducedTo()), snapshotSteps, certificates,
+                translations.approvedFor(companyId, batch.getId(), product, chain, keys));
         return new Built(snapshot, allApproved);
     }
 
