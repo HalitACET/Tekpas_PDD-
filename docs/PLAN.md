@@ -264,6 +264,7 @@ Plan: `docs/m11-plan.md` (çeviri taslağı ve onay, snapshot `schemaVersion: 3`
 **Kabul:** Pasaport `?lang=de` ile Almanca açılır. 50 satırlık Excel'den ürünler oluşur, hatalı satırlar gösterilir.
 
 ### M12 — Detaylı roller, denetim izi, test
+Plan: `docs/m12-plan.md` (giriş deneme sınırı, rol matrisi testi, kullanıcı daveti, denetim izi, kritik akış e2e'leri, kararlar). Tasarım brifi: `docs/m12-tasarim-brifi.md` → Claude Design v1.2 (kullanıcılar, davet kabulü, denetim izi). Backend tasarım beklemeden, ekranlar tasarımdan sonra.
 - [ ] §2 rol matrisinin tamamı + kullanıcı yönetimi ekranı
 - [ ] Denetim izi ekranı (kim, neyi, ne zaman)
 - [ ] Kritik akışlar için Playwright testleri
