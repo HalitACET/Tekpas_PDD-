@@ -3,9 +3,8 @@ import type { SessionUser } from "./session";
 type Role = SessionUser["role"];
 
 /**
- * Simple rule until the full role matrix (PLAN.md §2, M12), mirroring the backend: OWNER, ADMIN and EDITOR
- * change products and batches, VIEWER only reads. The backend's 403 is the real protection; this only
- * shapes the UI.
+ * The role matrix (PLAN.md §2), mirroring the backend (AccessMatrixTest): OWNER, ADMIN and EDITOR change products,
+ * batches and chains, VIEWER only reads. The backend's 403 is the real protection; this only shapes the UI.
  */
 export function canWriteCatalog(role: Role): boolean {
   return role === "OWNER" || role === "ADMIN" || role === "EDITOR";
@@ -14,6 +13,11 @@ export function canWriteCatalog(role: Role): boolean {
 /** Approving data, resolving alerts and publishing are for OWNER and ADMIN (PLAN.md §2). */
 export function canReview(role: Role): boolean {
   return role === "OWNER" || role === "ADMIN";
+}
+
+/** The supplier network (adding, editing, removing a supplier) is for OWNER and ADMIN; an EDITOR assigns them (M12). */
+export function canManageSuppliers(role: Role): boolean {
+  return canReview(role);
 }
 
 /** Pages a supplier user cannot use (the API answers 403); they are sent to their tasks instead. */

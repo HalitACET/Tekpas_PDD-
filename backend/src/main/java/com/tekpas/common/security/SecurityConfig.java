@@ -33,7 +33,8 @@ public class SecurityConfig {
     private static final Set<String> BEARERLESS_AUTH_PATHS =
             Set.of("/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/logout");
 
-    private static final String[] PUBLIC_PATHS = {
+    /** Package-visible for AccessMatrixTest. */
+    static final String[] PUBLIC_PATHS = {
         "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/logout",
         "/actuator/health", "/actuator/health/**",
         "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**",

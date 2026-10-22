@@ -6899,7 +6899,7 @@
                 }
               }
             },
-            "description" : "Read-only or supplier user"
+            "description" : "Only OWNER and ADMIN manage the supplier network"
           }
         },
         "summary" : "Add a supplier to the network",
@@ -6930,7 +6930,7 @@
                 }
               }
             },
-            "description" : "Read-only or supplier user"
+            "description" : "Only OWNER and ADMIN manage the supplier network"
           },
           "404" : {
             "content" : {
@@ -7053,7 +7053,7 @@
                 }
               }
             },
-            "description" : "Read-only or supplier user"
+            "description" : "Only OWNER and ADMIN manage the supplier network"
           },
           "404" : {
             "content" : {
