@@ -52,6 +52,8 @@
 /api/v1/products/{id} GET READ
 /api/v1/products/{id} PATCH WRITE
 /api/v1/products/{id}/chain-preview GET READ
+/api/v1/public/invitation GET PUBLIC
+/api/v1/public/invitation/accept POST PUBLIC
 /api/v1/public/passports/01/{gtin}/10/{batch} GET PUBLIC
 /api/v1/public/request GET PUBLIC
 /api/v1/public/request/documents POST PUBLIC
@@ -73,3 +75,7 @@
 /api/v1/suppliers/{id} GET READ
 /api/v1/suppliers/{id} PATCH REVIEW
 /api/v1/tasks GET READ
+/api/v1/users GET REVIEW
+/api/v1/users/invitations POST OWNER
+/api/v1/users/{id} PATCH OWNER
+/api/v1/users/{id}/invitations POST OWNER
