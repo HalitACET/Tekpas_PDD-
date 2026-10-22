@@ -151,6 +151,26 @@ class ImportApiTest {
         assertThat(first.path("content").get(0).path("declaredFiberComposition").valueStream()
                 .map(f -> f.path("fiber").asString() + f.path("percent").asInt())).containsExactly("COTTON95", "ELASTANE5");
         assertThat(result.path("errors").get(0).path("value").asString()).isEqualTo(wrongDigit);
+        assertThat(result.path("fileSize").asInt()).isPositive();
+        // What helps to fix each: the digit called for, the total, the first row of the GTIN, the product with it.
+        assertThat(result.path("errors").valueStream().map(e -> e.path("value").asString() + "|"
+                + e.path("detail").asString())).containsExactly(
+                wrongDigit + "|" + gtins.get(0).charAt(12), "95 + 4|99", "|", gtins.get(1) + "|3", existing + "|Var olan");
+    }
+
+    @Test
+    void anotherCompanysProductIsNotNamedWhenItsGtinIsTaken() throws IOException {
+        TenantPair tenants = fixtures.twoTenants();
+        String theirs = TestGtins.gtin13();
+        assertThat(fixtures.post(tenants.b(), "/api/v1/products", Map.of("gtin", theirs, "name", "Gizli ürün", "category",
+                "T_SHIRT"))).hasStatus(201);
+
+        JsonNode result = imported(tenants.a(), xlsx(List.<Object[]>of(row(theirs, "Benim", "Tişört", "Pamuk", 100)), true));
+
+        assertThat(errors(result)).containsExactly("2:gtin:Unique");
+        assertThat(result.path("errors").get(0).path("detail").isNull()).isTrue();
+        assertThat(fixtures.responseText(fixtures.get(tenants.a(), IMPORTS + "/" + result.path("id").asString())))
+                .doesNotContain("Gizli");
     }
 
     @Test
@@ -166,6 +186,8 @@ class ImportApiTest {
 
         assertThat(errors(result)).containsExactly("2:category:UnknownValue", "3:percent1:Integer",
                 "3:percent2:Integer", "4:fiber1:NotNull", "5:fiber1:UnknownValue");
+        // The percentage given without a fibre.
+        assertThat(result.path("errors").get(3).path("detail").asString()).isEqualTo("100");
         assertThat(result.path("createdRows").asInt()).isZero();
     }
 
@@ -186,7 +208,7 @@ class ImportApiTest {
             Row header = sheets.get(0).read().getFirst();
             assertThat(header.getCellText(2)).isEqualTo("Produktname");
             assertThat(header.getCellText(5)).isEqualTo("Faser 1");
-            assertThat(header.getCellText(10)).isEqualTo("% 3");
+            assertThat(header.getCellText(10)).isEqualTo("Faser 3 %");
             assertThat(sheets.get(1).read().stream().map(r -> r.getCellText(0))).contains("T-Shirt", "Hemd");
         }
         assertThat(new String(template, 0, 2, StandardCharsets.ISO_8859_1)).isEqualTo("PK");

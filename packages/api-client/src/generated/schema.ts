@@ -1469,6 +1469,8 @@ export interface components {
             failedRows: number;
             failureCode?: string | null;
             fileName: string;
+            /** Format: int32 */
+            fileSize?: number | null;
             /** Format: date-time */
             finishedAt?: string | null;
             /** Format: uuid */
@@ -1481,6 +1483,7 @@ export interface components {
         ImportRowError: {
             code: string;
             column: string;
+            detail?: string | null;
             /** Format: int32 */
             row: number;
             value?: string | null;
