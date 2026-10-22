@@ -1,7 +1,9 @@
 import { vi } from "vitest";
-import { screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { PassportSnapshot } from "@/lib/passport/types";
+import { NextIntlClientProvider } from "next-intl";
+import en from "@/messages/en.json";
 import { renderWithIntl } from "@/test/render";
 import { PassportFrame } from "./passport-frame";
 import { PassportMissing } from "./passport-states";
@@ -201,5 +203,50 @@ describe("PassportFrame", () => {
     expect(within(nav).getByRole("link", { name: "DE" })).toHaveAttribute("href", "?lang=de");
     expect(within(nav).getByRole("link", { name: "TR" })).toHaveAttribute("aria-current", "true");
     expect(within(nav).getByRole("link", { name: "EN" })).not.toHaveAttribute("aria-current");
+  });
+});
+
+describe("PassportView, care instructions (design v1.0 121)", () => {
+  const care = {
+    washing: { symbol: "WASH_40" as const, gentleness: "GENTLE" as const },
+    bleaching: { symbol: "DO_NOT_BLEACH" as const, gentleness: "NORMAL" as const },
+    ironing: { symbol: "IRON_MEDIUM" as const, gentleness: "NORMAL" as const },
+    professional: { symbol: "DRY_CLEAN_P" as const, gentleness: "GENTLE" as const },
+    note: "Ters çevirerek yıkayın.",
+    noteLanguage: "tr",
+  };
+  const withCare = (c: object | undefined) => ({ ...snapshot, schemaVersion: 2, product: { ...snapshot.product, care: c } }) as PassportSnapshot;
+
+  it("lists a sentence per symbol in label order, then the manufacturer's note", () => {
+    show({ snapshot: withCare(care) });
+
+    const section = screen.getByRole("region", { name: "Bakım" });
+    expect(within(section).getAllByRole("listitem").map((li) => li.lastElementChild?.textContent)).toEqual([
+      "40 °C’de yıkayın, hassas program",
+      "Ağartıcı kullanmayın",
+      "Orta ısıda ütüleyin (150 °C)",
+      "Hassas kuru temizleme (P)",
+    ]);
+    expect(within(section).getByText("Üreticinin notu")).toBeInTheDocument();
+    expect(within(section).getByText("Ters çevirerek yıkayın.")).toHaveAttribute("lang", "tr");
+    // The bars are drawn under the gentle wash.
+    expect(section.querySelector('[data-care-symbol="WASH_40"] path:last-of-type')?.getAttribute("d")).toBe("M5 21h14");
+  });
+
+  it("has no section without instructions, as in a version 1 passport (121g)", () => {
+    show();
+    expect(screen.queryByRole("region", { name: "Bakım" })).not.toBeInTheDocument();
+  });
+
+  it("names the note's language on a page in another language", () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={en} timeZone="Europe/Istanbul">
+        <PassportView snapshot={withCare(care)} mode="published" verificationCode="7Q4K-2M9X" today="2026-10-20" host="kozapass.vercel.app" />
+      </NextIntlClientProvider>,
+    );
+
+    const section = screen.getByRole("region", { name: "Care" });
+    expect(within(section).getByText("Wash at 40 °C, gentle cycle")).toBeInTheDocument();
+    expect(within(section).getByText("Manufacturer’s note · in Turkish")).toBeInTheDocument();
   });
 });
