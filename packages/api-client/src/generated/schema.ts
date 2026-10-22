@@ -505,6 +505,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The company's latest imports, newest first (errors left out) */
+        get: operations["listImports"];
+        put?: never;
+        /**
+         * Upload a filled template
+         * @description The file is checked (an .xlsx of at most 1 MB, no macros) and queued; poll GET /imports/{id} until DONE or FAILED. Each valid row becomes a product; the others are reported by row and column.
+         */
+        post: operations["startImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The Excel template to fill in
+         * @description Headers in the given language (tr, en, de; tr otherwise), category and fibre lists, room for 1000 products. Only this template is accepted.
+         */
+        get: operations["downloadImportTemplate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One import with its row errors */
+        get: operations["getImport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/issues/{id}/reopen": {
         parameters: {
             query?: never;
@@ -1399,6 +1457,33 @@ export interface components {
             issuer?: components["schemas"]["Field"];
             validFrom?: components["schemas"]["Field"];
             validUntil?: components["schemas"]["Field"];
+        };
+        ImportResponse: {
+            /** Format: date-time */
+            createdAt: string;
+            createdByName?: string | null;
+            /** Format: int32 */
+            createdRows: number;
+            errors: components["schemas"]["ImportRowError"][];
+            /** Format: int32 */
+            failedRows: number;
+            failureCode?: string | null;
+            fileName: string;
+            /** Format: date-time */
+            finishedAt?: string | null;
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            status: string;
+            /** Format: int32 */
+            totalRows: number;
+        };
+        ImportRowError: {
+            code: string;
+            column: string;
+            /** Format: int32 */
+            row: number;
+            value?: string | null;
         };
         /** @enum {string} */
         IssueCode: "LIF-01" | "LIF-02" | "SER-01" | "SER-02" | "SER-03" | "SER-04" | "EKS-01" | "EKS-02" | "BEL-01" | "AI-01" | "AI-02";
@@ -3465,6 +3550,127 @@ export interface operations {
             };
             /** @description A certificate (OEKO_TEX, GOTS, GRS, BCI, OCS, BLUESIGN) needs certNo and validUntil: one NotNull error per missing field. Other types need neither. */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    listImports: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"][];
+                };
+            };
+        };
+    };
+    startImport: {
+        parameters: {
+            query?: {
+                kind?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Queued */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description file: FileSize, FileType, FileMacro, FileUnsafe; kind: ImportKind */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Viewers and suppliers do not import */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    downloadImportTemplate: {
+        parameters: {
+            query: {
+                kind: string;
+                lang?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The .xlsx file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            /** @description Unknown kind (ImportKind) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No such import in this company */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

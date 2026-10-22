@@ -860,6 +860,76 @@
         },
         "type" : "object"
       },
+      "ImportResponse" : {
+        "properties" : {
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "createdByName" : {
+            "type" : [ "string", "null" ]
+          },
+          "createdRows" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "errors" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ImportRowError"
+            },
+            "type" : "array"
+          },
+          "failedRows" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "failureCode" : {
+            "type" : [ "string", "null" ]
+          },
+          "fileName" : {
+            "type" : "string"
+          },
+          "finishedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "totalRows" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "createdAt", "createdRows", "errors", "failedRows", "fileName", "id", "kind", "status", "totalRows" ],
+        "type" : "object"
+      },
+      "ImportRowError" : {
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "column" : {
+            "type" : "string"
+          },
+          "row" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "value" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "code", "column", "row" ],
+        "type" : "object"
+      },
       "IssueCode" : {
         "enum" : [ "LIF-01", "LIF-02", "SER-01", "SER-02", "SER-03", "SER-04", "EKS-01", "EKS-02", "BEL-01", "AI-01", "AI-02" ],
         "type" : "string"
@@ -4487,6 +4557,165 @@
         "tags" : [ "documents" ]
       }
     },
+    "/api/v1/imports" : {
+      "get" : {
+        "operationId" : "listImports",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ImportResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The company's latest imports, newest first (errors left out)",
+        "tags" : [ "imports" ]
+      },
+      "post" : {
+        "description" : "The file is checked (an .xlsx of at most 1 MB, no macros) and queued; poll GET /imports/{id} until DONE or FAILED. Each valid row becomes a product; the others are reported by row and column.",
+        "operationId" : "startImport",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "kind",
+          "required" : false,
+          "schema" : {
+            "default" : "products",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "properties" : {
+                  "file" : {
+                    "format" : "binary",
+                    "type" : "string"
+                  }
+                },
+                "required" : [ "file" ],
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "202" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportResponse"
+                }
+              }
+            },
+            "description" : "Queued"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "file: FileSize, FileType, FileMacro, FileUnsafe; kind: ImportKind"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Viewers and suppliers do not import"
+          }
+        },
+        "summary" : "Upload a filled template",
+        "tags" : [ "imports" ]
+      }
+    },
+    "/api/v1/imports/template" : {
+      "get" : {
+        "description" : "Headers in the given language (tr, en, de; tr otherwise), category and fibre lists, room for 1000 products. Only this template is accepted.",
+        "operationId" : "downloadImportTemplate",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "kind",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "lang",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : {
+                "schema" : {
+                  "format" : "binary",
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "The .xlsx file"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Unknown kind (ImportKind)"
+          }
+        },
+        "summary" : "The Excel template to fill in",
+        "tags" : [ "imports" ]
+      }
+    },
+    "/api/v1/imports/{id}" : {
+      "get" : {
+        "operationId" : "getImport",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "No such import in this company"
+          }
+        },
+        "summary" : "One import with its row errors",
+        "tags" : [ "imports" ]
+      }
+    },
     "/api/v1/issues/{id}/reopen" : {
       "post" : {
         "description" : "Only an issue a person resolved: one that closed itself when its data was corrected comes back by itself if the data goes wrong again.",
@@ -6898,6 +7127,9 @@
   }, {
     "description" : "What waits for the manufacturer (design v0.4 48)",
     "name" : "tasks"
+  }, {
+    "description" : "Excel imports of products: template, upload, result (docs/m11-plan.md §4)",
+    "name" : "imports"
   }, {
     "description" : "The current user's phones for push notifications",
     "name" : "notifications"
