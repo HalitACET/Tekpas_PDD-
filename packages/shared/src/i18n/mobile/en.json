@@ -72,6 +72,8 @@
     "submitting": "Signing in…",
     "wrongTitle": "Wrong e-mail or password.",
     "wrongBody": "Check your details and try again.",
+    "limitedTitle": "Too many failed attempts.",
+    "limitedBody": "Try again in {{n}} min.",
     "offlineTitle": "No internet connection.",
     "offlineBody": "Turn on Wi-Fi or mobile data and try again.",
     "unavailableTitle": "The server is not answering.",

@@ -88,6 +88,17 @@ describe("session", () => {
     expect(store.size).toBe(0);
   });
 
+  it("says how many minutes to wait after too many failed attempts (M12)", async () => {
+    routes["POST /api/v1/auth/login"] = () =>
+      new Response(JSON.stringify({ type: "urn:tekpas:problem:too-many-requests", title: "Too many requests", status: 429 }), {
+        status: 429,
+        headers: { "Content-Type": "application/problem+json", "Retry-After": "600" },
+      });
+
+    expect(await login("elif@karaca.example", "yanlis")).toEqual({ limitedMinutes: 10 });
+    expect(store.size).toBe(0);
+  });
+
   it("restores the session with the stored token and stores the rotated one", async () => {
     store.set(REFRESH_TOKEN_KEY, "r1");
     routes["POST /api/v1/auth/refresh"] = () =>

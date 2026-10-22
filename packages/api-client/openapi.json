@@ -2840,6 +2840,16 @@
               }
             },
             "description" : "Invalid credentials"
+          },
+          "429" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiProblem"
+                }
+              }
+            },
+            "description" : "Too many failed logins for this e-mail (or IP), or too many logins overall; Retry-After says when to try again"
           }
         },
         "security" : [ ],

@@ -62,6 +62,7 @@ function fakeBackend({ cookie = true, password = "right", asleep = 0, refreshFai
         loginBodies.push(body);
         if (body.password === "boom") return new Response("Internal Server Error", { status: 500 });
         if (body.password === "gateway") return new Response("Bad Gateway", { status: 502 });
+        if (body.password === "limited") return new Response("{}", { status: 429, headers: { "Retry-After": "61" } });
         if (body.password === "hang") {
           // Never answers; gives up only when the caller aborts (like a server that does not wake up).
           return new Promise<Response>((_, reject) =>
@@ -172,6 +173,8 @@ describe("session", () => {
     expect(await session.login("a@test.example", "boom", true)).toBe("unavailable");
     // The proxy could not reach the backend: treated like a sleeping server.
     expect(await session.login("a@test.example", "gateway", true)).toBe("unreachable");
+    // Too many failed attempts (M12): the wait in whole minutes, rounded up.
+    expect(await session.login("a@test.example", "limited", true)).toEqual({ limitedMinutes: 2 });
     expect(session.getSessionState().status).not.toBe("authenticated");
   });
 

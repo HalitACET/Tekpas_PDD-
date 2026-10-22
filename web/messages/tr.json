@@ -77,6 +77,7 @@
     "submit": "Giriş yap",
     "submitting": "Giriş yapılıyor…",
     "invalidCredentials": "E-posta veya şifre hatalı.",
+    "tooManyAttempts": "Çok fazla hatalı deneme. {minutes} dakika sonra yeniden deneyin.",
     "serverError": "Sunucuya ulaşılamadı. Lütfen biraz sonra tekrar deneyin.",
     "forgotPassword": "Şifrenizi mi unuttunuz? Firma yöneticinizle iletişime geçin.",
     "footer": "© 2026 KozaPass · Bursa",

@@ -147,8 +147,9 @@ async function loadUser(): Promise<SessionState> {
 /**
  * "unreachable": no answer in time, no connection, or the proxy could not reach the backend (502/503/504):
  * most likely a sleeping server (lib/server-wake.ts). "unavailable": the server answered with an error.
+ * `{ limitedMinutes }`: too many failed attempts (429, M12); the server's Retry-After in whole minutes.
  */
-export type LoginResult = "ok" | "invalid" | "unavailable" | "unreachable";
+export type LoginResult = "ok" | "invalid" | "unavailable" | "unreachable" | { limitedMinutes: number };
 
 /** One login attempt once the server is known to be awake. */
 export const LOGIN_TIMEOUT_MS = 20_000;
@@ -168,6 +169,10 @@ export async function login(
     if (!data) {
       // 400 (malformed input) and 401 get the same single message.
       if (response.status === 400 || response.status === 401) return "invalid";
+      if (response.status === 429) {
+        const seconds = Number(response.headers.get("Retry-After")) || 60;
+        return { limitedMinutes: Math.max(1, Math.ceil(seconds / 60)) };
+      }
       return [502, 503, 504].includes(response.status) ? "unreachable" : "unavailable";
     }
     accessToken = data.accessToken;

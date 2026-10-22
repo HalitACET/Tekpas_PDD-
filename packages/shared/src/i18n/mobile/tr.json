@@ -72,6 +72,8 @@
     "submitting": "Giriş yapılıyor…",
     "wrongTitle": "E-posta veya şifre hatalı.",
     "wrongBody": "Bilgilerinizi kontrol edip tekrar deneyin.",
+    "limitedTitle": "Çok fazla hatalı deneme.",
+    "limitedBody": "{{n}} dakika sonra yeniden deneyin.",
     "offlineTitle": "İnternet bağlantısı yok.",
     "offlineBody": "Wi-Fi veya mobil veriyi açıp tekrar deneyin.",
     "unavailableTitle": "Sunucu yanıt vermiyor.",

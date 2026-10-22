@@ -85,6 +85,14 @@ export function LoginScreen({ onSignedIn }: { onSignedIn?: () => void }) {
           </View>
 
           {wrong && <Banner kind="rejected" icon={AlertCircle} title={t("login.wrongTitle")} body={t("login.wrongBody")} />}
+          {typeof outcome === "object" && (
+            <Banner
+              kind="rejected"
+              icon={AlertCircle}
+              title={t("login.limitedTitle")}
+              body={t("login.limitedBody", { n: outcome.limitedMinutes })}
+            />
+          )}
           {outcome === "offline" && <Banner kind="neutral" icon={WifiOff} title={t("login.offlineTitle")} body={t("login.offlineBody")} />}
           {(outcome === "unavailable" || outcome === "unreachable") && (
             <Banner kind="neutral" icon={AlertCircle} title={t("login.unavailableTitle")} body={t("login.unavailableBody")} />

@@ -77,6 +77,7 @@
     "submit": "Sign in",
     "submitting": "Signing in…",
     "invalidCredentials": "Email or password is incorrect.",
+    "tooManyAttempts": "Too many failed attempts. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
     "serverError": "The server could not be reached. Please try again in a moment.",
     "forgotPassword": "Forgot your password? Contact your company administrator.",
     "footer": "© 2026 KozaPass · Bursa",

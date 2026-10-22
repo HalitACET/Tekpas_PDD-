@@ -136,8 +136,11 @@ export async function restoreSession(): Promise<SessionState> {
   return state;
 }
 
-/** invalid: wrong e-mail or password (one message for both); unreachable: no answer; unavailable: a server error. */
-export type LoginResult = "ok" | "invalid" | "unavailable" | "unreachable";
+/**
+ * invalid: wrong e-mail or password (one message for both); unreachable: no answer; unavailable: a server error;
+ * `{ limitedMinutes }`: too many failed attempts (429, M12), with the server's Retry-After in whole minutes.
+ */
+export type LoginResult = "ok" | "invalid" | "unavailable" | "unreachable" | { limitedMinutes: number };
 
 /** The password only travels in this request; it is never stored. */
 export function login(email: string, password: string): Promise<LoginResult> {
@@ -153,6 +156,10 @@ async function attemptLogin(email: string, password: string, signal: AbortSignal
     });
     if (!data) {
       if (response.status === 400 || response.status === 401) return "invalid";
+      if (response.status === 429) {
+        const seconds = Number(response.headers.get("Retry-After")) || 60;
+        return { limitedMinutes: Math.max(1, Math.ceil(seconds / 60)) };
+      }
       return [502, 503, 504].includes(response.status) ? "unreachable" : "unavailable";
     }
     if (!data.refreshToken) return "unavailable";
