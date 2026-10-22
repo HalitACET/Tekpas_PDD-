@@ -1,6 +1,7 @@
 package com.tekpas.supplychain;
 
 import com.tekpas.batch.BatchProgress;
+import com.tekpas.common.audit.AuditLog;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
@@ -33,12 +34,15 @@ public class StepReviewService {
     private final SupplyStepRepository steps;
     private final BatchProgress progress;
     private final StepEvents events;
+    private final AuditLog audit;
     private final Clock clock;
 
-    public StepReviewService(SupplyStepRepository steps, BatchProgress progress, StepEvents events, Clock clock) {
+    public StepReviewService(SupplyStepRepository steps, BatchProgress progress, StepEvents events, AuditLog audit,
+            Clock clock) {
         this.steps = steps;
         this.progress = progress;
         this.events = events;
+        this.audit = audit;
         this.clock = clock;
     }
 
@@ -47,6 +51,7 @@ public class StepReviewService {
         SupplyStep step = submitted(companyId, stepId);
         step.approve(userId, clock.instant());
         events.record(stepId, null, StepEventKind.APPROVED, userId, null, null);
+        audit.record(companyId, userId, "STEP", stepId, "APPROVE", Map.of("stepType", step.getStepType().name()));
         progress.refresh(step.getBatchId());
         return step.getBatchId();
     }
@@ -66,6 +71,8 @@ public class StepReviewService {
         }
         step.reject(userId, request.reason().trim(), fields, clock.instant());
         events.record(stepId, null, StepEventKind.REJECTED, userId, null, Map.of("fields", fields));
+        audit.record(companyId, userId, "STEP", stepId, "REJECT",
+                Map.of("stepType", step.getStepType().name(), "fields", fields));
         progress.refresh(step.getBatchId());
         return step.getBatchId();
     }

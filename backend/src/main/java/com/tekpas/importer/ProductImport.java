@@ -213,7 +213,7 @@ class ProductImport {
                 found.add(error(row, ProductColumn.GTIN.key(), "Duplicate", gtin, String.valueOf(first)));
             } else {
                 try {
-                    products.create(companyId, request);
+                    products.createImported(companyId, request);
                     return true;
                 } catch (ConflictException e) {
                     // The product's name only when it is the company's own: GTINs are unique across companies.

@@ -1,5 +1,6 @@
 package com.tekpas.company;
 
+import com.tekpas.common.audit.AuditLog;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
@@ -73,11 +74,13 @@ public class SupplierService {
 
     private final NamedParameterJdbcTemplate jdbc;
     private final CompanyRepository companies;
+    private final AuditLog audit;
     private final Clock clock;
 
-    public SupplierService(NamedParameterJdbcTemplate jdbc, CompanyRepository companies, Clock clock) {
+    public SupplierService(NamedParameterJdbcTemplate jdbc, CompanyRepository companies, AuditLog audit, Clock clock) {
         this.jdbc = jdbc;
         this.companies = companies;
+        this.audit = audit;
         this.clock = clock;
     }
 
@@ -119,6 +122,7 @@ public class SupplierService {
                 INSERT INTO company_supplier (manufacturer_id, supplier_id, phone, contact_name)
                 VALUES (:me, :supplier, :phone, :contact)
                 """, link(companyId, supplier.getId(), nullable(request.phone()), nullable(request.contactName())));
+        audit.record(companyId, "SUPPLIER", supplier.getId(), "CREATE", AuditLog.details(supplier.getName()));
         return get(companyId, supplier.getId());
     }
 
@@ -159,6 +163,9 @@ public class SupplierService {
                     UPDATE company_supplier SET contact_name = :contact WHERE manufacturer_id = :me AND supplier_id = :supplier
                     """, link(companyId, supplierId, null, nullable(request.contactName().orElse(null))));
         }
+        audit.record(companyId, "SUPPLIER", supplierId, "UPDATE", AuditLog.details(company.getName(), AuditLog.changed(
+                request.name(), "name", request.type(), "type", request.city(), "city", request.phone(), "phone",
+                request.contactName(), "contactName")));
         return get(companyId, supplierId);
     }
 
@@ -173,6 +180,7 @@ public class SupplierService {
             throw ConflictException.state("SUPPLIER_IN_USE", "The supplier is used in a supply chain");
         }
         Map<String, Object> ids = Map.of("me", companyId, "supplier", supplierId);
+        audit.record(companyId, "SUPPLIER", supplierId, "REMOVE", AuditLog.details(current.name()));
         jdbc.update("DELETE FROM company_supplier WHERE manufacturer_id = :me AND supplier_id = :supplier", ids);
         jdbc.update("""
                 DELETE FROM company c

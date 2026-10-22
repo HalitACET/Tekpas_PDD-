@@ -2,6 +2,7 @@
 # path, method, level. PUBLIC: no login. AUTHENTICATED: any logged-in user, suppliers too. READ: OWNER, ADMIN,
 # EDITOR, VIEWER. WRITE: OWNER, ADMIN, EDITOR. REVIEW: OWNER, ADMIN (approve, reject, publish, the supplier
 # network). OWNER: users and roles. Sorted; a new endpoint goes here with the level it is meant to have.
+/api/v1/audit GET REVIEW
 /api/v1/auth/login POST PUBLIC
 /api/v1/auth/logout POST PUBLIC
 /api/v1/auth/me GET AUTHENTICATED

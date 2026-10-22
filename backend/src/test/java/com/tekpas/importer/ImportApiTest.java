@@ -152,6 +152,12 @@ class ImportApiTest {
                 .map(f -> f.path("fiber").asString() + f.path("percent").asInt())).containsExactly("COTTON95", "ELASTANE5");
         assertThat(result.path("errors").get(0).path("value").asString()).isEqualTo(wrongDigit);
         assertThat(result.path("fileSize").asInt()).isPositive();
+        // One audit entry for the file, in the uploader's name, not one per product.
+        assertThat(jdbc.queryForList("SELECT action FROM audit_log WHERE company_id = ? AND entity_type = 'PRODUCT'",
+                String.class, tenant.company().getId())).containsExactly("CREATE");
+        assertThat(jdbc.queryForMap("SELECT user_id, diff->>'created' AS created FROM audit_log WHERE entity_id = ?",
+                java.util.UUID.fromString(result.path("id").asString())))
+                .containsEntry("user_id", tenant.user().getId()).containsEntry("created", "45");
         // What helps to fix each: the digit called for, the total, the first row of the GTIN, the product with it.
         assertThat(result.path("errors").valueStream().map(e -> e.path("value").asString() + "|"
                 + e.path("detail").asString())).containsExactly(

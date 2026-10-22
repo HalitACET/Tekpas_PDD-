@@ -22,9 +22,9 @@ import tools.jackson.databind.JsonNode;
  * default five-step chain with suppliers on the yarn and fabric steps, every step approved with data, and two
  * confirmed certificates (yarn: GOTS, fabric: OEKO-TEX), which scores 93 (docs/m6-plan.md §2).
  */
-class PassportTestSupport {
+public class PassportTestSupport {
 
-    record Setup(Tenant owner, String productId, String gtin, String batchId, String batchNo,
+    public record Setup(Tenant owner, String productId, String gtin, String batchId, String batchNo,
             Map<String, String> steps) {
     }
 
@@ -49,7 +49,7 @@ class PassportTestSupport {
     final JdbcTemplate jdbc;
     final JobWorker worker;
 
-    PassportTestSupport(TestFixtures fixtures, JdbcTemplate jdbc, JobWorker worker) {
+    public PassportTestSupport(TestFixtures fixtures, JdbcTemplate jdbc, JobWorker worker) {
         this.fixtures = fixtures;
         this.jdbc = jdbc;
         this.worker = worker;
@@ -92,7 +92,7 @@ class PassportTestSupport {
     }
 
     /** A publishable batch: approved steps and two confirmed certificates valid for a long time. */
-    Setup publishable(Tenant owner) throws IOException {
+    public Setup publishable(Tenant owner) throws IOException {
         Setup s = prepare(owner);
         approveAll(s);
         confirm(s, "YARN", "gots-scope-certificate.pdf", "GOTS", "2099-03-13");

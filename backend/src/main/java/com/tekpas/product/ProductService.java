@@ -3,6 +3,7 @@ package com.tekpas.product;
 import com.tekpas.validation.ValidationTriggers;
 import com.tekpas.batch.BatchRepository;
 import com.tekpas.batch.BatchStatus;
+import com.tekpas.common.audit.AuditLog;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.NotFoundException;
 import com.tekpas.common.error.ProblemTypes;
@@ -32,13 +33,15 @@ public class ProductService {
     private final ProductRepository products;
     private final BatchRepository batches;
     private final ValidationTriggers validation;
+    private final AuditLog audit;
     private final Clock clock;
 
     public ProductService(ProductRepository products, BatchRepository batches, ValidationTriggers validation,
-            Clock clock) {
+            AuditLog audit, Clock clock) {
         this.products = products;
         this.batches = batches;
         this.validation = validation;
+        this.audit = audit;
         this.clock = clock;
     }
 
@@ -56,6 +59,18 @@ public class ProductService {
 
     @Transactional
     public ProductResponse create(UUID companyId, ProductCreateRequest request) {
+        ProductResponse created = insert(companyId, request);
+        audit.record(companyId, "PRODUCT", created.id(), "CREATE", AuditLog.details(created.name()));
+        return created;
+    }
+
+    /** A row of an Excel import: the import is one entry in the audit trail, not each of its products. */
+    @Transactional
+    public ProductResponse createImported(UUID companyId, ProductCreateRequest request) {
+        return insert(companyId, request);
+    }
+
+    private ProductResponse insert(UUID companyId, ProductCreateRequest request) {
         Product product = new Product(companyId, Gtin.normalize(request.gtin()), request.name().trim(),
                 request.category(), clock.instant());
         product.setSku(trimToNull(request.sku()));
@@ -103,6 +118,10 @@ public class ProductService {
         }
         product.touch(clock.instant());
         saveAndFlush(product);
+        audit.record(companyId, "PRODUCT", id, "UPDATE", AuditLog.details(product.getName(), AuditLog.changed(
+                request.gtin(), "gtin", request.sku(), "sku", request.name(), "name", request.category(), "category",
+                request.description(), "description", request.declaredFiberComposition(), "declaredFiberComposition",
+                request.careInfo(), "careInfo")));
         return toResponse(product, batchCount, published(id));
     }
 
@@ -114,6 +133,7 @@ public class ProductService {
             throw ConflictException.state("PRODUCT_HAS_BATCHES", "A product with batches cannot be deleted");
         }
         products.delete(product);
+        audit.record(companyId, "PRODUCT", id, "DELETE", AuditLog.details(product.getName()));
     }
 
     private void saveAndFlush(Product product) {
