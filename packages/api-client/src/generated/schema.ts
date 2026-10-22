@@ -3673,6 +3673,15 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description The import; errors are listed once it is DONE */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
             /** @description No such import in this company */
             404: {
                 headers: {

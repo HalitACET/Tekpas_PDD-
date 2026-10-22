@@ -4711,6 +4711,16 @@
           }
         } ],
         "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportResponse"
+                }
+              }
+            },
+            "description" : "The import; errors are listed once it is DONE"
+          },
           "404" : {
             "content" : {
               "application/problem+json" : {
