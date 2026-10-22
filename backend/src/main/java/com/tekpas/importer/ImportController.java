@@ -85,6 +85,7 @@ public class ImportController {
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(operationId = "getImport", summary = "One import with its row errors")
+    @ApiResponse(responseCode = "200", description = "The import; errors are listed once it is DONE")
     @ApiResponse(responseCode = "404", description = "No such import in this company")
     public ImportResponse getImport(@PathVariable UUID id) {
         return service.get(currentUser.companyId(), id);

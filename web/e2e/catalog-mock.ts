@@ -740,6 +740,9 @@ export async function mockCatalogApi(
 
   await page.route(/\/api\/v1\/tasks$/, (route) => route.fulfill({ json: tasks }));
 
+  // No import yet (the products page asks, for its "just imported" strip).
+  await page.route(/\/api\/v1\/imports$/, (route) => route.fulfill({ json: [] }));
+
   await page.route(/\/api\/v1\/products\/[0-9a-f-]{36}\/chain-preview$/, (route) => {
     const id = idBefore(route, "/chain-preview");
     if (!store.some((p) => p.id === id)) return notFound(route);

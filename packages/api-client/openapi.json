@@ -889,6 +889,10 @@
           "fileName" : {
             "type" : "string"
           },
+          "fileSize" : {
+            "format" : "int32",
+            "type" : [ "integer", "null" ]
+          },
           "finishedAt" : {
             "format" : "date-time",
             "type" : [ "string", "null" ]
@@ -918,6 +922,9 @@
           },
           "column" : {
             "type" : "string"
+          },
+          "detail" : {
+            "type" : [ "string", "null" ]
           },
           "row" : {
             "format" : "int32",
@@ -4704,6 +4711,16 @@
           }
         } ],
         "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportResponse"
+                }
+              }
+            },
+            "description" : "The import; errors are listed once it is DONE"
+          },
           "404" : {
             "content" : {
               "application/problem+json" : {

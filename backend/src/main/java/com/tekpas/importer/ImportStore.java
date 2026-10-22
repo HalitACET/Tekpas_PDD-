@@ -15,14 +15,14 @@ import org.springframework.stereotype.Component;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-/** {@code import_job} (V20); every statement is filtered by the company. */
+/** {@code import_job} (V20, V21); every statement is filtered by the company. */
 @Component
 class ImportStore {
 
     static final int MAX_STORED_ERRORS = 200;
 
     private static final String SELECT = """
-            SELECT j.id, j.kind, j.file_name, j.status, j.total_rows, j.created_rows, j.failed_rows, j.errors,
+            SELECT j.id, j.kind, j.file_name, j.file_size, j.status, j.total_rows, j.created_rows, j.failed_rows, j.errors,
                    j.failure_code, u.full_name, j.created_at, j.finished_at
             FROM import_job j LEFT JOIN app_user u ON u.id = j.created_by
             """;
@@ -37,8 +37,9 @@ class ImportStore {
 
     void insert(UUID id, UUID companyId, String kind, String fileName, byte[] file, UUID createdBy) {
         jdbc.update("""
-                INSERT INTO import_job (id, company_id, kind, file_name, file, created_by) VALUES (?, ?, ?, ?, ?, ?)
-                """, id, companyId, kind, fileName, file, createdBy);
+                INSERT INTO import_job (id, company_id, kind, file_name, file, file_size, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, id, companyId, kind, fileName, file, file.length, createdBy);
     }
 
     Optional<ImportResponse> get(UUID companyId, UUID id) {
@@ -61,7 +62,7 @@ class ImportStore {
 
     void done(UUID companyId, UUID id, int total, int created, int failed, List<RowError> errors, Instant now) {
         List<ImportRowError> kept = errors.stream().limit(MAX_STORED_ERRORS)
-                .map(e -> new ImportRowError(e.row(), e.column(), e.code(), e.value())).toList();
+                .map(e -> new ImportRowError(e.row(), e.column(), e.code(), e.value(), e.detail())).toList();
         jdbc.update("""
                 UPDATE import_job SET status = 'DONE', file = NULL, total_rows = ?, created_rows = ?, failed_rows = ?,
                        errors = CAST(? AS jsonb), finished_at = ?
@@ -81,7 +82,7 @@ class ImportStore {
                 ? json.readValue(rs.getString("errors"), new TypeReference<List<ImportRowError>>() { })
                 : List.of();
         return new ImportResponse(rs.getObject("id", UUID.class), rs.getString("kind"), rs.getString("file_name"),
-                rs.getString("status"), rs.getInt("total_rows"), rs.getInt("created_rows"), rs.getInt("failed_rows"),
+                rs.getObject("file_size", Integer.class), rs.getString("status"), rs.getInt("total_rows"), rs.getInt("created_rows"), rs.getInt("failed_rows"),
                 errors, rs.getString("failure_code"), rs.getString("full_name"), instant(rs, "created_at"),
                 rs.getTimestamp("finished_at") == null ? null : instant(rs, "finished_at"));
     }

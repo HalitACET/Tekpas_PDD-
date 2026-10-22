@@ -167,7 +167,8 @@ export function PassportPreviewPage({ batchId }: { batchId: string }) {
             ) : preview.isError ? (
               <Failed error={preview.error} onRetry={() => void preview.refetch()} />
             ) : (
-              <div className="w-[390px] max-w-full overflow-hidden rounded-xl border shadow-md">
+              // lang: the reader's language, also for CSS (an uppercase "T-Shirt" is not "T-SHİRT" in German).
+              <div lang={language} className="w-[390px] max-w-full overflow-hidden rounded-xl border shadow-md">
                 <NextIntlClientProvider locale={language} messages={PREVIEW_MESSAGES[language]} timeZone="Europe/Istanbul">
                   <PassportFrame languageLinks={false} footerHost={host()}>
                     <PassportView snapshot={preview.data} mode="preview" today={today()} host={host()} />

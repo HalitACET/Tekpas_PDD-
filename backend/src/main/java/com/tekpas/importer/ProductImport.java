@@ -4,7 +4,9 @@ import com.tekpas.common.error.ConflictException;
 import com.tekpas.product.Fiber;
 import com.tekpas.product.FiberShare;
 import com.tekpas.product.Gtin;
+import com.tekpas.product.Product;
 import com.tekpas.product.ProductCategory;
+import com.tekpas.product.ProductRepository;
 import com.tekpas.product.ProductService;
 import com.tekpas.product.dto.ProductCreateRequest;
 import jakarta.validation.ConstraintViolation;
@@ -13,11 +15,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.dhatim.fastexcel.reader.Cell;
@@ -51,8 +52,11 @@ class ProductImport {
         }
     }
 
-    /** One problem of one row: the spreadsheet row number (header is 1), the column's key, the code, the value. */
-    record RowError(int row, String column, String code, @Nullable String value) {
+    /**
+     * One problem of one row: the spreadsheet row number (header is 1), the column's key, the code, the value, and
+     * what helps to fix it (see {@link com.tekpas.importer.dto.ImportRowError#detail()}).
+     */
+    record RowError(int row, String column, String code, @Nullable String value, @Nullable String detail) {
     }
 
     record Result(int total, int created, List<RowError> errors) {
@@ -65,10 +69,12 @@ class ProductImport {
     static final int MAX_VALUE = 100;
 
     private final ProductService products;
+    private final ProductRepository repository;
     private final Validator validator;
 
-    ProductImport(ProductService products, Validator validator) {
+    ProductImport(ProductService products, ProductRepository repository, Validator validator) {
         this.products = products;
+        this.repository = repository;
         this.validator = validator;
     }
 
@@ -78,7 +84,8 @@ class ProductImport {
         List<Integer> rowNumbers = new ArrayList<>();
         read(file, rows, rowNumbers);
         List<RowError> errors = new ArrayList<>();
-        Set<String> seen = new HashSet<>();
+        // Normalized GTIN → the row it was first seen in.
+        Map<String, Integer> seen = new HashMap<>();
         int created = 0;
         for (int i = 0; i < rows.size(); i++) {
             if (importRow(companyId, rowNumbers.get(i), rows.get(i), seen, errors)) {
@@ -145,7 +152,7 @@ class ProductImport {
         return (stripped.scale() < 0 ? stripped.setScale(0) : stripped).toPlainString();
     }
 
-    private boolean importRow(UUID companyId, int row, Map<ProductColumn, String> cells, Set<String> seen,
+    private boolean importRow(UUID companyId, int row, Map<ProductColumn, String> cells, Map<String, Integer> seen,
             List<RowError> errors) {
         List<RowError> found = new ArrayList<>();
         String gtin = cells.get(ProductColumn.GTIN) == null ? null : cells.get(ProductColumn.GTIN).replaceAll("\\s", "");
@@ -169,7 +176,7 @@ class ProductImport {
             }
             Fiber fiber = fiberCell == null ? null : ImportTexts.fiberOf(fiberCell);
             if (fiberCell == null) {
-                found.add(error(row, fiberColumn.key(), "NotNull", null));
+                found.add(error(row, fiberColumn.key(), "NotNull", null, percentCell));
                 fibersBroken = true;
             } else if (fiber == null) {
                 found.add(error(row, fiberColumn.key(), "UnknownValue", fiberCell));
@@ -194,19 +201,25 @@ class ProductImport {
             String code = violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName();
             boolean alreadyNamed = found.stream().anyMatch(e -> e.column().equals(column));
             if (column != null && !alreadyNamed) {
-                found.add(error(row, column, code, valueOf(column, cells)));
+                found.add(column.equals(ProductColumn.FIBERS) ? compositionError(row, code, fibers)
+                        : error(row, column, code, valueOf(column, cells),
+                                code.equals("GtinCheckDigit") ? expectedCheckDigit(gtin) : null));
             }
         }
         if (found.isEmpty()) {
             String normalized = Gtin.normalize(gtin);
-            if (!seen.add(normalized)) {
-                found.add(error(row, ProductColumn.GTIN.key(), "Duplicate", gtin));
+            Integer first = seen.putIfAbsent(normalized, row);
+            if (first != null) {
+                found.add(error(row, ProductColumn.GTIN.key(), "Duplicate", gtin, String.valueOf(first)));
             } else {
                 try {
                     products.create(companyId, request);
                     return true;
                 } catch (ConflictException e) {
-                    found.add(error(row, ProductColumn.GTIN.key(), "Unique", gtin));
+                    // The product's name only when it is the company's own: GTINs are unique across companies.
+                    String name = repository.findByCompanyIdAndGtin(companyId, normalized).map(Product::getName)
+                            .orElse(null);
+                    found.add(error(row, ProductColumn.GTIN.key(), "Unique", gtin, name));
                 }
             }
         }
@@ -253,7 +266,34 @@ class ProductImport {
     }
 
     private static RowError error(int row, String column, String code, @Nullable String value) {
-        return new RowError(row, column, code,
-                value == null ? null : value.length() > MAX_VALUE ? value.substring(0, MAX_VALUE) + "…" : value);
+        return error(row, column, code, value, null);
+    }
+
+    private static RowError error(int row, String column, String code, @Nullable String value,
+            @Nullable String detail) {
+        return new RowError(row, column, code, cut(value), cut(detail));
+    }
+
+    private static @Nullable String cut(@Nullable String value) {
+        return value == null ? null : value.length() > MAX_VALUE ? value.substring(0, MAX_VALUE) + "…" : value;
+    }
+
+    /** A whole composition's error: the percentages as "60 + 30", and for FiberTotal their total. */
+    private static RowError compositionError(int row, String code, List<FiberShare> fibers) {
+        List<Integer> percents = fibers.stream().map(FiberShare::percent).filter(p -> p != null).toList();
+        String value = percents.isEmpty() ? null
+                : String.join(" + ", percents.stream().map(String::valueOf).toList());
+        String total = code.equals("FiberTotal") ? String.valueOf(percents.stream().mapToInt(Integer::intValue).sum())
+                : null;
+        return error(row, ProductColumn.FIBERS, code, value, total);
+    }
+
+    /** The check digit the GTIN's other digits call for; null when it is not a GTIN's length at all. */
+    private static @Nullable String expectedCheckDigit(@Nullable String gtin) {
+        if (gtin == null || !Gtin.hasAcceptedFormat(gtin)) {
+            return null;
+        }
+        String digits = Gtin.normalize(gtin);
+        return String.valueOf(Gtin.checkDigit(digits.substring(0, digits.length() - 1)));
     }
 }

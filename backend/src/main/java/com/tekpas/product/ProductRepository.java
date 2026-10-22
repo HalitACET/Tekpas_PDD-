@@ -20,6 +20,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     List<Product> findByCompanyIdAndIdIn(UUID companyId, Collection<UUID> ids);
 
+    Optional<Product> findByCompanyIdAndGtin(UUID companyId, String gtin);
+
     /** FOR UPDATE: product changes that depend on "has no batches" (delete, GTIN change). */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Product p where p.id = :id and p.companyId = :companyId")
