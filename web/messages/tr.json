@@ -795,7 +795,8 @@
         "creating": "Bağlantı oluşturuluyor…",
         "createFailed": "Bağlantı oluşturulamadı",
         "revokeFailed": "Bağlantı geri alınamadı",
-        "deadlineFailed": "Son tarih değiştirilemedi"
+        "deadlineFailed": "Son tarih değiştirilemedi",
+        "noContact": "ilgili kişi girilmemiş"
       },
       "documentCount": "{count} belge",
       "documentsPending": "Onay bekleyen belge var"
@@ -860,8 +861,9 @@
       "submitEdit": "Değişiklikleri kaydet",
       "failed": "Tedarikçi kaydedilemedi",
       "editSub": "{type} · {count, plural, =0 {henüz partide kullanılmıyor} other {# partide kullanılıyor}}",
-      "lockedOwnAccountBody": "Ad, tip ve şehir firmanın KozaPass hesabından gelir. İletişim telefonunu ve ilgili kişiyi değiştirebilirsiniz.",
-      "cityCount": "{count} il eşleşti"
+      "lockedOwnAccountBody": "Ad, tip ve şehir firmanın KozaPass hesabından gelir. İletişim telefonunu değiştirebilirsiniz.",
+      "cityCount": "{count} il eşleşti",
+      "optional": "İsteğe bağlı"
     },
     "remove": {
       "title": "Tedarikçi bağını kaldır",

@@ -161,7 +161,7 @@ describe("CorrectionSentScreen", () => {
     expect(await screen.findByText("kozapass.vercel.app/r#tok1…")).toBeTruthy();
     await fireEvent.press(screen.getByText(t("sent.whatsapp")));
     const text = decodeURIComponent(open.mock.calls[0][0].split("text=")[1]);
-    expect(text.startsWith("Merhaba Ayşe Demir, ")).toBe(true);
+    expect(text.startsWith("Merhaba Ayşe, ")).toBe(true);
   });
 
   it("offers to make the link again when it could not be made", async () => {

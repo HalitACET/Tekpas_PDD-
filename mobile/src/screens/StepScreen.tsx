@@ -538,7 +538,8 @@ export function CorrectionSentScreen({
   const message =
     link && url
       ? t(contactName ? "sent.messageNamed" : "sent.message", {
-          contact: contactName,
+          // Greeted by first name, as on the web (design v1.0 132a).
+          contact: contactName?.split(/\s+/)[0],
           company: user?.company.name ?? "",
           batchNo: batch.batchNo,
           product: batch.product.name,

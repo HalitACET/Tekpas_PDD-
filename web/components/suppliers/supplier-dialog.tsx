@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProblemTypes } from "@tekpas/api-client";
 import { SUPPLIER_TYPES, type SupplierType } from "@tekpas/shared";
-import { CircleAlert, Lock } from "lucide-react";
+import { CircleAlert, Lock, MessageCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useId } from "react";
 import { Controller, type FieldPath, useForm, useWatch } from "react-hook-form";
@@ -233,7 +233,12 @@ function SupplierForm({
           </Field>
         </div>
 
-        <Field label={t("contact")} htmlFor={ids.contact} error={message(formState.errors.contactName?.message)}>
+        <Field
+          label={t("contact")}
+          aside={t("optional")}
+          htmlFor={ids.contact}
+          error={message(formState.errors.contactName?.message)}
+        >
           <Input
             id={ids.contact}
             autoComplete="off"
@@ -243,6 +248,11 @@ function SupplierForm({
             {...register("contactName")}
           />
         </Field>
+        {/* Design v1.0 130a–c: links go to this number on WhatsApp. */}
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <MessageCircle className="size-3.5 flex-none" strokeWidth={1.75} aria-hidden />
+          {t("phoneHint")}
+        </span>
       </div>
 
       <div className="flex items-center gap-2 border-t px-6 py-3.5">
@@ -299,19 +309,23 @@ function FieldError({ text }: { text: string | undefined }) {
 
 function Field({
   label,
+  aside,
   htmlFor,
   error,
   children,
 }: {
   label: string;
+  /** A note on the right of the label, e.g. "İsteğe bağlı" (design v1.0 130). */
+  aside?: string;
   htmlFor: string;
   error?: string;
   children: ReactNode;
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <label htmlFor={htmlFor} className="text-[13px] leading-[normal] font-medium">
+      <label htmlFor={htmlFor} className="flex justify-between gap-2 text-[13px] leading-[normal] font-medium">
         {label}
+        {aside && <span className="text-xs font-normal text-muted-foreground">{aside}</span>}
       </label>
       {children}
       <FieldError text={error} />
