@@ -59,8 +59,14 @@ public final class ComplianceScore {
     }
 
     /** What the product and the batch declare. */
+    /** @param careInstructions whether the product has care instructions (not scored, design v1.0 120d) */
     public record ProductFacts(@Nullable List<FiberShare> fibers, @Nullable ProductCategory category,
-            @Nullable LocalDate producedFrom, @Nullable LocalDate producedTo) {
+            @Nullable LocalDate producedFrom, @Nullable LocalDate producedTo, boolean careInstructions) {
+
+        public ProductFacts(@Nullable List<FiberShare> fibers, @Nullable ProductCategory category,
+                @Nullable LocalDate producedFrom, @Nullable LocalDate producedTo) {
+            this(fibers, category, producedFrom, producedTo, false);
+        }
     }
 
     private ComplianceScore() {
@@ -138,7 +144,8 @@ public final class ComplianceScore {
                 new ScoreCriterion(CriterionCode.REQUIRED_FIELDS, fieldPoints, FIELDS_POINTS, fieldItems),
                 new ScoreCriterion(CriterionCode.VALID_CERTIFICATES, certificatePoints, CERTIFICATE_POINTS,
                         certificates.items));
-        return new ScoreResponse(score, THRESHOLD, blockers.isEmpty(), criteria, blockers, warnings);
+        return new ScoreResponse(score, THRESHOLD, blockers.isEmpty(), criteria, blockers, warnings,
+                !product.careInstructions());
     }
 
     private static int fieldPoints(List<StepFacts> steps, ProductFacts product) {

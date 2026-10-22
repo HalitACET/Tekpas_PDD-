@@ -1125,6 +1125,21 @@ export interface components {
             /** Format: int32 */
             quantity?: number | null;
         };
+        CareInfo: {
+            bleaching?: components["schemas"]["CareInstruction"];
+            drying?: components["schemas"]["CareInstruction"];
+            ironing?: components["schemas"]["CareInstruction"];
+            note?: string | null;
+            noteLanguage?: string | null;
+            professional?: components["schemas"]["CareInstruction"];
+            washing?: components["schemas"]["CareInstruction"];
+        };
+        CareInstruction: {
+            /** @enum {string|null} */
+            gentleness?: "NORMAL" | "GENTLE" | "VERY_GENTLE" | null;
+            /** @enum {string} */
+            symbol: "WASH_30" | "WASH_40" | "WASH_60" | "WASH_95" | "HAND_WASH" | "DO_NOT_WASH" | "BLEACH_ANY" | "BLEACH_OXYGEN_ONLY" | "DO_NOT_BLEACH" | "TUMBLE_DRY_LOW" | "TUMBLE_DRY_NORMAL" | "DO_NOT_TUMBLE_DRY" | "LINE_DRY" | "DRY_FLAT" | "DRY_IN_SHADE" | "IRON_LOW" | "IRON_MEDIUM" | "IRON_HIGH" | "DO_NOT_IRON" | "DRY_CLEAN_P" | "DRY_CLEAN_F" | "WET_CLEAN" | "DO_NOT_PROFESSIONAL_CLEAN";
+        };
         ChainPreviewResponse: {
             sourceBatchNo?: string | null;
             /** Format: int32 */
@@ -1526,6 +1541,7 @@ export interface components {
         /** @enum {string} */
         ProductCategory: "T_SHIRT" | "SHIRT" | "TROUSERS" | "DRESS" | "KNITWEAR" | "SWEATSHIRT" | "OUTERWEAR" | "BABY" | "HOME_TEXTILE" | "FABRIC" | "OTHER";
         ProductCreateRequest: {
+            careInfo?: components["schemas"]["CareInfo"];
             category: components["schemas"]["ProductCategory"];
             declaredFiberComposition?: components["schemas"]["FiberShare"][] | null;
             description?: string | null;
@@ -1552,6 +1568,7 @@ export interface components {
         ProductResponse: {
             /** Format: int64 */
             batchCount: number;
+            careInfo?: components["schemas"]["CareInfo"];
             category: components["schemas"]["ProductCategory"];
             /** Format: date-time */
             createdAt: string;
@@ -1561,11 +1578,14 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+            /** Format: int64 */
+            publishedBatchCount: number;
             sku?: string | null;
             /** Format: date-time */
             updatedAt: string;
         };
         ProductUpdateRequest: {
+            careInfo?: components["schemas"]["CareInfo"];
             category?: components["schemas"]["ProductCategory"];
             declaredFiberComposition?: components["schemas"]["FiberShare"][] | null;
             description?: string | null;
@@ -1668,6 +1688,7 @@ export interface components {
         ScoreItemCode: "STEP_APPROVED" | "STEP_FIELDS" | "PRODUCT_FIBERS" | "PRODUCT_CATEGORY" | "BATCH_DATES" | "STEP_CERTIFICATE";
         ScoreResponse: {
             blockers: components["schemas"]["ScoreIssue"][];
+            careInstructionsMissing: boolean;
             criteria: components["schemas"]["ScoreCriterion"][];
             publishable: boolean;
             /** Format: int32 */
@@ -1713,6 +1734,7 @@ export interface components {
             version: number;
         };
         SnapshotProduct: {
+            care?: components["schemas"]["CareInfo"];
             category: components["schemas"]["ProductCategory"];
             description?: string | null;
             fiberComposition?: components["schemas"]["FiberShare"][] | null;

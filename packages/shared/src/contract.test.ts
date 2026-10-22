@@ -1,5 +1,6 @@
 import type { components } from "@tekpas/api-client";
 import { describe, expectTypeOf, it } from "vitest";
+import type { CareSymbol, Gentleness } from "./schemas/care";
 import type {
   BatchStatus,
   ChemicalStandard,
@@ -33,6 +34,8 @@ describe("constants match the generated API client", () => {
     expectTypeOf<DyeProcess>().toEqualTypeOf<Schemas["DyeProcess"]>();
     expectTypeOf<ChemicalStandard>().toEqualTypeOf<Schemas["ChemicalStandard"]>();
     expectTypeOf<DocType>().toEqualTypeOf<Schemas["DocumentResponse"]["docType"]>();
+    expectTypeOf<CareSymbol>().toEqualTypeOf<Schemas["CareInstruction"]["symbol"]>();
+    expectTypeOf<Gentleness>().toEqualTypeOf<NonNullable<Schemas["CareInstruction"]["gentleness"]>>();
   });
 
   it("correction presets mark fields of the step data, or the documents section", () => {

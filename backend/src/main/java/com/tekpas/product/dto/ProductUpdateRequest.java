@@ -2,6 +2,7 @@ package com.tekpas.product.dto;
 
 import com.tekpas.product.FiberShare;
 import com.tekpas.product.ProductCategory;
+import com.tekpas.product.care.CareInfo;
 import com.tekpas.product.validation.FiberDuplicate;
 import com.tekpas.product.validation.FiberTotal;
 import com.tekpas.product.validation.GtinCheckDigit;
@@ -16,7 +17,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Partial update. A missing field stays as it is; {@code null} clears sku, description and
- * declaredFiberComposition (and is rejected for the required fields). Unknown fields (e.g. companyId) are
+ * declaredFiberComposition and careInfo (and is rejected for the required fields). careInfo is replaced as a
+ * whole; a published passport keeps the instructions it was published with. Unknown fields (e.g. companyId) are
  * ignored, as everywhere in the API.
  * The GTIN cannot change once the product has batches (409 gtin-locked): printed QR codes contain it.
  */
@@ -26,5 +28,6 @@ public record ProductUpdateRequest(
         @Nullable Optional<@NotBlank @Size(max = 200) String> name,
         @Nullable Optional<@NotNull ProductCategory> category,
         @Nullable Optional<@Size(max = 2000) String> description,
-        @Nullable Optional<@Valid @FiberTotal @FiberDuplicate List<FiberShare>> declaredFiberComposition) {
+        @Nullable Optional<@Valid @FiberTotal @FiberDuplicate List<FiberShare>> declaredFiberComposition,
+        @Nullable Optional<@Valid CareInfo> careInfo) {
 }

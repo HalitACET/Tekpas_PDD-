@@ -120,7 +120,7 @@ class PassportSnapshotBuilder {
                 new SnapshotPassport(version, publishedAt, product.getGtin(), batch.getBatchNo()),
                 new SnapshotManufacturer(manufacturer.getName(), manufacturer.getCity(), manufacturer.getCountry()),
                 new SnapshotProduct(product.getName(), product.getCategory(), product.getDescription(),
-                        product.getDeclaredFiberComposition()),
+                        product.getDeclaredFiberComposition(), product.getCareInfo()),
                 new SnapshotBatch(batch.getProducedFrom(), batch.getProducedTo()), snapshotSteps, certificates);
         return new Built(snapshot, allApproved);
     }

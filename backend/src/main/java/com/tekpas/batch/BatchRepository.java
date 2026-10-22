@@ -22,6 +22,8 @@ public interface BatchRepository extends JpaRepository<Batch, UUID> {
 
     long countByProductId(UUID productId);
 
+    long countByProductIdAndStatus(UUID productId, BatchStatus status);
+
     List<Batch> findByCompanyIdAndStatusNot(UUID companyId, BatchStatus status);
 
     @Query("""

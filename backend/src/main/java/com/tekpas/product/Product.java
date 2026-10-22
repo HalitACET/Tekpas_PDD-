@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import com.tekpas.product.care.CareInfo;
 import java.util.List;
 import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -45,6 +46,9 @@ public class Product {
 
     @JdbcTypeCode(SqlTypes.JSON)
     private @Nullable List<FiberShare> declaredFiberComposition;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private @Nullable CareInfo careInfo;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
@@ -118,6 +122,15 @@ public class Product {
 
     public void setDeclaredFiberComposition(@Nullable List<FiberShare> declaredFiberComposition) {
         this.declaredFiberComposition = declaredFiberComposition == null ? null : List.copyOf(declaredFiberComposition);
+    }
+
+    public @Nullable CareInfo getCareInfo() {
+        return careInfo;
+    }
+
+    /** Empty instructions are stored as none: the passport then shows no care section. */
+    public void setCareInfo(@Nullable CareInfo careInfo) {
+        this.careInfo = careInfo == null || careInfo.isEmpty() ? null : careInfo;
     }
 
     public Instant getCreatedAt() {

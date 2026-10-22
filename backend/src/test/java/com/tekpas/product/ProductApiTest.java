@@ -602,4 +602,101 @@ class ProductApiTest {
             }
         }
     }
+
+    /** Care instructions (design v1.0 120a): a symbol per ISO 3758 group, bars where they exist, a note. */
+    @Nested
+    class CareInstructions {
+
+        static Map<String, Object> care() {
+            Map<String, Object> care = new LinkedHashMap<>();
+            care.put("washing", Map.of("symbol", "WASH_40", "gentleness", "GENTLE"));
+            care.put("bleaching", Map.of("symbol", "DO_NOT_BLEACH"));
+            care.put("drying", Map.of("symbol", "TUMBLE_DRY_LOW"));
+            care.put("ironing", Map.of("symbol", "IRON_MEDIUM"));
+            care.put("professional", Map.of("symbol", "DRY_CLEAN_P", "gentleness", "GENTLE"));
+            care.put("note", "  Ters çevirerek yıkayın. ");
+            return care;
+        }
+
+        @Test
+        void createsWithCareInstructionsAndKeepsTheNoteInItsLanguage() {
+            Tenant tenant = fixtures.tenant();
+
+            JsonNode body = create(tenant, with(product(TestGtins.gtin13()), "careInfo", care()));
+
+            JsonNode care = body.path("careInfo");
+            assertThat(care.path("washing").path("symbol").asString()).isEqualTo("WASH_40");
+            assertThat(care.path("washing").path("gentleness").asString()).isEqualTo("GENTLE");
+            // No bars given means none.
+            assertThat(care.path("bleaching").path("gentleness").asString()).isEqualTo("NORMAL");
+            assertThat(care.path("note").asString()).isEqualTo("Ters çevirerek yıkayın.");
+            assertThat(care.path("noteLanguage").asString()).isEqualTo("tr");
+            assertThat(fixtures.body(fixtures.get(tenant, PRODUCTS + "/" + body.path("id").asString()))
+                    .path("careInfo").path("ironing").path("symbol").asString()).isEqualTo("IRON_MEDIUM");
+        }
+
+        @Test
+        void theInstructionsAreReplacedAsAWholeAndEmptyOnesAreNone() {
+            Tenant tenant = fixtures.tenant();
+            String uri = PRODUCTS + "/" + create(tenant, with(product(TestGtins.gtin13()), "careInfo", care()))
+                    .path("id").asString();
+
+            JsonNode replaced = fixtures.body(fixtures.patch(tenant, uri,
+                    Map.of("careInfo", Map.of("washing", Map.of("symbol", "HAND_WASH"), "note", "Gently",
+                            "noteLanguage", "en"))));
+            assertThat(replaced.path("careInfo").path("washing").path("symbol").asString()).isEqualTo("HAND_WASH");
+            assertThat(replaced.path("careInfo").path("ironing").isNull()).isTrue();
+            assertThat(replaced.path("careInfo").path("noteLanguage").asString()).isEqualTo("en");
+            // Other fields leave it alone.
+            assertThat(fixtures.body(fixtures.patch(tenant, uri, Map.of("name", "Polo"))).path("careInfo")
+                    .path("washing").path("symbol").asString()).isEqualTo("HAND_WASH");
+            // Nothing chosen and a blank note: no instructions (the passport shows no care section).
+            assertThat(fixtures.body(fixtures.patch(tenant, uri, Map.of("careInfo", Map.of("note", "  "))))
+                    .path("careInfo").isNull()).isTrue();
+            fixtures.patch(tenant, uri, Map.of("careInfo", care()));
+            assertThat(fixtures.body(fixtures.patch(tenant, uri, "{\"careInfo\":null}")).path("careInfo").isNull())
+                    .isTrue();
+            assertThat(jdbc.queryForObject("SELECT care_info IS NULL FROM product WHERE id = ?::uuid", Boolean.class,
+                    uri.substring(uri.lastIndexOf('/') + 1))).isTrue();
+        }
+
+        @Test
+        void eachGroupTakesItsOwnSymbolsAndOnlySomeSymbolsTakeBars() {
+            Tenant tenant = fixtures.tenant();
+            Map<String, Object> base = product(TestGtins.gtin13());
+
+            assertFieldError(fixtures.post(tenant, PRODUCTS, with(base, "careInfo",
+                    Map.of("washing", Map.of("symbol", "IRON_LOW")))), "careInfo.washing", "CareSymbolIn");
+            assertFieldError(fixtures.post(tenant, PRODUCTS, with(base, "careInfo",
+                    Map.of("washing", Map.of("symbol", "DO_NOT_WASH", "gentleness", "GENTLE")))), "careInfo.washing",
+                    "CareGentleness");
+            // P, F and W take one bar, not two.
+            assertFieldError(fixtures.post(tenant, PRODUCTS, with(base, "careInfo",
+                    Map.of("professional", Map.of("symbol", "WET_CLEAN", "gentleness", "VERY_GENTLE")))),
+                    "careInfo.professional", "CareGentleness");
+            assertFieldError(fixtures.post(tenant, PRODUCTS, with(base, "careInfo", Map.of("note", "a".repeat(201)))),
+                    "careInfo.note", "Size");
+            assertFieldError(fixtures.post(tenant, PRODUCTS, with(base, "careInfo",
+                    Map.of("note", "Lavar a mano", "noteLanguage", "es"))), "careInfo.noteLanguage", "Pattern");
+            assertThat(fixtures.post(tenant, PRODUCTS, with(base, "careInfo",
+                    Map.of("washing", Map.of("symbol", "WASH_100"))))).hasStatus(400);
+            assertThat(fixtures.post(tenant, PRODUCTS, with(base, "careInfo",
+                    Map.of("washing", Map.of("symbol", "WASH_30", "gentleness", "VERY_GENTLE"))))).hasStatus(201);
+        }
+
+        @Test
+        void theResponseCountsTheBatchesWhosePassportIsPublished() {
+            Tenant tenant = fixtures.tenant();
+            String id = createProduct(tenant).path("id").asString();
+            addBatch(tenant, id);
+            addBatch(tenant, id);
+            jdbc.update("UPDATE batch SET status = 'PUBLISHED' WHERE id = (SELECT id FROM batch WHERE product_id = ?::uuid"
+                    + " LIMIT 1)", id);
+
+            JsonNode body = fixtures.body(fixtures.get(tenant, PRODUCTS + "/" + id));
+
+            assertThat(body.path("batchCount").asLong()).isEqualTo(2);
+            assertThat(body.path("publishedBatchCount").asLong()).isEqualTo(1);
+        }
+    }
 }

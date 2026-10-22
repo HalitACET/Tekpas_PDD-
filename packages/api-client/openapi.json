@@ -283,6 +283,49 @@
         },
         "type" : "object"
       },
+      "CareInfo" : {
+        "properties" : {
+          "bleaching" : {
+            "$ref" : "#/components/schemas/CareInstruction"
+          },
+          "drying" : {
+            "$ref" : "#/components/schemas/CareInstruction"
+          },
+          "ironing" : {
+            "$ref" : "#/components/schemas/CareInstruction"
+          },
+          "note" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "noteLanguage" : {
+            "pattern" : "^(tr|en|de)$",
+            "type" : [ "string", "null" ]
+          },
+          "professional" : {
+            "$ref" : "#/components/schemas/CareInstruction"
+          },
+          "washing" : {
+            "$ref" : "#/components/schemas/CareInstruction"
+          }
+        },
+        "type" : "object"
+      },
+      "CareInstruction" : {
+        "properties" : {
+          "gentleness" : {
+            "enum" : [ "NORMAL", "GENTLE", "VERY_GENTLE" ],
+            "type" : [ "string", "null" ]
+          },
+          "symbol" : {
+            "enum" : [ "WASH_30", "WASH_40", "WASH_60", "WASH_95", "HAND_WASH", "DO_NOT_WASH", "BLEACH_ANY", "BLEACH_OXYGEN_ONLY", "DO_NOT_BLEACH", "TUMBLE_DRY_LOW", "TUMBLE_DRY_NORMAL", "DO_NOT_TUMBLE_DRY", "LINE_DRY", "DRY_FLAT", "DRY_IN_SHADE", "IRON_LOW", "IRON_MEDIUM", "IRON_HIGH", "DO_NOT_IRON", "DRY_CLEAN_P", "DRY_CLEAN_F", "WET_CLEAN", "DO_NOT_PROFESSIONAL_CLEAN" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "symbol" ],
+        "type" : "object"
+      },
       "ChainPreviewResponse" : {
         "properties" : {
           "sourceBatchNo" : {
@@ -1297,6 +1340,9 @@
       },
       "ProductCreateRequest" : {
         "properties" : {
+          "careInfo" : {
+            "$ref" : "#/components/schemas/CareInfo"
+          },
           "category" : {
             "$ref" : "#/components/schemas/ProductCategory"
           },
@@ -1375,6 +1421,9 @@
             "format" : "int64",
             "type" : "integer"
           },
+          "careInfo" : {
+            "$ref" : "#/components/schemas/CareInfo"
+          },
           "category" : {
             "$ref" : "#/components/schemas/ProductCategory"
           },
@@ -1401,6 +1450,10 @@
           "name" : {
             "type" : "string"
           },
+          "publishedBatchCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "sku" : {
             "type" : [ "string", "null" ]
           },
@@ -1409,11 +1462,14 @@
             "type" : "string"
           }
         },
-        "required" : [ "batchCount", "category", "createdAt", "gtin", "id", "name", "updatedAt" ],
+        "required" : [ "batchCount", "category", "createdAt", "gtin", "id", "name", "publishedBatchCount", "updatedAt" ],
         "type" : "object"
       },
       "ProductUpdateRequest" : {
         "properties" : {
+          "careInfo" : {
+            "$ref" : "#/components/schemas/CareInfo"
+          },
           "category" : {
             "$ref" : "#/components/schemas/ProductCategory"
           },
@@ -1709,6 +1765,9 @@
             },
             "type" : "array"
           },
+          "careInstructionsMissing" : {
+            "type" : "boolean"
+          },
           "criteria" : {
             "items" : {
               "$ref" : "#/components/schemas/ScoreCriterion"
@@ -1733,7 +1792,7 @@
             "type" : "array"
           }
         },
-        "required" : [ "blockers", "criteria", "publishable", "score", "threshold", "warnings" ],
+        "required" : [ "blockers", "careInstructionsMissing", "criteria", "publishable", "score", "threshold", "warnings" ],
         "type" : "object"
       },
       "SnapshotActor" : {
@@ -1831,6 +1890,9 @@
       },
       "SnapshotProduct" : {
         "properties" : {
+          "care" : {
+            "$ref" : "#/components/schemas/CareInfo"
+          },
           "category" : {
             "$ref" : "#/components/schemas/ProductCategory"
           },

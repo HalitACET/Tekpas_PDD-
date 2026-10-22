@@ -2,6 +2,7 @@ package com.tekpas.product;
 
 import com.tekpas.validation.ValidationTriggers;
 import com.tekpas.batch.BatchRepository;
+import com.tekpas.batch.BatchStatus;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.NotFoundException;
 import com.tekpas.common.error.ProblemTypes;
@@ -50,7 +51,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductResponse get(UUID companyId, UUID id) {
         Product product = products.findByIdAndCompanyId(id, companyId).orElseThrow(ProductService::notFound);
-        return toResponse(product, batches.countByProductId(id));
+        return toResponse(product, batches.countByProductId(id), published(id));
     }
 
     @Transactional
@@ -60,8 +61,9 @@ public class ProductService {
         product.setSku(trimToNull(request.sku()));
         product.setDescription(trimToNull(request.description()));
         product.setDeclaredFiberComposition(request.declaredFiberComposition());
+        product.setCareInfo(request.careInfo());
         saveAndFlush(product);
-        return toResponse(product, 0);
+        return toResponse(product, 0, 0);
     }
 
     @Transactional
@@ -96,9 +98,12 @@ public class ProductService {
             // Every batch of the product compares its steps with the label.
             validation.productChanged(companyId, id);
         }
+        if (request.careInfo() != null) {
+            product.setCareInfo(request.careInfo().orElse(null));
+        }
         product.touch(clock.instant());
         saveAndFlush(product);
-        return toResponse(product, batchCount);
+        return toResponse(product, batchCount, published(id));
     }
 
     @Transactional
@@ -122,9 +127,14 @@ public class ProductService {
         }
     }
 
-    static ProductResponse toResponse(Product p, long batchCount) {
+    private long published(UUID productId) {
+        return batches.countByProductIdAndStatus(productId, BatchStatus.PUBLISHED);
+    }
+
+    static ProductResponse toResponse(Product p, long batchCount, long publishedBatchCount) {
         return new ProductResponse(p.getId(), p.getGtin(), p.getSku(), p.getName(), p.getCategory(),
-                p.getDescription(), p.getDeclaredFiberComposition(), batchCount, p.getCreatedAt(), p.getUpdatedAt());
+                p.getDescription(), p.getDeclaredFiberComposition(), p.getCareInfo(), batchCount, publishedBatchCount,
+                p.getCreatedAt(), p.getUpdatedAt());
     }
 
     private static NotFoundException notFound() {

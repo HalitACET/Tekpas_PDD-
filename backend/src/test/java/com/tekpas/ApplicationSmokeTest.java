@@ -32,7 +32,7 @@ class ApplicationSmokeTest {
         var versions = jdbc.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank", String.class);
 
-        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17");
+        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18");
     }
 
     @Test

@@ -46,7 +46,9 @@ public class DemoDataSeeder implements ApplicationRunner {
             new DemoUser(uuid("10000000-0000-0000-0000-000000000002"), uuid("00000000-0000-0000-0000-000000000004"),
                     "lab@uludagboya.example", "Boyahane Lab", "SUPPLIER"));
 
-    record DemoProduct(UUID id, String gtin, String sku, String name, String category, String fibers) {
+    /** @param care care instructions (CareInfo JSON); null leaves the product without, as the demo's third one */
+    record DemoProduct(UUID id, String gtin, String sku, String name, String category, String fibers,
+            @Nullable String care) {
     }
 
     record DemoBatch(UUID id, UUID productId, String batchNo, String productionOrderNo, int quantity,
@@ -58,11 +60,22 @@ public class DemoDataSeeder implements ApplicationRunner {
     static final List<DemoProduct> PRODUCTS = List.of(
             new DemoProduct(uuid("20000000-0000-0000-0000-000000000001"), "02012345000018", "NG-TS-001-BLU",
                     "Mavi Basic Tişört", "T_SHIRT",
-                    "[{\"fiber\":\"COTTON\",\"percent\":95},{\"fiber\":\"ELASTANE\",\"percent\":5}]"),
+                    "[{\"fiber\":\"COTTON\",\"percent\":95},{\"fiber\":\"ELASTANE\",\"percent\":5}]",
+                    """
+                    {"washing":{"symbol":"WASH_40","gentleness":"NORMAL"},"bleaching":{"symbol":"DO_NOT_BLEACH"},
+                     "drying":{"symbol":"TUMBLE_DRY_LOW"},"ironing":{"symbol":"IRON_MEDIUM"},
+                     "professional":{"symbol":"DRY_CLEAN_P"},"note":"Ters çevirerek yıkayın.","noteLanguage":"tr"}
+                    """),
             new DemoProduct(uuid("20000000-0000-0000-0000-000000000002"), "02012345000025", "NG-PL-002-WHT",
-                    "Organik Pamuk Polo", "T_SHIRT", "[{\"fiber\":\"ORGANIC_COTTON\",\"percent\":100}]"),
+                    "Organik Pamuk Polo", "T_SHIRT", "[{\"fiber\":\"ORGANIC_COTTON\",\"percent\":100}]",
+                    """
+                    {"washing":{"symbol":"WASH_30","gentleness":"GENTLE"},"bleaching":{"symbol":"DO_NOT_BLEACH"},
+                     "drying":{"symbol":"LINE_DRY"},"ironing":{"symbol":"IRON_LOW"},
+                     "professional":{"symbol":"DO_NOT_PROFESSIONAL_CLEAN"},
+                     "note":"İlk yıkamada benzer renklerle yıkayın.","noteLanguage":"tr"}
+                    """),
             new DemoProduct(uuid("20000000-0000-0000-0000-000000000003"), "02012345000032", "NG-SH-003-NAT",
-                    "Keten Gömlek", "SHIRT", "[{\"fiber\":\"LINEN\",\"percent\":100}]"));
+                    "Keten Gömlek", "SHIRT", "[{\"fiber\":\"LINEN\",\"percent\":100}]", null));
 
     static final List<DemoBatch> BATCHES = List.of(
             new DemoBatch(uuid("30000000-0000-0000-0000-000000000001"), PRODUCTS.get(0).id(), "KP-2026-0901-A",
@@ -152,6 +165,11 @@ public class DemoDataSeeder implements ApplicationRunner {
                     VALUES (?, ?, ?, ?, ?, ?, ?::jsonb)
                     ON CONFLICT DO NOTHING
                     """, p.id(), NILUFER, p.gtin(), p.sku(), p.name(), p.category(), p.fibers());
+            if (p.care() != null) {
+                // Filled in once (V18 came after the first demo start); a later change stays.
+                jdbc.update("UPDATE product SET care_info = ?::jsonb WHERE id = ? AND company_id = ? AND care_info IS NULL",
+                        p.care(), p.id(), NILUFER);
+            }
         }
         for (DemoBatch b : BATCHES) {
             jdbc.update("""

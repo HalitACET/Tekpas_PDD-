@@ -16,7 +16,8 @@ public record PassportSnapshot(
         List<SnapshotStep> supplyChain,
         List<SnapshotCertificate> certificates) {
 
-    public static final int SCHEMA_VERSION = 1;
+    /** 2: the product's care instructions (M10 T8). Version 1 snapshots read the same, without them. */
+    public static final int SCHEMA_VERSION = 2;
 
     public PassportSnapshot {
         supplyChain = List.copyOf(supplyChain);
