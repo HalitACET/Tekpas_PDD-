@@ -13,7 +13,7 @@ import { formatElapsed, WAKE_DETECT_MS, WAKE_LIMIT_MS, waitUntilAwake } from "@/
 import { cn } from "@/lib/utils";
 
 /** waking: the server is starting (31a); gaveUp: it did not start within 3 minutes (31b). */
-type Status = "idle" | "submitting" | "waking" | "gaveUp" | "invalid" | "unavailable";
+type Status = "idle" | "submitting" | "waking" | "gaveUp" | "invalid" | "unavailable" | "limited";
 
 /**
  * Design F form. Sizes follow the design per breakpoint: 40 px controls on desktop, 48 px (and 16 px
@@ -31,6 +31,7 @@ export function LoginForm() {
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
+  const [limitedMinutes, setLimitedMinutes] = useState(15);
   const [startedAt, setStartedAt] = useState(0);
   const [now, setNow] = useState(0);
   const abort = useRef<AbortController | null>(null);
@@ -87,6 +88,9 @@ export function LoginForm() {
     if (controller.signal.aborted) return;
     if (result === "ok") {
       router.replace(next);
+    } else if (typeof result === "object") {
+      setLimitedMinutes(result.limitedMinutes);
+      setStatus("limited");
     } else {
       setStatus(result);
     }
@@ -94,7 +98,14 @@ export function LoginForm() {
 
   const submitting = status === "submitting" || status === "waking";
   const elapsed = Math.min(Math.max(0, now - startedAt), WAKE_LIMIT_MS);
-  const error = status === "invalid" ? t("invalidCredentials") : status === "unavailable" ? t("serverError") : null;
+  const error =
+    status === "invalid"
+      ? t("invalidCredentials")
+      : status === "unavailable"
+        ? t("serverError")
+        : status === "limited"
+          ? t("tooManyAttempts", { minutes: limitedMinutes })
+          : null;
 
   return (
     <form

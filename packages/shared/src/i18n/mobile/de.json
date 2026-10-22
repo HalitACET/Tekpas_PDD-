@@ -72,6 +72,8 @@
     "submitting": "Anmeldung läuft…",
     "wrongTitle": "E-Mail oder Passwort falsch.",
     "wrongBody": "Prüfen Sie Ihre Angaben und versuchen Sie es erneut.",
+    "limitedTitle": "Zu viele Fehlversuche.",
+    "limitedBody": "Versuchen Sie es in {{n}} Min. erneut.",
     "offlineTitle": "Keine Internetverbindung.",
     "offlineBody": "Schalten Sie WLAN oder mobile Daten ein und versuchen Sie es erneut.",
     "unavailableTitle": "Der Server antwortet nicht.",

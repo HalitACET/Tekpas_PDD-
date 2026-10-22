@@ -59,6 +59,16 @@ describe("LoginForm", () => {
     expect(router.replace).not.toHaveBeenCalled();
   });
 
+  it("says how long to wait after too many failed attempts (M12)", async () => {
+    login.mockResolvedValue({ limitedMinutes: 15 });
+    renderWithIntl(<LoginForm />);
+
+    await fillAndSubmit();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Çok fazla hatalı deneme. 15 dakika sonra yeniden deneyin.");
+    expect(router.replace).not.toHaveBeenCalled();
+  });
+
   it("tells the user when the server cannot be reached", async () => {
     login.mockResolvedValue("unavailable");
     renderWithIntl(<LoginForm />);

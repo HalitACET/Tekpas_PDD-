@@ -9,6 +9,7 @@ import com.tekpas.company.UserRole;
 import com.tekpas.support.IntegrationTest;
 import com.tekpas.support.TestFixtures;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -141,6 +142,57 @@ class LoginTest {
         assertThat(result).hasStatus(HttpStatus.BAD_REQUEST)
                 .hasContentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON);
         assertThat(fixtures.body(result).path("type").asString()).isEqualTo("urn:tekpas:problem:bad-request");
+    }
+
+    @Test
+    void afterFiveFailuresTheEmailIsRefusedEvenWithTheRightPasswordAndOthersAreNot() {
+        AppUser user = fixtures.user(fixtures.company(), UserRole.OWNER);
+        AppUser other = fixtures.user(fixtures.company(), UserRole.OWNER);
+        for (int i = 0; i < 5; i++) {
+            assertThat(fixtures.loginRequest(user.getEmail(), "wrong-password", ClientType.WEB))
+                    .hasStatus(HttpStatus.UNAUTHORIZED);
+        }
+
+        MvcTestResult refused = fixtures.loginRequest(user.getEmail().toUpperCase(), TestFixtures.PASSWORD,
+                ClientType.WEB);
+
+        assertThat(refused).hasStatus(HttpStatus.TOO_MANY_REQUESTS);
+        assertThat(fixtures.body(refused).path("type").asString()).isEqualTo("urn:tekpas:problem:too-many-requests");
+        assertThat(Long.parseLong(refused.getResponse().getHeader(HttpHeaders.RETRY_AFTER))).isBetween(1L, 900L);
+        assertThat(fixtures.loginRequest(other.getEmail(), TestFixtures.PASSWORD, ClientType.WEB)).hasStatusOk();
+    }
+
+    @Test
+    void anUnknownEmailIsLimitedTheSameWaySoTheAnswerTellsNothing() {
+        String unknown = "nobody-" + UUID.randomUUID() + "@test.example";
+        for (int i = 0; i < 5; i++) {
+            assertThat(fixtures.loginRequest(unknown, "wrong-password", ClientType.WEB))
+                    .hasStatus(HttpStatus.UNAUTHORIZED);
+        }
+
+        assertThat(fixtures.loginRequest(unknown, "wrong-password", ClientType.WEB))
+                .hasStatus(HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    @Test
+    void aKnownClientIpIsLimitedAcrossEmails() {
+        // One proxy is trusted in tests: "<client>, <proxy>".
+        String forwarded = "198.51.100." + (int) (Math.random() * 250 + 1) + ", 10.0.0.1";
+        for (int i = 0; i < 20; i++) {
+            assertThat(loginFrom(forwarded, "someone-" + i + "-" + UUID.randomUUID() + "@test.example"))
+                    .hasStatus(HttpStatus.UNAUTHORIZED);
+        }
+        AppUser user = fixtures.user(fixtures.company(), UserRole.OWNER);
+
+        assertThat(loginFrom(forwarded, user.getEmail())).hasStatus(HttpStatus.TOO_MANY_REQUESTS);
+        assertThat(fixtures.loginRequest(user.getEmail(), TestFixtures.PASSWORD, ClientType.WEB)).hasStatusOk();
+    }
+
+    private MvcTestResult loginFrom(String forwardedFor, String email) {
+        return fixtures.mvc().post().uri("/api/v1/auth/login").header("X-Forwarded-For", forwardedFor)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"" + email + "\",\"password\":\"wrong-password\",\"client\":\"WEB\"}")
+                .exchange();
     }
 
     /** The response body without its request id, which differs between any two requests. */

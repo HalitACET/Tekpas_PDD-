@@ -2183,6 +2183,15 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ApiProblem"];
                 };
             };
+            /** @description Too many failed logins for this e-mail (or IP), or too many logins overall; Retry-After says when to try again */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
         };
     };
     logout: {

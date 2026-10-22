@@ -6,12 +6,14 @@ import com.tekpas.auth.dto.MeResponse;
 import com.tekpas.auth.dto.RefreshRequest;
 import com.tekpas.auth.dto.TokenResponse;
 import com.tekpas.common.security.CurrentUser;
+import com.tekpas.common.web.ClientIp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -34,11 +36,16 @@ public class AuthController {
     private final AuthService authService;
     private final RefreshCookies refreshCookies;
     private final CurrentUser currentUser;
+    private final LoginThrottle throttle;
+    private final ClientIp clientIp;
 
-    public AuthController(AuthService authService, RefreshCookies refreshCookies, CurrentUser currentUser) {
+    public AuthController(AuthService authService, RefreshCookies refreshCookies, CurrentUser currentUser,
+            LoginThrottle throttle, ClientIp clientIp) {
         this.authService = authService;
         this.refreshCookies = refreshCookies;
         this.currentUser = currentUser;
+        this.throttle = throttle;
+        this.clientIp = clientIp;
     }
 
     @PostMapping("/login")
@@ -49,10 +56,20 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "Logged in")
     @ApiResponse(responseCode = "400", description = "Validation failed")
     @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    @ApiResponse(responseCode = "429", description = "Too many failed logins for this e-mail (or IP), or too many "
+            + "logins overall; Retry-After says when to try again")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request,
-            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-        AuthService.Session session = authService.login(request.email(), request.password(), request.client(),
-                userAgent);
+            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent,
+            HttpServletRequest httpRequest) {
+        String ip = clientIp.of(httpRequest);
+        throttle.before(request.email(), ip);
+        AuthService.Session session;
+        try {
+            session = authService.login(request.email(), request.password(), request.client(), userAgent);
+        } catch (InvalidCredentialsException e) {
+            throttle.failed(request.email(), ip);
+            throw e;
+        }
         LoginResponse body = new LoginResponse(session.accessToken(), BEARER, session.expiresIn(),
                 bodyRefreshToken(session), session.user());
         return withRefreshCookie(session, request.rememberMeOrDefault()).body(body);
