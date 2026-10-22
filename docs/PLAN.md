@@ -252,7 +252,7 @@ Plan: `docs/m10-plan.md` (görevler T1–T12, gerçekçi demo verisi, kullanıc�
 
 - [x] Depoda kayıtsız dosya taraması _Sonuç (PR #87):_ `FileStorage.list`, günlük `DOCUMENT_CLEANUP`'ın sonunda `OrphanObjectScan`: 1 saatten eski, hiçbir belgenin göstermediği `docs/` nesneleri log'a; silme `STORAGE_REMOVE_ORPHANS=true` ile.
 - [x] Tarayıcıda OCR araştırması _Sonuç (PR #88, `docs/m10-ocr-arastirmasi.md`):_ ön işlemeyle ~1 sn/sayfa, sentetik sertifikada 9/9; ilk indirme ~5 MB; PDF ve React Native'de yok. Kod yok, karar M11/M12.
-- [ ] Bakım bilgisi (ISO 3758 sembolleri): `product.care_info`, ürün formu, pasaport sayfası bölümü ve uyum skorunun ürün alanı (M6'dan ertelendi, `docs/m6-plan.md` §9 karar 9; snapshot `schemaVersion: 2`)
+- [x] Bakım bilgisi (ISO 3758 sembolleri) _Sonuç (PR #96–#98, Claude Design v1.0):_ `CareInfo` (beş grup, hassasiyet çizgileri, girildiği dilde not), ürün formunda bölüm, pasaportta "Bakım" bölümü, skor kartında bilgi notu (puan ve engel değil), snapshot `schemaVersion: 2` (sürüm 1 snapshot'lar aynen okunuyor). Semboller GINETEX kopyası olmayan çizgi ikonlar. İlgili kişi ekranları da v1.0'a göre düzeltildi (PR #99).
 **Kabul:** Demo senaryosu baştan sona hatasız, internet yavaşken bile çalışıyor.
 
 ### M11 — Çok dil ve Excel
