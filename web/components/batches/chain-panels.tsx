@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { type ChainStep, useAssignSupplier } from "@/lib/api/batches";
 import { type PanelBatch, StepLine, StepPanel } from "./step-panel";
 import { type SupplierResponse, useSuppliers } from "@/lib/api/suppliers";
-import { canWriteCatalog } from "@/lib/auth/permissions";
+import { canManageSuppliers, canWriteCatalog } from "@/lib/auth/permissions";
 import { useSession } from "@/lib/auth/use-session";
 import { formatUpdated } from "@/lib/format";
 import type { ChainNodeStep } from "./supply-chain";
@@ -82,6 +82,8 @@ function AssignSupplierPanel({ batchId, step, onDone }: { batchId: string; step:
   const locale = useLocale();
   const session = useSession();
   const canWrite = session.status === "authenticated" && canWriteCatalog(session.user.role);
+  // Assigning is an EDITOR's job; adding a new firm to the network is OWNER's and ADMIN's (M12).
+  const canAddSupplier = session.status === "authenticated" && canManageSuppliers(session.user.role);
   const supplierType = SUPPLIER_TYPE[step.stepType]!;
   const typeName = tType(supplierType);
   const typeInText = locale === "de" ? typeName : typeName.toLocaleLowerCase(locale);
@@ -152,7 +154,7 @@ function AssignSupplierPanel({ batchId, step, onDone }: { batchId: string; step:
           </div>
         )}
         <GuardedButton
-          allowed={canWrite}
+          allowed={canAddSupplier}
           variant="ghost"
           tooltipSide="top"
           tooltipAlign="center"

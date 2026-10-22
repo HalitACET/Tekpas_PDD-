@@ -1,11 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { canWriteCatalog, supplierRedirect } from "./permissions";
+import { canManageSuppliers, canWriteCatalog, supplierRedirect } from "./permissions";
 
 describe("canWriteCatalog", () => {
   it("lets owners, admins and editors write, viewers and suppliers not", () => {
     expect(["OWNER", "ADMIN", "EDITOR"].every((r) => canWriteCatalog(r as never))).toBe(true);
     expect(canWriteCatalog("VIEWER")).toBe(false);
     expect(canWriteCatalog("SUPPLIER")).toBe(false);
+  });
+});
+
+describe("canManageSuppliers", () => {
+  it("lets only owners and admins change the supplier network (PLAN §2); editors assign suppliers", () => {
+    expect(canManageSuppliers("OWNER")).toBe(true);
+    expect(canManageSuppliers("ADMIN")).toBe(true);
+    expect(["EDITOR", "VIEWER", "SUPPLIER"].some((r) => canManageSuppliers(r as never))).toBe(false);
   });
 });
 

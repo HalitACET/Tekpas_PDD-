@@ -2,7 +2,7 @@ package com.tekpas.company;
 
 import com.tekpas.common.security.CurrentUser;
 import com.tekpas.common.security.ReadAccess;
-import com.tekpas.common.security.WriteAccess;
+import com.tekpas.common.security.ReviewAccess;
 import com.tekpas.common.web.PageQuery;
 import com.tekpas.common.web.PageResponse;
 import com.tekpas.company.dto.SupplierCreateRequest;
@@ -70,25 +70,25 @@ public class SupplierController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    @WriteAccess
+    @ReviewAccess
     @Operation(operationId = "createSupplier", summary = "Add a supplier to the network",
             description = "Creates a supplier company without users, owned by the current company for editing.")
     @ApiResponse(responseCode = "201", description = "Created")
     @ApiResponse(responseCode = "400", description = "Validation failed (e.g. SupplierType, Pattern on phone)")
-    @ApiResponse(responseCode = "403", description = "Read-only or supplier user")
+    @ApiResponse(responseCode = "403", description = "Only OWNER and ADMIN manage the supplier network")
     public ResponseEntity<SupplierResponse> createSupplier(@Valid @RequestBody SupplierCreateRequest request) {
         SupplierResponse created = service.create(currentUser.companyId(), request);
         return ResponseEntity.created(URI.create("/api/v1/suppliers/" + created.id())).body(created);
     }
 
     @PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @WriteAccess
+    @ReviewAccess
     @Operation(operationId = "updateSupplier", summary = "Change a supplier",
             description = "The phone can always change; name, type and city only for a supplier the current "
                     + "company created and that has no users.")
     @ApiResponse(responseCode = "200", description = "Updated")
     @ApiResponse(responseCode = "400", description = "Validation failed")
-    @ApiResponse(responseCode = "403", description = "Read-only or supplier user")
+    @ApiResponse(responseCode = "403", description = "Only OWNER and ADMIN manage the supplier network")
     @ApiResponse(responseCode = "404", description = "Not in this company's network")
     @ApiResponse(responseCode = "409", description = "SUPPLIER_NOT_EDITABLE, or SUPPLIER_TYPE_IN_USE for a type change")
     public SupplierResponse updateSupplier(@PathVariable UUID id, @Valid @RequestBody SupplierUpdateRequest request) {
@@ -96,10 +96,10 @@ public class SupplierController {
     }
 
     @DeleteMapping("/{id}")
-    @WriteAccess
+    @ReviewAccess
     @Operation(operationId = "removeSupplier", summary = "Remove a supplier from the network")
     @ApiResponse(responseCode = "204", description = "Removed")
-    @ApiResponse(responseCode = "403", description = "Read-only or supplier user")
+    @ApiResponse(responseCode = "403", description = "Only OWNER and ADMIN manage the supplier network")
     @ApiResponse(responseCode = "404", description = "Not in this company's network")
     @ApiResponse(responseCode = "409", description = "Used in a supply chain (reason SUPPLIER_IN_USE)")
     public ResponseEntity<Void> removeSupplier(@PathVariable UUID id) {

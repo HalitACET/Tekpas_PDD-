@@ -5417,7 +5417,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ApiProblem"];
                 };
             };
-            /** @description Read-only or supplier user */
+            /** @description Only OWNER and ADMIN manage the supplier network */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5486,7 +5486,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Read-only or supplier user */
+            /** @description Only OWNER and ADMIN manage the supplier network */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5548,7 +5548,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ApiProblem"];
                 };
             };
-            /** @description Read-only or supplier user */
+            /** @description Only OWNER and ADMIN manage the supplier network */
             403: {
                 headers: {
                     [name: string]: unknown;

@@ -369,5 +369,20 @@ class SupplierApiTest {
             assertThat(fixtures.patch(viewer, uri, Map.of("phone", "+905000000000"))).hasStatus(403);
             assertThat(fixtures.delete(viewer, uri)).hasStatus(403);
         }
+
+        @Test
+        void editorsReadTheNetworkButOnlyOwnersAndAdminsChangeIt() {
+            Tenant owner = fixtures.tenant();
+            String uri = SUPPLIERS + "/" + create(owner, "Bursa İplik San.", "YARN").path("id").asString();
+            Tenant editor = fixtures.member(owner, UserRole.EDITOR);
+            Tenant admin = fixtures.member(owner, UserRole.ADMIN);
+
+            assertThat(fixtures.get(editor, SUPPLIERS)).hasStatusOk();
+            assertThat(fixtures.get(editor, uri)).hasStatusOk();
+            assertThat(fixtures.post(editor, SUPPLIERS, supplier("X", "YARN"))).hasStatus(403);
+            assertThat(fixtures.patch(editor, uri, Map.of("phone", "+905000000000"))).hasStatus(403);
+            assertThat(fixtures.delete(editor, uri)).hasStatus(403);
+            assertThat(fixtures.patch(admin, uri, Map.of("phone", "+905000000000"))).hasStatusOk();
+        }
     }
 }

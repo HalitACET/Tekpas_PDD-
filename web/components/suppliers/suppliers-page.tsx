@@ -9,7 +9,7 @@ import { EmptyState, FilteredEmpty, ListError, TableSkeleton } from "@/component
 import { ServerWakeStrip, useListWake } from "@/components/common/server-wake";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { type SupplierResponse, useSuppliers } from "@/lib/api/suppliers";
-import { canWriteCatalog } from "@/lib/auth/permissions";
+import { canManageSuppliers } from "@/lib/auth/permissions";
 import { queryKeys } from "@/lib/query-keys";
 import { useSession } from "@/lib/auth/use-session";
 import { RemoveSupplierDialog } from "./remove-supplier-dialog";
@@ -35,7 +35,7 @@ export function SuppliersPage() {
   const tCommon = useTranslations("common");
   const tType = useTranslations("enums.companyType");
   const session = useSession();
-  const canWrite = session.status === "authenticated" && canWriteCatalog(session.user.role);
+  const canWrite = session.status === "authenticated" && canManageSuppliers(session.user.role);
 
   const [q, setQ] = useState("");
   const [type, setType] = useState<SupplierType | "">("");
