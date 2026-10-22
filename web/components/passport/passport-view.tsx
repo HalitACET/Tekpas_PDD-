@@ -1,8 +1,9 @@
 import { CARE_CATEGORIES, type CareInfoValues, type Fiber, type StepType } from "@tekpas/shared";
-import { Check, CircleAlert, Clock } from "lucide-react";
+import { Check, CircleAlert, Clock, Globe } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { factsOf, type FactText } from "@/lib/passport/facts";
+import { passportTexts, type ShownText } from "@/lib/passport/translations";
 import type { PassportSnapshot, SnapshotCertificate, SnapshotStep } from "@/lib/passport/types";
 import {
   certificateName,
@@ -65,6 +66,9 @@ export function PassportView({ snapshot, mode, verificationCode, today, host }: 
   const { passport, manufacturer, product } = snapshot;
 
   const regions = new Intl.DisplayNames([locale], { type: "region" });
+  const languages = new Intl.DisplayNames([locale], { type: "language" });
+  const languageName = (code: string) => languages.of(code) ?? code;
+  const texts = passportTexts(snapshot, locale);
   const day = (iso: string, withYear = true) =>
     new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: withYear ? "numeric" : undefined, timeZone: "UTC" }).format(
       new Date(`${iso.slice(0, 10)}T00:00:00Z`),
@@ -95,7 +99,8 @@ export function PassportView({ snapshot, mode, verificationCode, today, host }: 
     },
   };
 
-  const stages = groupStages(snapshot.supplyChain);
+  const chain = snapshot.supplyChain.map(texts.step);
+  const stages = groupStages(chain);
   const stageViews: StageView[] = stages.map((stage, index) => {
     const first = stage.steps[0];
     const merge = stage.steps.length > 1;
@@ -137,7 +142,11 @@ export function PassportView({ snapshot, mode, verificationCode, today, host }: 
 
   const fibers = product.fiberComposition ?? [];
   const fabric = snapshot.supplyChain.find((s) => s.type === "FABRIC" && s.approved && s.data?.fabricType);
-  const fabricFacts = fabric ? factsOf(fabric, locale, text).filter((f) => f.key === "fabric") : [];
+  const fabricFacts = fabric ? factsOf(texts.step(fabric), locale, text).filter((f) => f.key === "fabric") : [];
+  const fabricType = fabric?.data?.fabricType ? texts.shown(`${fabric.key}.fabricType`, fabric.data.fabricType) : undefined;
+  const description = product.description ? texts.shown("product.description", product.description) : undefined;
+  const care = (product.care as CareInfoValues | null | undefined) ?? null;
+  const careNote = care?.note ? texts.shown("product.care.note", care.note, care.noteLanguage ?? "tr") : undefined;
   const mix = energyMix(snapshot.supplyChain);
   const figures = metrics(snapshot.supplyChain);
   const number = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value);
@@ -178,6 +187,16 @@ export function PassportView({ snapshot, mode, verificationCode, today, host }: 
           {chip.icon}
           <span className="min-w-0">{chip.text}</span>
         </span>
+        {description && (
+          <div className="mt-1.5 flex max-w-[640px] flex-col gap-1">
+            <span className="text-[13px] font-medium text-muted-foreground">
+              {description.original ? t("descriptionIn", { language: languageName(description.language) }) : t("description")}
+            </span>
+            <p lang={description.language} className="m-0 text-[17px] leading-[1.55] text-pretty">
+              {description.text}
+            </p>
+          </div>
+        )}
       </section>
 
       {fibers.length > 0 && (
@@ -210,7 +229,14 @@ export function PassportView({ snapshot, mode, verificationCode, today, host }: 
                 <span className="text-sm font-medium">{t("matSub")}</span>
                 <dl className="m-0 grid grid-cols-[fit-content(45%)_minmax(0,1fr)] gap-x-3.5 gap-y-1.5 text-sm">
                   <dt className="text-muted-foreground">{t("mainFabric")}</dt>
-                  <dd className="m-0">{fabricFacts[0].value}</dd>
+                  <dd className="m-0 flex min-w-0 flex-col gap-0.5">
+                    <span>{fabricFacts[0].value}</span>
+                    {fabricType?.original && (
+                      <span className="text-xs text-muted-foreground">
+                        {t("fabricTypeIn", { language: languageName(fabricType.language), text: fabricType.text })}
+                      </span>
+                    )}
+                  </dd>
                 </dl>
               </div>
             )}
@@ -218,7 +244,7 @@ export function PassportView({ snapshot, mode, verificationCode, today, host }: 
         </section>
       )}
 
-      <CareSection care={(product.care as CareInfoValues | null | undefined) ?? null} />
+      <CareSection care={care} note={careNote} noteLabel={careNote?.original ? t("careNoteIn", { language: languageName(careNote.language) }) : t("careNote")} />
 
       <section aria-labelledby="h-chain" className="flex flex-col gap-3.5">
         <div className="flex flex-col gap-1">
@@ -321,6 +347,13 @@ export function PassportView({ snapshot, mode, verificationCode, today, host }: 
         </dl>
         <span className="text-[13px] leading-normal text-pretty text-muted-foreground">{t("codeNote")}</span>
       </section>
+
+      {texts.aiAssisted && (
+        <p className="m-0 flex items-start gap-2 text-[13px] leading-normal text-pretty text-muted-foreground">
+          <Globe className="mt-0.5 size-[15px] flex-none" strokeWidth={1.75} aria-hidden />
+          <span>{t("aiTranslated")}</span>
+        </p>
+      )}
     </>
   );
 }
@@ -410,20 +443,14 @@ function CertificateSection({
 
 /**
  * Design v1.0 121a–g: the care instructions as frozen in the version, one symbol and its sentence per group in
- * label order, and the manufacturer's note in the language it was written in. No section without instructions
- * (and none in a version 1 snapshot, which predates them).
+ * label order, and the manufacturer's note in the page's language when a translation was approved (v1.1 141), else in
+ * the language it was written in. No section without instructions (and none in a version 1 snapshot, which predates them).
  */
-function CareSection({ care }: { care: CareInfoValues | null }) {
+function CareSection({ care, note, noteLabel }: { care: CareInfoValues | null; note?: ShownText; noteLabel: string }) {
   const t = useTranslations("passport");
-  const locale = useLocale();
   if (!care) return null;
   const items = CARE_CATEGORIES.flatMap((c) => (care[c] ? [care[c]] : []));
-  if (items.length === 0 && !care.note) return null;
-  const noteLanguage = care.noteLanguage ?? "tr";
-  const noteLabel =
-    noteLanguage === locale
-      ? t("careNote")
-      : t("careNoteIn", { language: new Intl.DisplayNames([locale], { type: "language" }).of(noteLanguage) ?? noteLanguage });
+  if (items.length === 0 && !note) return null;
   return (
     <section aria-labelledby="h-care" className="flex flex-col gap-3.5">
       <h2 id="h-care" className={H2}>
@@ -444,11 +471,11 @@ function CareSection({ care }: { care: CareInfoValues | null }) {
             ))}
           </ul>
         )}
-        {care.note && (
+        {note && (
           <div className={`flex flex-col gap-1 ${items.length > 0 ? "border-t border-story-border pt-3.5" : ""}`}>
             <span className="text-[13px] font-medium text-muted-foreground">{noteLabel}</span>
-            <p lang={noteLanguage} className="m-0 text-[15px] leading-normal text-pretty">
-              {care.note}
+            <p lang={note.language} className="m-0 text-[15px] leading-normal text-pretty">
+              {note.text}
             </p>
           </div>
         )}

@@ -1,5 +1,6 @@
 package com.tekpas.passport.translation;
 
+import com.tekpas.ai.LlmBudget;
 import com.tekpas.ai.LlmGate;
 import com.tekpas.batch.Batch;
 import com.tekpas.batch.BatchRepository;
@@ -47,6 +48,11 @@ public class PassportTranslations {
             .thenComparingInt(SupplyStep::getSortOrder).thenComparing(SupplyStep::getCreatedAt)
             .thenComparing(SupplyStep::getId);
 
+    /** Today's LLM calls are used up: a 409 of suggest, and how a queued suggestion can end. */
+    public static final String LIMIT_REACHED = "AI_LIMIT_REACHED";
+    /** The LLM did not answer usably; nothing was changed. */
+    public static final String SUGGESTION_FAILED = "SUGGESTION_FAILED";
+
     /** What the suggestion job carries. */
     public record Payload(UUID companyId, UUID batchId) {
     }
@@ -66,17 +72,19 @@ public class PassportTranslations {
     private final SupplyStepRepository steps;
     private final TranslationStore store;
     private final LlmGate gate;
+    private final LlmBudget budget;
     private final JobQueue queue;
     private final JdbcTemplate jdbc;
     private final Clock clock;
 
     public PassportTranslations(BatchRepository batches, ProductRepository products, SupplyStepRepository steps,
-            TranslationStore store, LlmGate gate, JobQueue queue, JdbcTemplate jdbc, Clock clock) {
+            TranslationStore store, LlmGate gate, LlmBudget budget, JobQueue queue, JdbcTemplate jdbc, Clock clock) {
         this.batches = batches;
         this.products = products;
         this.steps = steps;
         this.store = store;
         this.gate = gate;
+        this.budget = budget;
         this.queue = queue;
         this.jdbc = jdbc;
         this.clock = clock;
@@ -94,7 +102,8 @@ public class PassportTranslations {
                                     !s.freshFor(text), s.approvedFor(text) ? s.approvedAt() : null,
                                     s.approvedFor(text) ? s.approvedByName() : null);
                 }).toList())).toList();
-        return new TranslationsResponse(gate.opensFor(companyId), suggesting(batchId), fields);
+        Suggestion last = lastSuggestion(batchId);
+        return new TranslationsResponse(gate.opensFor(companyId), last.running(), last.failure(), fields);
     }
 
     /** Queues one AI suggestion for the texts without an approved or hand-written translation. */
@@ -108,9 +117,12 @@ public class PassportTranslations {
         if (loaded.texts().isEmpty()) {
             throw ConflictException.state("NOTHING_TO_TRANSLATE", "The batch's passport has no free text to translate");
         }
+        if (budget.exhausted()) {
+            throw ConflictException.state(LIMIT_REACHED, "Today's AI limit is reached; suggest again tomorrow");
+        }
         queue.enqueueUnlessQueued(JobType.AI_TRANSLATE_PASSPORT, new Payload(companyId, batchId));
         TranslationsResponse now = get(companyId, batchId);
-        return new TranslationsResponse(now.aiAvailable(), true, now.fields());
+        return new TranslationsResponse(now.aiAvailable(), true, null, now.fields());
     }
 
     @Transactional
@@ -200,10 +212,24 @@ public class PassportTranslations {
         return new Loaded(TranslatableText.of(product, chain), store.of(companyId, batch.getId()));
     }
 
-    private boolean suggesting(UUID batchId) {
-        return Boolean.TRUE.equals(jdbc.queryForObject("""
-                SELECT EXISTS (SELECT 1 FROM job WHERE type = 'AI_TRANSLATE_PASSPORT' AND status IN ('QUEUED', 'RUNNING')
-                               AND payload->>'batchId' = ?)
-                """, Boolean.class, batchId.toString()));
+    /** Where the batch's latest suggestion stands: running, or how it failed (null when it worked or never ran). */
+    private record Suggestion(boolean running, @Nullable String failure) {
+    }
+
+    private Suggestion lastSuggestion(UUID batchId) {
+        return jdbc.query("""
+                SELECT status, last_error FROM job WHERE type = 'AI_TRANSLATE_PASSPORT' AND payload->>'batchId' = ?
+                ORDER BY id DESC LIMIT 1
+                """, rs -> {
+            if (!rs.next()) {
+                return new Suggestion(false, null);
+            }
+            return switch (rs.getString("status")) {
+                case "QUEUED", "RUNNING" -> new Suggestion(true, null);
+                case "FAILED", "DEAD" -> new Suggestion(false,
+                        LIMIT_REACHED.equals(rs.getString("last_error")) ? LIMIT_REACHED : SUGGESTION_FAILED);
+                default -> new Suggestion(false, null);
+            };
+        }, batchId.toString());
     }
 }

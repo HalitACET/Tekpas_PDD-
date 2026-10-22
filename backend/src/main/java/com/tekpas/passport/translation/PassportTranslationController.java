@@ -53,8 +53,8 @@ public class PassportTranslationController {
     @ApiResponse(responseCode = "202", description = "Queued")
     @ApiResponse(responseCode = "403", description = "Only OWNER and ADMIN")
     @ApiResponse(responseCode = "404", description = "No such batch in this company")
-    @ApiResponse(responseCode = "409", description = "AI_NOT_AVAILABLE (not a demo company or the LLM is off) or "
-            + "NOTHING_TO_TRANSLATE")
+    @ApiResponse(responseCode = "409", description = "AI_NOT_AVAILABLE (not a demo company or the LLM is off), "
+            + "NOTHING_TO_TRANSLATE or AI_LIMIT_REACHED (today's AI calls are used up)")
     public ResponseEntity<TranslationsResponse> suggestTranslations(@PathVariable UUID id) {
         return ResponseEntity.accepted().body(service.suggest(currentUser.companyId(), id));
     }

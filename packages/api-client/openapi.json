@@ -2640,6 +2640,9 @@
           },
           "suggesting" : {
             "type" : "boolean"
+          },
+          "suggestionFailure" : {
+            "type" : [ "string", "null" ]
           }
         },
         "required" : [ "aiAvailable", "fields", "suggesting" ],
@@ -4081,7 +4084,7 @@
                 }
               }
             },
-            "description" : "AI_NOT_AVAILABLE (not a demo company or the LLM is off) or NOTHING_TO_TRANSLATE"
+            "description" : "AI_NOT_AVAILABLE (not a demo company or the LLM is off), NOTHING_TO_TRANSLATE or AI_LIMIT_REACHED (today's AI calls are used up)"
           }
         },
         "summary" : "Ask the AI for translations (demo companies only)",
