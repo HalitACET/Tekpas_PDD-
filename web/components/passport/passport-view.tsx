@@ -1,4 +1,4 @@
-import type { Fiber, StepType } from "@tekpas/shared";
+import { CARE_CATEGORIES, type CareInfoValues, type Fiber, type StepType } from "@tekpas/shared";
 import { Check, CircleAlert, Clock } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
@@ -15,6 +15,7 @@ import {
   hasEnvironmentalData,
   metrics,
 } from "@/lib/passport/view";
+import { CareSymbolIcon } from "@/components/care/care-symbol";
 import { formatPercent } from "@/lib/format";
 import { CopyCode } from "./copy-code";
 import { StageList, type StageView } from "./stage-list";
@@ -217,6 +218,8 @@ export function PassportView({ snapshot, mode, verificationCode, today, host }: 
         </section>
       )}
 
+      <CareSection care={(product.care as CareInfoValues | null | undefined) ?? null} />
+
       <section aria-labelledby="h-chain" className="flex flex-col gap-3.5">
         <div className="flex flex-col gap-1">
           <h2 id="h-chain" className={H2}>
@@ -400,6 +403,55 @@ function CertificateSection({
             </article>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Design v1.0 121a–g: the care instructions as frozen in the version, one symbol and its sentence per group in
+ * label order, and the manufacturer's note in the language it was written in. No section without instructions
+ * (and none in a version 1 snapshot, which predates them).
+ */
+function CareSection({ care }: { care: CareInfoValues | null }) {
+  const t = useTranslations("passport");
+  const locale = useLocale();
+  if (!care) return null;
+  const items = CARE_CATEGORIES.flatMap((c) => (care[c] ? [care[c]] : []));
+  if (items.length === 0 && !care.note) return null;
+  const noteLanguage = care.noteLanguage ?? "tr";
+  const noteLabel =
+    noteLanguage === locale
+      ? t("careNote")
+      : t("careNoteIn", { language: new Intl.DisplayNames([locale], { type: "language" }).of(noteLanguage) ?? noteLanguage });
+  return (
+    <section aria-labelledby="h-care" className="flex flex-col gap-3.5">
+      <h2 id="h-care" className={H2}>
+        {t("care")}
+      </h2>
+      <div className={`${CARD} flex flex-col gap-4 p-[18px]`}>
+        {items.length > 0 && (
+          <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(100%,92px),1fr))] gap-x-3 gap-y-[18px] p-0 @min-[600px]:grid-cols-[repeat(auto-fill,minmax(min(100%,112px),1fr))]">
+            {items.map((item) => (
+              <li key={item.symbol} className="flex min-w-0 flex-col items-center gap-2 text-center">
+                <span className="flex size-14 items-center justify-center rounded-xl border border-story-border bg-story text-foreground">
+                  <CareSymbolIcon symbol={item.symbol} gentleness={item.gentleness ?? "NORMAL"} size={36} />
+                </span>
+                <span className="text-sm leading-[1.35] text-balance">
+                  {t(`careText.${item.symbol}`, { gentleness: item.gentleness ?? "NORMAL" })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {care.note && (
+          <div className={`flex flex-col gap-1 ${items.length > 0 ? "border-t border-story-border pt-3.5" : ""}`}>
+            <span className="text-[13px] font-medium text-muted-foreground">{noteLabel}</span>
+            <p lang={noteLanguage} className="m-0 text-[15px] leading-normal text-pretty">
+              {care.note}
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );
