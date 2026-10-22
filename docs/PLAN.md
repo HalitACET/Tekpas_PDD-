@@ -256,6 +256,7 @@ Plan: `docs/m10-plan.md` (görevler T1–T12, gerçekçi demo verisi, kullanıc�
 **Kabul:** Demo senaryosu baştan sona hatasız, internet yavaşken bile çalışıyor.
 
 ### M11 — Çok dil ve Excel
+Plan: `docs/m11-plan.md` (çeviri taslağı ve onay, snapshot `schemaVersion: 3`, ürünler için Excel içe aktarma, kararlar). Tasarım brifi: `docs/m11-tasarim-brifi.md` → Claude Design v1.1. Excel kütüphanesi kararı (fastexcel, POI değil) kullanıcı onayı bekliyor.
 - [ ] Yayında AI ile EN / DE çeviri (snapshot içine), dil seçici
 - [ ] Pasaport metinlerinin Almancası (ve arayüzün EN/DE çevirileri) anadili Almanca/İngilizce biri tarafından kontrol edilecek (`web/messages/README.md`)
 - [ ] Excel şablonu indir → doldur → yükle → satır bazlı hata raporu
