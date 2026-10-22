@@ -86,6 +86,16 @@ class AccessLogTest {
         }
 
         @Test
+        void publicRequestsNameVercelsIpHeadersButNeverAnAddress(CapturedOutput output) {
+            fixtures.mvc().get().uri("/api/v1/public/requests/" + TOKEN).header("X-Forwarded-For", "203.0.113.7")
+                    .header("x-real-ip", "203.0.113.7").exchange();
+            fixtures.mvc().get().uri("/api/v1/public/requests/" + TOKEN).exchange();
+
+            assertThat(output.getOut()).containsPattern("GET /api/v1/public/requests/\\*\\*\\* \\d+ \\d+ms xff=1 vercel=x-real-ip")
+                    .containsPattern("xff=0 vercel=none").doesNotContain("203.0.113.7");
+        }
+
+        @Test
         void healthChecksAreNotLogged(CapturedOutput output) {
             fixtures.mvc().get().uri("/actuator/health/liveness").exchange();
             fixtures.mvc().get().uri("/actuator/health").exchange();
