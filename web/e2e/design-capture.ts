@@ -34,7 +34,7 @@ export function serveDesign(dir: string) {
 }
 
 /**
- * Opens a design canvas and saves each top-level frame ("NN …" or "NNa …") listed in `frames`, light and dark
+ * Opens a design canvas and saves each top-level frame ("NN …", "NNa …" or "NNNa …") listed in `frames`, light and dark
  * side by side in the canvas, as `<out>/design-NN-<theme>.png`. Skips the test when the canvas cannot load
  * React from unpkg.com.
  */
@@ -62,7 +62,7 @@ export async function captureDesignFrames(page: Page, url: string, out: string, 
   // Top-level frames only; the panels inside carry labels of their own.
   const found = await page.$$eval("[data-screen-label]", (els) =>
     els
-      .map((e) => /^(\d\d[a-z]?) /.exec(e.getAttribute("data-screen-label") ?? "")?.[1])
+      .map((e) => /^(\d{2,3}[a-z]?) /.exec(e.getAttribute("data-screen-label") ?? "")?.[1])
       .flatMap((n, i) => {
         if (!n) return [];
         els[i].setAttribute("data-cap", n);

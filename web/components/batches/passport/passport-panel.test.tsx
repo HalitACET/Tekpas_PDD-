@@ -190,6 +190,24 @@ describe("ScoreCard", () => {
     expect(screen.queryByRole("link", { name: /engelleyici/ })).not.toBeInTheDocument();
   });
 
+  it("notes missing care instructions without a blocker; only catalog writers can open the product (v1.0 120d)", () => {
+    const missing = card({ ...ready, careInstructionsMissing: true });
+
+    expect(screen.getByRole("button", { name: /Bakım talimatı eksik/ })).toHaveTextContent("skoru ve yayını etkilemez");
+    expect(screen.queryByText("Yayın engelleri")).not.toBeInTheDocument();
+    missing.unmount();
+
+    state.role = "VIEWER";
+    card({ ...ready, careInstructionsMissing: true });
+    expect(screen.getByText("Bakım talimatı eksik")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Bakım talimatı eksik/ })).not.toBeInTheDocument();
+  });
+
+  it("shows nothing about care when the product has instructions", () => {
+    card(ready);
+    expect(screen.queryByText("Bakım talimatı eksik")).not.toBeInTheDocument();
+  });
+
   it("shows the published version, the score it had and 'Yayında'", () => {
     state.versions = [{ id: "pp1", status: "PUBLISHED", publishedAt: "2026-10-28T09:00:00Z" }];
     card(ready, batch({ status: "PUBLISHED", passport: { version: 2, score: 94, withdrawn: false } }));

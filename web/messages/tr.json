@@ -377,6 +377,36 @@
       "TECH_SHEET": "Teknik föy",
       "OTHER": "Diğer belge",
       "UNKNOWN": "Tür belirlenmedi"
+    },
+    "careSymbol": {
+      "WASH_30": "30 °C",
+      "WASH_40": "40 °C",
+      "WASH_60": "60 °C",
+      "WASH_95": "95 °C",
+      "HAND_WASH": "Elde yıkama",
+      "DO_NOT_WASH": "Yıkanmaz",
+      "BLEACH_ANY": "Her türlü ağartıcı",
+      "BLEACH_OXYGEN_ONLY": "Yalnızca oksijenli ağartıcı",
+      "DO_NOT_BLEACH": "Ağartılmaz",
+      "TUMBLE_DRY_LOW": "Tamburda düşük ısı",
+      "TUMBLE_DRY_NORMAL": "Tamburda normal ısı",
+      "DO_NOT_TUMBLE_DRY": "Tamburda kurutulmaz",
+      "LINE_DRY": "Asarak kurutma",
+      "DRY_FLAT": "Düz serip kurutma",
+      "DRY_IN_SHADE": "Gölgede kurutma",
+      "IRON_LOW": "Düşük ısı · 110 °C",
+      "IRON_MEDIUM": "Orta ısı · 150 °C",
+      "IRON_HIGH": "Yüksek ısı · 200 °C",
+      "DO_NOT_IRON": "Ütülenmez",
+      "DRY_CLEAN_P": "Kuru temizleme P",
+      "DRY_CLEAN_F": "Kuru temizleme F",
+      "WET_CLEAN": "Profesyonel ıslak temizleme W",
+      "DO_NOT_PROFESSIONAL_CLEAN": "Profesyonel temizleme yapılmaz"
+    },
+    "gentleness": {
+      "NORMAL": "Normal",
+      "GENTLE": "Hassas",
+      "VERY_GENTLE": "Çok hassas"
     }
   },
   "errors": {
@@ -497,7 +527,29 @@
       },
       "saveFailed": "Ürün kaydedilemedi",
       "nameRequired": "Ürün adı gerekli",
-      "errorCount": "{count} alanda hata var"
+      "errorCount": "{count} alanda hata var",
+      "care": {
+        "title": "Bakım talimatı",
+        "hint": "İsteğe bağlı · her kategoride bir seçim",
+        "empty": "Bakım talimatı girilmedi",
+        "emptyHint": "Pasaportta bu bölüm görünmez.",
+        "published": "{count} partisi yayında.",
+        "publishedBody": "Bakım bilgisindeki değişiklik yayındaki pasaportları değiştirmez; partinin yeni sürümü yayınlanınca girer.",
+        "clear": "Temizle",
+        "none": "Seçilmedi",
+        "chosen": "{name}{gentleness, select, GENTLE {, hassas} VERY_GENTLE {, çok hassas} other {}}",
+        "categories": {
+          "washing": "Yıkama",
+          "bleaching": "Ağartma",
+          "drying": "Kurutma",
+          "ironing": "Ütüleme",
+          "professional": "Profesyonel"
+        },
+        "note": "Bakım notu",
+        "noteHint": "İsteğe bağlı · girildiği dilde gösterilir, çevrilmez",
+        "notePlaceholder": "örn. Ters çevirerek yıkayın",
+        "noteCount": "{count}/200"
+      }
     },
     "delete": {
       "blockedTitle": "Ürün silinemez",
@@ -1243,7 +1295,35 @@
     "checkCode": "Doğrulama kodu",
     "versionCurrent": "Güncel · Sürüm {version}",
     "versionPreview": "Henüz yayınlanmadı",
-    "metaDescription": "{product}: lif bileşimi, tedarik zinciri ve sertifikalar. Üretici: {maker}."
+    "metaDescription": "{product}: lif bileşimi, tedarik zinciri ve sertifikalar. Üretici: {maker}.",
+    "care": "Bakım",
+    "careNote": "Üreticinin notu",
+    "careNoteIn": "Üreticinin notu · {language}",
+    "careText": {
+      "WASH_30": "30 °C’de yıkayın{gentleness, select, GENTLE {, hassas program} VERY_GENTLE {, çok hassas program} other {}}",
+      "WASH_40": "40 °C’de yıkayın{gentleness, select, GENTLE {, hassas program} VERY_GENTLE {, çok hassas program} other {}}",
+      "WASH_60": "60 °C’de yıkayın{gentleness, select, GENTLE {, hassas program} VERY_GENTLE {, çok hassas program} other {}}",
+      "WASH_95": "95 °C’de yıkayın{gentleness, select, GENTLE {, hassas program} VERY_GENTLE {, çok hassas program} other {}}",
+      "HAND_WASH": "Elde yıkayın",
+      "DO_NOT_WASH": "Yıkamayın",
+      "BLEACH_ANY": "Her türlü ağartıcı kullanılabilir",
+      "BLEACH_OXYGEN_ONLY": "Yalnızca oksijenli ağartıcı kullanın",
+      "DO_NOT_BLEACH": "Ağartıcı kullanmayın",
+      "TUMBLE_DRY_LOW": "Tamburda düşük ısıda kurutun",
+      "TUMBLE_DRY_NORMAL": "Tamburda normal ısıda kurutun",
+      "DO_NOT_TUMBLE_DRY": "Tamburda kurutmayın",
+      "LINE_DRY": "Asarak kurutun",
+      "DRY_FLAT": "Düz serip kurutun",
+      "DRY_IN_SHADE": "Gölgede kurutun",
+      "IRON_LOW": "Düşük ısıda ütüleyin (110 °C)",
+      "IRON_MEDIUM": "Orta ısıda ütüleyin (150 °C)",
+      "IRON_HIGH": "Yüksek ısıda ütüleyin (200 °C)",
+      "DO_NOT_IRON": "Ütülemeyin",
+      "DO_NOT_PROFESSIONAL_CLEAN": "Profesyonel temizleme yapılmasın",
+      "DRY_CLEAN_P": "{gentleness, select, GENTLE {Hassas kuru temizleme (P)} other {Kuru temizleme (P)}}",
+      "DRY_CLEAN_F": "{gentleness, select, GENTLE {Hassas kuru temizleme (F)} other {Kuru temizleme (F)}}",
+      "WET_CLEAN": "{gentleness, select, GENTLE {Hassas profesyonel ıslak temizleme (W)} other {Profesyonel ıslak temizleme (W)}}"
+    }
   },
   "publishing": {
     "scoreTitle": "Uyum skoru",
@@ -1371,7 +1451,9 @@
     "barPreviewSub": "Yayınlanmış gibi görünür; hiçbir şey kaydedilmez",
     "barBackToBatch": "Partiye dön",
     "loadFailed": "Pasaport yüklenemedi",
-    "listScoreNote": "Çizgi %90 yayın eşiğidir. Yayındaki partilerde yayın anındaki skor gösterilir."
+    "listScoreNote": "Çizgi %90 yayın eşiğidir. Yayındaki partilerde yayın anındaki skor gösterilir.",
+    "careMissing": "Bakım talimatı eksik",
+    "careMissingBody": "Ürün alanı · skoru ve yayını etkilemez. Girilmezse pasaportta Bakım bölümü görünmez."
   },
   "documents": {
     "pick": {

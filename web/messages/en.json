@@ -377,6 +377,36 @@
       "TECH_SHEET": "Technical sheet",
       "OTHER": "Other document",
       "UNKNOWN": "Type not determined"
+    },
+    "careSymbol": {
+      "WASH_30": "30 °C",
+      "WASH_40": "40 °C",
+      "WASH_60": "60 °C",
+      "WASH_95": "95 °C",
+      "HAND_WASH": "Hand wash",
+      "DO_NOT_WASH": "Do not wash",
+      "BLEACH_ANY": "Any bleach",
+      "BLEACH_OXYGEN_ONLY": "Oxygen bleach only",
+      "DO_NOT_BLEACH": "Do not bleach",
+      "TUMBLE_DRY_LOW": "Tumble dry, low heat",
+      "TUMBLE_DRY_NORMAL": "Tumble dry, normal heat",
+      "DO_NOT_TUMBLE_DRY": "Do not tumble dry",
+      "LINE_DRY": "Line dry",
+      "DRY_FLAT": "Dry flat",
+      "DRY_IN_SHADE": "Dry in the shade",
+      "IRON_LOW": "Low heat · 110 °C",
+      "IRON_MEDIUM": "Medium heat · 150 °C",
+      "IRON_HIGH": "High heat · 200 °C",
+      "DO_NOT_IRON": "Do not iron",
+      "DRY_CLEAN_P": "Dry cleaning P",
+      "DRY_CLEAN_F": "Dry cleaning F",
+      "WET_CLEAN": "Professional wet cleaning W",
+      "DO_NOT_PROFESSIONAL_CLEAN": "No professional cleaning"
+    },
+    "gentleness": {
+      "NORMAL": "Normal",
+      "GENTLE": "Gentle",
+      "VERY_GENTLE": "Very gentle"
     }
   },
   "errors": {
@@ -497,7 +527,29 @@
       },
       "saveFailed": "The product could not be saved",
       "nameRequired": "Product name is required",
-      "errorCount": "{count, plural, one {# field has an error} other {# fields have errors}}"
+      "errorCount": "{count, plural, one {# field has an error} other {# fields have errors}}",
+      "care": {
+        "title": "Care instructions",
+        "hint": "Optional · one choice per group",
+        "empty": "No care instructions",
+        "emptyHint": "The passport shows no care section.",
+        "published": "{count, plural, one {# batch is} other {# batches are}} published.",
+        "publishedBody": "Changing the care instructions does not change published passports; they come in with the batch's next version.",
+        "clear": "Clear",
+        "none": "Not chosen",
+        "chosen": "{name}{gentleness, select, GENTLE {, gentle} VERY_GENTLE {, very gentle} other {}}",
+        "categories": {
+          "washing": "Washing",
+          "bleaching": "Bleaching",
+          "drying": "Drying",
+          "ironing": "Ironing",
+          "professional": "Professional"
+        },
+        "note": "Care note",
+        "noteHint": "Optional · shown in the language it is written in, not translated",
+        "notePlaceholder": "e.g. Wash inside out",
+        "noteCount": "{count}/200"
+      }
     },
     "delete": {
       "blockedTitle": "Product cannot be deleted",
@@ -1243,7 +1295,35 @@
     "checkCode": "Verification code",
     "versionCurrent": "Current · Version {version}",
     "versionPreview": "Not yet published",
-    "metaDescription": "{product}: fibre composition, supply chain and certificates. Manufacturer: {maker}."
+    "metaDescription": "{product}: fibre composition, supply chain and certificates. Manufacturer: {maker}.",
+    "care": "Care",
+    "careNote": "Manufacturer’s note",
+    "careNoteIn": "Manufacturer’s note · in {language}",
+    "careText": {
+      "WASH_30": "Wash at 30 °C{gentleness, select, GENTLE {, gentle cycle} VERY_GENTLE {, very gentle cycle} other {}}",
+      "WASH_40": "Wash at 40 °C{gentleness, select, GENTLE {, gentle cycle} VERY_GENTLE {, very gentle cycle} other {}}",
+      "WASH_60": "Wash at 60 °C{gentleness, select, GENTLE {, gentle cycle} VERY_GENTLE {, very gentle cycle} other {}}",
+      "WASH_95": "Wash at 95 °C{gentleness, select, GENTLE {, gentle cycle} VERY_GENTLE {, very gentle cycle} other {}}",
+      "HAND_WASH": "Hand wash only",
+      "DO_NOT_WASH": "Do not wash",
+      "BLEACH_ANY": "Any bleach may be used",
+      "BLEACH_OXYGEN_ONLY": "Use oxygen bleach only",
+      "DO_NOT_BLEACH": "Do not bleach",
+      "TUMBLE_DRY_LOW": "Tumble dry at low heat",
+      "TUMBLE_DRY_NORMAL": "Tumble dry at normal heat",
+      "DO_NOT_TUMBLE_DRY": "Do not tumble dry",
+      "LINE_DRY": "Line dry",
+      "DRY_FLAT": "Dry flat",
+      "DRY_IN_SHADE": "Dry in the shade",
+      "IRON_LOW": "Iron at low heat (110 °C)",
+      "IRON_MEDIUM": "Iron at medium heat (150 °C)",
+      "IRON_HIGH": "Iron at high heat (200 °C)",
+      "DO_NOT_IRON": "Do not iron",
+      "DO_NOT_PROFESSIONAL_CLEAN": "No professional cleaning",
+      "DRY_CLEAN_P": "{gentleness, select, GENTLE {Gentle professional dry cleaning (P)} other {Professional dry cleaning (P)}}",
+      "DRY_CLEAN_F": "{gentleness, select, GENTLE {Gentle professional dry cleaning (F)} other {Professional dry cleaning (F)}}",
+      "WET_CLEAN": "{gentleness, select, GENTLE {Gentle professional wet cleaning (W)} other {Professional wet cleaning (W)}}"
+    }
   },
   "publishing": {
     "scoreTitle": "Compliance score",
@@ -1371,7 +1451,9 @@
     "barPreviewSub": "Looks as if published; nothing is saved",
     "barBackToBatch": "Back to the batch",
     "loadFailed": "The passport could not be loaded",
-    "listScoreNote": "The line is the 90% publishing threshold. Published batches show the score from when they were published."
+    "listScoreNote": "The line is the 90% publishing threshold. Published batches show the score from when they were published.",
+    "careMissing": "Care instructions missing",
+    "careMissingBody": "Product field · does not affect the score or publishing. Without it the passport has no care section."
   },
   "documents": {
     "pick": {

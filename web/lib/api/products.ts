@@ -86,7 +86,12 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: ProductUpdateRequest }) =>
       unwrap(api.PATCH("/api/v1/products/{id}", { params: { path: { id } }, body })),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.products.all }),
+    // A batch's score reads its product (fibre composition, care instructions).
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.products.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.batches.all }),
+      ]),
   });
 }
 

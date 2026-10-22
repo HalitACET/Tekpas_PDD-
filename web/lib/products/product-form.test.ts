@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  careFormFrom,
+  emptyCare,
   emptyProductForm,
   fiberFormTotal,
   fieldErrorsFrom,
@@ -21,6 +23,7 @@ const valid: ProductFormValues = {
     { fiber: "ORGANIC_COTTON", percent: "95" },
     { fiber: "ELASTANE", percent: "5" },
   ],
+  careInfo: emptyCare(),
 };
 
 function codes(values: ProductFormValues) {
@@ -141,5 +144,39 @@ describe("productPatch", () => {
       { fiber: "ORGANIC_COTTON", percent: 90 },
       { fiber: "ELASTANE", percent: 10 },
     ]);
+  });
+
+  it("sends the care instructions whole when they change, without the groups left empty", () => {
+    const care = { ...emptyCare(), washing: { symbol: "WASH_40" as const, gentleness: "GENTLE" as const }, note: " Ters " };
+    const values = productFormSchema.parse({ ...valid, careInfo: { ...care, noteLanguage: "tr" } });
+
+    expect(productPatch(initial, values, { gtinLocked: false })).toEqual({
+      careInfo: { washing: { symbol: "WASH_40", gentleness: "GENTLE" }, note: "Ters", noteLanguage: "tr" },
+    });
+  });
+
+  it("leaves unchanged instructions out and clears removed ones with null (design v1.0 120a)", () => {
+    const stored = careFormFrom({
+      washing: { symbol: "HAND_WASH", gentleness: "NORMAL" },
+      bleaching: null,
+      drying: null,
+      ironing: null,
+      professional: null,
+      note: "Gently",
+      noteLanguage: "en",
+    });
+    const withCare = { ...valid, careInfo: stored };
+
+    expect(productPatch(withCare, productFormSchema.parse(withCare), { gtinLocked: false })).toEqual({});
+    const cleared = productFormSchema.parse({ ...withCare, careInfo: emptyCare() });
+    expect(productPatch(withCare, cleared, { gtinLocked: false })).toEqual({ careInfo: null });
+    // The note keeps the language it was written in.
+    expect(stored.noteLanguage).toBe("en");
+  });
+
+  it("reports the API's care codes on the form's paths", () => {
+    const wrongBars = { ...emptyCare(), washing: { symbol: "DO_NOT_WASH" as const, gentleness: "GENTLE" as const } };
+    expect(codes({ ...valid, careInfo: wrongBars })).toEqual(["careInfo.washing:CareGentleness"]);
+    expect(codes({ ...valid, careInfo: { ...emptyCare(), note: "a".repeat(201) } })).toEqual(["careInfo.note:Size"]);
   });
 });
