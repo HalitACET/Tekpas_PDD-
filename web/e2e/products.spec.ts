@@ -226,11 +226,11 @@ test("delete: blocked with batches, confirmed without", async ({ page }) => {
 test("viewers see the write actions disabled, with the reason", async ({ page }) => {
   await openProducts(page, "VIEWER");
 
-  for (const name of ["Yeni ürün", "Excel'den içe aktar"]) {
-    const button = page.getByRole("button", { name }).first();
-    await expect(button).toBeVisible();
-    await expect(button).toHaveAttribute("aria-disabled", "true");
-  }
+  const newProduct = page.getByRole("button", { name: "Yeni ürün" }).first();
+  await expect(newProduct).toBeVisible();
+  await expect(newProduct).toHaveAttribute("aria-disabled", "true");
+  // The import page is open to viewers: they see its history (design v1.1 156), not the upload.
+  await expect(page.getByRole("link", { name: "Excel'den içe aktar" })).toHaveAttribute("href", "/imports");
   const menu = page.getByRole("button", { name: "Satır menüsü: Organik pamuk tişört, ekru" });
   await expect(menu).toHaveAttribute("aria-disabled", "true");
 
