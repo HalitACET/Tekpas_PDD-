@@ -91,19 +91,19 @@ Bu belge plandır; kod yok. Kararlar §8'de, kullanıcıya düşenler §7'de.
 
 **Akış:**
 1. `POST /imports` (multipart, `kind=products`, en fazla 1 MB ve 1000 satır).
-   - Dosya `imports/{company}/{id}.xlsx` olarak depoya yazılır, `import_job` satırı açılır, `IMPORT_EXCEL` kuyruğa girer, cevap 202.
+   - Dosya `import_job` satırında (`BYTEA`, en çok 1 MB) bekler, `IMPORT_EXCEL` kuyruğa girer, cevap 202. Depolama servisine gitmez: depo kapalıyken de çalışır, kayıtsız dosya kalmaz. Tablo V1'den beri vardı, hiç kullanılmamıştı; V20 onu uyarlar.
 2. **İş:**
    - Satırları okur, her satırı `ProductCreateRequest` ile **aynı doğrulayıcıdan** geçirir (aynı hata kodları: `GtinCheckDigit`, `FiberTotal`, `Unique`…).
    - Geçerli satırlar ürün olarak oluşur. Her satır kendi işleminde; bir satırın hatası diğerlerini durdurmaz.
    - Dosya içinde iki kez geçen GTIN: ikincisi `Duplicate`.
-3. **Sonuç (V19 `import_job`):** `status` (QUEUED, RUNNING, DONE, FAILED), `total`, `created`, `failed`, `errors` (JSONB: `[{row, column, code, value}]`; değer kısaltılır). Dosya iş bitince depodan silinir.
+3. **Sonuç (`import_job`, V20):** `status` (QUEUED, RUNNING, DONE, FAILED), `total`, `created`, `failed`, `errors` (JSONB: `[{row, column, code, value}]`; değer kısaltılır). Dosya iş bitince satırdan silinir.
 4. **Tekrar yükleme** idempotent sayılmaz: aynı GTIN ikinci kez `Unique` hatası verir (kayıt zaten var).
 
 **Güvenlik:**
 - Dosya türü uzantıya değil içeriğe bakılarak doğrulanır: ZIP imzası ve OOXML içerik türü.
 - Sıkıştırma oranı ve açılmış boyut sınırlı (zip bombası).
 - Formüller hesaplanmaz, yalnızca hücredeki kayıtlı değer okunur. Dış bağlantılar ve makrolar (`.xlsm`) reddedilir.
-- İçe aktarma yalnızca OWNER ve ADMIN içindir (rol matrisi, PLAN §2).
+- İçe aktarma OWNER, ADMIN ve EDITOR içindir (rol matrisi, PLAN §2); VIEWER ve tedarikçi 403.
 
 ## 5. Test
 
