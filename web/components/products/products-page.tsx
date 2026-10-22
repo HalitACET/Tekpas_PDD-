@@ -3,17 +3,19 @@
 import { PRODUCT_CATEGORIES, type ProductCategory } from "@tekpas/shared";
 import { ChevronDown, Package, Plus, Search, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { GuardedButton } from "@/components/common/guarded-button";
 import { EmptyState, ListError, TableSkeleton } from "@/components/common/list-states";
 import { ServerWakeStrip, useListWake } from "@/components/common/server-wake";
-import { Button } from "@/components/ui/button";
+import { ImportStrip } from "@/components/imports/import-strip";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { type ProductListItem, useProducts, useProductTotal } from "@/lib/api/products";
 import { canWriteCatalog } from "@/lib/auth/permissions";
 import { queryKeys } from "@/lib/query-keys";
 import { useSession } from "@/lib/auth/use-session";
+import { cn } from "@/lib/utils";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { ProductSheet, type ProductSheetTarget } from "./product-sheet";
 import { ProductRow, ProductsTableHeader } from "./products-table";
@@ -50,7 +52,6 @@ export function ProductsPage() {
   // One "now" per render pass, so every row formats against the same day.
   const [now] = useState(() => new Date());
 
-  const comingSoon = () => toast(tCommon("comingSoon.title"), { description: tCommon("comingSoon.description") });
   const filtered = q.trim() !== "" || category !== "";
   const rows = products.data?.content ?? [];
 
@@ -63,16 +64,19 @@ export function ProductsPage() {
             <p className="text-[13px] leading-[normal] text-muted-foreground">{tPage("sub")}</p>
           </div>
           <div className="ml-auto flex gap-3">
-            <GuardedButton allowed={canWrite} variant="secondary" onClick={comingSoon}>
+            {/* Everyone may open the import page: a viewer sees its history (design v1.1 156). */}
+            <Link href="/imports" className={cn(buttonVariants({ variant: "secondary" }))}>
               <Upload strokeWidth={1.75} aria-hidden />
               {t("actions.import")}
-            </GuardedButton>
+            </Link>
             <GuardedButton allowed={canWrite} onClick={() => setSheet({ kind: "new" })}>
               <Plus strokeWidth={1.75} aria-hidden />
               {t("actions.new")}
             </GuardedButton>
           </div>
         </div>
+
+        <ImportStrip />
 
         <div className="flex flex-wrap items-center gap-2">
           <label className="flex h-8 w-[300px] max-w-full items-center gap-2 rounded-md border border-input bg-card px-2.5 text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring-soft">
@@ -154,9 +158,9 @@ export function ProductsPage() {
                     <GuardedButton allowed={canWrite} tooltipAlign="center" onClick={() => setSheet({ kind: "new" })}>
                       {t("actions.new")}
                     </GuardedButton>
-                    <GuardedButton allowed={canWrite} tooltipAlign="center" variant="secondary" onClick={comingSoon}>
+                    <Link href="/imports" className={cn(buttonVariants({ variant: "secondary" }))}>
                       {t("actions.import")}
-                    </GuardedButton>
+                    </Link>
                   </EmptyState>
                 )}
               </div>

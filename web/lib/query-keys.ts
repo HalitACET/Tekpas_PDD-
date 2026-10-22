@@ -57,6 +57,12 @@ export const queryKeys = {
     /** The batch's free texts and their translations before publishing (M11, design v1.1 140). */
     translations: (batchId: string) => [...queryKeys.passports.all, "translations", batchId] as const,
   },
+  /** Excel imports (M11, design v1.1 150–157): the page's history, one import, the products page's strip. */
+  imports: {
+    all: ["imports"] as const,
+    list: ["imports", "list"] as const,
+    detail: (id: string) => ["imports", "detail", id] as const,
+  },
   /** GET /tasks (design v0.4 48): the page and the menu badge share it. */
   tasks: {
     all: ["tasks"] as const,
