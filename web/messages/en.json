@@ -1301,6 +1301,10 @@
     "care": "Care",
     "careNote": "Manufacturer’s note",
     "careNoteIn": "Manufacturer’s note · in {language}",
+    "description": "Product description",
+    "descriptionIn": "Product description · in {language}",
+    "fabricTypeIn": "Fabric type in {language}: “{text}”",
+    "aiTranslated": "Translated texts on this page were prepared with AI and approved by the manufacturer.",
     "careText": {
       "WASH_30": "Wash at 30 °C{gentleness, select, GENTLE {, gentle cycle} VERY_GENTLE {, very gentle cycle} other {}}",
       "WASH_40": "Wash at 40 °C{gentleness, select, GENTLE {, gentle cycle} VERY_GENTLE {, very gentle cycle} other {}}",
@@ -1813,5 +1817,66 @@
       "DOCUMENT": "{doc} · read from the document"
     },
     "productMeta": "Product data"
+  },
+  "translations": {
+    "title": "Translations",
+    "countChip": "{count, plural, one {# field} other {# fields}} · {languages}",
+    "lead": "Unapproved AI suggestions are not published; a field without a translation appears in Turkish on the passport, labelled “in Turkish”.",
+    "notTranslated": "Product, company and place names are not translated.",
+    "suggest": "Suggest translations",
+    "suggesting": "Suggesting…",
+    "approveAll": "Approve all ({count})",
+    "allApproved": "All approved",
+    "realNote": "You can write the translation yourself or leave it empty; an empty text appears in Turkish on the passport, labelled “in Turkish”.",
+    "failedTitle": "Suggestions could not be fetched.",
+    "failedBody": "The service is not answering right now; your existing translations were not touched.",
+    "retry": "Try again",
+    "limitTitle": "Today’s AI suggestion limit is reached.",
+    "limitBody": "You can suggest again tomorrow; meanwhile you can write the translations yourself or leave them empty.",
+    "noneTitle": "Nothing to translate.",
+    "noneBody": "This product has no description, care note, fabric type or “other” dyeing process.",
+    "loadFailedTitle": "Translations could not be loaded",
+    "loadFailedBody": "Check your connection and try again.",
+    "kind": {
+      "PRODUCT_DESCRIPTION": {
+        "label": "Product description",
+        "where": "Product card · under the title on the passport"
+      },
+      "CARE_NOTE": {
+        "label": "Care note",
+        "where": "Care instructions · “Manufacturer’s note”"
+      },
+      "FABRIC_TYPE": {
+        "label": "Fabric type",
+        "where": "Main fabric · materials line"
+      },
+      "DYE_PROCESS_OTHER": {
+        "label": "Dyeing process · other",
+        "where": "Dyeing step · “Dyeing process”"
+      }
+    },
+    "sourceTag": "{code} · source · {language}",
+    "badgeApproved": "Approved",
+    "badgeAi": "AI suggestion",
+    "badgeStale": "Needs approval again",
+    "preparing": "Preparing a suggestion…",
+    "metaEmpty": "If left empty, the passport shows it in {language}.",
+    "metaAi": "Not published until approved.",
+    "metaApprovedAi": "AI suggestion · approved by {name} · {date}",
+    "metaManual": "Written by hand · {name} · will be published",
+    "metaStale": "The source text changed. Not in the next version until approved.",
+    "approve": "Approve",
+    "placeholderEmpty": "No translation",
+    "placeholderWrite": "Write the {language} translation",
+    "boxLabel": "{field} · {language} translation",
+    "saveFailed": "The translation could not be saved",
+    "readerLanguage": "In the reader’s language",
+    "draftOf": "{batchNo} · Version {version} draft",
+    "publish": "Publish…",
+    "summary": "{translated, plural, one {# field} other {# fields}} translated · {remaining, plural, one {# field stays} other {# fields stay}} in Turkish",
+    "summarySub": "An untranslated text appears on the passport labelled “in Turkish”. It does not stop publishing.",
+    "summaryAi": "{translated, plural, one {# field} other {# fields}} translated · {count, plural, one {# AI suggestion} other {# AI suggestions}} not approved",
+    "summaryAiSub": "An unapproved suggestion is not published; that field appears in Turkish on the passport.",
+    "goTo": "Go to translations"
   }
 }

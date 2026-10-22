@@ -3,6 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { PassportSnapshot } from "@/lib/passport/types";
 import { NextIntlClientProvider } from "next-intl";
+import deMessages from "@/messages/de.json";
 import en from "@/messages/en.json";
 import { renderWithIntl } from "@/test/render";
 import { PassportFrame } from "./passport-frame";
@@ -249,5 +250,67 @@ describe("PassportView, care instructions (design v1.0 121)", () => {
     const section = screen.getByRole("region", { name: "Care" });
     expect(within(section).getByText("Wash at 40 °C, gentle cycle")).toBeInTheDocument();
     expect(within(section).getByText("Manufacturer’s note · in Turkish")).toBeInTheDocument();
+  });
+});
+
+describe("PassportView, translations (design v1.1 141)", () => {
+  const de = deMessages;
+  const translated = {
+    ...snapshot,
+    schemaVersion: 3,
+    product: {
+      ...snapshot.product,
+      description: "Yuvarlak yaka, kısa kollu basic tişört.",
+      care: { note: "Ters çevirerek yıkayın.", noteLanguage: "tr" },
+    },
+    translations: [
+      { field: "product.description", language: "en", text: "Crew-neck, short-sleeved basic T-shirt.", aiAssisted: true },
+      { field: "product.care.note", language: "en", text: "Wash inside out.", aiAssisted: false },
+      { field: "s3.fabricType", language: "en", text: "Single jersey", aiAssisted: true },
+      { field: "product.description", language: "de", text: "Basic-T-Shirt mit Rundhalsausschnitt.", aiAssisted: false },
+    ],
+  } as PassportSnapshot;
+
+  function inLocale(locale: "en" | "de", value: PassportSnapshot = translated) {
+    render(
+      <NextIntlClientProvider locale={locale} messages={locale === "en" ? en : de} timeZone="Europe/Istanbul">
+        <PassportView snapshot={value} mode="published" verificationCode="7Q4K-2M9X" today="2026-10-20" host="kozapass.vercel.app" />
+      </NextIntlClientProvider>,
+    );
+  }
+
+  it("shows every approved translation in the page's language and says once that AI helped", () => {
+    inLocale("en");
+
+    expect(screen.getByText("Product description")).toBeInTheDocument();
+    expect(screen.getByText("Crew-neck, short-sleeved basic T-shirt.")).toHaveAttribute("lang", "en");
+    const care = screen.getByRole("region", { name: "Care" });
+    expect(within(care).getByText("Manufacturer’s note")).toBeInTheDocument();
+    expect(within(care).getByText("Wash inside out.")).toHaveAttribute("lang", "en");
+    const fiber = screen.getByRole("region", { name: "Fabric and material composition" });
+    expect(within(fiber).getByText("Single jersey · 180 g/m²")).toBeInTheDocument();
+    expect(within(fiber).queryByText(/in Turkish/)).not.toBeInTheDocument();
+    expect(screen.getAllByText("Translated texts on this page were prepared with AI and approved by the manufacturer.")).toHaveLength(1);
+  });
+
+  it("keeps a text without a translation in Turkish and says so (mixed, 141c)", () => {
+    inLocale("de");
+
+    expect(screen.getByText("Basic-T-Shirt mit Rundhalsausschnitt.")).toHaveAttribute("lang", "de");
+    const care = screen.getByRole("region", { name: "Pflege" });
+    expect(within(care).getByText("Hinweis des Herstellers · auf Türkisch")).toBeInTheDocument();
+    expect(within(care).getByText("Ters çevirerek yıkayın.")).toHaveAttribute("lang", "tr");
+    const fiber = screen.getByRole("region", { name: /Materialzusammensetzung/ });
+    expect(within(fiber).getByText("Stoffart auf Türkisch: „Süprem“")).toBeInTheDocument();
+    // Nothing shown on this page came from the AI.
+    expect(screen.queryByText(/mit KI erstellt/)).not.toBeInTheDocument();
+  });
+
+  it("shows the description without a label of language on a page in its own language", () => {
+    show({ snapshot: translated });
+
+    expect(screen.getByText("Ürün açıklaması")).toBeInTheDocument();
+    expect(screen.getByText("Yuvarlak yaka, kısa kollu basic tişört.")).toHaveAttribute("lang", "tr");
+    expect(screen.queryByText(/yapay zekâ/)).not.toBeInTheDocument();
   });
 });

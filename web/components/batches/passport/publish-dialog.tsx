@@ -10,6 +10,7 @@ import type { BatchResponse } from "@/lib/api/batches";
 import { blockersOf, type PassportVersion, reasonOf, usePassportPreview, usePublishPassport, type ScoreResponse } from "@/lib/api/passports";
 import { useBatchIssues } from "@/lib/api/issues";
 import { ApiError } from "@/lib/api/request";
+import { type TranslationField, usePassportTranslations } from "@/lib/api/translations";
 import { formatPercent } from "@/lib/format";
 import { useIssueView } from "../issues/use-issue-view";
 import { QrCard } from "./qr-card";
@@ -58,6 +59,7 @@ function PublishFlow({ batch, score, onClose }: { batch: BatchResponse; score: S
   const issues = useBatchIssues(batch.id, "OPEN");
   const publish = usePublishPassport(batch.id);
   const preview = usePassportPreview(batch.id);
+  const translations = usePassportTranslations(batch.id);
   const [published, setPublished] = useState<PassportVersion>();
 
   const previous = batch.passport && !batch.passport.withdrawn ? batch.passport.version : undefined;
@@ -203,6 +205,10 @@ function PublishFlow({ batch, score, onClose }: { batch: BatchResponse; score: S
           </div>
         )}
 
+        {translations.data && (
+          <TranslationSummary batchId={batch.id} fields={translations.data.fields} onClose={onClose} />
+        )}
+
         <div role="note" className="flex gap-3 rounded-lg border border-status-expiring bg-status-expiring-muted px-4 py-3.5 text-[13px] leading-normal">
           <Lock className="mt-px size-[18px] flex-none text-status-expiring-foreground" strokeWidth={2} aria-hidden />
           <span className="flex flex-col gap-[3px]">
@@ -243,6 +249,34 @@ function PublishFlow({ batch, score, onClose }: { batch: BatchResponse; score: S
         )}
       </div>
     </>
+  );
+}
+
+/**
+ * Design v1.1 140k/l: how many free texts will be published translated, as a link to the translations. Never a
+ * blocker; nothing is said when every text is translated or there is none.
+ */
+function TranslationSummary({ batchId, fields, onClose }: { batchId: string; fields: TranslationField[]; onClose: () => void }) {
+  const t = useTranslations("translations");
+  const translated = fields.filter((f) => f.translations.every((e) => e.approved)).length;
+  const remaining = fields.length - translated;
+  const unapproved = fields.flatMap((f) => f.translations).filter((e) => e.text && !e.approved).length;
+  if (remaining === 0) return null;
+  return (
+    <Link
+      href={`/batches/${batchId}/preview#translations`}
+      onClick={onClose}
+      className="flex items-start gap-2 rounded-lg bg-popover-muted px-3 py-2.5 text-[13px] leading-[1.4] text-foreground no-underline outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft"
+    >
+      <Globe className="mt-px size-[15px] flex-none text-muted-foreground" strokeWidth={1.75} aria-hidden />
+      <span className="flex flex-1 flex-col gap-0.5">
+        <span className="font-medium">
+          {unapproved > 0 ? t("summaryAi", { translated, count: unapproved }) : t("summary", { translated, remaining })}
+        </span>
+        <span className="text-xs text-muted-foreground">{unapproved > 0 ? t("summaryAiSub") : t("summarySub")}</span>
+      </span>
+      <span className="text-xs font-medium whitespace-nowrap text-brand-text">{t("goTo")}</span>
+    </Link>
   );
 }
 

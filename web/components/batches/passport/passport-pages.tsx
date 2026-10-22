@@ -1,18 +1,26 @@
 "use client";
 
 import { ArrowLeft, Eye, Globe, Lock } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { NextIntlClientProvider, useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
+import { GuardedButton } from "@/components/common/guarded-button";
 import { PassportFrame } from "@/components/passport/passport-frame";
 import { PassportView } from "@/components/passport/passport-view";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePassport, usePassportPreview } from "@/lib/api/passports";
+import { useBatchScore, usePassport, usePassportPreview } from "@/lib/api/passports";
 import { useBatch } from "@/lib/api/batches";
 import { ApiError } from "@/lib/api/request";
 import { useSetBreadcrumbDetail } from "@/lib/breadcrumb";
+import { useSession } from "@/lib/auth/use-session";
 import { cn } from "@/lib/utils";
+import { type Locale, locales } from "@/i18n/locales";
+import deMessages from "@/messages/de.json";
+import enMessages from "@/messages/en.json";
+import trMessages from "@/messages/tr.json";
+import { PublishDialog } from "./publish-dialog";
+import { TranslationsSection } from "./translations-section";
 
 /** Today as an ISO day on Turkish time, for the certificate states of the passport view. */
 function today(): string {
@@ -79,37 +87,99 @@ function Loading() {
   return <Skeleton aria-busy="true" className="mx-auto h-[640px] w-full max-w-[1024px] rounded-xl" />;
 }
 
+const PREVIEW_MESSAGES = { tr: trMessages, en: enMessages, de: deMessages } as const;
+
 /**
- * "Önizle": the passport as it would be published now, in the panel, framed like the public page with the preview strip
- * (design v0.6 state f). Nothing is saved; steps that are not approved show as such.
+ * "Önizle" (design v1.1 140, after v0.6 68): the whole window, a dark bar with the batch and the version the draft
+ * will become, "Partiye dön" and "Yayınla…"; on the left the translations of the free texts, on the right the passport
+ * as it would be published now, at phone width, in the language the reader picks. Nothing is saved by looking; steps
+ * that are not approved show as such.
  */
 export function PassportPreviewPage({ batchId }: { batchId: string }) {
-  const t = useTranslations("publishing");
+  const t = useTranslations("translations");
   const tPassport = useTranslations("passport");
+  const tPublishing = useTranslations("publishing");
   const batch = useBatch(batchId);
+  const score = useBatchScore(batchId);
   const preview = usePassportPreview(batchId);
-  useSetBreadcrumbDetail(batch.data?.batchNo);
+  const session = useSession();
+  const reviewer = session.status === "authenticated" && (session.user.role === "OWNER" || session.user.role === "ADMIN");
+  const [language, setLanguage] = useState<Locale>("en");
+  const [publishing, setPublishing] = useState(false);
+  const version = preview.data?.passport.version ?? (batch.data?.passport?.version ?? 0) + 1;
+  const publishable = !!score.data?.publishable && batch.data?.status !== "PUBLISHED";
 
   return (
-    <div className="mx-auto flex w-full max-w-[1024px] flex-col gap-4">
-      <Bar
-        backHref={`/batches/${batchId}`}
-        backLabel={t("barBackToBatch")}
-        tone="muted"
-        icon={<Eye className="size-[15px]" strokeWidth={1.75} aria-hidden />}
-        title={t("barPreviewTitle")}
-        sub={t("barPreviewSub")}
-      />
-      {preview.isPending ? (
-        <Loading />
-      ) : preview.isError ? (
-        <Failed error={preview.error} onRetry={() => void preview.refetch()} />
-      ) : (
-        <div className="overflow-hidden rounded-xl border">
-          <PassportFrame strip={{ title: tPassport("previewStrip"), sub: tPassport("previewSub") }} languageLinks={false} footerHost={host()}>
-            <PassportView snapshot={preview.data} mode="preview" today={today()} host={host()} />
-          </PassportFrame>
-        </div>
+    <div className="flex min-h-dvh flex-col bg-background lg:h-dvh">
+      <header className="flex h-[52px] flex-none items-center gap-3 bg-[#1F1E1C] pr-4 pl-5 text-[13px] text-[#FAF8F4]">
+        <Eye className="size-4 flex-none" strokeWidth={1.75} aria-hidden />
+        <span className="font-semibold whitespace-nowrap">{tPassport("previewStrip")}</span>
+        {batch.data && (
+          <span className="min-w-0 truncate font-mono text-xs text-[#B7B1A7]">{t("draftOf", { batchNo: batch.data.batchNo, version })}</span>
+        )}
+        <span className="ml-auto flex flex-none gap-2">
+          <Link
+            href={`/batches/${batchId}`}
+            className="flex h-8 items-center rounded-md border border-[#4A463F] px-3 font-medium text-[#FAF8F4] no-underline outline-none hover:bg-[#2E2B27] focus-visible:ring-[3px] focus-visible:ring-ring-soft"
+          >
+            {tPublishing("barBackToBatch")}
+          </Link>
+          {batch.data && (
+            <GuardedButton
+              allowed={reviewer}
+              size="sm"
+              className="h-8 border-transparent bg-[#8C2F4B] px-3.5 text-white hover:bg-[#6E2239] disabled:opacity-50"
+              disabled={!publishable}
+              onClick={() => setPublishing(true)}
+            >
+              {t("publish")}
+            </GuardedButton>
+          )}
+        </span>
+      </header>
+      <div className="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_440px]">
+        <main className="px-4 pt-6 pb-10 sm:px-7 lg:min-h-0 lg:overflow-auto">
+          <TranslationsSection batchId={batchId} canEdit={reviewer} />
+        </main>
+        <aside aria-label={t("readerLanguage")} className="flex flex-col border-t bg-muted lg:min-h-0 lg:border-t-0 lg:border-l">
+          <div className="flex flex-none items-center gap-2.5 border-b py-3 pr-4 pl-6">
+            <span className="text-[13px] font-medium">{t("readerLanguage")}</span>
+            <div role="group" aria-label={t("readerLanguage")} className="ml-auto flex gap-0.5 rounded-md border bg-card p-0.5 font-mono text-[11px] font-medium">
+              {locales.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  aria-pressed={code === language}
+                  onClick={() => setLanguage(code)}
+                  className={cn(
+                    "h-[26px] cursor-pointer rounded px-[9px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring-soft",
+                    code === language ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {code.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="px-6 py-5 lg:min-h-0 lg:flex-1 lg:overflow-auto">
+            {preview.isPending ? (
+              <Skeleton aria-busy="true" className="h-[640px] w-full max-w-[390px] rounded-xl" />
+            ) : preview.isError ? (
+              <Failed error={preview.error} onRetry={() => void preview.refetch()} />
+            ) : (
+              <div className="w-[390px] max-w-full overflow-hidden rounded-xl border shadow-md">
+                <NextIntlClientProvider locale={language} messages={PREVIEW_MESSAGES[language]} timeZone="Europe/Istanbul">
+                  <PassportFrame languageLinks={false} footerHost={host()}>
+                    <PassportView snapshot={preview.data} mode="preview" today={today()} host={host()} />
+                  </PassportFrame>
+                </NextIntlClientProvider>
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>
+      {batch.data && (
+        <PublishDialog batch={batch.data} score={score.data} open={publishing} onClose={() => setPublishing(false)} />
       )}
     </div>
   );

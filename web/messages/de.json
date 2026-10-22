@@ -1301,6 +1301,10 @@
     "care": "Pflege",
     "careNote": "Hinweis des Herstellers",
     "careNoteIn": "Hinweis des Herstellers · auf {language}",
+    "description": "Produktbeschreibung",
+    "descriptionIn": "Produktbeschreibung · auf {language}",
+    "fabricTypeIn": "Stoffart auf {language}: „{text}“",
+    "aiTranslated": "Übersetzte Texte auf dieser Seite wurden mit KI erstellt und vom Hersteller freigegeben.",
     "careText": {
       "WASH_30": "Bei 30 °C waschen{gentleness, select, GENTLE {, Schonwaschgang} VERY_GENTLE {, Spezialschonwaschgang} other {}}",
       "WASH_40": "Bei 40 °C waschen{gentleness, select, GENTLE {, Schonwaschgang} VERY_GENTLE {, Spezialschonwaschgang} other {}}",
@@ -1813,5 +1817,66 @@
       "DOCUMENT": "{doc} · aus dem Dokument gelesen"
     },
     "productMeta": "Produktdaten"
+  },
+  "translations": {
+    "title": "Übersetzungen",
+    "countChip": "{count, plural, one {# Feld} other {# Felder}} · {languages}",
+    "lead": "Nicht freigegebene KI-Vorschläge werden nicht veröffentlicht; ein Feld ohne Übersetzung erscheint im Pass auf Türkisch, mit dem Hinweis „auf Türkisch“.",
+    "notTranslated": "Produkt-, Firmen- und Ortsnamen werden nicht übersetzt.",
+    "suggest": "Übersetzungen vorschlagen",
+    "suggesting": "Wird vorgeschlagen…",
+    "approveAll": "Alle freigeben ({count})",
+    "allApproved": "Alle freigegeben",
+    "realNote": "Sie können die Übersetzung selbst schreiben oder leer lassen; ein leerer Text erscheint im Pass auf Türkisch, mit dem Hinweis „auf Türkisch“.",
+    "failedTitle": "Vorschläge konnten nicht abgerufen werden.",
+    "failedBody": "Der Dienst antwortet gerade nicht; Ihre vorhandenen Übersetzungen blieben unverändert.",
+    "retry": "Erneut versuchen",
+    "limitTitle": "Das heutige Limit für KI-Vorschläge ist erreicht.",
+    "limitBody": "Morgen können Sie erneut vorschlagen; bis dahin können Sie die Übersetzungen selbst schreiben oder leer lassen.",
+    "noneTitle": "Kein Text zu übersetzen.",
+    "noneBody": "Für dieses Produkt sind keine Beschreibung, kein Pflegehinweis, keine Stoffart und kein „sonstiges“ Färbeverfahren eingetragen.",
+    "loadFailedTitle": "Übersetzungen konnten nicht geladen werden",
+    "loadFailedBody": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "kind": {
+      "PRODUCT_DESCRIPTION": {
+        "label": "Produktbeschreibung",
+        "where": "Produktkarte · im Pass unter dem Titel"
+      },
+      "CARE_NOTE": {
+        "label": "Pflegehinweis",
+        "where": "Pflegeanleitung · „Hinweis des Herstellers“"
+      },
+      "FABRIC_TYPE": {
+        "label": "Stoffart",
+        "where": "Hauptstoff · Zeile Materialien"
+      },
+      "DYE_PROCESS_OTHER": {
+        "label": "Färbeverfahren · sonstiges",
+        "where": "Färbeschritt · „Färbeverfahren“"
+      }
+    },
+    "sourceTag": "{code} · Quelle · {language}",
+    "badgeApproved": "Freigegeben",
+    "badgeAi": "KI-Vorschlag",
+    "badgeStale": "Erneute Freigabe nötig",
+    "preparing": "Vorschlag wird erstellt…",
+    "metaEmpty": "Bleibt es leer, zeigt der Pass den Text auf {language}.",
+    "metaAi": "Wird erst nach Freigabe veröffentlicht.",
+    "metaApprovedAi": "KI-Vorschlag · freigegeben von {name} · {date}",
+    "metaManual": "Von Hand geschrieben · {name} · wird veröffentlicht",
+    "metaStale": "Der Ausgangstext hat sich geändert. Bis zur Freigabe nicht in der nächsten Version.",
+    "approve": "Freigeben",
+    "placeholderEmpty": "Keine Übersetzung",
+    "placeholderWrite": "Übersetzung schreiben ({language})",
+    "boxLabel": "{field} · Übersetzung {language}",
+    "saveFailed": "Die Übersetzung konnte nicht gespeichert werden",
+    "readerLanguage": "In der Sprache der Lesenden",
+    "draftOf": "{batchNo} · Entwurf Version {version}",
+    "publish": "Veröffentlichen…",
+    "summary": "{translated, plural, one {# Feld} other {# Felder}} übersetzt · {remaining, plural, one {# Feld bleibt} other {# Felder bleiben}} auf Türkisch",
+    "summarySub": "Ein nicht übersetzter Text erscheint im Pass mit dem Hinweis „auf Türkisch“. Die Veröffentlichung wird nicht aufgehalten.",
+    "summaryAi": "{translated, plural, one {# Feld} other {# Felder}} übersetzt · {count, plural, one {# KI-Vorschlag} other {# KI-Vorschläge}} nicht freigegeben",
+    "summaryAiSub": "Ein nicht freigegebener Vorschlag wird nicht veröffentlicht; das Feld erscheint im Pass auf Türkisch.",
+    "goTo": "Zu den Übersetzungen"
   }
 }

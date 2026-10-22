@@ -1301,6 +1301,10 @@
     "care": "Bakım",
     "careNote": "Üreticinin notu",
     "careNoteIn": "Üreticinin notu · {language}",
+    "description": "Ürün açıklaması",
+    "descriptionIn": "Ürün açıklaması · {language}",
+    "fabricTypeIn": "Kumaş tipi {language}: “{text}”",
+    "aiTranslated": "Bu sayfadaki çevrilmiş metinler yapay zekâ ile hazırlandı ve üretici tarafından onaylandı.",
     "careText": {
       "WASH_30": "30 °C’de yıkayın{gentleness, select, GENTLE {, hassas program} VERY_GENTLE {, çok hassas program} other {}}",
       "WASH_40": "40 °C’de yıkayın{gentleness, select, GENTLE {, hassas program} VERY_GENTLE {, çok hassas program} other {}}",
@@ -1813,5 +1817,66 @@
       "DOCUMENT": "{doc} · belgeden okunan"
     },
     "productMeta": "Ürün bilgisi"
+  },
+  "translations": {
+    "title": "Çeviriler",
+    "countChip": "{count} alan · {languages}",
+    "lead": "Onaylanmamış AI önerileri yayına girmez; çevirisi olmayan alan pasaportta Türkçe ve “Türkçe” etiketiyle görünür.",
+    "notTranslated": "Ürün adı, firma ve yer adları çevrilmez.",
+    "suggest": "Çevirileri öner",
+    "suggesting": "Öneriliyor…",
+    "approveAll": "Tümünü onayla ({count})",
+    "allApproved": "Tümü onaylı",
+    "realNote": "Çeviriyi kendiniz yazabilir ya da boş bırakabilirsiniz; boş kalan metin pasaportta Türkçe ve “Türkçe” etiketiyle görünür.",
+    "failedTitle": "Öneriler alınamadı.",
+    "failedBody": "Hizmet şu an yanıt vermiyor; mevcut çevirilerinize dokunulmadı.",
+    "retry": "Yeniden dene",
+    "limitTitle": "Bugünkü AI öneri sınırı doldu.",
+    "limitBody": "Yarın yeniden önerebilirsiniz; bu arada çevirileri kendiniz yazabilir ya da boş bırakabilirsiniz.",
+    "noneTitle": "Çevrilecek metin yok.",
+    "noneBody": "Bu üründe açıklama, bakım notu, kumaş tipi ya da “diğer” boyama süreci girilmemiş.",
+    "loadFailedTitle": "Çeviriler yüklenemedi",
+    "loadFailedBody": "Bağlantınızı kontrol edip yeniden deneyin.",
+    "kind": {
+      "PRODUCT_DESCRIPTION": {
+        "label": "Ürün açıklaması",
+        "where": "Ürün kartı · pasaportta başlığın altında"
+      },
+      "CARE_NOTE": {
+        "label": "Bakım notu",
+        "where": "Bakım talimatı · “Üreticinin notu”"
+      },
+      "FABRIC_TYPE": {
+        "label": "Kumaş tipi",
+        "where": "Ana kumaş · malzeme satırı"
+      },
+      "DYE_PROCESS_OTHER": {
+        "label": "Boyama süreci · diğer",
+        "where": "Boya adımı · “Boya işlemi”"
+      }
+    },
+    "sourceTag": "{code} · kaynak · {language}",
+    "badgeApproved": "Onaylı",
+    "badgeAi": "AI önerisi",
+    "badgeStale": "Yeniden onay gerekir",
+    "preparing": "Öneri hazırlanıyor…",
+    "metaEmpty": "Boş kalırsa pasaportta {language} görünür.",
+    "metaAi": "Onaylanmadan yayına girmez.",
+    "metaApprovedAi": "AI önerisi · onaylayan {name} · {date}",
+    "metaManual": "Elle yazıldı · {name} · yayına girer",
+    "metaStale": "Kaynak metin değişti. Onaylanana dek yeni sürüme girmez.",
+    "approve": "Onayla",
+    "placeholderEmpty": "Çeviri yok",
+    "placeholderWrite": "{language} çeviriyi yazın",
+    "boxLabel": "{field} · {language} çeviri",
+    "saveFailed": "Çeviri kaydedilemedi",
+    "readerLanguage": "Okuyanın dilinde",
+    "draftOf": "{batchNo} · Sürüm {version} taslağı",
+    "publish": "Yayınla…",
+    "summary": "{translated} alan çevrildi · {remaining} alan Türkçe kalacak",
+    "summarySub": "Çevrilmemiş metin pasaportta “Türkçe” etiketiyle görünür. Yayını durdurmaz.",
+    "summaryAi": "{translated} alan çevrildi · {count} AI önerisi onaysız",
+    "summaryAiSub": "Onaysız öneri yayına girmez; o alan pasaportta Türkçe görünür.",
+    "goTo": "Çevirilere git"
   }
 }

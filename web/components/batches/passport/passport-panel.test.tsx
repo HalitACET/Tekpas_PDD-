@@ -12,6 +12,7 @@ const state = vi.hoisted(() => ({
   publish: { mutate: undefined as unknown, isPending: false, isError: false, error: undefined as unknown },
   published: undefined as unknown,
   issues: undefined as unknown,
+  translations: undefined as unknown,
 }));
 
 vi.mock("next/link", () => ({ default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => <a href={href} {...rest}>{children}</a> }));
@@ -20,6 +21,7 @@ vi.mock("@/lib/api/issues", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/api/issues")>()),
   useBatchIssues: () => ({ data: state.issues, isPending: false, isError: false }),
 }));
+vi.mock("@/lib/api/translations", () => ({ usePassportTranslations: () => ({ data: state.translations }) }));
 vi.mock("@/lib/api/passports", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/api/passports")>()),
   usePassportVersions: () => ({ data: state.versions, isError: false, isPending: false }),
@@ -94,6 +96,7 @@ beforeEach(() => {
   state.publish = { mutate: undefined, isPending: false, isError: false, error: undefined };
   state.published = undefined;
   state.issues = undefined;
+  state.translations = undefined;
 });
 
 const issue = (over: object) => ({
@@ -279,6 +282,28 @@ describe("PublishActions", () => {
     expect(within(dialog).getByText(/2 belge onay bekliyor, pasaporta girmeyecek/)).toBeInTheDocument();
     expect(within(dialog).getByText("Yayınlanan pasaport değiştirilemez.")).toBeInTheDocument();
     expect(within(dialog).getByRole("button", { name: "Yayınla" })).toBeEnabled();
+  });
+
+  it("says how many texts stay in Turkish, links to the translations and does not stop publishing (140k/l)", async () => {
+    const entry = (language: string, over: object = {}) => ({ language, text: null, aiSuggested: false, approved: false, stale: false, ...over });
+    const field = (name: string, translations: object[]) => ({ field: name, kind: "PRODUCT_DESCRIPTION", source: "x", sourceLanguage: "tr", translations });
+    const done = [entry("en", { text: "a", approved: true }), entry("de", { text: "b", approved: true })];
+    state.translations = { aiAvailable: true, suggesting: false, fields: [field("a", done), field("b", done), field("c", [entry("en"), entry("de")])] };
+    const user = userEvent.setup();
+    const view = renderWithIntl(<PublishActions batch={batch({ status: "READY" })} score={{ data: ready, isPending: false }} />);
+
+    await user.click(screen.getByRole("button", { name: "Pasaportu yayınla" }));
+    const dialog = await screen.findByRole("dialog");
+    const link = within(dialog).getByRole("link", { name: /2 alan çevrildi · 1 alan Türkçe kalacak/ });
+    expect(link).toHaveAttribute("href", "/batches/b1/preview#translations");
+    expect(within(dialog).getByRole("button", { name: "Yayınla" })).toBeEnabled();
+    view.unmount();
+
+    // An AI suggestion waiting for approval is named as such.
+    state.translations = { aiAvailable: true, suggesting: false, fields: [field("a", done), field("b", done), field("c", [entry("en", { text: "c", aiSuggested: true }), entry("de")])] };
+    renderWithIntl(<PublishActions batch={batch({ status: "READY" })} score={{ data: ready, isPending: false }} />);
+    await user.click(screen.getByRole("button", { name: "Pasaportu yayınla" }));
+    expect(within(await screen.findByRole("dialog")).getByText("2 alan çevrildi · 1 AI önerisi onaysız")).toBeInTheDocument();
   });
 
   it("shows the blockers the server refused with, and does not offer to publish again", async () => {

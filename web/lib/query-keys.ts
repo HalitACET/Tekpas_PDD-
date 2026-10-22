@@ -54,6 +54,8 @@ export const queryKeys = {
     preview: (batchId: string) => [...queryKeys.passports.all, "preview", batchId] as const,
     detail: (id: string) => [...queryKeys.passports.all, "detail", id] as const,
     qr: (id: string, kind: string) => [...queryKeys.passports.all, "qr", id, kind] as const,
+    /** The batch's free texts and their translations before publishing (M11, design v1.1 140). */
+    translations: (batchId: string) => [...queryKeys.passports.all, "translations", batchId] as const,
   },
   /** GET /tasks (design v0.4 48): the page and the menu badge share it. */
   tasks: {
