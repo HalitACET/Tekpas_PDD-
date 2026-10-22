@@ -377,6 +377,36 @@
       "TECH_SHEET": "Technisches Datenblatt",
       "OTHER": "Anderes Dokument",
       "UNKNOWN": "Typ nicht bestimmt"
+    },
+    "careSymbol": {
+      "WASH_30": "30 °C",
+      "WASH_40": "40 °C",
+      "WASH_60": "60 °C",
+      "WASH_95": "95 °C",
+      "HAND_WASH": "Handwäsche",
+      "DO_NOT_WASH": "Nicht waschen",
+      "BLEACH_ANY": "Jedes Bleichmittel",
+      "BLEACH_OXYGEN_ONLY": "Nur Sauerstoffbleiche",
+      "DO_NOT_BLEACH": "Nicht bleichen",
+      "TUMBLE_DRY_LOW": "Trockner, niedrige Temperatur",
+      "TUMBLE_DRY_NORMAL": "Trockner, normale Temperatur",
+      "DO_NOT_TUMBLE_DRY": "Nicht im Trockner",
+      "LINE_DRY": "Auf der Leine trocknen",
+      "DRY_FLAT": "Liegend trocknen",
+      "DRY_IN_SHADE": "Im Schatten trocknen",
+      "IRON_LOW": "Niedrige Temperatur · 110 °C",
+      "IRON_MEDIUM": "Mittlere Temperatur · 150 °C",
+      "IRON_HIGH": "Hohe Temperatur · 200 °C",
+      "DO_NOT_IRON": "Nicht bügeln",
+      "DRY_CLEAN_P": "Chemischreinigung P",
+      "DRY_CLEAN_F": "Chemischreinigung F",
+      "WET_CLEAN": "Professionelle Nassreinigung W",
+      "DO_NOT_PROFESSIONAL_CLEAN": "Keine professionelle Reinigung"
+    },
+    "gentleness": {
+      "NORMAL": "Normal",
+      "GENTLE": "Schonend",
+      "VERY_GENTLE": "Sehr schonend"
     }
   },
   "errors": {
@@ -497,7 +527,29 @@
       },
       "saveFailed": "Das Produkt konnte nicht gespeichert werden",
       "nameRequired": "Produktname ist erforderlich",
-      "errorCount": "{count, plural, one {# Feld ist fehlerhaft} other {# Felder sind fehlerhaft}}"
+      "errorCount": "{count, plural, one {# Feld ist fehlerhaft} other {# Felder sind fehlerhaft}}",
+      "care": {
+        "title": "Pflegehinweise",
+        "hint": "Optional · eine Auswahl je Gruppe",
+        "empty": "Keine Pflegehinweise",
+        "emptyHint": "Im Pass erscheint kein Pflegebereich.",
+        "published": "{count, plural, one {# Charge ist} other {# Chargen sind}} veröffentlicht.",
+        "publishedBody": "Eine Änderung der Pflegehinweise ändert veröffentlichte Pässe nicht; sie kommt mit der nächsten Version der Charge.",
+        "clear": "Löschen",
+        "none": "Nicht gewählt",
+        "chosen": "{name}{gentleness, select, GENTLE {, schonend} VERY_GENTLE {, sehr schonend} other {}}",
+        "categories": {
+          "washing": "Waschen",
+          "bleaching": "Bleichen",
+          "drying": "Trocknen",
+          "ironing": "Bügeln",
+          "professional": "Professionell"
+        },
+        "note": "Pflegenotiz",
+        "noteHint": "Optional · erscheint in der Sprache, in der sie geschrieben ist, unübersetzt",
+        "notePlaceholder": "z. B. Auf links waschen",
+        "noteCount": "{count}/200"
+      }
     },
     "delete": {
       "blockedTitle": "Produkt kann nicht gelöscht werden",
@@ -1243,7 +1295,35 @@
     "checkCode": "Prüfcode",
     "versionCurrent": "Aktuell · Version {version}",
     "versionPreview": "Noch nicht veröffentlicht",
-    "metaDescription": "{product}: Faserzusammensetzung, Lieferkette und Zertifikate. Hersteller: {maker}."
+    "metaDescription": "{product}: Faserzusammensetzung, Lieferkette und Zertifikate. Hersteller: {maker}.",
+    "care": "Pflege",
+    "careNote": "Hinweis des Herstellers",
+    "careNoteIn": "Hinweis des Herstellers · auf {language}",
+    "careText": {
+      "WASH_30": "Bei 30 °C waschen{gentleness, select, GENTLE {, Schonwaschgang} VERY_GENTLE {, Spezialschonwaschgang} other {}}",
+      "WASH_40": "Bei 40 °C waschen{gentleness, select, GENTLE {, Schonwaschgang} VERY_GENTLE {, Spezialschonwaschgang} other {}}",
+      "WASH_60": "Bei 60 °C waschen{gentleness, select, GENTLE {, Schonwaschgang} VERY_GENTLE {, Spezialschonwaschgang} other {}}",
+      "WASH_95": "Bei 95 °C waschen{gentleness, select, GENTLE {, Schonwaschgang} VERY_GENTLE {, Spezialschonwaschgang} other {}}",
+      "HAND_WASH": "Nur Handwäsche",
+      "DO_NOT_WASH": "Nicht waschen",
+      "BLEACH_ANY": "Jedes Bleichmittel erlaubt",
+      "BLEACH_OXYGEN_ONLY": "Nur Sauerstoffbleiche verwenden",
+      "DO_NOT_BLEACH": "Nicht bleichen",
+      "TUMBLE_DRY_LOW": "Im Trockner bei niedriger Temperatur trocknen",
+      "TUMBLE_DRY_NORMAL": "Im Trockner bei normaler Temperatur trocknen",
+      "DO_NOT_TUMBLE_DRY": "Nicht im Trockner trocknen",
+      "LINE_DRY": "Auf der Leine trocknen",
+      "DRY_FLAT": "Liegend trocknen",
+      "DRY_IN_SHADE": "Im Schatten trocknen",
+      "IRON_LOW": "Bügeln bei niedriger Temperatur (110 °C)",
+      "IRON_MEDIUM": "Bügeln bei mittlerer Temperatur (150 °C)",
+      "IRON_HIGH": "Bügeln bei hoher Temperatur (200 °C)",
+      "DO_NOT_IRON": "Nicht bügeln",
+      "DO_NOT_PROFESSIONAL_CLEAN": "Keine professionelle Reinigung",
+      "DRY_CLEAN_P": "{gentleness, select, GENTLE {Schonende professionelle Chemischreinigung (P)} other {Professionelle Chemischreinigung (P)}}",
+      "DRY_CLEAN_F": "{gentleness, select, GENTLE {Schonende professionelle Chemischreinigung (F)} other {Professionelle Chemischreinigung (F)}}",
+      "WET_CLEAN": "{gentleness, select, GENTLE {Schonende professionelle Nassreinigung (W)} other {Professionelle Nassreinigung (W)}}"
+    }
   },
   "publishing": {
     "scoreTitle": "Konformitätswert",
@@ -1371,7 +1451,9 @@
     "barPreviewSub": "Sieht aus wie veröffentlicht; nichts wird gespeichert",
     "barBackToBatch": "Zurück zur Charge",
     "loadFailed": "Der Pass konnte nicht geladen werden",
-    "listScoreNote": "Die Linie ist die Veröffentlichungsschwelle von 90 %. Veröffentlichte Chargen zeigen den Wert zum Zeitpunkt der Veröffentlichung."
+    "listScoreNote": "Die Linie ist die Veröffentlichungsschwelle von 90 %. Veröffentlichte Chargen zeigen den Wert zum Zeitpunkt der Veröffentlichung.",
+    "careMissing": "Pflegehinweise fehlen",
+    "careMissingBody": "Produktfeld · beeinflusst weder Bewertung noch Veröffentlichung. Ohne sie zeigt der Pass keinen Pflegebereich."
   },
   "documents": {
     "pick": {

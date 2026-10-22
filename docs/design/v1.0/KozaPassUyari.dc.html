@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box}input,select,textarea,button{font:inherit}@keyframes kp-spin{to{transform:rotate(360deg)}}@keyframes kp-pulse{50%{opacity:.55}}</style>
+</helmet>
+
+<sc-if value="{{ isCard }}" hint-placeholder-val="{{ false }}">
+  <div lang="tr" style="width:880px;padding:24px;background:var(--background);color:var(--foreground);font-family:'Geist',system-ui,sans-serif;font-size:14px;border-radius:10px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ cardOnly }}" as="a" hint-placeholder-count="1">
+      <div style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:16px">
+        <span style="width:36px;height:36px;border-radius:8px;background:var(--status-{{ a.s }}-muted);color:var(--status-{{ a.s }}-foreground);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.icon }}"></path></svg></span>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ a.s }}-muted);color:var(--status-{{ a.s }}-foreground);font-size:11px;font-weight:500;padding:2px 8px 2px 7px;border-radius:999px"><span style="width:5px;height:5px;border-radius:50%;background:var(--status-{{ a.s }})"></span>{{ a.sev }}</span>
+            <span style="font:500 11px 'Geist Mono',monospace;padding:1px 6px;border-radius:4px;border:1px solid var(--input);color:var(--foreground)">{{ a.code }}</span>
+            <sc-if value="{{ a.isAi }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;background:var(--brand-muted);color:var(--brand-text);font-size:11px;font-weight:500;padding:2px 8px 2px 6px;border-radius:999px"><svg width="11" height="11" viewBox="0 0 24 24" style="fill:currentColor"><path d="{{ a.sparkle }}"></path></svg>AI önerisi</span><span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">güven {{ a.conf }}</span></sc-if>
+            <sc-if value="{{ a.isRule }}" hint-placeholder-val="{{ true }}"><span style="font-size:12px;color:var(--muted-foreground)">Kural · {{ a.rule }}</span></sc-if>
+            <span style="margin-left:auto;font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ a.when }}</span>
+          </div>
+          <strong style="font-size:15px;font-weight:500;letter-spacing:-0.01em;line-height:1.4;text-wrap:pretty">{{ a.title }}</strong>
+          <span style="font-size:12px;color:var(--muted-foreground)">{{ a.meta }}</span>
+          <sc-if value="{{ a.hasCompare }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px">
+              <sc-for list="{{ a.compare }}" as="cp" hint-placeholder-count="2"><span style="display:flex;flex-direction:column;gap:3px;padding:8px 12px;border-radius:6px;background:var(--muted);min-width:220px;border:1px solid {{ cp.bd }}"><span style="font-size:11px;color:var(--muted-foreground)">{{ cp.k }}</span><span style="display:flex;flex-wrap:wrap;gap:4px 6px;font-size:13px;font-weight:500"><sc-for list="{{ cp.parts }}" as="pp" hint-placeholder-count="2"><span style="color:{{ pp.c }}">{{ pp.t }}</span></sc-for></span></span></sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ a.isAi }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted-foreground)"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.infoIc }}"></path></svg>AI önerir, siz karar verirsiniz.</span></sc-if>
+          <div style="display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);padding-top:12px;margin-top:4px">
+            <sc-if value="{{ a.isBlock }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--status-rejected-foreground)"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.lockIc }}"></path></svg>Düzeltilene kadar yayını engeller</span></sc-if>
+            <sc-if value="{{ a.canResolveUi }}" hint-placeholder-val="{{ false }}"><button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.checkIc }}"></path></svg>Çözüldü</button></sc-if>
+            <span style="margin-left:auto;display:flex;gap:8px"><sc-for list="{{ a.actions }}" as="ac" hint-placeholder-count="2"><button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:{{ ac.bg }};color:{{ ac.fg }};border:1px solid {{ ac.bd }};cursor:pointer">{{ ac.t }}</button></sc-for></span>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isShell }}" hint-placeholder-val="{{ true }}">
+<div lang="tr" style="width:1440px;height:{{ rootH }};display:grid;grid-template-columns:240px minmax(0,1fr);background:var(--background);color:var(--foreground);font-family:'Geist',system-ui,sans-serif;font-size:14px;border-radius:10px;overflow:hidden;position:relative;box-shadow:0 20px 50px -20px rgba(28,27,25,.35)">
+  <aside style="background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:12px">
+    <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 8px;margin-bottom:12px">
+      <svg width="22" height="22" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--brand)"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:var(--sidebar);stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:var(--brand);stroke-width:2.6;stroke-linecap:round"></path></svg>
+      <span style="font-weight:600;font-size:15px;letter-spacing:-0.03em">KozaPass</span>
+    </div>
+    <sc-for list="{{ nav }}" as="g" hint-placeholder-count="4">
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px">
+        <sc-if value="{{ g.hasTitle }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:500;color:var(--muted-foreground);padding:0 8px 6px">{{ g.title }}</span></sc-if>
+        <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="2">
+          <div style="height:32px;padding:0 8px;border-radius:6px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:{{ n.w }};color:{{ n.fg }};background:{{ n.bg }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="{{ n.d }}"></path></svg>{{ n.label }}
+            <sc-if value="{{ n.hasCount }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font:500 11px 'Geist Mono',monospace;padding:1px 6px;border-radius:4px;background:var(--brand);color:var(--brand-foreground)">{{ n.count }}</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </aside>
+  <div style="display:flex;flex-direction:column;min-width:0;min-height:0">
+    <header style="height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 16px 0 24px;flex:none">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500"><span style="width:24px;height:24px;border-radius:6px;background:var(--muted);color:var(--muted-foreground);display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.building }}"></path></svg></span>Nilüfer Giyim A.Ş.</div>
+      <sc-for list="{{ crumbs }}" as="c" hint-placeholder-count="2"><span style="color:var(--input)">/</span><span style="font-size:13px;color:{{ c.fg }};font-family:{{ c.font }}">{{ c.t }}</span></sc-for>
+      <div style="margin-left:auto;height:32px;width:260px;border:1px solid var(--input);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 10px;color:var(--muted-foreground);font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.search }}"></path></svg>Parti, GTIN veya tedarikçi ara<span style="margin-left:auto;font:11px 'Geist Mono',monospace;border:1px solid var(--border);border-radius:4px;padding:0 4px">⌘K</span></div>
+      <div style="display:flex;background:var(--muted);border-radius:6px;padding:2px;gap:2px;font:500 11px 'Geist Mono',monospace"><span style="padding:5px 8px;border-radius:4px;background:var(--card);color:var(--foreground);box-shadow:var(--shadow-xs)">TR</span><span style="padding:5px 8px;color:var(--muted-foreground)">EN</span><span style="padding:5px 8px;color:var(--muted-foreground)">DE</span></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 6px"><span style="width:28px;height:28px;border-radius:50%;background:#EFE6D8;color:#3D3A35;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ user.init }}</span><span style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:12px;font-weight:500">{{ user.name }}</span><span style="font-size:11px;color:var(--muted-foreground)">{{ user.role }}</span></span></div>
+    </header>
+
+    <main style="flex:1;min-height:0;overflow:auto;padding:28px 32px 40px">
+
+      <sc-if value="{{ isGorev }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:28px;max-width:1100px">
+          <div style="display:flex;align-items:flex-end;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:4px"><h1 style="margin:0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.015em">Görevler</h1><span style="font-size:13px;color:var(--muted-foreground)">Onayınızı bekleyen veriler, süresi yaklaşan talepler ve sertifikalar, tedarikçisi atanmamış adımlar.</span></div>
+            <span style="margin-left:auto;font-size:12px;color:var(--muted-foreground)">{{ tasksTxt }}</span>
+          </div>
+          <sc-for list="{{ taskGroups }}" as="g" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:baseline;gap:10px"><h2 style="margin:0;font-size:15px;font-weight:600;letter-spacing:-0.01em">{{ g.title }}</h2><span style="font:500 11px 'Geist Mono',monospace;padding:1px 6px;border-radius:4px;background:var(--muted);color:var(--muted-foreground)">{{ g.n }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ g.desc }}</span></div>
+              <div style="border:1px solid var(--border);border-radius:8px;background:var(--card);overflow:hidden">
+                <sc-if value="{{ g.isCert }}" hint-placeholder-val="{{ false }}">
+                  <sc-for list="{{ g.items }}" as="t" hint-placeholder-count="2">
+                    <div style="display:grid;grid-template-columns:minmax(0,1fr) 130px 190px 200px 250px;gap:12px;align-items:center;min-height:56px;padding:8px 16px;border-bottom:1px solid var(--border);font-size:13px" style-hover="background:var(--accent)">
+                      <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:500">{{ t.firm }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ t.sub }}</span></span>
+                      <span><span style="font:500 11px 'Geist Mono',monospace;padding:2px 7px;border-radius:4px;border:1px solid var(--input);white-space:nowrap">{{ t.cert }}</span></span>
+                      <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--status-{{ t.s }}-foreground)"><svg width="13" height="13" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="{{ t.icon }}"></path></svg>{{ t.when }}</span>
+                      <span style="display:flex;flex-wrap:wrap;gap:4px 8px;font:12px 'Geist Mono',monospace"><sc-for list="{{ t.batches }}" as="bt" hint-placeholder-count="1"><span>{{ bt }}</span></sc-for></span>
+                      <span style="display:flex;justify-content:flex-end;gap:6px">
+                        <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer;white-space:nowrap" style-hover="background:var(--accent)">Adıma git</button>
+                        <button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;cursor:pointer;white-space:nowrap">Yenisini talep et</button>
+                      </span>
+                    </div>
+                  </sc-for>
+                </sc-if>
+                <sc-if value="{{ g.isTask }}" hint-placeholder-val="{{ true }}">
+                  <sc-for list="{{ g.items }}" as="t" hint-placeholder-count="2">
+                    <div style="display:grid;grid-template-columns:150px minmax(0,1fr) 160px 130px 140px;gap:12px;align-items:center;min-height:56px;padding:8px 16px;border-bottom:1px solid var(--border);font-size:13px" style-hover="background:var(--accent)">
+                      <span><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ t.s }}-muted);color:var(--status-{{ t.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ t.s }})"></span>{{ t.sl }}</span></span>
+                      <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</span><span style="font-size:12px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.sub }}</span></span>
+                      <span style="font:12px 'Geist Mono',monospace">{{ t.parti }}</span>
+                      <span style="font-size:12px;color:{{ t.whenFg }};font-variant-numeric:tabular-nums">{{ t.when }}</span>
+                      <span style="display:flex;justify-content:flex-end"><button style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:var(--shadow-xs);cursor:pointer;white-space:nowrap" style-hover="background:var(--accent)">{{ t.cta }}</button></span>
+                    </div>
+                  </sc-for>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isList }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;align-items:flex-end;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:4px"><h1 style="margin:0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.015em">Partiler</h1><span style="font-size:13px;color:var(--muted-foreground)">Üretim partileri, tedarik zinciri durumu ve pasaport yayını.</span></div>
+            <button style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.plus }}"></path></svg>Yeni parti</button>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:8px;background:var(--card)">
+            <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 150px 290px 170px 100px;align-items:center;height:36px;padding:0 16px;background:var(--muted);color:var(--muted-foreground);font-size:12px;font-weight:500;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0">
+              <span>Parti no</span><span>Ürün</span><span>Tedarik zinciri</span><span>Durum</span><span>Uyum skoru</span><span>Güncelleme</span>
+            </div>
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="7">
+              <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 150px 290px 170px 100px;align-items:center;min-height:52px;padding:6px 16px;border-bottom:1px solid var(--border);font-size:13px" style-hover="background:var(--accent)">
+                <span style="font:12px 'Geist Mono',monospace">{{ r.id }}</span>
+                <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.product }}</span>
+                <span style="display:flex;gap:4px"><sc-for list="{{ r.dots }}" as="d" hint-placeholder-count="5"><span style="width:8px;height:8px;border-radius:50%;background:{{ d }}"></span></sc-for></span>
+                <span style="display:flex;align-items:center;gap:8px">
+                  <span style="display:inline-flex;align-items:center;gap:6px;background:{{ r.cbg }};color:{{ r.cfg }};font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.cdot }}"></span>{{ r.chip }}</span>
+                  <sc-if value="{{ r.hasAl }}" hint-placeholder-val="{{ false }}">
+                    <span title="{{ r.alTip }}" aria-label="{{ r.alTip }}" style="position:relative;display:inline-flex;align-items:center;gap:4px;font:500 12px 'Geist Mono',monospace;color:var(--status-{{ r.alS }}-foreground)"><span style="width:7px;height:7px;border-radius:50%;background:var(--status-{{ r.alS }})"></span>{{ r.alN }}
+                      <sc-if value="{{ r.showTip }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);z-index:30;white-space:nowrap;background:var(--tooltip);color:var(--tooltip-foreground);font:500 12px/16px 'Geist',sans-serif;padding:6px 10px;border-radius:6px;box-shadow:var(--shadow-md)">{{ r.alTip }}</span></sc-if>
+                    </span>
+                  </sc-if>
+                </span>
+                <span style="display:flex;align-items:center;gap:10px">
+                  <sc-if value="{{ r.hasScore }}" hint-placeholder-val="{{ true }}">
+                    <span style="font:500 13px 'Geist Mono',monospace;width:34px;font-variant-numeric:tabular-nums">%{{ r.score }}</span>
+                    <span style="position:relative;width:64px;height:4px;border-radius:2px;background:var(--muted);display:flex"><span style="width:{{ r.w }};background:{{ r.c }};border-radius:2px"></span><span style="position:absolute;left:90%;top:-3px;width:1.5px;height:10px;background:var(--foreground);opacity:.6"></span></span>
+                  </sc-if>
+                  <sc-if value="{{ r.noScore }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted-foreground)">—</span></sc-if>
+                </span>
+                <span style="font-size:12px;color:var(--muted-foreground)">{{ r.upd }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <span style="font-size:12px;color:var(--muted-foreground)">Durum çipinin yanındaki nokta açık uyarıları gösterir: kırmızı engelleyici, turuncu uyarı. Bilgi düzeyindekiler listede gösterilmez.</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isParti }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                <h1 style="margin:0;font:500 28px/34px 'Geist Mono',monospace;letter-spacing:-0.03em">KP-2026-0915-A</h1>
+                <span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:4px;font-size:13px;font-weight:500;background:var(--status-{{ lc.s }}-muted);color:var(--status-{{ lc.s }}-foreground)"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ lc.s }})"></span>{{ lc.t }}</span>
+                <sc-if value="{{ sum.show }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ goAlerts }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--status-{{ sum.s }}-muted);color:var(--status-{{ sum.s }}-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ sum.icon }}"></path></svg>{{ sum.t }}</button>
+                </sc-if>
+              </div>
+              <span style="font-size:16px;font-weight:500;letter-spacing:-0.01em">Organik Pamuk Polo <span style="color:var(--muted-foreground);font-weight:400">· 2.400 adet</span></span>
+              <div style="display:flex;flex-wrap:wrap;gap:6px 24px;font-size:12px;color:var(--muted-foreground);margin-top:4px">
+                <span>GTIN <span style="font-family:'Geist Mono',monospace;color:var(--foreground)">02012345000025</span></span>
+                <span>Üretim emri <span style="font-family:'Geist Mono',monospace;color:var(--foreground)">UE-2026-0412</span></span>
+                <span>Üretim <span style="color:var(--foreground)">2 Eyl – 26 Eyl 2026</span></span>
+                <span>Etiket beyanı <span style="color:var(--foreground)">%95 organik pamuk · %5 elastan</span></span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;gap:8px">
+                <button style="height:36px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer;display:flex;align-items:center;gap:6px" style-hover="background:var(--accent)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.eye }}"></path></svg>Önizle</button>
+                <button disabled="{{ pubDis }}" onClick="{{ openPublish }}" style="flex:1;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--brand);color:var(--brand-foreground);border:1px solid transparent;opacity:{{ pubOp }};cursor:{{ pubCur }};display:flex;align-items:center;justify-content:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ pubIcon }}"></path></svg>Pasaportu yayınla</button>
+              </div>
+              <sc-if value="{{ hasReasons }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:3px;font-size:12px;line-height:1.4;color:var(--muted-foreground)">
+                  <sc-for list="{{ reasons }}" as="rs" hint-placeholder-count="1"><span style="display:flex;gap:6px"><span style="width:4px;height:4px;border-radius:50%;background:var(--status-{{ rs.s }});margin-top:7px;flex:none"></span>{{ rs.t }}</span></sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+              <div role="tablist" style="display:flex;gap:4px;border-bottom:1px solid var(--border)">
+                <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+                  <button role="tab" onClick="{{ t.go }}" style="height:40px;padding:0 12px;border:none;background:transparent;font:{{ t.font }};color:{{ t.fg }};box-shadow:{{ t.line }};display:flex;align-items:center;gap:8px;cursor:pointer" style-hover="color:var(--foreground)">{{ t.label }}<span style="font:500 11px 'Geist Mono',monospace;padding:1px 6px;border-radius:4px;background:{{ t.cbg }};color:{{ t.cfg }}">{{ t.count }}</span></button>
+                </sc-for>
+              </div>
+
+              <sc-if value="{{ isChainTab }}" hint-placeholder-val="{{ false }}">
+                <div style="border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:hidden">
+                  <sc-for list="{{ chain }}" as="c" hint-placeholder-count="5">
+                    <div style="display:grid;grid-template-columns:28px 120px minmax(0,1fr) 150px 200px;gap:12px;align-items:center;min-height:56px;padding:8px 16px;border-bottom:1px solid var(--border);font-size:13px">
+                      <span style="font:500 11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ c.n }}</span>
+                      <span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">{{ c.step }}</span>
+                      <span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:500">{{ c.firm }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ c.city }}</span></span>
+                      <span><span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ c.s }}-muted);color:var(--status-{{ c.s }}-foreground);font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ c.s }})"></span>{{ c.sl }}</span></span>
+                      <span style="display:flex;justify-content:flex-end;gap:6px;font:500 11px 'Geist Mono',monospace"><sc-for list="{{ c.codes }}" as="cd" hint-placeholder-count="1"><span style="white-space:nowrap;padding:1px 5px;border-radius:4px;background:var(--status-{{ cd.s }}-muted);color:var(--status-{{ cd.s }}-foreground)">{{ cd.t }}</span></sc-for></span>
+                    </div>
+                  </sc-for>
+                </div>
+                <span style="font-size:12px;color:var(--muted-foreground)">Zincir görünümü v0.5 ile aynıdır; burada sadeleştirildi. Satırdaki kodlar o adıma bağlı açık uyarılardır.</span>
+              </sc-if>
+
+              <sc-if value="{{ isAlertsTab }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:flex-start;gap:12px">
+                  <div role="radiogroup" aria-label="Uyarı filtresi" style="display:flex;background:var(--muted);border-radius:6px;padding:2px;gap:2px">
+                    <sc-for list="{{ segs }}" as="sg" hint-placeholder-count="2"><button role="radio" aria-checked="{{ sg.on }}" onClick="{{ sg.go }}" style="height:28px;padding:0 10px;border:none;border-radius:4px;background:{{ sg.bg }};color:{{ sg.fg }};box-shadow:{{ sg.sh }};font:500 12px 'Geist',sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer">{{ sg.t }}<span style="font:500 11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ sg.n }}</span></button></sc-for>
+                  </div>
+                  <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                    <span style="position:relative;display:flex">
+                      <button disabled="{{ runDis }}" onClick="{{ runChecks }}" title="{{ runTitle }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:6px;cursor:{{ runCur }};opacity:{{ runOp }}" style-hover="background:var(--accent)">
+                        <svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;animation:{{ runAnim }}"><path d="{{ ic.refresh }}"></path></svg>{{ runT }}
+                      </button>
+                      <sc-if value="{{ runTip }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute;bottom:calc(100% + 8px);right:0;z-index:30;white-space:nowrap;background:var(--tooltip);color:var(--tooltip-foreground);font:500 12px/16px 'Geist',sans-serif;padding:6px 10px;border-radius:6px;box-shadow:var(--shadow-md)">Bu işlem için yetkiniz yok</span></sc-if>
+                    </span>
+                    <span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ lastCheck }}</span>
+                  </div>
+                </div>
+
+                <sc-if value="{{ alLoading }}" hint-placeholder-val="{{ false }}">
+                  <div aria-busy="true" aria-label="Uyarılar yükleniyor" style="display:flex;flex-direction:column;gap:10px">
+                    <sc-for list="{{ skel3 }}" as="k" hint-placeholder-count="3">
+                      <div style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:16px;animation:kp-pulse 1.4s ease-in-out infinite">
+                        <span style="width:36px;height:36px;border-radius:8px;background:var(--skeleton)"></span>
+                        <span style="display:flex;flex-direction:column;gap:10px"><span style="display:flex;gap:8px"><span style="width:76px;height:18px;border-radius:999px;background:var(--skeleton)"></span><span style="width:52px;height:18px;border-radius:4px;background:var(--skeleton)"></span></span><span style="width:{{ k }};height:12px;border-radius:3px;background:var(--skeleton)"></span><span style="width:40%;height:10px;border-radius:3px;background:var(--skeleton)"></span><span style="height:1px;background:var(--border);margin-top:4px"></span><span style="display:flex;justify-content:flex-end;gap:8px"><span style="width:84px;height:28px;border-radius:6px;background:var(--skeleton)"></span><span style="width:110px;height:28px;border-radius:6px;background:var(--skeleton)"></span></span></span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ alError }}" hint-placeholder-val="{{ false }}">
+                  <div role="alert" style="border:1px solid var(--border);border-radius:10px;background:var(--card);padding:48px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px">
+                    <span style="width:44px;height:44px;border-radius:10px;background:var(--status-rejected-muted);color:var(--status-rejected-foreground);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.alert }}"></path></svg></span>
+                    <strong style="font-size:15px;font-weight:600">Uyarılar yüklenemedi</strong>
+                    <span style="font-size:13px;color:var(--muted-foreground)">Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin. Yayın engelleri sunucuda yine de uygulanır.</span>
+                    <span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">HTTP 503 · istek 7a2f-91cd</span>
+                    <button style="margin-top:6px;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.refresh }}"></path></svg>Tekrar dene</button>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ alEmptyOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="border:1px dashed var(--input);border-radius:12px;padding:64px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px">
+                    <span style="width:52px;height:52px;border-radius:14px;background:var(--status-approved-muted);color:var(--status-approved-foreground);display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span>
+                    <strong style="font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:400;letter-spacing:-0.015em">Açık uyarı yok</strong>
+                    <span style="font-size:14px;line-height:1.55;color:var(--muted-foreground);max-width:440px">Tüm kontroller geçti, son kontrol bugün 14:32.</span>
+                    <button disabled="{{ runDis }}" onClick="{{ runChecks }}" style="margin-top:4px;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;animation:{{ runAnim }}"><path d="{{ ic.refresh }}"></path></svg>{{ runT }}</button>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ alEmptyRes }}" hint-placeholder-val="{{ false }}">
+                  <div style="border:1px dashed var(--input);border-radius:12px;padding:56px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px">
+                    <strong style="font-family:'Newsreader',Georgia,serif;font-size:24px;font-weight:400;letter-spacing:-0.015em">Çözülen uyarı yok</strong>
+                    <span style="font-size:14px;line-height:1.55;color:var(--muted-foreground);max-width:460px">Elle çözülen uyarılar ve veri düzeltildiğinde kendiliğinden kapananlar burada, kim ve ne zaman bilgisiyle listelenir.</span>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ alList }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;flex-direction:column;gap:18px">
+                    <sc-for list="{{ groups }}" as="gr" hint-placeholder-count="1">
+                      <div style="display:flex;flex-direction:column;gap:10px">
+                        <sc-if value="{{ gr.hasHead }}" hint-placeholder-val="{{ false }}">
+                          <div style="display:flex;align-items:center;gap:8px;padding-top:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--status-{{ gr.s }})"></span><h3 style="margin:0;font-size:13px;font-weight:600">{{ gr.title }}</h3><span style="font:500 11px 'Geist Mono',monospace;padding:1px 6px;border-radius:4px;background:var(--muted);color:var(--muted-foreground)">{{ gr.n }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ gr.desc }}</span></div>
+                        </sc-if>
+                        <sc-for list="{{ gr.items }}" as="a" hint-placeholder-count="3">
+                          <div style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:14px;border:1px solid var(--border);border-radius:10px;background:{{ a.cardBg }};padding:16px">
+                            <span style="width:36px;height:36px;border-radius:8px;background:var(--status-{{ a.s }}-muted);color:var(--status-{{ a.s }}-foreground);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.icon }}"></path></svg></span>
+                            <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+                              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                                <span style="display:inline-flex;align-items:center;gap:6px;background:var(--status-{{ a.s }}-muted);color:var(--status-{{ a.s }}-foreground);font-size:11px;font-weight:500;padding:2px 8px 2px 7px;border-radius:999px"><span style="width:5px;height:5px;border-radius:50%;background:var(--status-{{ a.s }})"></span>{{ a.sev }}</span>
+                                <span style="font:500 11px 'Geist Mono',monospace;padding:1px 6px;border-radius:4px;border:1px solid var(--input);color:var(--foreground)">{{ a.code }}</span>
+                                <sc-if value="{{ a.isAi }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;background:var(--brand-muted);color:var(--brand-text);font-size:11px;font-weight:500;padding:2px 8px 2px 6px;border-radius:999px"><svg width="11" height="11" viewBox="0 0 24 24" style="fill:currentColor"><path d="{{ a.sparkle }}"></path></svg>AI önerisi</span><span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">güven {{ a.conf }}</span></sc-if>
+                                <sc-if value="{{ a.isRule }}" hint-placeholder-val="{{ true }}"><span style="font-size:12px;color:var(--muted-foreground)">Kural · {{ a.rule }}</span></sc-if>
+                                <span style="margin-left:auto;font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ a.when }}</span>
+                              </div>
+                              <strong style="font-size:15px;font-weight:500;letter-spacing:-0.01em;line-height:1.4;text-wrap:pretty;color:{{ a.titleFg }}">{{ a.title }}</strong>
+                              <span style="font-size:12px;color:var(--muted-foreground)">{{ a.meta }}</span>
+                              <sc-if value="{{ a.hasCompare }}" hint-placeholder-val="{{ false }}">
+                                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px">
+                                  <sc-for list="{{ a.compare }}" as="cp" hint-placeholder-count="2"><span style="display:flex;flex-direction:column;gap:3px;padding:8px 12px;border-radius:6px;background:var(--muted);min-width:220px;border:1px solid {{ cp.bd }}"><span style="font-size:11px;color:var(--muted-foreground)">{{ cp.k }}</span><span style="display:flex;flex-wrap:wrap;gap:4px 6px;font-size:13px;font-weight:500"><sc-for list="{{ cp.parts }}" as="pp" hint-placeholder-count="2"><span style="color:{{ pp.c }}">{{ pp.t }}</span></sc-for></span></span></sc-for>
+                                </div>
+                              </sc-if>
+                              <sc-if value="{{ a.isAi }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted-foreground)"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.infoIc }}"></path></svg>AI önerir, siz karar verirsiniz.</span></sc-if>
+
+                              <sc-if value="{{ a.hasErr }}" hint-placeholder-val="{{ false }}">
+                                <div role="alert" style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:6px;background:var(--status-rejected-muted);color:var(--status-rejected-foreground);font-size:13px;line-height:1.45"><svg width="15" height="15" viewBox="0 0 24 24" style="flex:none;margin-top:2px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.alertIc }}"></path></svg><span style="display:flex;flex-direction:column;gap:2px;flex:1"><strong style="font-weight:600">{{ a.errT }}</strong><span>{{ a.errSub }}</span><span style="font:11px 'Geist Mono',monospace">{{ a.errCode }}</span></span></div>
+                              </sc-if>
+
+                              <sc-if value="{{ a.formOpen }}" hint-placeholder-val="{{ false }}">
+                                <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border);padding-top:12px;margin-top:4px">
+                                  <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:500">Not <span style="display:contents;font-weight:400;color:var(--muted-foreground)">(isteğe bağlı)</span>
+                                    <textarea value="{{ noteText }}" onChange="{{ onNote }}" rows="3" maxlength="500" placeholder="Neden çözüldüğünü kısaca yazın; parti geçmişine kaydedilir" style="resize:none;padding:8px 10px;border-radius:6px;border:1px solid var(--ring);box-shadow:0 0 0 3px var(--ring-soft);background:var(--card);color:var(--foreground);font-size:13px;font-weight:400;line-height:1.5;outline:none"></textarea>
+                                  </label>
+                                  <div style="display:flex;align-items:center;gap:8px">
+                                    <span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ noteCount }}/500</span>
+                                    <span style="margin-left:auto;display:flex;gap:8px">
+                                      <button onClick="{{ cancelResolve }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer" style-hover="background:var(--accent)">Vazgeç</button>
+                                      <button onClick="{{ a.doResolve }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;cursor:pointer;display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.checkIc }}"></path></svg>Çözüldü işaretle</button>
+                                    </span>
+                                  </div>
+                                </div>
+                              </sc-if>
+
+                              <sc-if value="{{ a.footer }}" hint-placeholder-val="{{ true }}">
+                                <div style="display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);padding-top:12px;margin-top:4px">
+                                  <sc-if value="{{ a.isBlock }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--status-rejected-foreground)"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.lockIc }}"></path></svg>Düzeltilene kadar yayını engeller</span></sc-if>
+                                  <sc-if value="{{ a.canResolveUi }}" hint-placeholder-val="{{ false }}">
+                                    <span style="position:relative;display:flex">
+                                      <button disabled="{{ a.resDis }}" onClick="{{ a.openResolve }}" title="{{ a.resTitle }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid var(--input);display:flex;align-items:center;gap:6px;cursor:{{ a.resCur }};opacity:{{ a.resOp }}" style-hover="background:var(--accent)"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.checkIc }}"></path></svg>Çözüldü</button>
+                                      <sc-if value="{{ a.showTip }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute;bottom:calc(100% + 8px);left:0;z-index:30;white-space:nowrap;background:var(--tooltip);color:var(--tooltip-foreground);font:500 12px/16px 'Geist',sans-serif;padding:6px 10px;border-radius:6px;box-shadow:var(--shadow-md)">Bu işlem için yetkiniz yok</span></sc-if>
+                                    </span>
+                                  </sc-if>
+                                  <span style="margin-left:auto;display:flex;gap:8px">
+                                    <sc-for list="{{ a.actions }}" as="ac" hint-placeholder-count="2"><button disabled="{{ ac.dis }}" title="{{ ac.title }}" style="height:32px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:{{ ac.bg }};color:{{ ac.fg }};border:1px solid {{ ac.bd }};cursor:{{ ac.cur }};opacity:{{ ac.op }}">{{ ac.t }}</button></sc-for>
+                                  </span>
+                                </div>
+                              </sc-if>
+
+                              <sc-if value="{{ a.resolved }}" hint-placeholder-val="{{ false }}">
+                                <div style="display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);padding-top:12px;margin-top:4px;font-size:12px;color:var(--muted-foreground)">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:var(--status-approved);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ a.checkIc }}"></path></svg>
+                                  <span style="flex:1;line-height:1.5;color:var(--foreground)">{{ a.resLine }}</span>
+                                  <sc-if value="{{ a.canReopen }}" hint-placeholder-val="{{ false }}"><button onClick="{{ a.reopen }}" style="height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer;flex:none" style-hover="background:var(--accent)">Geri aç</button></sc-if>
+                                </div>
+                              </sc-if>
+                            </div>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </sc-if>
+            </div>
+
+            <section aria-label="Uyum skoru" style="border:1px solid var(--border);border-radius:12px;background:var(--card);padding:16px;display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;align-items:center;gap:16px">
+                <span style="position:relative;width:88px;height:88px;flex:none;display:flex;align-items:center;justify-content:center">
+                  <svg width="88" height="88" viewBox="0 0 88 88" style="position:absolute;inset:0;transform:rotate(-90deg)"><circle cx="44" cy="44" r="36" style="fill:none;stroke:var(--muted);stroke-width:8"></circle><circle cx="44" cy="44" r="36" style="fill:none;stroke:var(--status-approved);stroke-width:8;stroke-linecap:round;stroke-dasharray:{{ sc.dash }}"></circle><line x1="44" y1="2" x2="44" y2="14" transform="rotate(324 44 44)" style="stroke:var(--foreground);stroke-width:2"></line></svg>
+                  <span style="font:600 20px 'Geist Mono',monospace;letter-spacing:-0.04em">%{{ sc.v }}</span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+                  <span style="font-size:14px;font-weight:600">Uyum skoru</span>
+                  <span style="font-size:12px;color:var(--muted-foreground)">Yayın eşiği %90</span>
+                  <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--status-{{ sc.stS }}-foreground);margin-top:2px"><svg width="13" height="13" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ sc.stIcon }}"></path></svg>{{ sc.st }}</span>
+                </span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--border);padding-top:12px">
+                <sc-for list="{{ sc.parts }}" as="pt" hint-placeholder-count="3">
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <div style="display:flex;align-items:baseline;justify-content:space-between;font-size:13px"><span>{{ pt.t }}</span><span style="font:500 12px 'Geist Mono',monospace">{{ pt.v }}/{{ pt.max }}</span></div>
+                    <span style="height:4px;border-radius:2px;background:var(--muted);display:flex"><span style="width:{{ pt.w }};background:{{ pt.c }};border-radius:2px"></span></span>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ sc.hasBlk }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border);padding-top:12px">
+                  <span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Yayın engelleri</span>
+                  <sc-for list="{{ sc.blk }}" as="bk" hint-placeholder-count="2">
+                    <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.4">
+                      <svg width="15" height="15" viewBox="0 0 24 24" style="flex:none;margin-top:1px;fill:none;stroke:var(--status-{{ bk.s }});stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="{{ bk.icon }}"></path></svg>
+                      <span style="display:flex;flex-direction:column;gap:2px">
+                        <sc-if value="{{ bk.isLink }}" hint-placeholder-val="{{ false }}"><a href="#" onClick="{{ goAlertsLink }}" style="color:var(--status-{{ bk.s }}-foreground);font-weight:500;text-decoration:underline;text-underline-offset:3px">{{ bk.t }}</a></sc-if>
+                        <sc-if value="{{ bk.isText }}" hint-placeholder-val="{{ true }}"><span style="color:var(--status-{{ bk.s }}-foreground);font-weight:500">{{ bk.t }}</span></sc-if>
+                        <span style="font:11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ bk.sub }}</span>
+                      </span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </section>
+          </div>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{ ovPublish }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;z-index:50">
+      <div role="dialog" aria-modal="true" aria-labelledby="pd-t" style="width:560px;background:var(--popover);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+        <div style="padding:20px 24px 0;display:flex;align-items:flex-start;gap:12px"><span style="display:flex;flex-direction:column;gap:4px;flex:1"><h2 id="pd-t" style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.015em">Pasaportu yayınla</h2><span style="font-size:13px;color:var(--muted-foreground)">KP-2026-0915-A · Organik Pamuk Polo</span></span><button aria-label="Kapat" onClick="{{ closeOv }}" style="width:32px;height:32px;border:none;border-radius:6px;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round"><path d="{{ ic.x }}"></path></svg></button></div>
+        <div style="padding:16px 24px;display:flex;flex-direction:column;gap:14px">
+          <div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;background:var(--card)">
+            <div style="display:flex;align-items:baseline;justify-content:space-between"><strong style="font-family:'Newsreader',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-0.015em">Sürüm 1 yayınlanacak</strong><span style="font:600 14px 'Geist Mono',monospace;color:var(--status-approved-foreground)">%{{ sc.v }}</span></div>
+            <div style="display:flex;gap:20px;font-size:13px"><span><strong style="font-weight:600">5</strong> adım</span><span><strong style="font-weight:600">2</strong> sertifika</span><span><strong style="font-weight:600">4</strong> tedarikçi</span></div>
+          </div>
+          <sc-if value="{{ pdBlocked }}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="display:flex;gap:10px;padding:12px 14px;border-radius:8px;background:var(--status-rejected-muted);color:var(--status-rejected-foreground);font-size:13px;line-height:1.45">
+              <svg width="17" height="17" viewBox="0 0 24 24" style="flex:none;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.alert }}"></path></svg>
+              <span style="display:flex;flex-direction:column;gap:6px;flex:1">
+                <strong style="font-weight:600">Yayın durduruldu: yeni bir engel çıktı.</strong>
+                <span>{{ pdBlkLine }}</span>
+                <span style="display:flex;align-items:center;gap:10px;margin-top:2px"><button onClick="{{ goAlerts }}" style="height:30px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer;display:flex;align-items:center;gap:6px">Uyarılar’a git<svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="m9 18 6-6-6-6"></path></svg></button><span style="font:11px 'Geist Mono',monospace">HTTP 409 · PUBLISH_BLOCKED</span></span>
+              </span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ pdWarn }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">Uyarılar · yayını durdurmaz</span>
+              <sc-for list="{{ pdWarnRows }}" as="w" hint-placeholder-count="3">
+                <div style="display:flex;gap:8px;align-items:baseline;font-size:13px;line-height:1.4"><span style="flex:none;font:500 11px 'Geist Mono',monospace;padding:1px 5px;border-radius:4px;background:var(--status-expiring-muted);color:var(--status-expiring-foreground)">{{ w.code }}</span><span>{{ w.t }}</span></div>
+              </sc-for>
+              <sc-if value="{{ pdMore }}" hint-placeholder-val="{{ false }}"><a href="#" onClick="{{ goAlertsLink }}" style="font-size:13px;color:var(--brand-text)">{{ pdMoreT }}</a></sc-if>
+            </div>
+          </sc-if>
+          <div role="note" style="display:flex;gap:12px;padding:14px 16px;border-radius:8px;background:var(--status-expiring-muted);border:1px solid var(--status-expiring);font-size:13px;line-height:1.5"><svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;margin-top:1px;fill:none;stroke:var(--status-expiring-foreground);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg><span style="display:flex;flex-direction:column;gap:3px"><strong style="font-size:14px;font-weight:600;color:var(--status-expiring-foreground)">Yayınlanan pasaport değiştirilemez.</strong><span style="color:var(--foreground)">Değişiklikler yeni sürüm olarak kaydedilir. QR kod aynı kalır ve her zaman en son sürümü açar.</span></span></div>
+        </div>
+        <div style="padding:14px 24px 20px;display:flex;justify-content:flex-end;gap:8px">
+          <button onClick="{{ closeOv }}" style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">{{ pdCancelT }}</button>
+          <sc-if value="{{ pdWarn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ closeOv }}" style="min-width:132px;height:36px;padding:0 16px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--brand);color:var(--brand-foreground);border:1px solid transparent;cursor:pointer">Yayınla</button></sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;parti&quot;,&quot;list&quot;,&quot;gorevler&quot;,&quot;card&quot;],&quot;default&quot;:&quot;parti&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;alerts&quot;,&quot;chain&quot;],&quot;default&quot;:&quot;alerts&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;seg&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;open&quot;,&quot;resolved&quot;],&quot;default&quot;:&quot;open&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;data&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;warn&quot;,&quot;empty&quot;,&quot;noresolved&quot;,&quot;many&quot;,&quot;loading&quot;,&quot;error&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;only&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;LIF-01&quot;,&quot;LIF-02&quot;,&quot;SER-01&quot;,&quot;SER-02&quot;,&quot;SER-03&quot;,&quot;SER-04&quot;,&quot;EKS-01&quot;,&quot;EKS-02&quot;,&quot;BEL-01&quot;,&quot;AI-01&quot;],&quot;default&quot;:&quot;LIF-01&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;role&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;owner&quot;,&quot;admin&quot;,&quot;editor&quot;,&quot;viewer&quot;],&quot;default&quot;:&quot;admin&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tip&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;running&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;resolving&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;err&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;overlay&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;publish&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;pub&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;confirm&quot;,&quot;blocked&quot;],&quot;default&quot;:&quot;confirm&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;certs&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;some&quot;,&quot;none&quot;],&quot;default&quot;:&quot;some&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;h&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:900,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  state = {};
+  g(k, d) { const s = this.state[k]; if (s !== undefined) return s; const p = this.props[k]; return p !== undefined && p !== null && p !== '' ? p : d; }
+  b(k) { const v = this.g(k, false); return v === true || v === 'true'; }
+  componentWillUnmount() { clearTimeout(this._t); }
+  renderVals() {
+    const ic = {
+      check: 'M20 6 9 17l-5-5', plus: 'M12 5v14M5 12h14', x: 'M18 6 6 18M6 6l12 12', search: 'M3 11a8 8 0 1 0 16 0a8 8 0 1 0-16 0M21 21l-4.3-4.3',
+      file: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7ZM14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8',
+      alert: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 8v4M12 16h.01', info: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 16v-4M12 8h.01',
+      building: 'M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18ZM6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4',
+      upload: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12',
+      refresh: 'M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5',
+      triangle: 'm21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4M12 17h.01', clock: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 6v6l4 2',
+      eye: 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7ZM9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0', lock: 'M5 11h14v11H5ZM7 11V7a5 5 0 0 1 10 0v4',
+      sparkle: 'M12 2l2.2 6.3L20.5 10.5l-6.3 2.2L12 19l-2.2-6.3L3.5 10.5l6.3-2.2Z', layers2: 'M2 7l10-5 10 5-10 5ZM2 17l10 5 10-5M2 12l10 5 10-5',
+      badge: 'M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76ZM9 12l2 2 4-4',
+      package: 'M7.5 4.27l9 5.15M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16ZM3.3 7l8.7 5 8.7-5M12 22V12',
+    };
+    const NAV = { inbox: 'M22 12h-6l-2 3h-4l-2-3H2M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11Z', layers: 'M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83ZM22 17.65l-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65M22 12.65l-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65', factory: 'M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2ZM17 18h1M12 18h1M7 18h1', users: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M5 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75', sliders: 'M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4' };
+
+    const view = this.g('view', 'parti'), role = this.g('role', 'admin'), data = this.g('data', 'default');
+    const canResolve = role === 'owner' || role === 'admin', canRun = role !== 'viewer', canAct = role !== 'viewer', tip = this.b('tip');
+    const user = { owner: { name: 'Selim Karaca', init: 'SK', role: 'Sahip' }, admin: { name: 'Elif Yılmaz', init: 'EY', role: 'Yönetici' }, editor: { name: 'Hande Kaya', init: 'HK', role: 'Editör' }, viewer: { name: 'Murat Öz', init: 'MÖ', role: 'İzleyici' } }[role] || { name: 'Elif Yılmaz', init: 'EY', role: 'Yönetici' };
+
+    const SEV = { block: ['rejected', 'Engelleyici', ic.triangle], warn: ['expiring', 'Uyarı', ic.clock], info: ['pending', 'Bilgi', ic.info] };
+    const R = 'var(--status-rejected-foreground)', F = 'var(--foreground)';
+    const P = (...xs) => xs.map(x => Array.isArray(x) ? { t: x[0], c: R } : { t: x, c: F });
+    const DEF = {
+      'LIF-01': { sev: 'block', rule: 'Lif bileşimi tutarlılığı', when: '16 Eyl 11:04', title: 'Etikette %95 organik pamuk beyan edilmiş, iplikçi %80 pamuk beyan etmiş.', meta: 'Ege İplik · İplik adımı · beyan 16 Eyl 2026', compare: [['Etiket beyanı', P('%95 organik pamuk', '·', '%5 elastan')], ['Ege İplik beyanı', P(['%80 pamuk'], '·', ['%20 polyester']), true]], acts: [['Adıma git'], ['Düzeltme iste', 1, 1]] },
+      'LIF-02': { sev: 'warn', rule: 'Kumaş ve iplik girdileri', when: '17 Eyl 15:40', title: 'Kumaşta %5 elastan beyan edilmiş, zincirde elastan ipliği girdisi yok.', meta: 'Demirtaş Örme Kumaş · Kumaş adımı', compare: [['Demirtaş Örme Kumaş beyanı', P('%95 pamuk', '·', ['%5 elastan']), true], ['İplik girdileri', P('1 girdi', '·', 'Ege İplik, pamuk ipliği')]], acts: [['Adıma git'], ['Düzeltme iste', 1, 1]] },
+      'SER-01': { sev: 'block', rule: 'Sertifika geçerliliği', when: '12 Eki 00:00', title: 'GOTS sertifikasının süresi 12 Eki 2026’da doldu.', meta: 'Ege İplik · İplik adımı · CU 1047823 · 9 gün önce', acts: [['Adıma git'], ['Yenisini talep et', 1, 1]] },
+      'SER-02': { sev: 'warn', rule: 'Sertifika geçerliliği', when: '21 Eki 14:32', title: 'OEKO-TEX Standard 100 sertifikası 12 gün içinde doluyor.', meta: 'Uludağ Boya Terbiye · Boya adımı · 23.HTR.71245 · bitiş 2 Kas 2026', acts: [['Yenisini talep et', 1, 1]] },
+      'SER-03': { sev: 'warn', rule: 'Sertifika sahibi', when: '17 Eyl 15:42', title: 'Sertifikadaki firma adı tedarikçiyle eşleşmiyor.', meta: 'GOTS · CU 1052210 · Kumaş adımı', compare: [['Sertifika sahibi', P(['Demirtaş Tekstil Holding A.Ş.']), true], ['Tedarikçi', P('Demirtaş Örme Kumaş San. Ltd. Şti.')]], acts: [['Adıma git'], ['Belgeyi aç', 0, 1]] },
+      'SER-04': { sev: 'warn', rule: 'Sertifika kapsamı', when: '17 Eyl 15:42', title: 'GOTS kapsamında yalnızca dokuma kumaş var; bu adımda örme kumaş üretilmiş.', meta: 'Demirtaş Örme Kumaş · Kumaş adımı · CU 1052210', acts: [['Belgeyi aç'], ['Yenisini talep et', 1, 1]] },
+      'EKS-01': { sev: 'block', rule: 'Zorunlu alan', when: '19 Eyl 10:22', title: 'Konfeksiyon adımında menşe ülke girilmemiş.', meta: 'İnegöl Fason Dikim · Konfeksiyon adımı · pasaportta zorunlu alan', acts: [['Adıma git'], ['Veri iste', 1, 1]] },
+      'EKS-02': { sev: 'info', rule: 'Önerilen alan', when: '19 Eyl 10:22', title: 'Boya adımında su tüketimi girilmemiş.', meta: 'Uludağ Boya Terbiye · Boya adımı · isteğe bağlı, boşsa pasaportta gösterilmez', acts: [['Veri iste', 0, 1]] },
+      'BEL-01': { sev: 'info', rule: 'Belge tarihi', when: '17 Eyl 15:44', title: 'İrsaliye tarihi (28 Ağu 2026) üretim aralığından önce.', meta: 'Demirtaş Örme Kumaş · irsaliye_0828.pdf · Kumaş adımı', acts: [['Belgeyi aç']] },
+      'AI-01': { sev: 'warn', ai: true, conf: '%74', when: '16 Eyl 11:06', title: 'Sertifikadaki lisans numarası beyandakinden farklı olabilir.', meta: 'Ege İplik · gots_sertifika_2026.pdf · sayfa 1', compare: [['Belgeden okunan', P(['CU 1047828']), true], ['Tedarikçi beyanı', P('CU 1047823')]], acts: [['Belgeyi aç']] },
+      'SER-02b': { code: 'SER-02', sev: 'warn', rule: 'Sertifika geçerliliği', when: '21 Eki 14:32', title: 'OEKO-TEX Standard 100 sertifikası 25 gün içinde doluyor.', meta: 'Demirtaş Örme Kumaş · Kumaş adımı · 21.HTR.40918 · bitiş 15 Kas 2026', acts: [['Yenisini talep et', 1, 1]] },
+    };
+    const RES = {
+      'SER-03': { by: 'Elif Yılmaz', date: '15 Eki 2026', note: '“Sertifika sahibi tedarikçinin ana şirketi; lisans sözleşmesi Belgeler’de.”' },
+      'EKS-01': { auto: true, date: '14 Eki 2026' },
+      'SER-04': { by: 'Ahmet Demir', date: '14 Eki 2026' },
+    };
+    const SETS = {
+      default: { open: ['LIF-01', 'SER-01', 'SER-02', 'AI-01', 'LIF-02', 'BEL-01', 'EKS-02'], res: ['SER-03', 'EKS-01', 'SER-04'] },
+      warn: { open: ['SER-02', 'AI-01', 'LIF-02', 'SER-04', 'SER-03', 'BEL-01', 'EKS-02'], res: ['LIF-01', 'SER-01', 'EKS-01'] },
+      empty: { open: [], res: ['SER-03', 'EKS-01', 'SER-04'] },
+      noresolved: { open: ['LIF-01', 'SER-01', 'SER-02', 'AI-01', 'LIF-02', 'BEL-01', 'EKS-02'], res: [] },
+      many: { open: ['LIF-01', 'SER-01', 'EKS-01', 'SER-02', 'SER-02b', 'AI-01', 'LIF-02', 'SER-03', 'SER-04', 'BEL-01', 'EKS-02'], res: [] },
+    };
+    RES['LIF-01'] = { auto: true, date: '18 Eki 2026' }; RES['SER-01'] = { auto: true, date: '17 Eki 2026' };
+    const set = SETS[data] || SETS.default;
+    const moved = this.state.moved || {}, reopened = this.state.reopened || {};
+    let openIds = set.open.filter(id => !moved[id]).concat(set.res.filter(id => reopened[id]));
+    let resIds = set.res.filter(id => !reopened[id]).concat(Object.keys(moved).filter(id => set.open.includes(id)));
+    const resolving = this.g('resolving', ''), err = this.b('err');
+    const noteText = this.state.note !== undefined ? this.state.note : '';
+    const NO = 'Bu işlem için yetkiniz yok';
+    let tipUsed = false;
+    const btn = (t, primary, needAct) => { const dis = needAct && !canAct; return { t, dis, title: dis ? NO : '', bg: primary ? 'var(--primary)' : 'var(--card)', fg: primary ? 'var(--primary-foreground)' : 'var(--foreground)', bd: primary ? 'transparent' : 'var(--input)', cur: dis ? 'not-allowed' : 'pointer', op: dis ? 0.5 : 1 }; };
+    const build = (id, isRes) => {
+      const d = DEF[id], [s, sev, icon] = SEV[d.sev], block = d.sev === 'block';
+      const rr = isRes ? (moved[id] || RES[id] || { by: 'Elif Yılmaz', date: '15 Eki 2026' }) : null;
+      const formOpen = !isRes && !block && resolving === id && canResolve;
+      const errKind = !isRes && err ? (block && id === 'LIF-01' ? 'block' : id === 'SER-02' ? 'already' : '') : '';
+      const showTip = !isRes && !block && !canResolve && tip && role === 'editor' && !tipUsed; if (showTip) tipUsed = true;
+      return {
+        code: d.code || id, s: isRes ? 'pending' : s, sev, icon: isRes ? ic.check : (d.ai ? ic.sparkle : icon), isAi: !!d.ai, isRule: !d.ai, rule: d.rule, conf: d.conf, when: d.when,
+        title: d.title, meta: d.meta, titleFg: isRes ? 'var(--muted-foreground)' : 'var(--foreground)', cardBg: isRes ? 'transparent' : 'var(--card)',
+        hasCompare: !!d.compare, compare: (d.compare || []).map(([k, parts, bad]) => ({ k, parts: isRes ? parts.map(p => ({ t: p.t, c: 'var(--muted-foreground)' })) : parts, bd: bad && !isRes ? 'var(--status-rejected)' : 'transparent' })),
+        sparkle: ic.sparkle, infoIc: ic.info, lockIc: ic.lock, checkIc: ic.check, alertIc: ic.alert,
+        isBlock: block, canResolveUi: !block, footer: !isRes && !formOpen, formOpen, resolved: isRes,
+        resDis: !canResolve, resTitle: canResolve ? '' : NO, resCur: canResolve ? 'pointer' : 'not-allowed', resOp: canResolve ? 1 : 0.5, showTip,
+        openResolve: () => { if (canResolve) this.setState({ resolving: id, note: '' }); },
+        doResolve: () => this.setState({ moved: Object.assign({}, moved, { [id]: { by: user.name, date: '21 Eki 2026', note: noteText.trim() ? '“' + noteText.trim() + '”' : '' } }), reopened: Object.assign({}, reopened, { [id]: false }), resolving: '' }),
+        actions: d.acts.map(([t, primary, needAct]) => btn(t, primary, needAct)),
+        hasErr: !!errKind, errT: errKind === 'block' ? 'Engelleyici uyarılar elle çözülemez; veriyi düzeltin.' : 'Bu uyarı zaten çözülmüş.',
+        errSub: errKind === 'block' ? 'Ege İplik beyanı düzeltilip onaylandığında uyarı kendiliğinden kapanır.' : 'Ahmet Demir 14:34’te çözdü. Liste yenilendi; uyarı Çözülenler’de.',
+        errCode: errKind === 'block' ? 'HTTP 422 · ALERT_NOT_RESOLVABLE' : 'HTTP 409 · ALERT_ALREADY_RESOLVED',
+        resLine: rr ? (rr.auto ? 'Kendiliğinden kapandı · veri düzeltildi · ' + rr.date : 'Çözdü: ' + rr.by + ' · ' + rr.date + (rr.note ? ' — ' + rr.note : '')) : '',
+        canReopen: !!(rr && !rr.auto && canResolve),
+        reopen: () => { const m = Object.assign({}, moved); delete m[id]; this.setState({ moved: m, reopened: Object.assign({}, reopened, { [id]: !!set.res.includes(id) }) }); },
+      };
+    };
+    const openA = openIds.map(id => build(id, false)), resA = resIds.map(id => build(id, true));
+    const cnt = k => openIds.filter(id => DEF[id].sev === k).length;
+    const nB = cnt('block'), nW = cnt('warn'), nI = cnt('info'), nOpen = openIds.length;
+    const blockCodes = openIds.filter(id => DEF[id].sev === 'block').map(id => DEF[id].code || id);
+
+    const seg = this.g('seg', 'open'), loading = data === 'loading', error = data === 'error';
+    const showOpen = seg === 'open';
+    const list = showOpen ? openA : resA;
+    const many = data === 'many' && showOpen;
+    const groups = many ? [['block', 'Engelleyici', 'Yayını engeller; veri düzelince kapanır'], ['warn', 'Uyarı', 'Çözülebilir; yayını durdurmaz'], ['info', 'Bilgi', 'Çözülebilir']].map(([k, title, desc]) => {
+      const items = openA.filter((a, i) => DEF[openIds[i]].sev === k); return { hasHead: true, s: SEV[k][0], title, desc, n: items.length, items };
+    }).filter(gr => gr.n) : [{ hasHead: false, items: list }];
+
+    const running = this.b('running');
+    const tab = this.g('tab', 'alerts');
+    const topS = nB ? 'rejected' : nW ? 'expiring' : nI ? 'pending' : null;
+    const tabs = [['chain', 'Tedarik zinciri', '5'], ['docs', 'Belgeler', '7'], ['alerts', 'Uyarılar', String(nOpen)], ['versions', 'Pasaport sürümleri', '0']].map(([k, label, count]) => {
+      const al = k === 'alerts' && topS;
+      return { label, count, go: () => this.setState({ tab: k }), font: k === tab ? "600 13px 'Geist',sans-serif" : "500 13px 'Geist',sans-serif", fg: k === tab ? 'var(--foreground)' : 'var(--muted-foreground)', line: k === tab ? 'inset 0 -2px 0 var(--foreground)' : 'none', cbg: al ? 'var(--status-' + topS + '-muted)' : 'var(--muted)', cfg: al ? 'var(--status-' + topS + '-foreground)' : 'var(--muted-foreground)' };
+    });
+    const segs = [['open', 'Açık', nOpen], ['resolved', 'Çözülen', resIds.length]].map(([k, t, n]) => ({ t, n, on: seg === k ? 'true' : 'false', go: () => this.setState({ seg: k, resolving: '' }), bg: seg === k ? 'var(--card)' : 'transparent', fg: seg === k ? 'var(--foreground)' : 'var(--muted-foreground)', sh: seg === k ? 'var(--shadow-xs)' : 'none' }));
+
+    const goAlerts = () => this.setState({ tab: 'alerts', seg: 'open', overlay: '' });
+    const sum = nB ? { show: true, s: 'rejected', icon: ic.triangle, t: nB + ' engelleyici uyarı · Uyarılar' } : nW ? { show: true, s: 'expiring', icon: ic.clock, t: nW + ' uyarı · Uyarılar' } : { show: false };
+    const v = nB ? 93 : 96, C = 2 * Math.PI * 36;
+    const blk = [];
+    if (nB) blk.push({ t: nB + ' engelleyici uyarı açık', s: 'rejected', icon: ic.triangle, isLink: true, isText: false, sub: blockCodes.join(' · ') + ' · Uyarılar’a git' });
+    if (nW) blk.push({ t: nW + ' uyarı açık, yayını durdurmaz', s: 'expiring', icon: ic.info, isLink: false, isText: true, sub: 'Bilgi amaçlı' });
+    const sc = { v, dash: (C * v / 100).toFixed(1) + ' ' + C.toFixed(1), st: nB ? 'Eşik aşıldı, ' + nB + ' engel var' : 'Yayına hazır', stS: nB ? 'rejected' : 'approved', stIcon: nB ? ic.triangle : ic.check,
+      parts: [['Onaylı adımlar', 50, 50], ['Zorunlu alanlar', 30, 30], ['Geçerli sertifikalar', nB ? 13 : 16, 20]].map(([t, a, m]) => ({ t, v: a, max: m, w: Math.round(a / m * 100) + '%', c: a === m ? 'var(--status-approved)' : 'var(--status-pending)' })),
+      blk, hasBlk: blk.length > 0 };
+    const pubDis = nB > 0 || !canResolve;
+    const reasons = nB && canResolve ? [{ t: nB + ' engelleyici uyarı: ' + blockCodes.join(', '), s: 'rejected' }] : [];
+    const SL = { approved: 'Onaylandı', rejected: 'Engelleyici uyarı', expiring: 'Uyarı var' };
+    const codesFor = ids => ids.filter(id => openIds.includes(id)).map(id => ({ t: DEF[id].code || id, s: SEV[DEF[id].sev][0] }));
+    const chain = [['Lif', 'Ege İplik', 'Menşe beyanı · Denizli', []], ['İplik', 'Ege İplik', 'Denizli', ['LIF-01', 'SER-01', 'AI-01']], ['Kumaş', 'Demirtaş Örme Kumaş', 'Bursa', ['LIF-02', 'SER-03', 'SER-04', 'BEL-01']], ['Boya', 'Uludağ Boya Terbiye', 'Bursa', ['SER-02', 'EKS-02']], ['Konfeksiyon', 'İnegöl Fason Dikim', 'Bursa · İnegöl', ['EKS-01']]].map(([step, firm, city, ids], i) => {
+      const codes = codesFor(ids).filter(c => c.s !== 'pending'); const s = codes.some(c => c.s === 'rejected') ? 'rejected' : codes.length ? 'expiring' : 'approved';
+      return { n: '0' + (i + 1), step, firm, city, s, sl: SL[s], codes };
+    });
+
+    const active = view === 'gorevler' ? 'Görevler' : 'Partiler';
+    const certs = this.g('certs', 'some') !== 'none';
+    const tasksN = 7 + (certs ? 3 : 0);
+    const nav = [
+      { title: '', items: [['Görevler', NAV.inbox, tasksN]] },
+      { title: 'Pasaport', items: [['Ürünler', ic.package], ['Partiler', NAV.layers]] },
+      { title: 'Tedarik zinciri', items: [['Tedarikçiler', NAV.factory], ['Belgeler', ic.file], ['İçe aktarma', ic.upload]] },
+      { title: 'Yönetim', items: [['Kullanıcılar', NAV.users], ['Ayarlar', NAV.sliders]] },
+    ].map(gr => ({ title: gr.title, hasTitle: !!gr.title, items: gr.items.map(([label, d, count]) => { const on = label === active; return { label, d, count: count || '', hasCount: !!count, bg: on ? 'var(--sidebar-accent)' : 'transparent', fg: on ? 'var(--foreground)' : 'var(--muted-foreground)', w: on ? 600 : 500 }; }) }));
+    const crumbs = view === 'list' ? [{ t: 'Partiler', fg: 'var(--foreground)', font: 'inherit' }] : view === 'gorevler' ? [{ t: 'Görevler', fg: 'var(--foreground)', font: 'inherit' }] : [{ t: 'Partiler', fg: 'var(--muted-foreground)', font: 'inherit' }, { t: 'KP-2026-0915-A', fg: 'var(--foreground)', font: "'Geist Mono',monospace" }];
+
+    const TK = (s, sl, title, sub, parti, when, cta, urgent) => ({ s, sl, title, sub, parti, when, cta, whenFg: urgent ? 'var(--status-expiring-foreground)' : 'var(--muted-foreground)' });
+    const CR = (firm, sub, cert, expired, when, batches) => ({ firm, sub, cert, s: expired ? 'rejected' : 'expiring', icon: expired ? ic.triangle : ic.clock, when, batches });
+    const taskGroups = [
+      { title: 'Onay bekleyen veriler', desc: 'Tedarikçi gönderdi, incelemeniz bekleniyor', isTask: true, items: [
+        TK('submitted', 'Gönderildi', 'Demirtaş Örme Kumaş · Kumaş verileri', 'Selin Arslan gönderdi · 5 alan', 'KP-2026-0918-A', '17 Eki, 15:40', 'İncele'),
+        TK('low-confidence', 'AI güveni düşük', 'Ege İplik · İplik verileri', '1 alan düşük güvenle okundu', 'KP-2026-0918-A', '16 Eki, 11:04', 'İncele'),
+        TK('submitted', 'Gönderildi', 'Uludağ Boya Terbiye · Boya verileri', 'Gönderildi · 4 alan', 'KP-2026-0921-B', 'Dün, 16:20', 'İncele')] },
+      ...(certs ? [{ title: 'Süresi yaklaşan sertifikalar', desc: 'Süresi dolmuş veya 30 gün içinde dolacak; partide kullanılıyor', isCert: true, items: [
+        CR('Ege İplik', 'İplik adımı · CU 1047823', 'GOTS', true, 'Süresi doldu · 12 Eki', ['KP-2026-0915-A', 'KP-2026-0918-A']),
+        CR('Uludağ Boya Terbiye', 'Boya adımı · 23.HTR.71245', 'OEKO-TEX 100', false, '12 gün içinde doluyor', ['KP-2026-0915-A']),
+        CR('Demirtaş Örme Kumaş', 'Kumaş adımı · 21.HTR.40918', 'OEKO-TEX 100', false, '25 gün içinde doluyor', ['KP-2026-0915-A', 'KP-2026-0921-B'])] }] : []),
+      { title: 'Süresi yaklaşan talepler', desc: 'Son tarihe 7 günden az kaldı', isTask: true, items: [
+        TK('pending', 'Beklemede', 'İnegöl Fason Dikim · Konfeksiyon verileri', 'Bağlantı 3 kez açıldı, form gönderilmedi', 'KP-2026-0918-A', '23.10.2026 · 2 gün', 'Hatırlat', true),
+        TK('pending', 'Beklemede', 'Uludağ Boya Terbiye · Boya verileri', 'Talep 18 Eki’de gönderildi', 'KP-2026-0924-A', '26.10.2026 · 5 gün', 'Hatırlat', true)] },
+      { title: 'Atanmamış adımlar', desc: 'Tedarikçi atanmadan veri toplanamaz', isTask: true, items: [
+        TK('pending', 'Atanmadı', 'Konfeksiyon adımı', 'Basic Tişört Beyaz', 'KP-2026-0924-A', '—', 'Tedarikçi ata'),
+        TK('pending', 'Zincir yok', 'Tedarik zinciri oluşturulmadı · 5 adım', 'Organik Pamuk Polo', 'KP-2026-1006-C', '—', 'Zinciri oluştur')] },
+    ].map(gr => ({ ...gr, isCert: !!gr.isCert, isTask: !!gr.isTask, n: gr.items.length }));
+
+    const rows = [
+      ['KP-2026-0915-A', 'Organik Pamuk Polo', 'prep', 'Veri toplanıyor', 93, '14:32', 'rejected', 2, '2 engelleyici uyarı'],
+      ['KP-2026-0918-A', 'Organik Pamuk Polo', 'prep', 'Veri toplanıyor', 86, '2 sa önce', 'rejected', 1, '1 engelleyici uyarı'],
+      ['KP-2026-0921-B', 'Basic Tişört Beyaz', 'ready', 'Yayına hazır', 92, 'Dün', 'expiring', 3, '3 uyarı, yayını durdurmaz'],
+      ['KP-2026-1002-A', 'Pike Polo Lacivert', 'pub', 'Yayında · v1', 91, '17 Eki', 'expiring', 1, '1 uyarı, yayını durdurmaz'],
+      ['KP-2026-0924-A', 'Kapüşonlu Sweat Antrasit', 'prep', 'Veri toplanıyor', 58, '15 Eki'],
+      ['KP-2026-0830-A', 'Slim Fit Tişört Siyah', 'wd', 'Geri çekildi', 88, '12 Eki'],
+      ['KP-2026-1006-C', 'Organik Pamuk Polo', 'none', 'Zincir yok', null, '6 Eki'],
+    ].map(([id, product, k, chip, sv, upd, alS, alN, alTip], i) => {
+      const CH = { pub: ['var(--brand-muted)', 'var(--brand-text)', 'var(--brand)'], ready: ['var(--status-approved-muted)', 'var(--status-approved-foreground)', 'var(--status-approved)'], prep: ['var(--status-pending-muted)', 'var(--status-pending-foreground)', 'var(--status-pending)'], wd: ['var(--status-rejected-muted)', 'var(--status-rejected-foreground)', 'var(--status-rejected)'], none: ['var(--status-pending-muted)', 'var(--status-pending-foreground)', 'var(--status-pending)'] }[k];
+      const dots = k === 'none' ? Array(5).fill('var(--border)') : k === 'prep' ? (sv < 70 ? ['var(--status-approved)', 'var(--status-submitted)', 'var(--status-pending)', 'var(--status-pending)', 'var(--status-pending)'] : ['var(--status-approved)', 'var(--status-rejected)', 'var(--status-approved)', 'var(--status-approved)', 'var(--status-submitted)']) : Array(5).fill('var(--status-approved)');
+      return { id, product, chip, cbg: CH[0], cfg: CH[1], cdot: CH[2], dots, hasScore: sv != null, noScore: sv == null, score: sv, w: (sv || 0) + '%', c: sv >= 90 ? 'var(--status-approved)' : 'var(--status-pending)', upd, hasAl: !!alS, alS, alN, alTip, showTip: tip && i === 0 };
+    });
+
+    const overlay = this.g('overlay', ''), pub = this.g('pub', 'confirm');
+    const warnIds = openIds.filter(id => DEF[id].sev === 'warn');
+    const pdWarnRows = warnIds.slice(0, 3).map(id => ({ code: DEF[id].code || id, t: DEF[id].title }));
+    const more = warnIds.length - 3;
+    const pdBlocked = pub === 'blocked';
+
+    const lastRun = this.state.lastRun || '14:32';
+    const only = this.g('only', 'LIF-01');
+    return {
+      ic, nav, crumbs, user, isCard: view === 'card', isShell: view !== 'card', rootH: this.g('h', 900) + 'px',
+      cardOnly: DEF[only] ? [build(only, false)] : [],
+      isParti: view === 'parti', isList: view === 'list', isGorev: view === 'gorevler', rows, taskGroups, tasksTxt: tasksN + ' görev · 21 Eki 2026',
+      lc: { s: nB ? 'pending' : 'approved', t: nB ? 'Veri toplanıyor' : 'Yayına hazır' }, sum, goAlerts, goAlertsLink: e => { if (e && e.preventDefault) e.preventDefault(); goAlerts(); },
+      pubDis, pubOp: pubDis ? 0.5 : 1, pubCur: pubDis ? 'not-allowed' : 'pointer', pubIcon: pubDis ? ic.lock : ic.upload,
+      openPublish: () => this.setState({ overlay: 'publish', pub: 'confirm' }), reasons, hasReasons: reasons.length > 0,
+      tabs, isChainTab: tab === 'chain', isAlertsTab: tab === 'alerts', chain, segs,
+      runDis: running || !canRun, runCur: running || !canRun ? 'not-allowed' : 'pointer', runOp: canRun ? 1 : 0.5, runTitle: canRun ? '' : NO,
+      runT: running ? 'Kontrol ediliyor…' : 'Kontrolleri çalıştır', runAnim: running ? 'kp-spin .9s linear infinite' : 'none', runTip: !canRun && tip,
+      runChecks: () => { if (!canRun || running) return; this.setState({ running: true }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ running: false, lastRun: '14:36' }), 1400); },
+      lastCheck: running ? '9 kural · 1 AI kontrolü çalışıyor' : 'Son kontrol: ' + lastRun,
+      alLoading: loading, alError: error, alEmptyOpen: !loading && !error && showOpen && nOpen === 0, alEmptyRes: !loading && !error && !showOpen && resIds.length === 0,
+      alList: !loading && !error && list.length > 0, groups, skel3: ['72%', '58%', '66%'],
+      noteText, noteCount: noteText.length, onNote: e => this.setState({ note: e.target.value.slice(0, 500) }), cancelResolve: () => this.setState({ resolving: '', note: '' }),
+      sc, ovPublish: overlay === 'publish', closeOv: () => this.setState({ overlay: '' }),
+      pdBlocked, pdWarn: !pdBlocked, pdWarnRows, pdMore: more > 0, pdMoreT: 've ' + more + ' uyarı daha', pdCancelT: pdBlocked ? 'Kapat' : 'Vazgeç',
+      pdBlkLine: (nB || 2) + ' engelleyici uyarı açık: ' + (blockCodes.length ? blockCodes : ['LIF-01', 'SER-01']).join(', '),
+    };
+  }
+}
+</script>
+</body>
+</html>

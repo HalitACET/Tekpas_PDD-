@@ -6,7 +6,7 @@ import { FIBERS, PRODUCT_CATEGORIES } from "@tekpas/shared";
 import { Check, CircleAlert, Lock, Plus, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { type ReactNode, useId, useState } from "react";
-import { type FieldPath, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { Controller, type FieldPath, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { showErrorToast } from "@/components/common/error-toast";
 import { Button } from "@/components/ui/button";
 import { NativeSelect } from "@/components/common/native-select";
@@ -21,6 +21,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { CareSection } from "./care-section";
 import {
   type ProductResponse,
   useCreateProduct,
@@ -138,7 +139,11 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
       if (product) {
         await update.mutateAsync({ id: product.id, body: productPatch(initial, output, { gtinLocked }) });
       } else {
-        await create.mutateAsync({ ...output, declaredFiberComposition: output.declaredFiberComposition });
+        await create.mutateAsync({
+          ...output,
+          declaredFiberComposition: output.declaredFiberComposition,
+          careInfo: output.careInfo ?? undefined,
+        });
       }
       onDone();
     } catch (error) {
@@ -370,6 +375,19 @@ function ProductForm({ product, onDone }: { product: ProductResponse | undefined
             <FieldError>{message(formState.errors.description.message)}</FieldError>
           )}
         </div>
+
+        <Controller
+          control={control}
+          name="careInfo"
+          render={({ field }) => (
+            <CareSection
+              value={field.value}
+              onChange={field.onChange}
+              publishedBatchCount={product?.publishedBatchCount ?? 0}
+              noteError={message(formState.errors.careInfo?.note?.message)}
+            />
+          )}
+        />
       </SheetBody>
 
       <SheetFooter>

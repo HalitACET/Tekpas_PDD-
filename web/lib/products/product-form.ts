@@ -1,7 +1,14 @@
 import type { FieldViolation } from "@tekpas/api-client";
 import {
+  CARE_CATEGORIES,
+  type CareCategory,
+  type CareInfoValues,
+  type CareSymbol,
+  careInfoSchema,
   type Fiber,
   fiberCompositionSchema,
+  type Gentleness,
+  isCareEmpty,
   hasAcceptedGtinFormat,
   hasValidGtinCheckDigit,
   normalizeGtin,
@@ -9,7 +16,7 @@ import {
   productCreateSchema,
 } from "@tekpas/shared";
 import { z } from "zod";
-import type { ProductResponse, ProductUpdateRequest } from "@/lib/api/products";
+import type { ProductCreateRequest, ProductResponse, ProductUpdateRequest } from "@/lib/api/products";
 import { displayGtin } from "@/lib/format";
 
 /** What the sheet edits. Percentages are text, as typed ("90", "90,5"); the schema turns them into numbers. */
@@ -20,7 +27,49 @@ export interface ProductFormValues {
   category: ProductCategory;
   description: string;
   declaredFiberComposition: { fiber: Fiber; percent: string }[];
+  careInfo: CareForm;
 }
+
+/** One chosen care symbol and its bars (design v1.0 120a). */
+export interface CareChoice {
+  symbol: CareSymbol;
+  gentleness: Gentleness;
+}
+
+/** The care section: a choice per group, and the note as typed with the language it was written in. */
+export type CareForm = Record<CareCategory, CareChoice | null> & { note: string; noteLanguage: string | null };
+
+export function emptyCare(): CareForm {
+  return { washing: null, bleaching: null, drying: null, ironing: null, professional: null, note: "", noteLanguage: null };
+}
+
+export function careFormFrom(care: CareInfoValues | null | undefined): CareForm {
+  const form = emptyCare();
+  if (!care) return form;
+  for (const c of CARE_CATEGORIES) {
+    const choice = care[c];
+    form[c] = choice ? { symbol: choice.symbol, gentleness: choice.gentleness ?? "NORMAL" } : null;
+  }
+  form.note = care.note ?? "";
+  form.noteLanguage = care.noteLanguage ?? null;
+  return form;
+}
+
+type ApiCare = NonNullable<ProductCreateRequest["careInfo"]>;
+
+/**
+ * What the API stores: null when nothing is chosen and the note is empty (the passport then has no section).
+ * Groups without a choice are left out: the API reads a missing group as none.
+ */
+const careFormSchema = careInfoSchema.transform((care): ApiCare | null => {
+  if (isCareEmpty(care)) return null;
+  const api: ApiCare = { note: care.note, noteLanguage: care.noteLanguage };
+  for (const c of CARE_CATEGORIES) {
+    const choice = care[c];
+    if (choice) api[c] = choice;
+  }
+  return api;
+});
 
 /** "90" → 90, "90,5" → 90.5 (then an Integer error), "" → undefined (NotNull), "abc" → NaN (Integer). */
 export function parsePercent(text: string): number | undefined {
@@ -41,6 +90,7 @@ export const productFormSchema = productCreateSchema.extend({
         : rows,
     fiberCompositionSchema,
   ),
+  careInfo: careFormSchema,
 });
 
 export type ProductFormOutput = z.output<typeof productFormSchema>;
@@ -54,6 +104,7 @@ export function emptyProductForm(): ProductFormValues {
     category: "T_SHIRT",
     description: "",
     declaredFiberComposition: [{ fiber: "COTTON", percent: "" }],
+    careInfo: emptyCare(),
   };
 }
 
@@ -67,6 +118,7 @@ export function productFormFrom(product: ProductResponse): ProductFormValues {
     declaredFiberComposition: product.declaredFiberComposition?.length
       ? product.declaredFiberComposition.map((s) => ({ fiber: s.fiber, percent: String(s.percent) }))
       : [{ fiber: "COTTON", percent: "" }],
+    careInfo: careFormFrom(product.careInfo as CareInfoValues | null | undefined),
   };
 }
 
@@ -141,6 +193,12 @@ export function productPatch(
   );
   if (JSON.stringify(values.declaredFiberComposition) !== before) {
     patch.declaredFiberComposition = values.declaredFiberComposition;
+  }
+  // The instructions are replaced as a whole; null clears them.
+  const initialCare = careFormSchema.safeParse(initial.careInfo);
+  if (JSON.stringify(values.careInfo) !== JSON.stringify(initialCare.success ? initialCare.data : null)) {
+    // null clears them. springdoc does not mark a nullable object reference as nullable, hence the cast.
+    patch.careInfo = values.careInfo as ProductUpdateRequest["careInfo"];
   }
   return patch;
 }

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box}button{font:inherit}@keyframes kp-spin{to{transform:rotate(360deg)}}@keyframes kp-pulse{50%{opacity:.55}}</style>
+</helmet>
+<div lang="{{ lang }}" style="container-type:inline-size;width:100%;min-height:100%;background:var(--story);color:var(--foreground);font-family:'Geist',system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-wrap:anywhere;word-break:normal;hyphens:auto">
+
+  <sc-if value="{{ isPreview }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:sticky;top:0;z-index:5;background:var(--primary);color:var(--primary-foreground);display:flex;align-items:center;gap:10px;padding:10px clamp(16px,5cqi,32px);font-size:14px">
+      <svg width="16" height="16" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.eye }}"></path></svg>
+      <span style="font-weight:600">{{ t.previewStrip }}</span>
+      <span style="flex:1;min-width:0">{{ t.previewSub }}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ banner.on }}" hint-placeholder-val="{{ false }}">
+    <div role="alert" style="background:var(--status-{{ banner.s }}-muted);border-bottom:2px solid var(--status-{{ banner.s }})">
+      <div style="max-width:784px;margin:0 auto;padding:14px clamp(16px,5cqi,32px);display:flex;gap:12px;align-items:flex-start">
+        <svg width="20" height="20" viewBox="0 0 24 24" style="flex:none;margin-top:1px;fill:none;stroke:var(--status-{{ banner.s }}-foreground);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ banner.icon }}"></path></svg>
+        <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+          <strong style="font-size:15px;font-weight:600;line-height:1.35;color:var(--status-{{ banner.s }}-foreground)">{{ banner.title }}</strong>
+          <span style="font-size:14px;line-height:1.5;color:var(--foreground);text-wrap:pretty">{{ banner.body }}</span>
+          <sc-if value="{{ banner.hasLink }}" hint-placeholder-val="{{ false }}"><a href="#" onClick="{{ banner.go }}" style="align-self:flex-start;min-height:44px;margin:-6px 0 -10px;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--foreground);text-decoration:underline;text-underline-offset:4px">{{ banner.link }}<svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></sc-if>
+        </span>
+      </div>
+    </div>
+  </sc-if>
+
+  <header style="border-bottom:1px solid var(--story-border)">
+    <div style="max-width:784px;margin:0 auto;padding:0 clamp(16px,5cqi,32px);height:60px;display:flex;align-items:center;gap:10px">
+      <svg width="22" height="22" viewBox="0 0 32 32" style="flex:none"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--brand)"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:var(--story);stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:var(--brand);stroke-width:2.6;stroke-linecap:round"></path></svg>
+      <span style="display:flex;flex-direction:column;line-height:1.15;min-width:0"><span style="font-weight:600;font-size:15px;letter-spacing:-0.03em">KozaPass</span><span style="font-size:12px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.dpp }}</span></span>
+      <nav aria-label="{{ t.langLabel }}" style="margin-left:auto;display:flex;align-items:center">
+        <sc-for list="{{ langs }}" as="l" hint-placeholder-count="3">
+          <a href="#" onClick="{{ l.go }}" aria-current="{{ l.cur }}" style="min-width:40px;height:44px;display:flex;align-items:center;justify-content:center;font:500 13px 'Geist Mono',monospace;text-decoration:{{ l.ul }};text-underline-offset:5px;color:{{ l.fg }}">{{ l.code }}</a>
+        </sc-for>
+      </nav>
+      <button aria-label="{{ t.theme }}" style="width:44px;height:44px;margin-right:-10px;border:none;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:8px" style-hover="color:var(--foreground)"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></button>
+    </div>
+  </header>
+
+  <main style="max-width:784px;margin:0 auto;padding:clamp(24px,6cqi,48px) clamp(16px,5cqi,32px) 40px;display:flex;flex-direction:column;gap:40px">
+
+    <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+      <div aria-busy="true" style="display:flex;flex-direction:column;gap:28px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="width:120px;height:12px;border-radius:4px;background:var(--skeleton)"></span>
+          <span style="width:78%;height:36px;border-radius:6px;background:var(--skeleton)"></span>
+          <span style="width:56%;height:14px;border-radius:4px;background:var(--skeleton)"></span>
+          <span style="width:88%;height:14px;border-radius:4px;background:var(--skeleton)"></span>
+        </div>
+        <div role="status" aria-live="polite" style="display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:12px;background:var(--card);border:1px solid var(--story-border)">
+          <span style="flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--brand);animation:kp-spin 1s linear infinite"></span>
+          <span style="display:flex;flex-direction:column;gap:4px"><strong style="font-size:16px;font-weight:600">{{ t.loadTitle }}</strong><span style="font-size:15px;color:var(--muted-foreground);text-wrap:pretty">{{ t.loadBody }}</span></span>
+        </div>
+        <sc-for list="{{ skelRows }}" as="k" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:10px;animation:kp-pulse 1.6s ease-in-out infinite"><span style="width:110px;height:12px;border-radius:4px;background:var(--skeleton)"></span><span style="width:100%;height:{{ k }};border-radius:12px;background:var(--skeleton)"></span></div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isMissing }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:20px;padding:24px 0 40px">
+        <span style="width:52px;height:52px;border-radius:14px;background:var(--muted);color:var(--muted-foreground);display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ missIcon }}"></path></svg></span>
+        <h1 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:clamp(30px,7.5cqi,42px);line-height:1.1;letter-spacing:-0.02em;text-wrap:balance">{{ missTitle }}</h1>
+                <div style="display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:12px;background:var(--card);border:1px solid var(--story-border)">
+          <span style="font-size:13px;font-weight:500;color:var(--muted-foreground)">{{ t.scanned }}</span>
+          <span style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font:15px 'Geist Mono',monospace;font-variant-numeric:tabular-nums"><span style="color:var(--muted-foreground)">GTIN</span><span>{{ p.gtin }}</span><span style="color:var(--muted-foreground)">{{ t.lot }}</span><span>{{ p.lot }}</span></span>
+        </div>
+        <span style="font-size:15px;line-height:1.55;color:var(--muted-foreground);text-wrap:pretty">{{ missHint }}</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isFull }}" hint-placeholder-val="{{ true }}">
+      <section style="display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:13px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--brand-text)">{{ p.cat }}</span>
+        <h1 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:clamp(34px,8.6cqi,52px);line-height:1.05;letter-spacing:-0.025em;text-wrap:balance">{{ p.name }}</h1>
+        <span style="font-size:16px;color:var(--muted-foreground)">{{ p.maker }} · {{ p.city }}</span>
+        <span style="font:14px 'Geist Mono',monospace;font-variant-numeric:tabular-nums;color:var(--foreground);overflow-wrap:anywhere;hyphens:none">(01) {{ p.gtin }} · (10) {{ p.lot }}</span>
+        <span style="align-self:flex-start;max-width:100%;display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:4px 12px 4px 9px;border-radius:999px;background:var(--{{ chip.s }}-muted);color:var(--{{ chip.s }}-foreground);font-size:14px;font-weight:500;margin-top:4px"><svg width="15" height="15" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ chip.icon }}"></path></svg><span style="min-width:0">{{ chip.t }}</span></span>
+      </section>
+
+      <section aria-labelledby="h-fiber" style="display:flex;flex-direction:column;gap:14px">
+        <h2 id="h-fiber" style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-0.015em">{{ t.fiber }}</h2>
+        <div style="padding:18px;border-radius:12px;background:var(--card);border:1px solid var(--story-border);display:flex;flex-direction:column;gap:14px">
+          <div role="img" aria-label="{{ fiberAria }}" style="display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px">
+            <sc-for list="{{ fibers }}" as="f" hint-placeholder-count="1"><span style="flex:{{ f.pct }};background:{{ f.c }}"></span></sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ fibers }}" as="f" hint-placeholder-count="1">
+              <div style="display:flex;align-items:center;gap:10px;min-height:36px;border-top:{{ f.bt }}">
+                <span style="width:10px;height:10px;border-radius:3px;background:{{ f.c }};flex:none"></span>
+                <span style="flex:1;min-width:0;font-size:15px">{{ f.name }}</span>
+                <span style="font:500 15px 'Geist Mono',monospace;font-variant-numeric:tabular-nums">%{{ f.pct }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <span style="font-size:13px;color:var(--muted-foreground)">{{ t.fiberNote }}</span>
+          <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border);padding-top:14px">
+            <span style="font-size:14px;font-weight:500">{{ t.matSub }}</span>
+            <dl style="margin:0;display:grid;grid-template-columns:fit-content(45%) minmax(0,1fr);gap:6px 14px;font-size:14px">
+              <sc-for list="{{ mats }}" as="m" hint-placeholder-count="3"><dt style="color:var(--muted-foreground)">{{ m.k }}</dt><dd style="margin:0">{{ m.v }}</dd></sc-for>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <sc-if value="{{ hasCare }}" hint-placeholder-val="{{ false }}">
+        <section aria-labelledby="h-care" style="display:flex;flex-direction:column;gap:14px">
+          <h2 id="h-care" style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-0.015em">{{ t.care }}</h2>
+          <div style="padding:18px;border-radius:12px;background:var(--card);border:1px solid var(--story-border);display:flex;flex-direction:column;gap:16px">
+            <ul style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,{{ careMin }}),1fr));gap:18px 12px">
+              <sc-for list="{{ care }}" as="c" hint-placeholder-count="5">
+                <li style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0">
+                  <span style="width:56px;height:56px;border-radius:12px;background:var(--story);border:1px solid var(--story-border);display:flex;align-items:center;justify-content:center;color:var(--foreground)"><dc-import name="KozaPassBakimSembol" code="{{ c.code }}" mod="{{ c.mod }}" size="36" hint-size="36px,36px"></dc-import></span>
+                  <span style="font-size:14px;line-height:1.35;text-wrap:balance;overflow-wrap:anywhere;hyphens:auto">{{ c.t }}</span>
+                </li>
+              </sc-for>
+            </ul>
+            <sc-if value="{{ hasCareNote }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--story-border);padding-top:14px">
+                <span style="font-size:13px;font-weight:500;color:var(--muted-foreground)">{{ t.careNote }}</span>
+                <p lang="tr" style="margin:0;font-size:15px;line-height:1.5;text-wrap:pretty">{{ careNote }}</p>
+              </div>
+            </sc-if>
+          </div>
+        </section>
+      </sc-if>
+
+      <section aria-labelledby="h-chain" style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:4px"><h2 id="h-chain" style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-0.015em">{{ t.chain }}</h2><span style="font-size:14px;color:var(--muted-foreground)">{{ t.chainSub }}</span></div>
+        <ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column">
+          <sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+            <li style="display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:12px;opacity:{{ s.op }}">
+              <div style="display:flex;flex-direction:column;align-items:center">
+                <span style="width:40px;height:40px;border-radius:50%;background:var(--card);border:1px {{ s.bs }} {{ s.ring }};color:{{ s.iconFg }};display:flex;align-items:center;justify-content:center;flex:none"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round"><path d="{{ s.icon }}"></path></svg></span>
+                <span style="flex:1;width:1.5px;background:{{ s.line }};min-height:12px"></span>
+              </div>
+              <div style="padding-bottom:14px;min-width:0">
+                <div style="border-radius:12px;background:var(--card);border:1px {{ s.bs }} var(--story-border)">
+                  <button onClick="{{ s.toggle }}" aria-expanded="{{ s.open }}" style="width:100%;min-height:56px;padding:10px 14px;border:none;background:transparent;color:inherit;text-align:left;display:flex;align-items:center;gap:12px;cursor:pointer">
+                    <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                      <span style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">{{ s.stage }}</span><sc-if value="{{ s.isMerge }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--brand-text);font-weight:500">{{ s.mergeT }}</span></sc-if></span>
+                      <span style="font-size:16px;font-weight:600;letter-spacing:-0.01em">{{ s.title }}</span>
+                      <sc-if value="{{ s.closed }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;color:var(--muted-foreground)">{{ s.summary }}</span></sc-if>
+                    </span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;transform:{{ s.rot }};fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="m6 9 6 6 6-6"></path></svg>
+                  </button>
+                  <sc-if value="{{ s.open }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:12px">
+                      <sc-for list="{{ s.inputs }}" as="x" hint-placeholder-count="1">
+                        <div style="display:flex;flex-direction:column;gap:10px;padding:{{ x.pad }};border-left:{{ x.bl }};margin-left:{{ x.ml }}">
+                          <sc-if value="{{ x.hasFirm }}" hint-placeholder-val="{{ true }}"><span style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:500">{{ x.firm }}</span><span style="font-size:14px;color:var(--muted-foreground)">{{ x.place }}</span></span></sc-if>
+                          <dl style="margin:0;display:grid;grid-template-columns:fit-content(45%) minmax(0,1fr);gap:6px 14px;font-size:14px">
+                            <sc-for list="{{ x.facts }}" as="f" hint-placeholder-count="2"><dt style="color:var(--muted-foreground)">{{ f.k }}</dt><dd style="margin:0">{{ f.v }}</dd></sc-for>
+                          </dl>
+                          <sc-if value="{{ x.hasCerts }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ x.certs }}" as="c" hint-placeholder-count="1"><span style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 9px;border-radius:6px;border:1px solid var(--border);font-size:13px;font-weight:500"><svg width="13" height="13" viewBox="0 0 24 24" style="fill:none;stroke:var(--status-approved);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM8.2 13.9 7 22l5-3 5 3-1.2-8.1"></path></svg>{{ c }}</span></sc-for></div></sc-if>
+                          <sc-if value="{{ x.noCert }}" hint-placeholder-val="{{ false }}"><span style="align-self:flex-start;height:26px;padding:0 9px;border-radius:6px;border:1px dashed var(--input);font-size:13px;color:var(--muted-foreground);display:flex;align-items:center">{{ t.noCertYet }}</span></sc-if>
+                        </div>
+                      </sc-for>
+                      <span style="display:flex;align-items:center;gap:6px;font-size:13px;color:{{ s.okFg }}"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ s.okIcon }}"></path></svg>{{ s.ok }}</span>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </li>
+          </sc-for>
+          <li style="display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:12px;align-items:center">
+            <span style="width:40px;height:40px;border-radius:50%;background:var(--brand);color:var(--brand-foreground);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="M12 22V12M3.3 7 12 12l8.7-5M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path></svg></span>
+            <span style="font-size:15px;font-weight:500">{{ p.short }}</span>
+          </li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="h-cert" style="display:flex;flex-direction:column;gap:14px">
+        <h2 id="h-cert" style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-0.015em">{{ t.certs }}</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px">
+          <sc-for list="{{ certs }}" as="c" hint-placeholder-count="3">
+            <article style="padding:16px;border-radius:12px;background:var(--card);border:1px solid var(--story-border);display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
+                <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:150px"><strong style="font-size:17px;font-weight:600;letter-spacing:-0.01em">{{ c.type }}</strong><span style="font:13px 'Geist Mono',monospace;color:var(--muted-foreground);overflow-wrap:anywhere;hyphens:none">{{ c.no }}</span></span>
+                <span style="display:inline-flex;align-items:center;gap:6px;min-height:26px;padding:2px 10px 2px 8px;border-radius:999px;background:var(--status-{{ c.s }}-muted);color:var(--status-{{ c.s }}-foreground);font-size:13px;font-weight:500"><span style="width:6px;height:6px;border-radius:50%;background:var(--status-{{ c.s }});flex:none"></span>{{ c.sl }}</span>
+              </div>
+              <dl style="margin:0;display:grid;grid-template-columns:fit-content(45%) minmax(0,1fr);gap:6px 14px;font-size:14px">
+                <dt style="color:var(--muted-foreground)">{{ t.holder }}</dt><dd style="margin:0">{{ c.holder }}</dd>
+                <dt style="color:var(--muted-foreground)">{{ t.issuer }}</dt><dd style="margin:0">{{ c.issuer }}</dd>
+                <dt style="color:var(--muted-foreground)">{{ t.valid }}</dt><dd style="margin:0;font-variant-numeric:tabular-nums">{{ c.range }}</dd>
+                <dt style="color:var(--muted-foreground)">{{ t.step }}</dt><dd style="margin:0">{{ c.step }}</dd>
+              </dl>
+            </article>
+          </sc-for>
+        </div>
+      </section>
+
+      <sc-if value="{{ hasEnv }}" hint-placeholder-val="{{ true }}">
+        <section aria-labelledby="h-env" style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:4px"><h2 id="h-env" style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-0.015em">{{ t.env }}</h2><span style="font-size:14px;color:var(--muted-foreground)">{{ t.envSub }}</span></div>
+          <div style="padding:18px;border-radius:12px;background:var(--card);border:1px solid var(--story-border);display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="font-size:14px;font-weight:500">{{ t.energyMix }}</span>
+              <div role="img" aria-label="{{ energyAria }}" style="display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px"><sc-for list="{{ energy }}" as="e" hint-placeholder-count="3"><span style="flex:{{ e.pct }};background:{{ e.c }}"></span></sc-for></div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px 18px"><sc-for list="{{ energy }}" as="e" hint-placeholder-count="3"><span style="display:flex;align-items:center;gap:7px;font-size:14px"><span style="width:10px;height:10px;border-radius:3px;background:{{ e.c }}"></span>{{ e.name }} <span style="font-family:'Geist Mono',monospace;color:var(--muted-foreground)">%{{ e.pct }}</span></span></sc-for></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;border-top:1px solid var(--border);padding-top:16px">
+              <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="2">
+                <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;color:var(--muted-foreground)">{{ m.k }}</span><span style="display:flex;align-items:baseline;gap:6px"><span style="font:500 28px 'Geist Mono',monospace;letter-spacing:-0.03em;font-variant-numeric:tabular-nums">{{ m.v }}</span><span style="font-size:14px;color:var(--muted-foreground)">{{ m.u }}</span></span></div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+      <sc-if value="{{ envPlaceholder }}" hint-placeholder-val="{{ false }}">
+        <section style="display:flex;flex-direction:column;gap:14px">
+          <h2 style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-0.015em">{{ t.env }}</h2>
+          <div style="padding:22px 18px;border-radius:12px;border:1px dashed var(--input);font-size:14px;color:var(--muted-foreground)">{{ t.envNone }}</div>
+        </section>
+      </sc-if>
+
+      <section aria-labelledby="h-verify" style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:4px"><h2 id="h-verify" style="margin:0;font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-0.015em">{{ t.verify }}</h2><span style="font-size:14px;color:var(--muted-foreground)">{{ t.verifySub }}</span></div>
+        <ul style="list-style:none;margin:0;padding:0;border-radius:12px;background:var(--card);border:1px solid var(--story-border);display:flex;flex-direction:column">
+          <sc-for list="{{ checks }}" as="c" hint-placeholder-count="4">
+            <li style="display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-top:{{ c.bt }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" style="flex:none;margin-top:2px;fill:none;stroke:{{ c.fg }};stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ c.icon }}"></path></svg>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:500">{{ c.k }}</span><span style="font-size:14px;color:var(--muted-foreground);font-family:{{ c.ff }};overflow-wrap:anywhere;hyphens:none">{{ c.v }}</span></span>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+
+      <section aria-labelledby="h-info" style="display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--story-border);padding-top:28px">
+        <h2 id="h-info" style="margin:0;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted-foreground)">{{ t.info }}</h2>
+        <dl style="margin:0;display:grid;grid-template-columns:fit-content(45%) minmax(0,1fr);gap:10px 18px;font-size:15px">
+          <dt style="color:var(--muted-foreground)">{{ t.version }}</dt><dd style="margin:0">{{ info.ver }}</dd>
+          <dt style="color:var(--muted-foreground)">{{ t.published }}</dt><dd style="margin:0">{{ info.date }}</dd>
+          <dt style="color:var(--muted-foreground)">{{ t.publisher }}</dt><dd style="margin:0">{{ p.maker }}</dd>
+          <dt style="color:var(--muted-foreground);align-self:center">{{ t.code }}</dt>
+          <dd style="margin:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font:500 15px 'Geist Mono',monospace;letter-spacing:0.04em">{{ info.code }}</span><sc-if value="{{ info.canCopy }}" hint-placeholder-val="{{ true }}"><button onClick="{{ copy }}" style="height:44px;padding:0 10px;margin:-10px 0;border:none;background:transparent;color:var(--brand-text);font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ copyIcon }}"></path></svg>{{ copyT }}</button></sc-if></dd>
+        </dl>
+        <span style="font-size:13px;line-height:1.5;color:var(--muted-foreground);text-wrap:pretty">{{ t.codeNote }}</span>
+      </section>
+    </sc-if>
+  </main>
+
+  <footer style="border-top:1px solid var(--story-border)">
+    <div style="max-width:784px;margin:0 auto;padding:20px clamp(16px,5cqi,32px) 28px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted-foreground);flex-wrap:wrap">
+      <svg width="14" height="14" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--muted-foreground)"></ellipse></g></svg>
+      <span>{{ t.made }}</span><span style="margin-left:auto;font-family:'Geist Mono',monospace;font-size:12px;overflow-wrap:anywhere;hyphens:none">{{ host }}</span>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:2400},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;full&quot;,&quot;loading&quot;,&quot;notfound&quot;,&quot;withdrawn&quot;,&quot;superseded&quot;,&quot;preview&quot;],&quot;default&quot;:&quot;full&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;tr&quot;,&quot;en&quot;,&quot;de&quot;],&quot;default&quot;:&quot;tr&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;fiber&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;single&quot;,&quot;multi&quot;],&quot;default&quot;:&quot;single&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;long&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;wide&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;product_title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;version&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;tsType&quot;:&quot;number&quot;},&quot;care&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;full&quot;,&quot;nonote&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;M10&quot;}}">
+class Component extends DCLogic {
+  state = {};
+  g(k, d) { const s = this.state[k]; if (s !== undefined) return s; const p = this.props[k]; return p !== undefined && p !== null && p !== '' ? p : d; }
+  b(k) { const v = this.g(k, false); return v === true || v === 'true'; }
+  renderVals() {
+    const lang = this.g('lang', 'tr'), st = this.g('state', 'full'), long = this.b('long'), multi = this.g('fiber', 'single') === 'multi', wide = this.b('wide'), ver0 = Number(this.g('version', 2));
+    const L = (tr, en, de) => lang === 'en' ? en : lang === 'de' ? de : tr;
+    const isPreview = st === 'preview', isOld = st === 'superseded', ver = isOld ? 1 : ver0;
+    const t = {
+      dpp: L('Dijital Ürün Pasaportu', 'Digital Product Passport', 'Digitaler Produktpass'),
+      langLabel: L('Dil', 'Language', 'Sprache'), theme: L('Temayı değiştir', 'Toggle theme', 'Design wechseln'),
+      previewStrip: L('Önizleme · henüz yayınlanmadı', 'Preview · not yet published', 'Vorschau · noch nicht veröffentlicht'),
+      previewSub: L('Yalnızca onaylı veriler görünür.', 'Only approved data is shown.', 'Nur freigegebene Daten werden angezeigt.'),
+      loadTitle: L('Pasaport hazırlanıyor', 'Preparing the passport', 'Der Pass wird vorbereitet'),
+      loadBody: L('Bu birkaç saniye sürebilir. Sayfa kendiliğinden yenilenecek.', 'This can take a few seconds. The page will refresh on its own.', 'Das kann einige Sekunden dauern. Die Seite wird automatisch aktualisiert.'),
+      scanned: L('Okutulan kod', 'Scanned code', 'Gescannter Code'), lot: L('Parti', 'Batch', 'Charge'),
+      fiber: L('Kumaş ve malzeme bileşimi', 'Fabric and material composition', 'Stoff- und Materialzusammensetzung'),
+      fiberSub: L('Lif oranları', 'Fibre content', 'Faseranteile'), matSub: L('Malzemeler', 'Materials', 'Materialien'),
+      verify: L('QR doğrulama', 'QR verification', 'QR-Prüfung'), verifySub: L('Okuttuğunuz kodun bu pasaporta ait olduğunu kontrol edin.', 'Check that the code you scanned belongs to this passport.', 'Prüfen Sie, ob der gescannte Code zu diesem Pass gehört.'),
+      fiberNote: L('Ürün etiketindeki beyandır.', 'As declared on the product label.', 'Angabe laut Produktetikett.'),
+      care: L('Bakım', 'Care', 'Pflege'),
+      careNote: L('Üreticinin notu', 'Manufacturer’s note · in Turkish', 'Hinweis des Herstellers · auf Türkisch'),
+      chain: L('İzlenebilirlik', 'Traceability', 'Rückverfolgbarkeit'),
+      chainSub: L('Liften ürüne, her adım üretici tarafından onaylandı.', 'From fibre to product, each step approved by the manufacturer.', 'Von der Faser zum Produkt, jeder Schritt vom Hersteller freigegeben.'),
+      noCertYet: L('Sertifika henüz yok', 'No certificate yet', 'Noch kein Zertifikat'),
+      certs: L('Sertifikalar', 'Certificates', 'Zertifikate'),
+      holder: L('Sahibi', 'Holder', 'Inhaber'), issuer: L('Veren kuruluş', 'Issued by', 'Ausgestellt von'), valid: L('Geçerlilik', 'Valid', 'Gültig'), step: L('Adım', 'Step', 'Schritt'),
+      env: L('Sürdürülebilirlik', 'Sustainability', 'Nachhaltigkeit'),
+      envSub: L('Kumaş, boya ve konfeksiyon adımlarının beyanı.', 'Declared by the fabric, dyeing and garment steps.', 'Angaben der Schritte Stoff, Färbung und Konfektion.'),
+      envNone: L('Çevresel veri henüz yok. Veri gelmezse bu bölüm yayında görünmez.', '—', '—'),
+      energyMix: L('Enerji kaynakları', 'Energy sources', 'Energiequellen'),
+      info: L('Pasaport bilgisi', 'Passport details', 'Angaben zum Pass'),
+      version: L('Sürüm', 'Version', 'Version'), published: L('Yayın tarihi', 'Published', 'Veröffentlicht'), publisher: L('Yayınlayan', 'Published by', 'Herausgeber'), code: L('Doğrulama kodu', 'Verification code', 'Prüfcode'),
+      codeNote: L('Doğrulama kodu bu sürümün içeriğinden üretilir; içerik değişirse kod da değişir.', 'The verification code is derived from this version’s content; if the content changes, so does the code.', 'Der Prüfcode wird aus dem Inhalt dieser Version erzeugt; ändert sich der Inhalt, ändert sich auch der Code.'),
+      made: L('KozaPass ile oluşturuldu', 'Created with KozaPass', 'Erstellt mit KozaPass'),
+      wdDate: L('Geri çekilme tarihi: 2 Kas 2026', 'Withdrawn on 2 Nov 2026', 'Zurückgezogen am 2. Nov. 2026'),
+    };
+    const MON = { tr: ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'], en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], de: ['Jan.','Feb.','März','Apr.','Mai','Juni','Juli','Aug.','Sep.','Okt.','Nov.','Dez.'] };
+    const D = (d, m, y) => (lang === 'de' ? d + '. ' : d + ' ') + MON[lang][m - 1] + (y ? ' ' + y : '');
+    const p = {
+      gtin: '02012345000025', lot: 'KP-2026-0915-A',
+      cat: L('Polo yaka tişört', 'Polo shirt', 'Poloshirt'),
+      name: this.g('product_title', '') ? String(this.g('product_title', '')) : long ? L('Organik Pamuklu Kontrast Yakalı Düğmeli Polo', 'Organic Cotton Polo Shirt with Contrast Collar', 'Bio-Baumwoll-Poloshirt mit Kontrastkragen und Knopfleiste') : L('Organik Pamuk Polo', 'Organic Cotton Polo', 'Bio-Baumwoll-Polo'),
+      maker: long ? 'Nilüfer Giyim Tekstil Sanayi ve Dış Ticaret A.Ş.' : 'Nilüfer Giyim A.Ş.', city: 'Bursa, TR',
+    };
+    p.short = L('Ürün: ', 'Product: ', 'Produkt: ') + p.name;
+    const vDate = ver === 1 ? D(3, 10, 2026) : ver === 3 ? D(4, 11, 2026) : D(28, 10, 2026);
+    const chip = isOld ? { s: 'status-expiring', icon: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 6v6l4 2', t: L('Eski sürüm · Sürüm ', 'Older version · Version ', 'Ältere Version · Version ') + ver + ' · ' + vDate } : isPreview ? { s: 'status-pending', icon: 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7ZM9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0', t: L('Önizleme · Sürüm 3 taslağı', 'Preview · Version 3 draft', 'Vorschau · Entwurf Version 3') }
+      : { s: 'status-approved', icon: 'M20 6 9 17l-5-5', t: L('Doğrulanmış pasaport', 'Verified passport', 'Verifizierter Pass') + ' · ' + L('Sürüm ', 'Version ', 'Version ') + ver + ' · ' + vDate };
+    const fibers = (multi ? [[L('Organik pamuk', 'Organic cotton', 'Bio-Baumwolle'), 95, 'var(--brand)'], [L('Elastan', 'Elastane', 'Elasthan'), 5, 'var(--story-line)']] : [[L('Organik pamuk', 'Organic cotton', 'Bio-Baumwolle'), 100, 'var(--brand)']])
+      .map(([name, pct, c], i) => ({ name, pct, c, bt: i ? '1px solid var(--border)' : 'none' }));
+    const ICON = {
+      lif: 'M12 22V11M12 11C12 6.5 8.5 3.5 4 3.5c0 4.5 3.5 7.5 8 7.5ZM12 11c0-4.5 3.5-7.5 8-7.5 0 4.5-3.5 7.5-8 7.5Z',
+      iplik: 'M6 3h12M6 21h12M8 3v18M16 3v18M8 8l8 3M8 13l8 3',
+      kumas: 'M3 3h18v18H3ZM3 9h18M3 15h18M9 3v18M15 3v18',
+      boya: 'M12 2.7l5.7 5.6a8 8 0 1 1-11.4 0Z',
+      konf: 'M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23Z',
+    };
+    const appr = (d) => L('Onaylandı · ', 'Approved · ', 'Freigegeben · ') + D(d, 9);
+    const K = {
+      origin: L('Menşe ülke', 'Country of origin', 'Herkunftsland'), dye: L('Boya işlemi', 'Dyeing process', 'Färbeverfahren'), chem: L('Kimyasal standart', 'Chemical standard', 'Chemikalienstandard'),
+      energy: L('Enerji kaynağı', 'Energy source', 'Energiequelle'), yarn: L('İplik', 'Yarn', 'Garn'), struct: L('Kumaş yapısı', 'Fabric structure', 'Stoffaufbau'), work: L('İşlem', 'Process', 'Verarbeitung'), source: L('Kaynak', 'Source', 'Quelle'),
+    };
+    const steps0 = [
+      { k: 'lif', stage: L('Lif', 'Fibre', 'Faser'), title: L('Organik pamuk lifi', 'Organic cotton fibre', 'Bio-Baumwollfaser'), d: 14, inputs: [{ firm: '', place: '', facts: [[K.origin, L('Türkiye · Şanlıurfa', 'Türkiye · Şanlıurfa', 'Türkei · Şanlıurfa')], [K.source, L('İplikçinin onaylı beyanı', 'Approved declaration of the spinner', 'Freigegebene Angabe der Spinnerei')]], certs: [] }] },
+      { k: 'iplik', stage: L('İplik', 'Yarn', 'Garn'), title: multi ? L('2 iplik', '2 yarns', '2 Garne') : 'Ege İplik', d: 16, inputs: [
+        { firm: 'Ege İplik', place: 'Denizli · TR', facts: [[K.yarn, L('Ne 30/1 penye, organik pamuk', 'Ne 30/1 combed, organic cotton', 'Ne 30/1 gekämmt, Bio-Baumwolle')], [K.energy, L('%70 güneş, %30 şebeke', '70% solar, 30% grid', '70 % Solar, 30 % Netz')]], certs: ['GOTS'] },
+        ...(multi ? [{ firm: 'Marmara Elyaf', place: 'Bursa · TR', facts: [[K.yarn, L('Elastan 40 denye', 'Elastane 40 denier', 'Elasthan 40 den')]], certs: ['OEKO-TEX 100'] }] : [])] },
+      { k: 'kumas', stage: L('Kumaş', 'Fabric', 'Stoff'), title: 'Demirtaş Örme Kumaş', d: 18, inputs: [{ firm: 'Demirtaş Örme Kumaş', place: 'Bursa · TR', facts: [[K.struct, L('Süprem örme, 180 g/m²', 'Single jersey knit, 180 g/m²', 'Single-Jersey-Strick, 180 g/m²')], [K.energy, L('%60 güneş, %40 şebeke', '60% solar, 40% grid', '60 % Solar, 40 % Netz')]], certs: ['OEKO-TEX 100'] }] },
+      { k: 'boya', stage: L('Boya', 'Dyeing', 'Färbung'), title: 'Uludağ Boya Terbiye', d: 19, noCert: isPreview, inputs: [{ firm: 'Uludağ Boya Terbiye', place: 'Bursa · TR', facts: [[K.dye, L('Reaktif boyama, düşük flotte', 'Reactive dyeing, low liquor ratio', 'Reaktivfärbung, kurzes Flottenverhältnis')], [K.chem, 'ZDHC MRSL 3.1'], [K.energy, L('%100 doğalgaz', '100% natural gas', '100 % Erdgas')]], certs: [] }] },
+      { k: 'konf', stage: L('Konfeksiyon', 'Garment making', 'Konfektion'), title: 'İnegöl Fason Dikim', d: 20, pending: isPreview, inputs: [{ firm: 'İnegöl Fason Dikim', place: 'Bursa · TR', facts: [[K.work, L('Kesim, dikim, ütü, paketleme', 'Cutting, sewing, pressing, packing', 'Zuschnitt, Nähen, Bügeln, Verpacken')], [K.energy, L('%100 şebeke', '100% grid', '100 % Netz')]], certs: ['GOTS'] }] },
+    ];
+    const openSet = this.state.open || (wide ? { lif: 1, iplik: 1, kumas: 1, boya: 1, konf: 1 } : (multi ? { iplik: 1 } : { lif: 1 }));
+    const steps = steps0.map((s, i) => {
+      const open = !!openSet[s.k], merge = s.inputs.length > 1;
+      const firms = s.inputs.filter(x => x.firm).map(x => x.firm + ' · ' + x.place.split(' · ')[0]).join(', ');
+      return {
+        stage: s.stage, title: s.title, icon: ICON[s.k], open, closed: !open, rot: open ? 'rotate(180deg)' : 'none',
+        isMerge: merge, mergeT: L('2 girdi, kumaşta birleşir', '2 inputs, combined in the fabric', '2 Vorstufen, im Stoff zusammengeführt'),
+        summary: merge ? firms : (firms || s.inputs[0].facts[0][1]),
+        op: 1, bs: s.pending ? 'dashed' : 'solid', ring: s.pending ? 'var(--input)' : 'var(--story-line)', iconFg: s.pending ? 'var(--muted-foreground)' : 'var(--foreground)',
+        line: i === steps0.length - 1 ? 'var(--story-line)' : 'var(--story-line)',
+        ok: s.pending ? L('Onay bekliyor · pasaporta girmeyecek', 'Awaiting approval · will not be included', 'Freigabe ausstehend · wird nicht übernommen') : appr(s.d),
+        okIcon: s.pending ? 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 6v6l4 2' : 'M20 6 9 17l-5-5', okFg: s.pending ? 'var(--muted-foreground)' : 'var(--status-approved-foreground)',
+        inputs: s.inputs.map(x => ({ firm: x.firm, place: x.place, hasFirm: !!x.firm, facts: x.facts.map(([k, v]) => ({ k, v })), certs: x.certs, hasCerts: x.certs.length > 0, noCert: !!s.noCert, pad: merge ? '2px 0 2px 12px' : '0', bl: merge ? '2px solid var(--story-line)' : 'none', ml: '0' })),
+        toggle: () => this.setState({ open: Object.assign({}, openSet, { [s.k]: !open }) }),
+      };
+    });
+    const SV = L('Geçerli', 'Valid', 'Gültig'), SX = L('30 gün içinde doluyor', 'Expires within 30 days', 'Läuft in 30 Tagen ab');
+    const certs = [
+      { type: 'GOTS', no: 'CU 1047561-GOTS-2026', holder: 'Ege İplik', issuer: 'Control Union', range: D(14, 3, 2026) + ' – ' + D(13, 3, 2027), s: 'approved', sl: SV, step: L('İplik', 'Yarn', 'Garn') },
+      { type: 'OEKO-TEX Standard 100', no: '21.HTR.40817', holder: 'Demirtaş Örme Kumaş', issuer: 'Hohenstein', range: D(6, 11, 2025) + ' – ' + D(5, 11, 2026), s: 'expiring', sl: SX, step: L('Kumaş', 'Fabric', 'Stoff') },
+      ...(isPreview ? [] : [{ type: 'GOTS', no: 'CU 1103288-GOTS-2026', holder: 'İnegöl Fason Dikim', issuer: 'Control Union', range: D(2, 6, 2026) + ' – ' + D(1, 6, 2027), s: 'approved', sl: SV, step: L('Konfeksiyon', 'Garment making', 'Konfektion') }]),
+    ];
+    const energy = [[L('Güneş', 'Solar', 'Solar'), 38, 'var(--status-approved)'], [L('Şebeke', 'Grid', 'Netz'), 41, 'var(--status-pending)'], [L('Doğalgaz', 'Natural gas', 'Erdgas'), 21, 'var(--story-line)']].map(([name, pct, c]) => ({ name, pct, c }));
+    const metrics = [{ k: L('Su tüketimi', 'Water use', 'Wasserverbrauch'), v: lang === 'tr' || lang === 'de' ? '68' : '68', u: 'L/kg' }, { k: L('Enerji', 'Energy', 'Energie'), v: lang === 'en' ? '9.4' : '9,4', u: 'kWh/kg' }];
+    const copied = this.state.copied;
+    const isMissing = st === 'notfound' || st === 'withdrawn';
+    const banner = isOld ? { on: true, s: 'expiring', hasLink: true, icon: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 6v6l4 2',
+        title: L('Bu pasaportun eski bir sürümünü görüntülüyorsunuz (Sürüm 1)', 'You are viewing an older version of this passport (Version 1)', 'Sie sehen eine ältere Version dieses Passes (Version 1)'),
+        body: L('28 Eki 2026’da yerini Sürüm 2’ye bıraktı. Bu sayfadaki bilgiler güncel olmayabilir.', 'Replaced by Version 2 on 28 Oct 2026. The information on this page may be out of date.', 'Am 28. Okt. 2026 durch Version 2 ersetzt. Die Angaben auf dieser Seite sind möglicherweise nicht mehr aktuell.'),
+        link: L('Güncel sürümü aç', 'Open current version', 'Aktuelle Version öffnen'), go: e => { e.preventDefault(); this.setState({ state: 'full', version: 2 }); } }
+      : st === 'withdrawn' ? { on: true, s: 'rejected', hasLink: false, icon: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M4.9 4.9l14.2 14.2',
+        title: L('Geri çekildi · bu pasaport artık geçerli değil', 'Withdrawn · this passport is no longer valid', 'Zurückgezogen · dieser Pass ist nicht mehr gültig'),
+        body: t.wdDate + L('. Ürün bilgileri bu sayfada artık gösterilmiyor.', '. Product information is no longer shown on this page.', '. Produktangaben werden auf dieser Seite nicht mehr angezeigt.') }
+      : isPreview ? { on: false } : { on: true, s: 'approved', hasLink: false, icon: 'M20 6 9 17l-5-5',
+        title: L('Güncel sürüm · Sürüm ', 'Current version · Version ', 'Aktuelle Version · Version ') + ver,
+        body: L('Bu, pasaportun yayındaki en son sürümüdür. ', 'This is the latest published version of the passport. ', 'Dies ist die zuletzt veröffentlichte Version des Passes. ') + L('Yayın tarihi: ', 'Published: ', 'Veröffentlicht: ') + vDate + '.' };
+    const OK = 'M20 6 9 17l-5-5', CLK = 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 6v6l4 2', okFg = 'var(--status-approved-foreground)';
+    const mats = [[L('Ana kumaş', 'Main fabric', 'Hauptstoff'), L('Süprem örme, 180 g/m² · %100 organik pamuk', 'Single jersey knit, 180 g/m² · 100% organic cotton', 'Single-Jersey-Strick, 180 g/m² · 100 % Bio-Baumwolle')], [L('Yaka ve manşet', 'Collar and cuffs', 'Kragen und Bündchen'), L('Ribana örme, ana kumaşla aynı iplik', 'Rib knit, same yarn as main fabric', 'Rippstrick, gleiches Garn wie Hauptstoff')], [L('Düğme', 'Buttons', 'Knöpfe'), L('Corozo (bitki bazlı)', 'Corozo (plant-based)', 'Steinnuss (pflanzlich)')]].map(([k, v]) => ({ k, v }));
+    const checks = [
+      { k: L('Adres', 'Address', 'Adresse'), v: 'kozapass.vercel.app', ff: "'Geist Mono',monospace", icon: OK, fg: okFg },
+      { k: L('Ürün ve parti', 'Product and batch', 'Produkt und Charge'), v: '(01) ' + p.gtin + ' · (10) ' + p.lot, ff: "'Geist Mono',monospace", icon: OK, fg: okFg },
+      { k: L('Sürüm durumu', 'Version status', 'Versionsstatus'), v: isOld ? L('Eski sürüm · güncel sürüm 2', 'Older version · current is version 2', 'Ältere Version · aktuell ist Version 2') : isPreview ? L('Henüz yayınlanmadı', 'Not yet published', 'Noch nicht veröffentlicht') : L('Güncel · Sürüm ', 'Current · Version ', 'Aktuell · Version ') + ver, ff: 'inherit', icon: isOld || isPreview ? CLK : OK, fg: isOld ? 'var(--status-expiring-foreground)' : isPreview ? 'var(--muted-foreground)' : okFg },
+      { k: L('Doğrulama kodu', 'Verification code', 'Prüfcode'), v: isPreview ? L('Yayında oluşur', 'Created on publish', 'Wird bei Veröffentlichung erzeugt') : (ver === 1 ? 'K3P9-WX2D' : '7Q4K-2M9X') + L(' · etiketteki kodla karşılaştırın', ' · compare with the code on the label', ' · mit dem Code auf dem Etikett vergleichen'), ff: 'inherit', icon: isPreview ? CLK : OK, fg: isPreview ? 'var(--muted-foreground)' : okFg },
+    ].map((c, i) => ({ ...c, bt: i ? '1px solid var(--border)' : 'none' }));
+    const careOn = this.g('care', '') !== '' && st === 'full';
+    const CARE = [
+      ['w40', 1, L('40 °C’de yıkayın, hassas program', 'Wash at 40 °C, gentle cycle', 'Bei 40 °C waschen, Schonwaschgang')],
+      ['bx', 0, L('Ağartıcı kullanmayın', 'Do not bleach', 'Nicht bleichen')],
+      ['dtl', 0, L('Tamburda düşük ısıda kurutun', 'Tumble dry at low heat', 'Im Trockner bei niedriger Temperatur trocknen')],
+      ['i2', 0, L('Orta ısıda ütüleyin (150 °C)', 'Iron at medium heat (150 °C)', 'Bügeln bei mittlerer Temperatur (150 °C)')],
+      ['pP', 1, L('Hassas kuru temizleme (P)', 'Gentle professional dry cleaning (P)', 'Schonende professionelle Chemischreinigung (P)')],
+    ].map(([code, mod, t]) => ({ code, mod, t }));
+
+    return { hasCare: careOn, care: CARE, careMin: wide ? '112px' : '92px', hasCareNote: careOn && this.g('care', '') !== 'nonote', careNote: 'Ters çevirerek yıkayın. İlk yıkamada benzer renklerle yıkayın.',
+      lang, t, p, banner, mats, checks, chip, fibers, steps, certs, energy, metrics,
+      fiberAria: fibers.map(f => f.name + ' %' + f.pct).join(', '), energyAria: energy.map(e => e.name + ' %' + e.pct).join(', '),
+      isPreview, isLoading: st === 'loading', isMissing, is410: st === 'withdrawn', isFull: !isMissing && st !== 'loading',
+      hasEnv: !isPreview, envPlaceholder: isPreview,
+      missIcon: st === 'withdrawn' ? 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M4.9 4.9l14.2 14.2' : 'M3 11a8 8 0 1 0 16 0a8 8 0 1 0-16 0M21 21l-4.3-4.3M8 11h6',
+      missTitle: st === 'withdrawn' ? L('Bu pasaport üretici tarafından geri çekildi', 'This passport has been withdrawn by the manufacturer', 'Dieser Pass wurde vom Hersteller zurückgezogen') : L('Bu kod için pasaport bulunamadı', 'No passport found for this code', 'Für diesen Code wurde kein Pass gefunden'),
+      missHint: st === 'withdrawn' ? L('Ürünle ilgili sorularınız için satın aldığınız mağazaya başvurabilirsiniz.', 'For questions about the product, please contact the store where you bought it.', 'Bei Fragen zum Produkt wenden Sie sich bitte an das Geschäft, in dem Sie es gekauft haben.') : L('Kodu yeniden okutun; etiketteki kare kodun tamamı kamerada görünsün. Sorun sürerse kod henüz yayınlanmamış olabilir.', 'Scan the code again with the whole square code in view. If the problem persists, the passport may not be published yet.', 'Scannen Sie den Code erneut, sodass der ganze Code im Bild ist. Besteht das Problem weiter, ist der Pass eventuell noch nicht veröffentlicht.'),
+      skelRows: ['92px', '260px', '180px'],
+      langs: ['tr', 'en', 'de'].map(c => ({ code: c.toUpperCase(), cur: c === lang ? 'true' : 'false', fg: c === lang ? 'var(--foreground)' : 'var(--muted-foreground)', ul: c === lang ? 'underline' : 'none', go: e => { e.preventDefault(); this.setState({ lang: c }); } })),
+      info: isOld ? { ver: L('1 (eski sürüm)', '1 (older version)', '1 (ältere Version)'), date: vDate, code: 'K3P9-WX2D', canCopy: true } : isPreview ? { ver: L('3 (taslak)', '3 (draft)', '3 (Entwurf)'), date: '—', code: L('Yayında oluşur', 'Created on publish', 'Wird bei Veröffentlichung erzeugt'), canCopy: false } : { ver: String(ver), date: vDate, code: ver === 1 ? 'K3P9-WX2D' : '7Q4K-2M9X', canCopy: true },
+      copy: () => this.setState({ copied: true }),
+      copyT: copied ? L('Kopyalandı', 'Copied', 'Kopiert') : L('Kopyala', 'Copy', 'Kopieren'),
+      copyIcon: copied ? 'M20 6 9 17l-5-5' : 'M8 8h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2ZM4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2',
+      ic: { eye: 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7ZM9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0' },
+      host: 'kozapass.vercel.app/01/' + p.gtin + '/10/' + p.lot,
+    };
+  }
+}
+</script>
+</body>
+</html>

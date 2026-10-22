@@ -1,14 +1,17 @@
 "use client";
 
-import { Check, ChevronRight, CircleAlert, Clock, TriangleAlert } from "lucide-react";
+import { Check, ChevronRight, CircleAlert, Clock, Info, TriangleAlert } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
+import { ProductSheet } from "@/components/products/product-sheet";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { BatchResponse } from "@/lib/api/batches";
 import type { ScoreCriterion, ScoreIssue, ScoreResponse } from "@/lib/api/passports";
 import { useBatchIssues } from "@/lib/api/issues";
+import { canWriteCatalog } from "@/lib/auth/permissions";
+import { useSession } from "@/lib/auth/use-session";
 import { formatPercent } from "@/lib/format";
 import { useVersionFacts } from "./use-version-facts";
 
@@ -39,6 +42,9 @@ export function ScoreCard({
   const t = useTranslations("publishing");
   const locale = useLocale();
   const [open, setOpen] = useState(true);
+  const [productOpen, setProductOpen] = useState(false);
+  const session = useSession();
+  const canEditProduct = session.status === "authenticated" && canWriteCatalog(session.user.role);
   const facts = useVersionFacts(batch.id, batch.status === "PUBLISHED");
 
   if (score.isPending) {
@@ -138,6 +144,11 @@ export function ScoreCard({
         </div>
       )}
 
+      {data.careInstructionsMissing && (
+        <CareMissingNote onOpen={canEditProduct ? () => setProductOpen(true) : undefined} />
+      )}
+      {productOpen && <ProductSheet target={{ kind: "edit", id: batch.product.id }} onClose={() => setProductOpen(false)} />}
+
       {(data.blockers.length > 0 || issueWarnings) && (
         <div className="flex flex-col gap-2 border-t pt-3">
           <span className="text-xs font-semibold tracking-[0.06em] text-muted-foreground uppercase">{t("blockersTitle")}</span>
@@ -148,6 +159,32 @@ export function ScoreCard({
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * Design v1.0 120d: the product has no care instructions. Neither points nor a blocker, so it stays out of the
+ * blockers; a tap opens the product form where they are entered.
+ */
+function CareMissingNote({ onOpen }: { onOpen?: () => void }) {
+  const t = useTranslations("publishing");
+  const content = (
+    <>
+      <Info className="mt-px size-[15px] flex-none text-status-submitted-foreground" strokeWidth={1.75} aria-hidden />
+      <span className="flex flex-1 flex-col gap-0.5 text-left">
+        <span className="font-medium">{t("careMissing")}</span>
+        <span className="text-xs text-muted-foreground">{t("careMissingBody")}</span>
+      </span>
+      {onOpen && <ChevronRight className="mt-[3px] size-3 flex-none" strokeWidth={1.75} aria-hidden />}
+    </>
+  );
+  const box = "flex items-start gap-2 rounded-lg bg-popover-muted px-3 py-2.5 text-[13px] leading-[1.4] text-foreground";
+  return onOpen ? (
+    <button type="button" onClick={onOpen} className={`${box} cursor-pointer outline-none hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring-soft`}>
+      {content}
+    </button>
+  ) : (
+    <div className={box}>{content}</div>
   );
 }
 
