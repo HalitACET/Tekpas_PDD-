@@ -2,6 +2,7 @@ package com.tekpas.passport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.tekpas.ai.AiException;
 import com.tekpas.ai.AiRequest;
 import com.tekpas.company.UserRole;
 import com.tekpas.jobs.JobWorker;
@@ -165,6 +166,7 @@ class PassportTranslationApiTest {
 
         assertThat(body.path("aiAvailable").asBoolean()).isTrue();
         assertThat(body.path("suggesting").asBoolean()).isFalse();
+        assertThat(body.path("suggestionFailure").isNull()).isTrue();
         JsonNode description = field(body, "product.description");
         assertThat(entry(description, "en").path("text").asString()).isEqualTo("Organic cotton polo");
         assertThat(entry(description, "en").path("aiSuggested").asBoolean()).isTrue();
@@ -181,6 +183,30 @@ class PassportTranslationApiTest {
         assertThat(data).contains("T1 [tr -> en, de]: Organik pamuklu polo").contains("T2 [tr -> en, de]: Süprem")
                 .startsWith("<<<DATA ");
         assertThat(request.instruction()).doesNotContain("Organik");
+    }
+
+    @Test
+    void aFailedSuggestionChangesNothingAndSaysSoAndTheDailyLimitRefusesTheNext() throws IOException {
+        Setup s = t.publishable(demo());
+        ai.fail(AiException.Kind.REJECTED);
+
+        assertThat(fixtures.post(s.owner(), uri(s) + "/suggest", Map.of())).hasStatus(202);
+        drain();
+        JsonNode body = get(s);
+
+        assertThat(body.path("suggesting").asBoolean()).isFalse();
+        assertThat(body.path("suggestionFailure").asString()).isEqualTo("SUGGESTION_FAILED");
+        assertThat(entry(field(body, "product.description"), "en").path("text").isNull()).isTrue();
+
+        // Today's calls used up (whichever day the quota counts in).
+        jdbc.update("""
+                INSERT INTO llm_usage (day, calls) SELECT d::date, 1000 FROM generate_series(CURRENT_DATE - 1,
+                    CURRENT_DATE + 1, interval '1 day') d
+                ON CONFLICT (day) DO UPDATE SET calls = 1000""");
+        MvcTestResult refused = fixtures.post(s.owner(), uri(s) + "/suggest", Map.of());
+
+        assertThat(refused).hasStatus(409);
+        assertThat(fixtures.body(refused).path("reason").asString()).isEqualTo("AI_LIMIT_REACHED");
     }
 
     @Test

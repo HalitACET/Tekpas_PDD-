@@ -26,6 +26,18 @@ public class LlmBudget {
         this.clock = clock;
     }
 
+    /** Whether today's cap is used up, without counting a call (a call can still lose the last one to a race). */
+    public boolean exhausted() {
+        int limit = properties.llm().dailyLimit();
+        if (limit <= 0) {
+            return true;
+        }
+        LocalDate today = LocalDate.ofInstant(clock.instant(), QUOTA_ZONE);
+        Integer calls = jdbc.query("SELECT calls FROM llm_usage WHERE day = ?", rs -> rs.next() ? rs.getInt(1) : 0,
+                today);
+        return calls != null && calls >= limit;
+    }
+
     /** Counts one call if today's cap allows it, atomically (no two callers take the last one). */
     public boolean tryAcquire() {
         int limit = properties.llm().dailyLimit();

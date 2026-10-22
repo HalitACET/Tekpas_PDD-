@@ -5,6 +5,7 @@ import com.tekpas.ai.AiProperties;
 import com.tekpas.ai.LlmBudget;
 import com.tekpas.ai.LlmGate;
 import com.tekpas.jobs.JobContext;
+import com.tekpas.jobs.JobFailedPermanently;
 import com.tekpas.jobs.JobHandler;
 import com.tekpas.jobs.JobType;
 import com.tekpas.passport.translation.PassportTranslations.Loaded;
@@ -87,7 +88,8 @@ class TranslatePassportJob implements JobHandler<Payload> {
         }
         if (!budget.tryAcquire()) {
             log.warn("LLM daily limit reached, the translations of batch {} are not suggested", payload.batchId());
-            return;
+            // The panel reads why from the job (PassportTranslations.lastSuggestion).
+            throw new JobFailedPermanently(PassportTranslations.LIMIT_REACHED);
         }
         List<Suggestion> suggestions;
         try {
@@ -97,7 +99,7 @@ class TranslatePassportJob implements JobHandler<Payload> {
                 throw e;
             }
             log.warn("Translations of batch {} gave up: {}", payload.batchId(), e.getMessage());
-            return;
+            throw new JobFailedPermanently(PassportTranslations.SUGGESTION_FAILED);
         }
         Map<String, TranslatableText> texts = new HashMap<>();
         wanted.forEach(w -> texts.put(w.text().field(), w.text()));

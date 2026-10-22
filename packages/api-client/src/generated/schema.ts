@@ -2084,6 +2084,7 @@ export interface components {
             aiAvailable: boolean;
             fields: components["schemas"]["TranslationField"][];
             suggesting: boolean;
+            suggestionFailure?: string | null;
         };
         TranslationsUpdateRequest: {
             entries: components["schemas"]["Entry"][];
@@ -3163,7 +3164,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ApiProblem"];
                 };
             };
-            /** @description AI_NOT_AVAILABLE (not a demo company or the LLM is off) or NOTHING_TO_TRANSLATE */
+            /** @description AI_NOT_AVAILABLE (not a demo company or the LLM is off), NOTHING_TO_TRANSLATE or AI_LIMIT_REACHED (today's AI calls are used up) */
             409: {
                 headers: {
                     [name: string]: unknown;
