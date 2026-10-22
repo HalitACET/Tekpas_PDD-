@@ -22,11 +22,12 @@ const MAX_BYTES = 1024 * 1024;
 const FILE_ERRORS = ["FileType", "FileSize", "FileMacro", "FileUnsafe"] as const;
 type FileError = (typeof FILE_ERRORS)[number] | "other";
 
-/** "22 Eki 2026, 14:32" (design v1.1 151–156). */
+/** "22 Eki 2026, 14:32" (design v1.1 151–156), in Turkish time like the rest of the panel. */
 export function useImportDate() {
   const locale = useLocale();
-  const day = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" });
-  const time = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" });
+  const timeZone = "Europe/Istanbul";
+  const day = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric", timeZone });
+  const time = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", timeZone });
   return (iso: string) => `${day.format(new Date(iso))}, ${time.format(new Date(iso))}`;
 }
 
