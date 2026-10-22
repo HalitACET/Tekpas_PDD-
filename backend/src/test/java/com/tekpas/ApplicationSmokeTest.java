@@ -32,11 +32,11 @@ class ApplicationSmokeTest {
         var versions = jdbc.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank", String.class);
 
-        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18");
+        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19");
     }
 
     @Test
-    void schemaHasTwentyTables() {
+    void schemaHasTwentyOneTables() {
         Integer tables = jdbc.queryForObject("""
                 SELECT count(*) FROM information_schema.tables
                 WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
@@ -45,7 +45,7 @@ class ApplicationSmokeTest {
 
         // V4 adds supply_step_input (the links of the supply chain DAG), V6 step_event (the step history),
         // V10 llm_usage (the daily LLM call count), V16 demo_scenario (which demo scenario was applied).
-        assertThat(tables).isEqualTo(20);
+        assertThat(tables).isEqualTo(21);
     }
 
     @Test

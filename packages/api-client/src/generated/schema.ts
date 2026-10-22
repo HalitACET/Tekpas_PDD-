@@ -323,6 +323,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/batches/{id}/translations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The batch's free texts and their translations
+         * @description Product description, care note, a step's fabric type and "other" dyeing process; the product name and names of companies and places are not translated.
+         */
+        get: operations["getTranslations"];
+        /**
+         * Edit, approve or remove translations
+         * @description Only approved translations of the texts as they are now go into the next published version. Changing an AI suggestion makes it the user's.
+         */
+        put: operations["saveTranslations"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/batches/{id}/translations/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask the AI for translations (demo companies only)
+         * @description Queues one suggestion for the texts without an approved or hand-written translation; the suggestions arrive unapproved. Poll GET until suggesting is false.
+         */
+        post: operations["suggestTranslations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/batches/{id}/validate": {
         parameters: {
             query?: never;
@@ -1278,6 +1322,12 @@ export interface components {
         };
         /** @enum {string} */
         EnergySource: "GRID" | "SOLAR" | "WIND" | "NATURAL_GAS" | "COAL" | "BIOMASS" | "OTHER";
+        Entry: {
+            approved: boolean;
+            field: string;
+            language: string;
+            text?: string | null;
+        };
         Evidence: {
             /** Format: int32 */
             page: number;
@@ -1509,6 +1559,7 @@ export interface components {
             /** Format: int32 */
             schemaVersion: number;
             supplyChain: components["schemas"]["SnapshotStep"][];
+            translations: components["schemas"]["SnapshotTranslation"][];
         };
         /** @enum {string} */
         PassportStatus: "PUBLISHED" | "SUPERSEDED" | "WITHDRAWN";
@@ -1768,6 +1819,12 @@ export interface components {
             yarnCount?: string | null;
             yarnProcess?: components["schemas"]["YarnProcess"];
         };
+        SnapshotTranslation: {
+            aiAssisted: boolean;
+            field: string;
+            language: string;
+            text: string;
+        };
         StepCreateRequest: {
             inputStepIds?: string[] | null;
             outputStepIds?: string[] | null;
@@ -1918,6 +1975,33 @@ export interface components {
             expiresIn: number;
             refreshToken?: string | null;
             tokenType: string;
+        };
+        TranslationEntry: {
+            aiSuggested: boolean;
+            approved: boolean;
+            /** Format: date-time */
+            approvedAt?: string | null;
+            approvedByName?: string | null;
+            language: string;
+            stale: boolean;
+            text?: string | null;
+        };
+        TranslationField: {
+            field: string;
+            /** @enum {string} */
+            kind: "PRODUCT_DESCRIPTION" | "CARE_NOTE" | "FABRIC_TYPE" | "DYE_PROCESS_OTHER";
+            source: string;
+            sourceLanguage: string;
+            stepType?: components["schemas"]["StepType"];
+            translations: components["schemas"]["TranslationEntry"][];
+        };
+        TranslationsResponse: {
+            aiAvailable: boolean;
+            fields: components["schemas"]["TranslationField"][];
+            suggesting: boolean;
+        };
+        TranslationsUpdateRequest: {
+            entries: components["schemas"]["Entry"][];
         };
         UserSummary: {
             company: components["schemas"]["CompanySummary"];
@@ -2863,6 +2947,139 @@ export interface operations {
             };
             /** @description No such batch, or supplier not in the network */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    getTranslations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The texts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TranslationsResponse"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    saveTranslations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TranslationsUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Saved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TranslationsResponse"];
+                };
+            };
+            /** @description TranslationField, TranslationLanguage or a validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description Only OWNER and ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
+    suggestTranslations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Queued */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TranslationsResponse"];
+                };
+            };
+            /** @description Only OWNER and ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description No such batch in this company */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+            /** @description AI_NOT_AVAILABLE (not a demo company or the LLM is off) or NOTHING_TO_TRANSLATE */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

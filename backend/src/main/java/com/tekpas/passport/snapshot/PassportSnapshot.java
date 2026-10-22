@@ -14,13 +14,18 @@ public record PassportSnapshot(
         SnapshotProduct product,
         SnapshotBatch batch,
         List<SnapshotStep> supplyChain,
-        List<SnapshotCertificate> certificates) {
+        List<SnapshotCertificate> certificates,
+        List<SnapshotTranslation> translations) {
 
-    /** 2: the product's care instructions (M10 T8). Version 1 snapshots read the same, without them. */
-    public static final int SCHEMA_VERSION = 2;
+    /**
+     * 2: the product's care instructions (M10 T8). 3: approved translations of the free texts (M11). Older snapshots
+     * read the same, without them.
+     */
+    public static final int SCHEMA_VERSION = 3;
 
     public PassportSnapshot {
         supplyChain = List.copyOf(supplyChain);
         certificates = List.copyOf(certificates);
+        translations = translations == null ? List.of() : List.copyOf(translations);
     }
 }
