@@ -17,7 +17,7 @@ com.tekpas
 ├── ai/            AiClient arayüzü, GeminiAiClient, prompt'lar, JSON şemaları
 ├── validation/    kural tabanlı + AI tutarlılık kontrolleri
 ├── passport/      yayınlama, snapshot, GS1 çözümleme, QR, public endpoint
-├── importer/      Excel (Apache POI)
+├── importer/      Excel (fastexcel: şablon yazma ve okuma)
 └── jobs/          Postgres kuyruğu: JobQueue, JobWorker, JobHandler<T>
 ```
 

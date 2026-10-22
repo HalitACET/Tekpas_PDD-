@@ -256,10 +256,10 @@ Plan: `docs/m10-plan.md` (görevler T1–T12, gerçekçi demo verisi, kullanıc�
 **Kabul:** Demo senaryosu baştan sona hatasız, internet yavaşken bile çalışıyor.
 
 ### M11 — Çok dil ve Excel
-Plan: `docs/m11-plan.md` (çeviri taslağı ve onay, snapshot `schemaVersion: 3`, ürünler için Excel içe aktarma, kararlar). Tasarım brifi: `docs/m11-tasarim-brifi.md` → Claude Design v1.1. Excel kütüphanesi kararı (fastexcel, POI değil) kullanıcı onayı bekliyor.
-- [ ] Yayında AI ile EN / DE çeviri (snapshot içine), dil seçici
+Plan: `docs/m11-plan.md` (çeviri taslağı ve onay, snapshot `schemaVersion: 3`, ürünler için Excel içe aktarma, kararlar). Tasarım brifi: `docs/m11-tasarim-brifi.md` → Claude Design v1.1. Excel kütüphanesi fastexcel (POI değil, kullanıcı onayıyla). Özet: `docs/haftalik/11-cok-dil-ve-excel.md`.
+- [x] Yayında AI ile EN / DE çeviri (snapshot içine), dil seçici _Sonuç (PR #102, #105):_ serbest metinlerin (açıklama, bakım notu, kumaş tipi, "diğer" boyama) çevirisi önizlemede; AI önerisi yalnızca demo firmasında ve onaysız gelir, elle yazılan ya da onaylanan çeviri `schemaVersion: 3` snapshot'ında donar. Pasaport onaylı çeviriyi sayfanın dilinde, çevrilmemiş metni etiketiyle ("in Turkish") gösterir.
 - [ ] Pasaport metinlerinin Almancası (ve arayüzün EN/DE çevirileri) anadili Almanca/İngilizce biri tarafından kontrol edilecek (`web/messages/README.md`)
-- [ ] Excel şablonu indir → doldur → yükle → satır bazlı hata raporu
+- [x] Excel şablonu indir → doldur → yükle → satır bazlı hata raporu _Sonuç (PR #103, #106):_ panelin dilinde şablon, satır satır kontrol (API'nin kuralları), Satır · Sütun · Değer · Sorun tablosu çözüm ipuçlarıyla, geçmiş, ürünler sayfasında şerit. 50 satırlık kabul testi backend'de.
 
 **Kabul:** Pasaport `?lang=de` ile Almanca açılır. 50 satırlık Excel'den ürünler oluşur, hatalı satırlar gösterilir.
 

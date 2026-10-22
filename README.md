@@ -32,7 +32,9 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 6. **QR pasaport:** Onaylanan parti için GS1 Digital Link QR'lı, çok dilli ve herkese açık bir pasaport yayınlanır. Ürünün bakım talimatı (ISO 3758 gruplarında semboller ve üreticinin notu) pasaportta tüketicinin dilinde görünür. Yayınlanan sürüm değişmez; değişiklik yeni sürüm demektir.
 7. **Tutarlılık kontrolü:** Kurallar etiket beyanı ile iplik/kumaş beyanını, sertifika sürelerini, sertifika sahibini ve eksik alanları denetler. Her bulgunun sabit bir kodu vardır (`LIF-01`, `SER-02`…). Engelleyici uyarı yayını durdurur ve veri düzelince kendiliğinden kapanır; diğerlerini yetkili biri notla "çözüldü" yapar. Süresi dolan sertifikalar her gün taranır ve Görevler'de listelenir. Demo firmasında AI da öneride bulunur (sertifika kapsamı, çelişen beyanlar); her öneri verideki bir alıntıya dayanır, engelleyici olmaz.
 8. **Mobil uygulama (sahada):** Kalite sorumlusu telefonla giriş yapar ve onayını bekleyen belgeleri, tedarikçiden gelen verileri, süresi yaklaşan sertifikaları görür. Sertifikanın sayfalarını kamerayla çeker; sayfalar küçültülüp yüklenir, sunucuda meta verisi temizlenip tek PDF olur. AI okuması düzenlenebilir bir form olarak gelir: her alanın kaynağı ve güveni görünür, güveni düşük alan sarıdır. Yetkili kişi kontrol edip onaylar.
-9. **Sahada hızlı iş (mobil):** Ürün etiketindeki QR okutulunca firmanın partisinin özeti ve zinciri açılır; başka bir partinin kodu herkese açık pasaportu açar. Tedarikçinin gönderdiği veri telefondan onaylanır ya da gerekçeyle düzeltme istenir; yeni bağlantı WhatsApp'tan gider. Veri gelince yöneticinin telefonuna bildirim düşer. Bağlantı yokken çekilen belge telefonda bekler ve bağlantı gelince kendiliğinden yüklenir, iki kez gitmez.
+9. **Çeviriler:** Yayından önce pasaportun serbest metinleri (ürün açıklaması, bakım notu, kumaş tipi) İngilizce ve Almancaya çevrilir. Demo firmasında AI önerir, insan onaylar; gerçek firma çeviriyi kendisi yazar. Pasaport okuyanın dilinde açılır, çevrilmemiş metin "Türkçe" etiketiyle görünür.
+10. **Excel'den içe aktarma:** Ürün listesi panelin dilindeki KozaPass şablonuyla toplu yüklenir. Her satır ayrı kontrol edilir; doğru satırlar ürün olur, hatalılar satır, sütun ve çözüm ipucuyla listelenir.
+11. **Sahada hızlı iş (mobil):** Ürün etiketindeki QR okutulunca firmanın partisinin özeti ve zinciri açılır; başka bir partinin kodu herkese açık pasaportu açar. Tedarikçinin gönderdiği veri telefondan onaylanır ya da gerekçeyle düzeltme istenir; yeni bağlantı WhatsApp'tan gider. Veri gelince yöneticinin telefonuna bildirim düşer. Bağlantı yokken çekilen belge telefonda bekler ve bağlantı gelince kendiliğinden yüklenir, iki kez gitmez.
 
 ## Kilometre taşları
 
@@ -50,7 +52,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M8 | Mobil I: görevler, kamerayla çok sayfalı belge, AI okuması ve onay (Expo) | ✅ |
 | M9 | Mobil II: QR okutma, hızlı onay ve düzeltme, bildirimler, zayıf bağlantıda yükleme kuyruğu | 🟡 |
 | M10 | Demo hazırlığı: gerçekçi demo verisi, tedarikçi ilgili kişisi, bakım talimatı, e2e CI'da, açılış ölçümü, demo senaryosu | 🟡 |
-| M11 | Çok dil ve Excel içe aktarma | ⬜ |
+| M11 | Çok dil ve Excel içe aktarma: onaylı çeviriler pasaportta, Excel'den ürün içe aktarma (anadil kontrolü sürüyor) | 🟡 |
 | M12 | Detaylı roller, denetim izi, test | ⬜ |
 | M13 | Bitirme teslimi | ⬜ |
 
@@ -102,6 +104,14 @@ Tasarım Claude Design v0.3 (ve ek çerçeveleri v0.3.1, v0.3.2, v0.4) ile yapı
 | Görevler | Adım seç | AI'ın okuduğu form | Alanlar | Onaylandı |
 | --- | --- | --- | --- | --- |
 | <img src="docs/haftalik/img/08-gorevler.png" alt="Görevler: onay bekleyen belgeler, sekme rozetinde 9 görev" width="160"> | <img src="docs/haftalik/img/08-adim-sec.png" alt="Belge hangi adıma ait: lif, iplik, kumaş, boya ve konfeksiyon adımları" width="160"> | <img src="docs/haftalik/img/08-form-ai.png" alt="Belge formu: çekilen sayfa, Yükle → dolu form 4,0 sn, AI 2 alanı okudu" width="160"> | <img src="docs/haftalik/img/08-form-alanlar.png" alt="Sarı alanlar: sertifika no ve sahip, AI okudu yüzde 60" width="160"> | <img src="docs/haftalik/img/08-onaylandi.png" alt="Belge onaylandı: GOTS, sertifika no, parti ve geçerlilik" width="160"> |
+
+**M11, çeviriler ve Excel** (Claude Design v1.1): önizlemede çeviriler ve pasaport okuyanın dilinde; içe aktarma sonucu.
+
+| Önizlemede çeviriler, pasaport Almanca (açık) | (koyu) |
+| --- | --- |
+| <img src="docs/haftalik/img/11-ceviriler-light.png" alt="Önizleme: solda çeviriler (onaylı, AI önerisi, boş), sağda Almanca pasaport; çevrilmemiş bakım notu ve kumaş tipi Türkçe etiketiyle" width="440"> | <img src="docs/haftalik/img/11-ceviriler-dark.png" alt="Önizlemede çeviriler, koyu tema" width="440"> |
+| **İçe aktarma sonucu:** hata tablosu ve ipuçları | **Ürünler:** içe aktarmadan sonra şerit |
+| <img src="docs/haftalik/img/11-ice-aktarma-light.png" alt="45 ürün oluşturuldu, 5 satır hatalı; satır, sütun, değer ve sorun tablosu" width="440"> | <img src="docs/haftalik/img/11-urunler-serit-light.png" alt="Ürünler sayfasında Az önce 45 ürün içe aktarıldı şeridi" width="440"> |
 
 ## Mimari
 
