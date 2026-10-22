@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><style>@keyframes kp-pulse{0%,100%{opacity:1}50%{opacity:.45}}@keyframes kp-spin{to{transform:rotate(360deg)}}</style></helmet>
+<div lang="tr" style="width:1440px;height:900px;display:flex;flex-direction:column;background:var(--background);color:var(--foreground);font-family:'Geist',system-ui,sans-serif;font-size:14px;overflow:hidden">
+  <div style="height:52px;flex:none;background:#1F1E1C;color:#FAF8F4;display:flex;align-items:center;gap:12px;padding:0 16px 0 20px;font-size:13px">
+    <svg width="16" height="16" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7ZM9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0"></path></svg>
+    <span style="font-weight:600">Önizleme · henüz yayınlanmadı</span>
+    <span style="color:#B7B1A7;font-family:'Geist Mono',monospace;font-size:12px">KP-2026-0915-A · Sürüm 3 taslağı</span>
+    <span style="margin-left:auto;display:flex;gap:8px">
+      <button style="height:32px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:transparent;color:#FAF8F4;border:1px solid #4A463F;cursor:pointer" style-hover="background:#2E2B27">Partiye dön</button>
+      <button style="height:32px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:#8C2F4B;color:#FFFFFF;border:1px solid transparent;cursor:pointer" style-hover="background:#6E2239">Yayınla…</button>
+    </span>
+  </div>
+  <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 440px">
+    <main style="min-height:0;overflow:auto;padding:24px 28px 40px">
+      <section aria-labelledby="h-tr" style="display:flex;flex-direction:column;gap:16px;max-width:960px">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:10px"><h2 id="h-tr" style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.015em">Çeviriler</h2><sc-if value="{{ hasRows }}" hint-placeholder-val="{{ true }}"><span style="font:500 11px 'Geist Mono',monospace;padding:1px 6px;border-radius:4px;background:var(--muted);color:var(--muted-foreground)">{{ fieldN }} alan · EN, DE</span></sc-if></div>
+            <span style="font-size:14px;line-height:1.5;text-wrap:pretty">Onaylanmamış AI önerileri yayına girmez; çevirisi olmayan alan pasaportta Türkçe ve “Türkçe” etiketiyle görünür.</span>
+            <span style="font-size:13px;color:var(--muted-foreground)">Ürün adı, firma ve yer adları çevrilmez.</span>
+          </div>
+          <sc-if value="{{ showActions }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;gap:8px;flex:none">
+              <sc-if value="{{ isDemo }}" hint-placeholder-val="{{ true }}">
+                <button disabled="{{ sugDis }}" onClick="{{ suggest }}" style="opacity:{{ sugOp }};height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--status-low-confidence-muted);color:var(--status-low-confidence-foreground);border:1px solid var(--status-low-confidence);display:flex;align-items:center;gap:7px;cursor:pointer"><sc-if value="{{ sugBusy }}" hint-placeholder-val="{{ false }}">{{ spinner }}</sc-if><sc-if value="{{ sugIdle }}" hint-placeholder-val="{{ true }}"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9ZM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9Z"></path></svg></sc-if>{{ sugLabel }}</button>
+              </sc-if>
+              <button disabled="{{ allDis }}" onClick="{{ approveAll }}" style="opacity:{{ allOp }};height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--primary-hover)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg>{{ allLabel }}</button>
+            </div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ isReal }}" hint-placeholder-val="{{ false }}">
+          <div role="note" style="display:flex;gap:10px;padding:12px 14px;border-radius:8px;background:var(--muted);font-size:13px;line-height:1.5"><svg width="16" height="16" viewBox="0 0 24 24" style="flex:none;margin-top:2px;fill:none;stroke:var(--muted-foreground);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 16v-4M12 8h.01"></path></svg><span style="text-wrap:pretty">Çeviriyi kendiniz yazabilir ya da boş bırakabilirsiniz; boş kalan metin pasaportta Türkçe ve “Türkçe” etiketiyle görünür.</span></div>
+        </sc-if>
+        <sc-if value="{{ bn.on }}" hint-placeholder-val="{{ false }}">
+          <div role="alert" style="display:flex;align-items:center;gap:10px;padding:10px 12px 10px 14px;border-radius:8px;background:var(--status-{{ bn.s }}-muted);border:1px solid var(--status-{{ bn.s }});font-size:13px;line-height:1.45"><svg width="16" height="16" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:var(--status-{{ bn.s }}-foreground);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="{{ bn.icon }}"></path></svg><span style="flex:1;min-width:0;text-wrap:pretty"><strong style="font-weight:600">{{ bn.t }}</strong> {{ bn.body }}</span><sc-if value="{{ bn.hasBtn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ suggest }}" style="flex:none;height:30px;padding:0 12px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Yeniden dene</button></sc-if></div>
+        </sc-if>
+
+        <sc-if value="{{ isNone }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:10px;align-items:center;padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-size:13px;color:var(--muted-foreground)"><svg width="16" height="16" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg><span><strong style="color:var(--foreground);font-weight:500">Çevrilecek metin yok.</strong> Bu üründe açıklama, bakım notu, kumaş tipi ya da “diğer” boyama süreci girilmemiş.</span></div>
+        </sc-if>
+        <sc-if value="{{ isSecLoading }}" hint-placeholder-val="{{ false }}">
+          <div aria-busy="true" style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ skel }}" as="k" hint-placeholder-count="3">
+              <div style="height:148px;border-radius:10px;border:1px solid var(--border);background:var(--card);padding:16px;display:grid;grid-template-columns:240px minmax(0,1fr) minmax(0,1fr);gap:16px;animation:kp-pulse 1.6s ease-in-out infinite"><span style="display:flex;flex-direction:column;gap:8px"><span style="width:110px;height:12px;border-radius:4px;background:var(--skeleton)"></span><span style="width:{{ k }};height:12px;border-radius:4px;background:var(--skeleton)"></span></span><span style="border-radius:8px;background:var(--skeleton)"></span><span style="border-radius:8px;background:var(--skeleton)"></span></div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isSecError }}" hint-placeholder-val="{{ false }}">
+          <div role="alert" style="border:1px dashed var(--input);border-radius:10px;padding:32px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px">
+            <span style="width:44px;height:44px;border-radius:12px;background:var(--status-rejected-muted);color:var(--status-rejected-foreground);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 8v4M12 16h.01"></path></svg></span>
+            <strong style="font-size:15px;font-weight:600">Çeviriler yüklenemedi</strong>
+            <span style="font-size:13px;color:var(--muted-foreground);max-width:420px;text-wrap:pretty">Pasaport önizlemesi Türkçe metinlerle gösteriliyor. Bağlantınızı kontrol edip yeniden deneyin.</span>
+            <button style="margin-top:4px;height:34px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer">Yeniden dene</button>
+          </div>
+        </sc-if>
+
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+          <div style="border:1px solid var(--border);border-radius:10px;background:var(--card);padding:16px;display:grid;grid-template-columns:240px minmax(0,1fr) minmax(0,1fr);gap:16px">
+            <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+              <span style="display:flex;flex-direction:column;gap:2px"><strong style="font-size:14px;font-weight:600">{{ r.label }}</strong><span style="font-size:12px;color:var(--muted-foreground)">{{ r.where }}</span></span>
+              <span style="align-self:flex-start;font:500 11px 'Geist Mono',monospace;padding:2px 6px;border-radius:4px;border:1px solid var(--border);color:var(--muted-foreground)">{{ r.srcTag }}</span>
+              <p lang="{{ r.srcLang }}" style="margin:0;font-size:13px;line-height:1.5;text-wrap:pretty">{{ r.src }}</p>
+            </div>
+            <sc-for list="{{ r.boxes }}" as="b" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+                <div style="display:flex;align-items:center;gap:8px;min-height:22px"><span style="font:500 12px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ b.code }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ b.name }}</span>
+                  <sc-if value="{{ b.badge.on }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;background:var(--status-{{ b.badge.s }}-muted);color:var(--status-{{ b.badge.s }}-foreground);font-size:11px;font-weight:500;padding:2px 8px 2px 7px;border-radius:999px;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ b.badge.icon }}"></path></svg>{{ b.badge.t }}</span></sc-if>
+                </div>
+                <sc-if value="{{ b.loading }}" hint-placeholder-val="{{ false }}">
+                  <div aria-busy="true" style="min-height:76px;border-radius:8px;border:1px solid var(--status-low-confidence);background:var(--status-low-confidence-muted);padding:10px 12px;display:flex;flex-direction:column;gap:8px;animation:kp-pulse 1.4s ease-in-out infinite"><span style="width:92%;height:10px;border-radius:4px;background:var(--skeleton)"></span><span style="width:64%;height:10px;border-radius:4px;background:var(--skeleton)"></span><span style="font-size:12px;color:var(--status-low-confidence-foreground)">Öneri hazırlanıyor…</span></div>
+                </sc-if>
+                <sc-if value="{{ b.ready }}" hint-placeholder-val="{{ true }}">
+                  <textarea lang="{{ b.lang }}" aria-label="{{ b.aria }}" value="{{ b.text }}" onChange="{{ b.onEdit }}" placeholder="{{ b.ph }}" rows="3" style="width:100%;min-height:76px;resize:none;border-radius:8px;border:1px {{ b.bdStyle }} {{ b.bd }};background:{{ b.bg }};color:var(--foreground);padding:9px 12px;font:13px/1.5 'Geist',sans-serif;outline:none;hyphens:auto" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"></textarea>
+                </sc-if>
+                <div style="display:flex;align-items:center;gap:8px;min-height:28px">
+                  <span style="flex:1;min-width:0;font-size:12px;line-height:1.35;color:{{ b.metaFg }};text-wrap:pretty">{{ b.meta }}</span>
+                  <sc-if value="{{ b.canApprove }}" hint-placeholder-val="{{ false }}"><button onClick="{{ b.approve }}" style="flex:none;height:28px;padding:0 10px;border-radius:6px;font:500 12px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);cursor:pointer;display:flex;align-items:center;gap:5px" style-hover="background:var(--accent)"><svg width="12" height="12" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg>Onayla</button></sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </section>
+    </main>
+    <aside style="min-height:0;border-left:1px solid var(--border);background:var(--muted);display:flex;flex-direction:column">
+      <div style="flex:none;display:flex;align-items:center;gap:10px;padding:12px 16px 12px 24px;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px;font-weight:500">Okuyanın dilinde</span>
+        <div style="margin-left:auto;display:flex;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:2px;gap:2px;font:500 11px 'Geist Mono',monospace">
+          <sc-for list="{{ pvTabs }}" as="p" hint-placeholder-count="3"><button onClick="{{ p.go }}" style="height:26px;padding:0 9px;border:none;border-radius:4px;background:{{ p.bg }};color:{{ p.fg }};font:inherit;cursor:pointer">{{ p.t }}</button></sc-for>
+        </div>
+      </div>
+      <div style="flex:1;min-height:0;overflow:auto;padding:20px 24px">
+        <div style="width:390px;border-radius:12px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow-md)">
+          <dc-import name="KozaPassPasaport" state="full" lang="{{ pvLang }}" tr="{{ pvTr }}" care="full" hint-size="390px,2400px"></dc-import>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;sc&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mixed&quot;,&quot;loading&quot;,&quot;suggested&quot;,&quot;error&quot;,&quot;limit&quot;,&quot;approved&quot;,&quot;real&quot;,&quot;none&quot;,&quot;sectionLoading&quot;,&quot;sectionError&quot;],&quot;default&quot;:&quot;mixed&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;pv&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;tr&quot;,&quot;en&quot;,&quot;de&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {};
+  componentWillUnmount() { clearTimeout(this._t); }
+  renderVals() {
+    const sc0 = this.props.sc || 'mixed', sc = this.state.sc || sc0;
+    const real = sc === 'real', LN = { tr: ['TR', 'Türkçe'], en: ['EN', 'İngilizce'], de: ['DE', 'Almanca'] };
+    const TX = {
+      desc: { tr: 'Yuvarlak yaka, kısa kollu basic tişört. Yan dikişsiz tüp örme gövdesi yıkamadan sonra formunu korur.', en: 'Crew-neck, short-sleeved basic T-shirt. The seamless tubular knit body keeps its shape after washing.', de: 'Basic-T-Shirt mit Rundhalsausschnitt und kurzen Ärmeln. Der seitennahtlose, rundgestrickte Körper behält auch nach dem Waschen seine Form.' },
+      care: { tr: 'Ters çevirerek yıkayın. İlk yıkamada benzer renklerle yıkayın.', en: 'Wash inside out. Wash with similar colours the first time.', de: 'Auf links gedreht waschen. Bei der ersten Wäsche nur mit ähnlichen Farben waschen.' },
+      fab: { tr: 'Süprem örme', en: 'Single jersey knit', de: 'Single-Jersey-Strick' },
+      dye: { tr: 'Pigment baskı ve enzim yıkama', en: 'Pigment printing and enzyme wash', de: 'Pigmentdruck und Enzymwäsche' },
+    };
+    const F = [
+      { k: 'desc', label: 'Ürün açıklaması', where: 'Ürün kartı · pasaportta başlığın altında', src: real ? 'tr' : 'tr' },
+      { k: 'care', label: 'Bakım notu', where: 'Bakım talimatı · “Üreticinin notu”', src: real ? 'en' : 'tr' },
+      { k: 'fab', label: 'Kumaş tipi', where: 'Ana kumaş · malzeme satırı', src: 'tr' },
+      { k: 'dye', label: 'Boyama süreci · diğer', where: 'Boya adımı · “Boya işlemi”', src: 'tr' },
+    ];
+    if (real) TX.care = { en: 'Wash inside out with similar colours.', tr: 'Benzer renklerle, ters çevirerek yıkayın.', de: '' };
+    const A = (k) => ({ kind: 'approved', by: 'Elif Yılmaz', when: k || '21 Eki 2026' });
+    const seeds = {
+      mixed: { 'desc.en': { ...A(), ai: true }, 'desc.de': { kind: 'ai' }, 'care.en': { kind: 'manual', text: 'Turn inside out before washing. Wash with similar colours the first time.' }, 'care.de': { kind: 'empty' }, 'fab.en': { kind: 'stale', text: 'Single jersey' }, 'fab.de': { ...A('18 Eki 2026'), ai: true }, 'dye.en': { kind: 'empty' }, 'dye.de': { kind: 'empty' } },
+      real: { 'desc.en': { kind: 'manual' }, 'desc.de': { kind: 'empty' }, 'care.tr': { kind: 'manual' }, 'care.de': { kind: 'empty' }, 'fab.en': { kind: 'manual' }, 'fab.de': { kind: 'manual' }, 'dye.en': { kind: 'empty' }, 'dye.de': { kind: 'empty' } },
+    };
+    seeds.error = seeds.limit = seeds.loading = seeds.mixed;
+    seeds.suggested = { ...seeds.mixed, 'care.de': { kind: 'ai' }, 'dye.en': { kind: 'ai' }, 'dye.de': { kind: 'ai' } };
+    seeds.approved = { 'desc.en': { ...A(), ai: true }, 'desc.de': { ...A('22 Eki 2026'), ai: true }, 'care.en': { kind: 'manual', text: 'Turn inside out before washing. Wash with similar colours the first time.' }, 'care.de': { ...A('22 Eki 2026'), ai: true }, 'fab.en': { ...A('22 Eki 2026'), ai: true }, 'fab.de': { ...A('18 Eki 2026'), ai: true }, 'dye.en': { ...A('22 Eki 2026'), ai: true }, 'dye.de': { ...A('22 Eki 2026'), ai: true } };
+    const seed = seeds[sc] || seeds.mixed, over = this.state.over || {};
+    const busy = sc === 'loading';
+    const get = key => ({ ...(seed[key] || { kind: 'empty' }), ...(over[key] || {}) });
+    const setBox = (key, v) => this.setState(s => ({ over: { ...(s.over || {}), [key]: { ...((s.over || {})[key] || {}), ...v } } }));
+    const OK = 'M20 6 9 17l-5-5', SP = 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z', WARN = 'm21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4M12 17h.01';
+    let pending = 0;
+    const rows = F.map(f => {
+      const others = ['tr', 'en', 'de'].filter(l => l !== f.src);
+      return { label: f.label, where: f.where, src: TX[f.k][f.src], srcLang: f.src, srcTag: LN[f.src][0] + ' · kaynak · ' + LN[f.src][1],
+        boxes: others.map(l => {
+          const key = f.k + '.' + l, b = get(key), kind = b.kind, loading = busy && (kind === 'empty' || kind === 'ai');
+          const text = b.text !== undefined ? b.text : kind === 'empty' ? '' : TX[f.k][l];
+          if (kind === 'ai' || kind === 'stale') pending++;
+          const map = {
+            empty: { bd: 'var(--input)', bdStyle: 'dashed', bg: 'var(--background)', badge: { on: false }, meta: 'Boş kalırsa pasaportta Türkçe görünür.', metaFg: 'var(--muted-foreground)', canApprove: false },
+            ai: { bd: 'var(--status-low-confidence)', bdStyle: 'solid', bg: 'var(--status-low-confidence-muted)', badge: { on: true, s: 'low-confidence', t: 'AI önerisi', icon: SP }, meta: 'Onaylanmadan yayına girmez.', metaFg: 'var(--status-low-confidence-foreground)', canApprove: true },
+            approved: { bd: 'var(--border)', bdStyle: 'solid', bg: 'var(--card)', badge: { on: true, s: 'approved', t: 'Onaylı', icon: OK }, meta: (b.ai ? 'AI önerisi · ' : '') + 'onaylayan ' + (b.by || 'Elif Yılmaz') + ' · ' + (b.when || '22 Eki 2026'), metaFg: 'var(--muted-foreground)', canApprove: false },
+            stale: { bd: 'var(--status-expiring)', bdStyle: 'solid', bg: 'var(--card)', badge: { on: true, s: 'expiring', t: 'Yeniden onay gerekir', icon: WARN }, meta: 'Kaynak metin 22 Eki’de değişti (“Süprem” → “Süprem örme”). Onaylanana dek önceki çeviri yayında kalır.', metaFg: 'var(--status-expiring-foreground)', canApprove: true },
+            manual: { bd: 'var(--input)', bdStyle: 'solid', bg: 'var(--card)', badge: { on: false }, meta: 'Elle yazıldı · Elif Yılmaz · yayına girer', metaFg: 'var(--muted-foreground)', canApprove: false },
+          }[kind];
+          return { ...map, code: LN[l][0], name: LN[l][1], lang: l, text, loading, ready: !loading, aria: f.label + ' · ' + LN[l][1] + ' çeviri',
+            ph: real ? LN[l][1] + ' çeviriyi yazın' : 'Çeviri yok', 
+            onEdit: e => setBox(key, { kind: e.target.value.trim() ? 'manual' : 'empty', text: e.target.value }),
+            approve: () => setBox(key, { kind: 'approved', ai: kind === 'ai', by: 'Elif Yılmaz', when: '22 Eki 2026' }) };
+        }) };
+    });
+    const mode = this.props.sc || 'mixed';
+    const isNone = sc === 'none', isSecLoading = sc === 'sectionLoading', isSecError = sc === 'sectionError', hasRows = !isNone && !isSecLoading && !isSecError;
+    const bnMap = {
+      error: { on: true, s: 'rejected', t: 'Öneriler alınamadı.', body: 'Hizmet şu an yanıt vermiyor; mevcut çevirilerinize dokunulmadı.', hasBtn: true, icon: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 8v4M12 16h.01' },
+      limit: { on: true, s: 'pending', t: 'Bugünkü AI öneri sınırı doldu.', body: 'Yarın yeniden önerebilirsiniz; bu arada çevirileri kendiniz yazabilir ya da boş bırakabilirsiniz.', hasBtn: false, icon: 'M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0M12 6v6l4 2' },
+    };
+    const bn = bnMap[sc] || { on: false };
+    const spinner = React.createElement('span', { key: 'sp', style: { width: 13, height: 13, borderRadius: '50%', border: '2px solid currentColor', borderRightColor: 'transparent', animation: 'kp-spin .8s linear infinite', display: 'inline-block' } });
+    const pvLang = this.state.pv || this.props.pv || 'en';
+    return {
+      rows: hasRows ? rows : [], hasRows, fieldN: F.length, isNone, isSecLoading, isSecError, skel: ['70%', '55%', '62%'],
+      isDemo: !real, isReal: real && hasRows, showActions: hasRows, bn,
+      sugBusy: busy, sugIdle: !busy, sugLabel: busy ? 'Öneriliyor…' : 'Çevirileri öner', sugDis: busy || sc === 'limit', sugOp: sc === 'limit' ? 0.5 : 1, spinner,
+      allLabel: pending ? 'Tümünü onayla (' + pending + ')' : 'Tümü onaylı', allDis: !pending, allOp: pending ? 1 : 0.45,
+      suggest: () => { this.setState({ sc: 'loading' }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ sc: 'suggested' }), 2600); },
+      approveAll: () => { const o = { ...(this.state.over || {}) }; F.forEach(f => ['tr', 'en', 'de'].forEach(l => { const k = f.k + '.' + l, b = get(k); if (b.kind === 'ai' || b.kind === 'stale') o[k] = { ...(o[k] || {}), kind: 'approved', ai: b.kind === 'ai' || b.ai, by: 'Elif Yılmaz', when: '22 Eki 2026' }; })); this.setState({ over: o }); },
+      pvLang, pvTr: pvLang === 'de' ? 'mixed' : 'all',
+      pvTabs: ['tr', 'en', 'de'].map(l => ({ t: l.toUpperCase(), go: () => this.setState({ pv: l }), bg: l === pvLang ? 'var(--primary)' : 'transparent', fg: l === pvLang ? 'var(--primary-foreground)' : 'var(--muted-foreground)' })),
+    };
+  }
+}
+</script>
+</body>
+</html>
