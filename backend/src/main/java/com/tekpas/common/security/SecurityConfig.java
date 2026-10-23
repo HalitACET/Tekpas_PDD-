@@ -1,6 +1,7 @@
 package com.tekpas.common.security;
 
 import com.tekpas.common.web.RequestId;
+import com.tekpas.company.PublicInvitationController;
 import com.tekpas.request.PublicRequestController;
 import java.util.List;
 import java.util.Set;
@@ -83,7 +84,8 @@ public class SecurityConfig {
         config.setAllowedOrigins(properties.allowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE,
-                HttpHeaders.ACCEPT_LANGUAGE, PublicRequestController.TOKEN_HEADER));
+                HttpHeaders.ACCEPT_LANGUAGE, PublicRequestController.TOKEN_HEADER,
+                PublicInvitationController.TOKEN_HEADER));
         config.setExposedHeaders(List.of(RequestId.HEADER));
         config.setAllowCredentials(true);
         source.registerCorsConfiguration("/api/**", config);
