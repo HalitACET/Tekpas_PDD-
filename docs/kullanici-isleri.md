@@ -21,7 +21,8 @@ Onaylı tasarım olmadan ekran kodlamıyorum (CLAUDE.md). Brifi verdiğimde Clau
   5. Göstermeden önce bir kez baştan sona izleyin: metinler okunacak kadar ekranda kalıyor mu? Son sahnedeki adres (`kozapass.vercel.app`) açılıyor mu?
 - [ ] **Tanıtım videosuna ses:** `docs/tanitim-seslendirme.md` dosyasında.
   - Sahne sahne okunacak metin ve her sahnenin ilk görüntüsü var.
-  - İki yol adım adım anlatılıyor: Clipchamp'in ücretsiz yapay sesi ya da kendi sesiniz.
+  - Üç yol adım adım anlatılıyor: Clipchamp'in ücretsiz yapay sesi, kendi sesiniz ya da ElevenLabs.
+  - ElevenLabs'in ücretsiz planı okul sunumu için uygun. Firmaya tanıtımda ticari kullanım sayılabilir; belgenin 5. bölümüne bakın.
   - Videoyu depoya koymayın; dosya büyük.
 - [ ] **Eski tasarım borçları (acil değil, tek seferde bir brifle istenebilir):**
   - Mobil web liste (768 px altı): masaüstü tablo şimdilik yana kayıyor; tasarım 16'nın web uyarlaması gerekiyor (PLAN §6).
