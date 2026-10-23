@@ -4,7 +4,7 @@ Projede benim yapamadığım, sizin yapmanız ya da karar vermeniz gereken her �
 
 Sıra önerisi: önce **A** (tasarım; M12 ekranları buna bağlı), sonra **C** (canlı kontroller, 10 dakika), sonra telefon (**B**) ve dil (**D**). Demo (**E**) demo tarihine göre.
 
-Son güncelleme: 23.10.2026 (M11 sonu).
+Son güncelleme: 23.10.2026 (M12 ve M13 taslakları).
 
 ---
 
@@ -12,7 +12,9 @@ Son güncelleme: 23.10.2026 (M11 sonu).
 
 Onaylı tasarım olmadan ekran kodlamıyorum (CLAUDE.md). Brifi verdiğimde Claude Design'a yapıştırıp çıkan dosyaları `docs/design/vX.Y/` klasörüne koymanız yeterli.
 
-- [ ] **M12 ekranları (Claude Design v1.2):** kullanıcı yönetimi, denetim izi. Brif `docs/m12-tasarim-brifi.md` dosyasında olacak. Backend tasarım beklemeden yapılıyor; ekranlar tasarım gelince.
+- [ ] **M12 ekranları (Claude Design v1.2):** Kullanıcılar (160), davet kabul sayfası (161), Denetim izi (162).
+  - Brif hazır: `docs/m12-tasarim-brifi.md` dosyasının tamamını Claude Design'a yapıştırın, çıkan dosyaları `docs/design/v1.2/` klasörüne koyun.
+  - Backend'i bitti (PR #110–#113). Tasarım gelince ekranları ben yaparım; bu, M12'yi kapatan son iş.
 - [ ] **Eski tasarım borçları (acil değil, tek seferde bir brifle istenebilir):**
   - Mobil web liste (768 px altı): masaüstü tablo şimdilik yana kayıyor; tasarım 16'nın web uyarlaması gerekiyor (PLAN §6).
   - "Belgeler" sayfasının tamamı: firma çapında belge listesi ve "Tedarikçiden iste". Bugün yalnızca "Belge yükle" diyaloğu var (PLAN §6).
@@ -72,8 +74,11 @@ Senaryo ve kontrol listesi: `docs/m10-demo-senaryosu.md`.
 
 Rapor taslağını, diyagramları ve ekran görüntülerini ben hazırlarım. Şunlar sizde:
 
-- [ ] Raporun okul şablonuna geçirilmesi, kapak, imza sayfaları.
-- [ ] Sunum: taslağı ben çıkarırım; okulun biçimi ve süresi sizde.
+Hazır taslaklar: `docs/rapor/rapor-taslagi.md` (rapor), `docs/rapor/mimari.md` ve `docs/rapor/veri-modeli.md` (diyagramlar; GitHub'da çizilmiş görünür, Word'e ekran görüntüsü olarak alınabilir), `docs/rapor/sunum-taslagi.md` (14 slayt).
+
+- [ ] **Kaynakça:** raporda `[kaynak]` işaretli yerler (ESPR tüzüğü, GS1 Digital Link, sertifika kuruluşları, benzer çalışmalar). Ben resmî metinlere buradan ulaşamadığım için kaynakları siz eklemelisiniz; özellikle tüzüğün adı, numarası ve tekstil için tarih.
+- [ ] Raporun okul şablonuna geçirilmesi, kapak, imza sayfaları. "Benzer çalışmalar" bölümü sizin okumanıza bağlı.
+- [ ] Sunum: taslak hazır; okulun biçimi ve süresine göre slaytlara geçirmek.
 - [ ] Teslim: APK'nın, canlı linkin ve kaynak kodun teslim edilmesi (okulun istediği yol: e-posta, sistem, CD…).
 
 ## G. Gerçek kullanım olursa (şimdilik değil)

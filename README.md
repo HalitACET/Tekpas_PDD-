@@ -34,7 +34,8 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 8. **Mobil uygulama (sahada):** Kalite sorumlusu telefonla giriş yapar ve onayını bekleyen belgeleri, tedarikçiden gelen verileri, süresi yaklaşan sertifikaları görür. Sertifikanın sayfalarını kamerayla çeker; sayfalar küçültülüp yüklenir, sunucuda meta verisi temizlenip tek PDF olur. AI okuması düzenlenebilir bir form olarak gelir: her alanın kaynağı ve güveni görünür, güveni düşük alan sarıdır. Yetkili kişi kontrol edip onaylar.
 9. **Çeviriler:** Yayından önce pasaportun serbest metinleri (ürün açıklaması, bakım notu, kumaş tipi) İngilizce ve Almancaya çevrilir. Demo firmasında AI önerir, insan onaylar; gerçek firma çeviriyi kendisi yazar. Pasaport okuyanın dilinde açılır, çevrilmemiş metin "Türkçe" etiketiyle görünür.
 10. **Excel'den içe aktarma:** Ürün listesi panelin dilindeki KozaPass şablonuyla toplu yüklenir. Her satır ayrı kontrol edilir; doğru satırlar ürün olur, hatalılar satır, sütun ve çözüm ipucuyla listelenir.
-11. **Sahada hızlı iş (mobil):** Ürün etiketindeki QR okutulunca firmanın partisinin özeti ve zinciri açılır; başka bir partinin kodu herkese açık pasaportu açar. Tedarikçinin gönderdiği veri telefondan onaylanır ya da gerekçeyle düzeltme istenir; yeni bağlantı WhatsApp'tan gider. Veri gelince yöneticinin telefonuna bildirim düşer. Bağlantı yokken çekilen belge telefonda bekler ve bağlantı gelince kendiliğinden yüklenir, iki kez gitmez.
+11. **Roller ve denetim izi:** Sahip ekibini tek kullanımlık bir bağlantıyla davet eder; rolleri ve erişimi yönetir. Önemli her değişiklik (kim, neyi, ne zaman) denetim izine yazılır. Giriş, art arda hatalı denemelere karşı korunur.
+12. **Sahada hızlı iş (mobil):** Ürün etiketindeki QR okutulunca firmanın partisinin özeti ve zinciri açılır; başka bir partinin kodu herkese açık pasaportu açar. Tedarikçinin gönderdiği veri telefondan onaylanır ya da gerekçeyle düzeltme istenir; yeni bağlantı WhatsApp'tan gider. Veri gelince yöneticinin telefonuna bildirim düşer. Bağlantı yokken çekilen belge telefonda bekler ve bağlantı gelince kendiliğinden yüklenir, iki kez gitmez.
 
 ## Kilometre taşları
 
@@ -53,8 +54,8 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M9 | Mobil II: QR okutma, hızlı onay ve düzeltme, bildirimler, zayıf bağlantıda yükleme kuyruğu | 🟡 |
 | M10 | Demo hazırlığı: gerçekçi demo verisi, tedarikçi ilgili kişisi, bakım talimatı, e2e CI'da, açılış ölçümü, demo senaryosu | 🟡 |
 | M11 | Çok dil ve Excel içe aktarma: onaylı çeviriler pasaportta, Excel'den ürün içe aktarma (anadil kontrolü sürüyor) | 🟡 |
-| M12 | Detaylı roller, denetim izi, test | ⬜ |
-| M13 | Bitirme teslimi | ⬜ |
+| M12 | Detaylı roller, denetim izi, test: rol matrisi testi, kullanıcı daveti, denetim izi, giriş deneme sınırı (ekranlar tasarım bekliyor) | 🟡 |
+| M13 | Bitirme teslimi: rapor taslağı, diyagramlar, sunum taslağı (teslim kullanıcıda) | 🟡 |
 
 ## Ekran görüntüleri
 
