@@ -122,12 +122,12 @@ Ayrıntı ve ER diyagramı: `docs/rapor/veri-modeli.md`. 22 tablo, 23 Flyway mig
 
 ## 6. Geliştirme yöntemi
 
-- **Kilometre taşları:** 13 kilometre taşı (M1–M13), her birinin kabul kriteri `docs/PLAN.md`'de.
+- **Kilometre taşları:** 13 kilometre taşı (M1–M13), her birinin kabul kriteri `docs/PLAN.md`'de. M12 sonunda depoda 118 PR birleştirilmişti.
 - **Her değişiklik bir PR:**
   - Değişiklik ayrı bir dalda yapılır ve kısa, anlamlı commit'lerle (Conventional Commits) kaydedilir.
   - PR'da otomatik testler koşar (backend, web/mobil, sözleşme, uçtan uca); hepsi yeşilse squash merge edilir.
 - **Tasarım önce:**
-  - Ekranlar Claude Design ile tasarlandı (v0.2–v1.1).
+  - Ekranlar Claude Design ile tasarlandı (v0.2–v1.2).
   - Onaylı tasarım olmadan ekran kodlanmadı. Uygulama, tasarım çerçeveleriyle yan yana ekran görüntüsü alınarak karşılaştırıldı (`docs/design/impl-*`).
 - **Yapay zekâ destekli geliştirme:**
   - Kodun büyük kısmı bir kodlama ajanıyla (Claude Code) yazıldı. Proje sahibi ürün kararlarını verdi, tasarımı onayladı, telefon ve canlı denemeleri yaptı.
@@ -241,8 +241,9 @@ Ayrıntı ve ER diyagramı: `docs/rapor/veri-modeli.md`. 22 tablo, 23 Flyway mig
 | M12 | 696 |
 
 - **Backend:** JUnit 5. Entegrasyon testleri Testcontainers ile gerçek PostgreSQL'e karşı koşar; AI her zaman sahte istemciyle değiştirilir.
-- **Web:** Vitest + Testing Library (265+). Playwright uçtan uca testleri (140+) sahte API'ye karşı CI'da koşar.
-- **Mobil:** Jest (55+).
+- **Web:** Vitest + Testing Library (285 test). Playwright uçtan uca testleri (146) sahte API'ye karşı CI'da koşar; herkese açık pasaport sayfası için küçük bir sahte backend sunucusu kullanılır.
+- **Mobil:** Jest (80 test).
+- **Ortak paketler:** Zod şemaları ve çeviri kontrolleri (102), API istemcisi (14).
 - **CI job'ları:** `backend`, `js`, `contract` (API sözleşmesi ile üretilen istemcinin uyumu), `e2e`.
 - **Testin değeri:** birçok hata canlıya çıkmadan testlerde yakalandı. Örneğin Jackson'ın ondalık sayıyı sessizce tam sayıya kırpması, Türkçe büyük harf (i → İ) ile parti numarasının bozulması, CI'ın UTC saat dilimi.
 

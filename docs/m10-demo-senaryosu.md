@@ -13,7 +13,8 @@ Arden'e gösterilecek 5 dakikalık akış: her adımda ne gösterileceği, ne s�
 | 1:50–2:40 | **KP-2026-0929-A** (parti 4) → Uyarılar | LIF-01: kumaşta %95 organik pamuk / %5 elastan, etiket %100. Yayın kilitli. "Düzeltme iste" → hazır gerekçe → WhatsApp mesajı "Merhaba Selin Arslan, …" | "Tutarlılık kontrolü yayından önce yakalar. Düzeltme talebi tedarikçiye adıyla, tek dokunuşla gider." |
 | 2:40–3:40 | **KP-2026-0922-A** (parti 2) | Skor %100, "Yayına hazır". Önizle → **Pasaportu yayınla** → QR kodu | "Bütün adımlar ve sertifikalar onaylı. Pasaport GS1 Digital Link ile yayında; yayından sonra değişmez, değişiklik yeni sürüm olur." |
 | 3:40–4:30 | **Telefon** | Ekrandaki QR okutulur → herkese açık pasaport; TR/EN/DE geçişi; izlenebilirlik adımları | "Tüketici ya da denetçi uygulama indirmeden açar. AB'nin dijital ürün pasaportu bu biçimde." |
-| 4:30–5:00 | **KP-2026-0918-A** (parti 5) | Zincir kurulmuş, boyahane ve dikim için "Tedarikçi ata" | "Yeni partide zincir burada kuruluyor. ERP'den Excel ile içe aktarma bir sonraki adım (M11)." |
+| 4:30–5:00 | **KP-2026-0918-A** (parti 5) | Zincir kurulmuş, boyahane ve dikim için "Tedarikçi ata" | "Yeni partide zincir burada kuruluyor. Ürün listesi ERP'den Excel şablonuyla toplu gelebilir (İçe aktarma)." |
+| İsteğe bağlı, +0:30 | **Yönetim → Denetim izi** | "Bugün" altında az önce yapılanlar: belge doğrulama, adım onayı, "Yayınladı · sürüm 1" ve bunları kimin yaptığı | "Kim, neyi, ne zaman değiştirdi; kayıtlar silinmez. Ekip tek kullanımlık bağlantıyla davet edilir, rolü Sahip belirler." |
 
 **Mobil (telefon kabulü geçerse, isteğe bağlı, +1 dk):** uygulamada Tara → parti 3 özeti → kumaş adımı → hızlı onay. Ya da sentetik bir sertifikanın fotoğrafı çekilir → AI okuması formda (M8).
 
