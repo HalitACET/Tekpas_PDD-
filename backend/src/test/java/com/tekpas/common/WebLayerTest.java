@@ -29,6 +29,20 @@ class WebLayerTest {
     }
 
     @Test
+    void corsLetsTheLinkTokenHeadersThrough() {
+        for (String header : new String[] {"x-request-token", "x-invitation-token"}) {
+            MvcTestResult result = fixtures.mvc().options().uri("/api/v1/public/invitation")
+                    .header(HttpHeaders.ORIGIN, "http://localhost:3000")
+                    .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET")
+                    .header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, header).exchange();
+
+            assertThat(result).hasStatusOk();
+            assertThat(result.getResponse().getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS))
+                    .containsIgnoringCase(header);
+        }
+    }
+
+    @Test
     void corsPreflightFromUnknownOriginIsRejected() {
         MvcTestResult result = preflight("https://evil.example");
 
