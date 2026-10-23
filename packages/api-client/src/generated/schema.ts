@@ -13,7 +13,7 @@ export interface paths {
         };
         /**
          * The company's audit trail, newest first
-         * @description Filters combine. Days are Turkish days (Europe/Istanbul). 50 entries a page, at most 100; pass nextBefore as before for older entries.
+         * @description Filters combine; entityType may repeat (STEP and DOCUMENT are "steps and documents"). Days are Turkish days (Europe/Istanbul). 25 entries a page, at most 100; page is 0-based.
          */
         get: operations["listAudit"];
         put?: never;
@@ -1278,8 +1278,12 @@ export interface components {
         };
         AuditPage: {
             entries: components["schemas"]["AuditEntry"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
             /** Format: int64 */
-            nextBefore?: number | null;
+            total: number;
         };
         AwaitingDocument: {
             /** Format: uuid */
@@ -1753,6 +1757,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             locale: string;
+            ownerName?: string | null;
             /** @enum {string} */
             role: "OWNER" | "ADMIN" | "EDITOR" | "SUPPLIER" | "VIEWER";
         };
@@ -2279,6 +2284,8 @@ export interface components {
             /** Format: uuid */
             id: string;
             /** Format: date-time */
+            inactiveSince?: string | null;
+            /** Format: date-time */
             invitationExpiresAt?: string | null;
             /** Format: date-time */
             lastLoginAt?: string | null;
@@ -2345,12 +2352,12 @@ export interface operations {
     listAudit: {
         parameters: {
             query?: {
-                entityType?: string;
+                entityType?: string[];
                 userId?: string;
                 from?: string;
                 to?: string;
                 batchId?: string;
-                before?: number;
+                page?: number;
                 size?: number;
             };
             header?: never;

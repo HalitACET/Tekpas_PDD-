@@ -25,7 +25,7 @@ import tools.jackson.databind.ObjectMapper;
 @Service
 public class AuditService {
 
-    static final int DEFAULT_SIZE = 50;
+    static final int DEFAULT_SIZE = 25;
     static final int MAX_SIZE = 100;
     /** Days of the date filter are Turkish days, as everywhere in the panel. */
     static final ZoneId ZONE = ZoneId.of("Europe/Istanbul");
@@ -39,7 +39,11 @@ public class AuditService {
                                              WHERE x.id = a.entity_id)
                        WHEN 'STEP' THEN (SELECT b.batch_no FROM supply_step s JOIN batch b ON b.id = s.batch_id
                                          WHERE s.id = a.entity_id)
-                       WHEN 'DOCUMENT' THEN (SELECT d.original_name FROM document d WHERE d.id = a.entity_id)
+                       WHEN 'DOCUMENT' THEN (SELECT COALESCE(c.name, d.original_name) FROM document d
+                                             LEFT JOIN supply_step s ON s.id = d.step_id
+                                             LEFT JOIN company c ON c.id = s.supplier_company_id
+                                             WHERE d.id = a.entity_id)
+                       WHEN 'TRANSLATION' THEN (SELECT b.batch_no FROM batch b WHERE b.id = a.entity_id)
                        WHEN 'ISSUE' THEN (SELECT b.batch_no FROM validation_issue i JOIN batch b ON b.id = i.batch_id
                                           WHERE i.id = a.entity_id)
                        WHEN 'SUPPLIER' THEN (SELECT c.name FROM company c WHERE c.id = a.entity_id)
@@ -48,6 +52,7 @@ public class AuditService {
                    END, a.diff->>'label') AS label,
                    CASE a.entity_type
                        WHEN 'BATCH' THEN (SELECT b.id FROM batch b WHERE b.id = a.entity_id)
+                       WHEN 'TRANSLATION' THEN (SELECT b.id FROM batch b WHERE b.id = a.entity_id)
                        WHEN 'PASSPORT' THEN (SELECT x.batch_id FROM passport x WHERE x.id = a.entity_id)
                        WHEN 'STEP' THEN (SELECT s.batch_id FROM supply_step s WHERE s.id = a.entity_id)
                        WHEN 'DOCUMENT' THEN (SELECT s.batch_id FROM document d JOIN supply_step s ON s.id = d.step_id
@@ -66,19 +71,23 @@ public class AuditService {
     }
 
     /**
-     * @param batchId a batch's history: its own entries and those of its steps, documents, alerts and passports
-     * @param before  the {@code nextBefore} of the previous page
+     * @param entityTypes any of these (none: all)
+     * @param batchId     a batch's history: its own entries and those of its steps, documents, alerts, passports and
+     *                    translations
+     * @param page        0-based
      */
     @Transactional(readOnly = true)
-    public AuditPage list(UUID companyId, @Nullable String entityType, @Nullable UUID userId,
-            @Nullable LocalDate from, @Nullable LocalDate to, @Nullable UUID batchId, @Nullable Long before,
+    public AuditPage list(UUID companyId, @Nullable List<String> entityTypes, @Nullable UUID userId,
+            @Nullable LocalDate from, @Nullable LocalDate to, @Nullable UUID batchId, @Nullable Integer page,
             @Nullable Integer size) {
         int limit = Math.clamp(size == null ? DEFAULT_SIZE : size, 1, MAX_SIZE);
+        int pageNo = Math.max(0, page == null ? 0 : page);
         StringBuilder where = new StringBuilder(" WHERE a.company_id = ?");
         List<Object> args = new ArrayList<>(List.of(companyId));
-        if (entityType != null) {
-            where.append(" AND a.entity_type = ?");
-            args.add(entityType);
+        if (entityTypes != null && !entityTypes.isEmpty()) {
+            where.append(" AND a.entity_type IN (").append(String.join(", ", entityTypes.stream().map(t -> "?")
+                    .toList())).append(")");
+            args.addAll(entityTypes);
         }
         if (userId != null) {
             where.append(" AND a.user_id = ?");
@@ -92,25 +101,22 @@ public class AuditService {
             where.append(" AND a.created_at < ?");
             args.add(Timestamp.from(to.plusDays(1).atStartOfDay(ZONE).toInstant()));
         }
-        if (before != null) {
-            where.append(" AND a.id < ?");
-            args.add(before);
-        }
-        String sql = SELECT + where + " ORDER BY a.id DESC LIMIT ?";
+        // The batch id is worked out per row, so the batch filter goes around the query.
+        String filtered = "SELECT * FROM (" + SELECT + where + ") t" + (batchId != null ? " WHERE t.batch_id = ?" : "");
         if (batchId != null) {
-            // The batch id is worked out per row; filter on it around the query.
-            sql = "SELECT * FROM (" + SELECT + where + ") t WHERE t.batch_id = ? ORDER BY t.id DESC LIMIT ?";
             args.add(batchId);
         }
-        args.add(limit + 1);
-        List<AuditEntry> rows = jdbc.query(sql, (rs, i) -> new AuditEntry(rs.getLong("id"),
+        Long total = jdbc.queryForObject("SELECT count(*) FROM (" + filtered + ") c", Long.class, args.toArray());
+        List<Object> pageArgs = new ArrayList<>(args);
+        pageArgs.add(limit);
+        pageArgs.add((long) pageNo * limit);
+        List<AuditEntry> rows = jdbc.query(filtered + " ORDER BY t.id DESC LIMIT ? OFFSET ?", (rs, i) -> new AuditEntry(
+                rs.getLong("id"),
                 rs.getTimestamp("created_at").toInstant(), rs.getObject("user_id", UUID.class),
                 rs.getString("full_name"), rs.getString("entity_type"), rs.getObject("entity_id", UUID.class),
                 rs.getString("action"), rs.getString("label"), rs.getObject("batch_id", UUID.class),
-                details(rs.getString("diff"))), args.toArray());
-        boolean more = rows.size() > limit;
-        List<AuditEntry> page = more ? rows.subList(0, limit) : rows;
-        return new AuditPage(page, more ? page.getLast().id() : null);
+                details(rs.getString("diff"))), pageArgs.toArray());
+        return new AuditPage(rows, total == null ? 0 : total, pageNo, limit);
     }
 
     /** The entry's diff without its label, which is already the entry's {@code label}. */

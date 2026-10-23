@@ -7,6 +7,7 @@ import com.tekpas.company.AppUser;
 import com.tekpas.company.AppUserRepository;
 import com.tekpas.company.Company;
 import com.tekpas.company.CompanyRepository;
+import com.tekpas.company.UserRole;
 import java.time.Clock;
 import java.util.Locale;
 import java.util.Optional;
@@ -87,7 +88,9 @@ public class AuthService {
     public MeResponse me(UUID userId, UUID companyId) {
         AppUser user = users.findByIdAndCompanyId(userId, companyId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        return MeResponse.from(user, company(user));
+        String ownerName = users.findFirstByCompanyIdAndRoleAndActiveTrueOrderByFullNameAsc(companyId, UserRole.OWNER)
+                .map(AppUser::getFullName).orElse(null);
+        return MeResponse.from(user, company(user), ownerName);
     }
 
     private Session session(AppUser user, RefreshTokenService.Issued refresh) {
