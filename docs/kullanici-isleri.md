@@ -13,6 +13,12 @@ Son güncelleme: 23.10.2026 (M12 bitti: kullanıcılar, davet sayfası, denetim 
 Onaylı tasarım olmadan ekran kodlamıyorum (CLAUDE.md). Brifi verdiğimde Claude Design'a yapıştırıp çıkan dosyaları `docs/design/vX.Y/` klasörüne koymanız yeterli.
 
 - [x] **M12 ekranları (Claude Design v1.2):** Kullanıcılar, davet kabul sayfası, Denetim izi. Tasarım geldi, ekranlar yapıldı (PR #118).
+- [ ] **Tanıtım animasyonu (Arden ve diğer izleyiciler için, ~2,5 dakika):**
+  1. Brif hazır: `docs/tanitim-animasyonu-brifi.md`. Dosyanın tamamını Claude Design'a yapıştırın.
+  2. Brifin 6. bölümündeki 18 görseli yükleyin. Hepsi depoda; yolları tabloda yazıyor.
+  3. Çıkan dosyaları `docs/design/animasyon/` klasörüne koyun ve bana söyleyin. Brifle karşılaştırırım: olmayan bir özellik gösterilmiş mi, rakamlar değişmiş mi?
+  4. **Videoya çevirme:** Claude Design MP4 veremezse animasyonu tam ekranda oynatıp Windows'un kendi kaydıyla kaydedin. `Win + Alt + R` kaydı başlatır ve durdurur; dosya Videolar → Yakalamalar klasörüne düşer.
+  5. Göstermeden önce bir kez baştan sona izleyin: metinler okunacak kadar ekranda kalıyor mu? Son sahnedeki adres (`kozapass.vercel.app`) açılıyor mu?
 - [ ] **Eski tasarım borçları (acil değil, tek seferde bir brifle istenebilir):**
   - Mobil web liste (768 px altı): masaüstü tablo şimdilik yana kayıyor; tasarım 16'nın web uyarlaması gerekiyor (PLAN §6).
   - "Belgeler" sayfasının tamamı: firma çapında belge listesi ve "Tedarikçiden iste". Bugün yalnızca "Belge yükle" diyaloğu var (PLAN §6).
