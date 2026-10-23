@@ -34,7 +34,7 @@ Kod adı `tekpas`: repo, paket adları (`@tekpas/*`), Java paketi (`com.tekpas`)
 8. **Mobil uygulama (sahada):** Kalite sorumlusu telefonla giriş yapar ve onayını bekleyen belgeleri, tedarikçiden gelen verileri, süresi yaklaşan sertifikaları görür. Sertifikanın sayfalarını kamerayla çeker; sayfalar küçültülüp yüklenir, sunucuda meta verisi temizlenip tek PDF olur. AI okuması düzenlenebilir bir form olarak gelir: her alanın kaynağı ve güveni görünür, güveni düşük alan sarıdır. Yetkili kişi kontrol edip onaylar.
 9. **Çeviriler:** Yayından önce pasaportun serbest metinleri (ürün açıklaması, bakım notu, kumaş tipi) İngilizce ve Almancaya çevrilir. Demo firmasında AI önerir, insan onaylar; gerçek firma çeviriyi kendisi yazar. Pasaport okuyanın dilinde açılır, çevrilmemiş metin "Türkçe" etiketiyle görünür.
 10. **Excel'den içe aktarma:** Ürün listesi panelin dilindeki KozaPass şablonuyla toplu yüklenir. Her satır ayrı kontrol edilir; doğru satırlar ürün olur, hatalılar satır, sütun ve çözüm ipucuyla listelenir.
-11. **Roller ve denetim izi:** Sahip ekibini tek kullanımlık bir bağlantıyla davet eder; rolleri ve erişimi yönetir. Önemli her değişiklik (kim, neyi, ne zaman) denetim izine yazılır. Giriş, art arda hatalı denemelere karşı korunur.
+11. **Roller ve denetim izi:** Sahip ekibini tek kullanımlık bir bağlantıyla davet eder (WhatsApp'tan paylaşılır); davet edilen kişi bağlantıda şifresini belirler ve giriş ekranı e-postasıyla dolu açılır. Sahip rolleri değiştirir ve kişileri pasifleştirir; Yönetici yalnızca görür. Önemli her değişiklik (kim, neyi, ne zaman) denetim izine yazılır ve güne göre gruplu, filtrelenebilir bir tabloda okunur. Giriş, art arda hatalı denemelere karşı korunur.
 12. **Sahada hızlı iş (mobil):** Ürün etiketindeki QR okutulunca firmanın partisinin özeti ve zinciri açılır; başka bir partinin kodu herkese açık pasaportu açar. Tedarikçinin gönderdiği veri telefondan onaylanır ya da gerekçeyle düzeltme istenir; yeni bağlantı WhatsApp'tan gider. Veri gelince yöneticinin telefonuna bildirim düşer. Bağlantı yokken çekilen belge telefonda bekler ve bağlantı gelince kendiliğinden yüklenir, iki kez gitmez.
 
 ## Kilometre taşları
@@ -54,7 +54,7 @@ Ayrıntı ve kabul kriterleri: [docs/PLAN.md](docs/PLAN.md). ✅ tamamlandı · 
 | M9 | Mobil II: QR okutma, hızlı onay ve düzeltme, bildirimler, zayıf bağlantıda yükleme kuyruğu | 🟡 |
 | M10 | Demo hazırlığı: gerçekçi demo verisi, tedarikçi ilgili kişisi, bakım talimatı, e2e CI'da, açılış ölçümü, demo senaryosu | 🟡 |
 | M11 | Çok dil ve Excel içe aktarma: onaylı çeviriler pasaportta, Excel'den ürün içe aktarma (anadil kontrolü sürüyor) | 🟡 |
-| M12 | Detaylı roller, denetim izi, test: rol matrisi testi, kullanıcı daveti, denetim izi, giriş deneme sınırı (ekranlar tasarım bekliyor) | 🟡 |
+| M12 | Detaylı roller, denetim izi, test: rol matrisi testi, kullanıcılar ve davet sayfası, denetim izi ekranı, giriş deneme sınırı | ✅ |
 | M13 | Bitirme teslimi: rapor taslağı, diyagramlar, sunum taslağı (teslim kullanıcıda) | 🟡 |
 
 ## Ekran görüntüleri
@@ -113,6 +113,14 @@ Tasarım Claude Design v0.3 (ve ek çerçeveleri v0.3.1, v0.3.2, v0.4) ile yapı
 | <img src="docs/haftalik/img/11-ceviriler-light.png" alt="Önizleme: solda çeviriler (onaylı, AI önerisi, boş), sağda Almanca pasaport; çevrilmemiş bakım notu ve kumaş tipi Türkçe etiketiyle" width="440"> | <img src="docs/haftalik/img/11-ceviriler-dark.png" alt="Önizlemede çeviriler, koyu tema" width="440"> |
 | **İçe aktarma sonucu:** hata tablosu ve ipuçları | **Ürünler:** içe aktarmadan sonra şerit |
 | <img src="docs/haftalik/img/11-ice-aktarma-light.png" alt="45 ürün oluşturuldu, 5 satır hatalı; satır, sütun, değer ve sorun tablosu" width="440"> | <img src="docs/haftalik/img/11-urunler-serit-light.png" alt="Ürünler sayfasında Az önce 45 ürün içe aktarıldı şeridi" width="440"> |
+
+**M12, roller ve denetim izi** (Claude Design v1.2): kullanıcılar, denetim izi, davet sayfası; tasarımla karşılaştırma [docs/design/impl-v1.2](docs/design/impl-v1.2).
+
+| Kullanıcılar (açık) | Denetim izi (koyu) |
+| --- | --- |
+| <img src="docs/haftalik/img/12-kullanicilar-light.png" alt="Kullanıcılar: sekmeler, roller, aktif, davet bekliyor, süresi dolmuş ve pasif kişiler" width="440"> | <img src="docs/haftalik/img/12-denetim-izi-dark.png" alt="Denetim izi: bugün ve dün gruplu tablo, kim, ne yaptı, hangi kayıt, değişiklik" width="440"> |
+| **Davet sayfası, masaüstü** | **Davet sayfası, telefon** |
+| <img src="docs/haftalik/img/12-davet-masaustu-light.png" alt="Davet sayfası: solda firma, kişi ve rol, sağda şifre formu" width="440"> | <img src="docs/haftalik/img/12-davet-telefon-light.png" alt="Davet sayfası telefonda: hoş geldiniz, kişi bilgileri ve şifre formu" width="200"> |
 
 ## Mimari
 

@@ -263,14 +263,16 @@ Plan: `docs/m11-plan.md` (çeviri taslağı ve onay, snapshot `schemaVersion: 3`
 
 **Kabul:** Pasaport `?lang=de` ile Almanca açılır. 50 satırlık Excel'den ürünler oluşur, hatalı satırlar gösterilir.
 
-### M12 — Detaylı roller, denetim izi, test
+### M12 — Detaylı roller, denetim izi, test ✓
+_Tamamlandı: 23.10.2026 (PR #108–#118). Özet: `docs/haftalik/12-roller-ve-denetim-izi.md`._
+
 Plan: `docs/m12-plan.md` (giriş deneme sınırı, rol matrisi testi, kullanıcı daveti, denetim izi, kritik akış e2e'leri, kararlar). Tasarım brifi: `docs/m12-tasarim-brifi.md` → Claude Design v1.2 (kullanıcılar, davet kabulü, denetim izi). Backend tasarım beklemeden, ekranlar tasarımdan sonra.
-- [ ] §2 rol matrisinin tamamı + kullanıcı yönetimi ekranı _Durum (PR #111, #112):_ matris bir testle korunuyor (`AccessMatrixTest`, bulunan sapma: tedarikçi ağı EDITOR'e açıktı, düzeltildi); kullanıcı daveti, rol ve pasifleştirme API'si hazır. Ekranlar Claude Design v1.2'yi bekliyor.
-- [ ] Denetim izi ekranı (kim, neyi, ne zaman) _Durum (PR #113):_ önemli eylemler `audit_log`'a yazılıyor, `GET /audit` hazır; ekran v1.2'yi bekliyor.
+- [x] §2 rol matrisinin tamamı + kullanıcı yönetimi ekranı _Sonuç (PR #111, #112, #117, #118):_ matris bir testle korunuyor (`AccessMatrixTest`, bulunan sapma: tedarikçi ağı EDITOR'e açıktı, düzeltildi). "Kullanıcılar" ekranı (v1.2 160–169): sekmeler, davet, bağlantı (kopyala, WhatsApp), rol değiştirme, pasifleştirme; Yönetici yalnızca görür, diğer roller kime soracağını görür. Girişsiz davet sayfası `/davet#token` (170–174): şifre belirleme, süresi dolmuş / kullanılmış / geçersiz bağlantı; giriş ekranı e-postayla dolu açılır.
+- [x] Denetim izi ekranı (kim, neyi, ne zaman) _Sonuç (PR #113, #117, #118):_ önemli eylemler `audit_log`'a yazılıyor. "Denetim izi" ekranı (v1.2 180–184): güne göre gruplu tablo, tür / kişi / tarih filtresi, sayfa başına 25 kayıt ve toplam sayı; değişiklik kısa bir satırla (rol, sürüm, alan adları, sayılar).
 - [x] Kritik akışlar için Playwright testleri _Sonuç (PR #114):_ herkese açık pasaport sayfası için sahte backend sunucusu; giriş, parti, tedarikçi formu, onay ve yayın diyaloğu zaten e2e'de (142 test).
 - [x] Login rate limiting (IP + e-posta başına deneme sınırı) _Sonuç (PR #110):_ e-posta başına 15 dk'da 5, IP başına 20 (IP doğrulanınca), genel 300/dk; web ve mobil kaç dakika beklemek gerektiğini söylüyor.
 
-Kabul durumu: "EDITOR yayınla butonunu göremez, API da 403 döner" testli (`PassportApiTest`); "her yayın denetim izinde görünür" testli (`AuditApiTest`). Ekranlar tasarım bekliyor.
+Kabul durumu: "EDITOR yayınla butonunu göremez, API da 403 döner" testli (`PassportApiTest`); "her yayın denetim izinde görünür" testli (`AuditApiTest`) ve ekranda (e2e `m12-team.spec.ts`).
 
 **Kabul:** EDITOR yayınla butonunu göremez, API da 403 döner. Her yayın denetim izinde görünür.
 

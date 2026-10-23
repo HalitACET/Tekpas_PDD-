@@ -207,7 +207,9 @@ Ayrıntı ve ER diyagramı: `docs/rapor/veri-modeli.md`. 22 tablo, 23 Flyway mig
   - Bir test, bütün API uçlarının erişim seviyesini bir tabloyla karşılaştırır; tabloya yazılmamış yeni uç testi düşürür.
   - Test bir sapma buldu: tedarikçi ağı yönetimi EDITOR'e açıktı. Düzeltildi.
 - **Kullanıcı daveti:** e-postasız, tek kullanımlık bağlantıyla. Rol değişikliği ve pasifleştirme yalnızca Sahip'e açıktır; pasifleştirilen kişinin bütün oturumları kapanır.
+  - Davet edilen kişi bağlantıyı telefonda açar, şifresini belirler; giriş ekranı e-postasıyla dolu açılır. Süresi dolmuş bağlantı kimden yenisinin isteneceğini söyler (Şekil: `docs/haftalik/img/12-davet-telefon-light.png`).
 - **Denetim izi:** önemli her eylem (kim, ne, hangi kayıt, ne zaman) kaydedilir. Metin, şifre ve token yazılmaz.
+  - Ekranda güne göre gruplu, tür / kişi / tarih filtreli bir tabloda okunur (Şekil: `docs/haftalik/img/12-denetim-izi-light.png`).
 - **Giriş deneme sınırı:** e-posta başına 15 dakikada 5 hatalı deneme. Var olmayan e-posta da aynı sayaçtan düşer, hangi hesabın var olduğu sızmaz.
 
 ---
