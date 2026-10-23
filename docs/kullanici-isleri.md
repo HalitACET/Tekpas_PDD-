@@ -19,6 +19,10 @@ Onaylı tasarım olmadan ekran kodlamıyorum (CLAUDE.md). Brifi verdiğimde Clau
   3. Çıkan dosyaları `docs/design/animasyon/` klasörüne koyun ve bana söyleyin. Brifle karşılaştırırım: olmayan bir özellik gösterilmiş mi, rakamlar değişmiş mi?
   4. **Videoya çevirme:** Claude Design MP4 veremezse animasyonu tam ekranda oynatıp Windows'un kendi kaydıyla kaydedin. `Win + Alt + R` kaydı başlatır ve durdurur; dosya Videolar → Yakalamalar klasörüne düşer.
   5. Göstermeden önce bir kez baştan sona izleyin: metinler okunacak kadar ekranda kalıyor mu? Son sahnedeki adres (`kozapass.vercel.app`) açılıyor mu?
+- [ ] **Tanıtım videosuna ses:** `docs/tanitim-seslendirme.md` dosyasında.
+  - Sahne sahne okunacak metin ve her sahnenin ilk görüntüsü var.
+  - İki yol adım adım anlatılıyor: Clipchamp'in ücretsiz yapay sesi ya da kendi sesiniz.
+  - Videoyu depoya koymayın; dosya büyük.
 - [ ] **Eski tasarım borçları (acil değil, tek seferde bir brifle istenebilir):**
   - Mobil web liste (768 px altı): masaüstü tablo şimdilik yana kayıyor; tasarım 16'nın web uyarlaması gerekiyor (PLAN §6).
   - "Belgeler" sayfasının tamamı: firma çapında belge listesi ve "Tedarikçiden iste". Bugün yalnızca "Belge yükle" diyaloğu var (PLAN §6).
