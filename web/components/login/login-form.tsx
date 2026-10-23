@@ -23,10 +23,12 @@ type Status = "idle" | "submitting" | "waking" | "gaveUp" | "invalid" | "unavail
 export function LoginForm() {
   const t = useTranslations("login");
   const router = useRouter();
-  const next = safeNextPath(useSearchParams().get("next"));
+  const params = useSearchParams();
+  const next = safeNextPath(params.get("next"));
   const ids = { email: useId(), password: useId(), remember: useId(), error: useId() };
 
-  const [email, setEmail] = useState("");
+  // An accepted invitation opens the login with its e-mail filled in (design v1.2 172).
+  const [email, setEmail] = useState(() => params.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);

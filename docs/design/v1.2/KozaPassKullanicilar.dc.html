@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div lang="tr" style="display:flex;flex-direction:column;gap:20px;max-width:1080px;color:var(--foreground);font-family:'Geist',system-ui,sans-serif;font-size:14px">
+  <div style="display:flex;align-items:flex-end;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><h1 style="margin:0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.015em">{{ title }}</h1><span style="font-size:13px;color:var(--muted-foreground);text-wrap:pretty">{{ subtitle }}</span></div>
+    <sc-if value="{{ showInvite }}" hint-placeholder-val="{{ true }}">
+      <span onMouseEnter="{{ inv.on }}" onMouseLeave="{{ inv.off }}" style="margin-left:auto;position:relative;display:flex"><button disabled="{{ inv.dis }}" onClick="{{ openInvite }}" style="opacity:{{ inv.op }};pointer-events:{{ inv.pe }};height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--primary-hover)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>Kişi davet et</button><sc-if value="{{ inv.show }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute;top:calc(100% + 8px);right:0;z-index:30;white-space:nowrap;background:var(--tooltip);color:var(--tooltip-foreground);font:500 12px/16px 'Geist',sans-serif;padding:6px 10px;border-radius:6px;box-shadow:var(--shadow-md);pointer-events:none">Bu işlem için yetkiniz yok</span></sc-if></span>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ noAccess }}" hint-placeholder-val="{{ false }}">
+    <div style="border:1px solid var(--border);border-radius:12px;background:var(--card);padding:56px 24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+      <span style="width:44px;height:44px;border-radius:50%;background:var(--muted);color:var(--muted-foreground);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg></span>
+      <strong style="font-size:16px;font-weight:600">{{ na.title }}</strong>
+      <span style="font-size:13px;line-height:1.5;color:var(--muted-foreground);max-width:420px;text-wrap:pretty">{{ na.body }}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isUsers }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <sc-if value="{{ adminNote }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg>Kullanıcıları görebilirsiniz. Davet, rol ve pasifleştirme yalnızca firma sahibinde.</span></sc-if>
+      <div style="display:flex;align-items:center;gap:2px;padding:3px;border-radius:8px;background:var(--muted);align-self:flex-start;opacity:{{ tabsOp }}"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.go }}" style="height:30px;padding:0 10px;border-radius:6px;border:none;background:{{ t.bg }};color:{{ t.fg }};box-shadow:{{ t.sh }};font:500 13px 'Geist',sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer">{{ t.t }}<span style="font:500 11px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ t.n }}</span></button></sc-for></div>
+
+      <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+        <div role="alert" style="border:1px solid var(--border);border-radius:12px;background:var(--card);padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+          <span style="width:40px;height:40px;border-radius:50%;background:var(--status-rejected-muted);color:var(--status-rejected-foreground);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.alert }}"></path></svg></span>
+          <strong style="font-size:15px;font-weight:600">Kullanıcılar yüklenemedi</strong>
+          <span style="font-size:13px;color:var(--muted-foreground)">Sunucu yanıt vermedi. Bağlantınızı kontrol edip yeniden deneyin.</span>
+          <button onClick="{{ retry }}" style="margin-top:4px;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:var(--shadow-xs);display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--accent)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.refresh }}"></path></svg>Yeniden dene</button>
+          <span style="font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">Hata: 503 · GET /users</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showTable }}" hint-placeholder-val="{{ true }}">
+        <div style="border:1px solid var(--border);border-radius:12px;background:var(--card)">
+          <div style="display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1fr) minmax(0,1.4fr) 56px;align-items:center;height:40px;padding:0 8px 0 16px;border-bottom:1px solid var(--border);font-size:12px;font-weight:500;color:var(--muted-foreground)"><span>Kişi</span><span>Rol</span><span>Durum</span><span></span></div>
+          <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ skel }}" as="k" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1fr) minmax(0,1.4fr) 56px;align-items:center;height:60px;padding:0 8px 0 16px;border-bottom:1px solid var(--border)"><span style="display:flex;align-items:center;gap:12px"><span style="width:32px;height:32px;border-radius:50%;background:var(--skeleton)"></span><span style="display:flex;flex-direction:column;gap:6px"><span style="width:{{ k.w1 }};height:10px;border-radius:4px;background:var(--skeleton)"></span><span style="width:{{ k.w2 }};height:8px;border-radius:4px;background:var(--skeleton)"></span></span></span><span style="width:64px;height:10px;border-radius:4px;background:var(--skeleton)"></span><span style="width:84px;height:20px;border-radius:999px;background:var(--skeleton)"></span><span></span></div></sc-for>
+          </sc-if>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1fr) minmax(0,1.4fr) 56px;align-items:center;min-height:60px;padding:0 8px 0 16px;border-bottom:1px solid var(--border);background:{{ r.bg }}">
+              <span style="display:flex;align-items:center;gap:12px;min-width:0;opacity:{{ r.dim }}"><span style="width:32px;height:32px;flex:none;border-radius:50%;background:var(--silk);color:#3D3A35;font:600 12px 'Geist',sans-serif;display:flex;align-items:center;justify-content:center">{{ r.init }}</span><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500">{{ r.name }}<sc-if value="{{ r.me }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:500;padding:1px 6px;border-radius:4px;border:1px solid var(--border);color:var(--muted-foreground)">Siz</span></sc-if></span><span style="font-size:12px;color:var(--muted-foreground);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.email }}</span></span></span>
+              <span style="font-size:13px;opacity:{{ r.dim }}">{{ r.roleT }}</span>
+              <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="display:inline-flex;align-items:center;gap:6px;background:{{ r.st.bg }};color:{{ r.st.fg }};font-size:12px;font-weight:500;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.st.dot }}"></span>{{ r.st.t }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ r.st.note }}</span></span>
+              <span onMouseEnter="{{ r.tipOn }}" onMouseLeave="{{ r.tipOff }}" style="position:relative;display:flex;justify-content:flex-end">
+                <button aria-label="Kullanıcı işlemleri" onClick="{{ r.toggle }}" style="width:32px;height:32px;border-radius:6px;border:none;background:{{ r.btnBg }};color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:{{ r.op }};pointer-events:{{ r.pe }}" style-hover="background:var(--accent)"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.more }}"></path></svg></button>
+                <sc-if value="{{ r.tipShow }}" hint-placeholder-val="{{ false }}"><span role="tooltip" style="position:absolute;top:calc(100% + 6px);right:0;z-index:30;white-space:nowrap;background:var(--tooltip);color:var(--tooltip-foreground);font:500 12px/16px 'Geist',sans-serif;padding:6px 10px;border-radius:6px;box-shadow:var(--shadow-md);pointer-events:none">{{ r.tipT }}</span></sc-if>
+                <sc-if value="{{ r.menuOpen }}" hint-placeholder-val="{{ false }}"><div role="menu" style="position:absolute;top:38px;right:0;width:210px;z-index:5;background:var(--popover);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-md);padding:4px;display:flex;flex-direction:column">
+                  <sc-for list="{{ r.items }}" as="m" hint-placeholder-count="2"><sc-if value="{{ m.sep }}" hint-placeholder-val="{{ false }}"><div style="height:1px;background:var(--border);margin:4px 0"></div></sc-if><div role="menuitem" onClick="{{ m.go }}" style="height:32px;padding:0 8px;border-radius:4px;display:flex;align-items:center;gap:8px;font-size:13px;color:{{ m.fg }};cursor:pointer" style-hover="background:{{ m.hov }}"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ m.d }}"></path></svg>{{ m.t }}</div></sc-for>
+                </div></sc-if>
+              </span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+              <strong style="font-size:15px;font-weight:600">Ekibinizi davet edin</strong>
+              <span style="font-size:13px;line-height:1.5;color:var(--muted-foreground);max-width:440px;text-wrap:pretty">Davet ettiğiniz kişiye bir bağlantı verirsiniz. Bağlantıyı açıp şifresini belirleyince panele girer. E-posta gönderilmez.</span>
+              <button onClick="{{ openInvite }}" style="margin-top:4px;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:var(--shadow-xs);display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--accent)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.plus }}"></path></svg>Kişi davet et</button>
+            </div>
+          </sc-if>
+          <div style="height:44px;padding:0 16px;display:flex;align-items:center;font-size:12px;color:var(--muted-foreground)">Tedarikçi kullanıcıları burada görünmez; Tedarikçiler sayfasından bağlantıyla eklenir.</div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isAudit }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+          <label style="position:relative;height:32px;border:1px solid {{ f.bd }};border-radius:6px;background:{{ f.bg }};display:flex;align-items:center;gap:6px;padding:0 30px 0 10px;font-size:13px;white-space:nowrap;cursor:pointer"><span style="color:var(--muted-foreground)">{{ f.label }}</span><span style="font-weight:500">{{ f.valT }}</span><select value="{{ f.val }}" onChange="{{ f.onChange }}" aria-label="{{ f.label }}" style="position:absolute;inset:0;opacity:0;cursor:pointer;font:inherit"><sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="3"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></select><span style="position:absolute;right:8px;top:8px;display:flex;color:var(--muted-foreground);pointer-events:none"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.chev }}"></path></svg></span></label>
+        </sc-for>
+        <sc-if value="{{ hasFilter }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearFilters }}" style="height:32px;padding:0 10px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer" style-hover="background:var(--accent)">Filtreleri temizle</button></sc-if>
+        <span style="margin-left:auto;font-size:12px;color:var(--muted-foreground);font-variant-numeric:tabular-nums">{{ countT }}</span>
+      </div>
+
+      <sc-if value="{{ aError }}" hint-placeholder-val="{{ false }}">
+        <div role="alert" style="border:1px solid var(--border);border-radius:12px;background:var(--card);padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+          <span style="width:40px;height:40px;border-radius:50%;background:var(--status-rejected-muted);color:var(--status-rejected-foreground);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.alert }}"></path></svg></span>
+          <strong style="font-size:15px;font-weight:600">Denetim kayıtları yüklenemedi</strong>
+          <span style="font-size:13px;color:var(--muted-foreground)">Sunucu yanıt vermedi. Filtreleriniz korunur; yeniden deneyin.</span>
+          <button onClick="{{ retry }}" style="margin-top:4px;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:var(--shadow-xs);display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--accent)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.refresh }}"></path></svg>Yeniden dene</button>
+          <span style="font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">Hata: 503 · GET /audit</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ aTable }}" hint-placeholder-val="{{ true }}">
+        <div style="border:1px solid var(--border);border-radius:12px;background:var(--card)">
+          <div style="display:grid;grid-template-columns:64px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1.8fr) minmax(0,1.6fr);gap:16px;align-items:center;height:40px;padding:0 16px;border-bottom:1px solid var(--border);font-size:12px;font-weight:500;color:var(--muted-foreground)"><span>Saat</span><span>Kim</span><span>Ne yaptı</span><span>Hangi kayıt</span><span>Değişiklik</span></div>
+          <sc-if value="{{ aLoading }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ skel }}" as="k" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:64px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1.8fr) minmax(0,1.6fr);gap:16px;align-items:center;height:52px;padding:0 16px;border-bottom:1px solid var(--border)"><span style="width:36px;height:10px;border-radius:4px;background:var(--skeleton)"></span><span style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:24px;border-radius:50%;background:var(--skeleton)"></span><span style="width:{{ k.w2 }};height:10px;border-radius:4px;background:var(--skeleton)"></span></span><span style="width:{{ k.w2 }};height:10px;border-radius:4px;background:var(--skeleton)"></span><span style="width:{{ k.w1 }};height:10px;border-radius:4px;background:var(--skeleton)"></span><span style="width:{{ k.w2 }};height:10px;border-radius:4px;background:var(--skeleton)"></span></div></sc-for>
+          </sc-if>
+          <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+            <div style="height:34px;padding:0 16px;display:flex;align-items:center;gap:8px;background:var(--popover-muted);border-bottom:1px solid var(--border);font-size:12px;font-weight:600"><span>{{ g.day }}</span><span style="font-weight:400;color:var(--muted-foreground)">{{ g.date }}</span></div>
+            <sc-for list="{{ g.items }}" as="e" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:64px minmax(0,1.3fr) minmax(0,1.3fr) minmax(0,1.8fr) minmax(0,1.6fr);gap:16px;align-items:center;min-height:52px;padding:8px 16px;border-bottom:1px solid var(--border);font-size:13px">
+                <span style="font:13px 'Geist Mono',monospace;color:var(--muted-foreground);font-variant-numeric:tabular-nums">{{ e.time }}</span>
+                <span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="width:24px;height:24px;flex:none;border-radius:50%;background:var(--silk);color:#3D3A35;font:600 10px 'Geist',sans-serif;display:flex;align-items:center;justify-content:center">{{ e.init }}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.who }}</span></span>
+                <span style="font-weight:500">{{ e.act }}</span>
+                <span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:12px;color:var(--muted-foreground)">{{ e.typeT }}</span><span style="font-family:{{ e.font }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.label }}</span></span>
+                <span style="font:12px/1.5 'Geist Mono',monospace;color:var(--muted-foreground);text-wrap:pretty">{{ e.diff }}</span>
+              </div>
+            </sc-for>
+          </sc-for>
+          <sc-if value="{{ aEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+              <strong style="font-size:15px;font-weight:600">Bu filtrelerle kayıt yok</strong>
+              <span style="font-size:13px;color:var(--muted-foreground)">Tarih aralığını genişletin ya da filtreleri temizleyin.</span>
+              <button onClick="{{ clearFilters }}" style="margin-top:4px;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:var(--shadow-xs);cursor:pointer" style-hover="background:var(--accent)">Filtreleri temizle</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ aPager }}" hint-placeholder-val="{{ true }}">
+            <div style="height:52px;padding:0 16px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted-foreground)"><span style="font-variant-numeric:tabular-nums">{{ pageT }}</span><button disabled style="margin-left:auto;height:32px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);opacity:.45">Önceki</button><button style="height:32px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:var(--shadow-xs);cursor:pointer" style-hover="background:var(--accent)">Sonraki</button></div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ ovOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:50;background:var(--scrim);display:flex;align-items:flex-start;justify-content:center;padding-top:96px">
+      <div role="dialog" aria-modal="true" style="width:520px;max-width:calc(100% - 48px);background:var(--popover);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+        <div style="padding:20px 24px 4px;display:flex;align-items:flex-start;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:4px;flex:1"><h2 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.015em">{{ ov.title }}</h2><span style="font-size:13px;color:var(--muted-foreground)">{{ ov.sub }}</span></div>
+          <button onClick="{{ closeOv }}" aria-label="Kapat" style="width:32px;height:32px;border-radius:6px;border:none;background:transparent;color:var(--muted-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--accent)"><svg width="18" height="18" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.x }}"></path></svg></button>
+        </div>
+
+        <sc-if value="{{ ov.isInvite }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:16px 24px 20px;display:flex;flex-direction:column;gap:16px">
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">Ad soyad<input value="{{ fName }}" onChange="{{ onName }}" placeholder="örn. Zeynep Arslan" style="height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);color:var(--foreground);font-size:13px;font-weight:400;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500">E-posta<input value="{{ fEmail }}" onChange="{{ onEmail }}" type="email" placeholder="ad@firma.com.tr" style="height:36px;padding:0 10px;border-radius:6px;border:1px solid {{ emailBd }};background:var(--card);color:var(--foreground);font-size:13px;font-weight:400;outline:none;box-shadow:var(--shadow-xs)" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"><span style="font-size:12px;font-weight:400;color:{{ emailHintFg }}">{{ emailHint }}</span></label>
+            <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;font-weight:500">Rol</span>
+              <div role="radiogroup" style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:8px">
+                <sc-for list="{{ roleOpts }}" as="o" hint-placeholder-count="4"><div role="radio" aria-checked="{{ o.on }}" onClick="{{ o.pick }}" style="display:flex;gap:10px;padding:10px 12px;border-bottom:{{ o.bb }};background:{{ o.bg }};cursor:pointer"><span style="width:16px;height:16px;flex:none;margin-top:2px;border-radius:50%;border:{{ o.ring }};background:var(--card)"></span><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500">{{ o.t }}<sc-if value="{{ o.cur }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:500;padding:1px 6px;border-radius:4px;border:1px solid var(--border);color:var(--muted-foreground)">Şu anki</span></sc-if></span><span style="font-size:12px;line-height:1.45;color:var(--muted-foreground);text-wrap:pretty">{{ o.d }}</span></span></div></sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ov.isRole }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:16px 24px 20px;display:flex;flex-direction:column;gap:12px">
+            <div role="radiogroup" style="display:flex;flex-direction:column;border:1px solid var(--border);border-radius:8px">
+              <sc-for list="{{ roleOpts }}" as="o" hint-placeholder-count="4"><div role="radio" aria-checked="{{ o.on }}" onClick="{{ o.pick }}" style="display:flex;gap:10px;padding:10px 12px;border-bottom:{{ o.bb }};background:{{ o.bg }};cursor:pointer"><span style="width:16px;height:16px;flex:none;margin-top:2px;border-radius:50%;border:{{ o.ring }};background:var(--card)"></span><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500">{{ o.t }}<sc-if value="{{ o.cur }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:500;padding:1px 6px;border-radius:4px;border:1px solid var(--border);color:var(--muted-foreground)">Şu anki</span></sc-if></span><span style="font-size:12px;line-height:1.45;color:var(--muted-foreground);text-wrap:pretty">{{ o.d }}</span></span></div></sc-for>
+            </div>
+            <span style="font-size:12px;color:var(--muted-foreground)">Yeni rol bir sonraki işlemde geçerli olur; açık oturum en geç 15 dakikada yenilenir.</span>
+            <sc-if value="{{ lastOwner }}" hint-placeholder-val="{{ false }}"><div role="alert" style="display:flex;gap:10px;padding:12px 14px;border-radius:8px;border:1px solid var(--status-rejected);background:var(--status-rejected-muted);color:var(--status-rejected-foreground);font-size:13px;line-height:1.45"><span style="display:flex;margin-top:1px"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.alert }}"></path></svg></span><span style="display:flex;flex-direction:column;gap:4px"><span><span style="font-weight:600">Rol değiştirilemedi.</span> Firmada en az bir aktif sahip kalmalı.</span><span style="font:12px 'Geist Mono',monospace">Hata: LAST_OWNER</span></span></div></sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ov.isLink }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:16px 24px 20px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;background:var(--popover-muted)">
+              <span style="width:32px;height:32px;border-radius:50%;background:var(--silk);color:#3D3A35;font:600 12px 'Geist',sans-serif;display:flex;align-items:center;justify-content:center;flex:none">{{ lk.init }}</span>
+              <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0"><span style="font-size:13px;font-weight:500">{{ lk.name }}</span><span style="font-size:12px;color:var(--muted-foreground)">{{ lk.email }}</span></span>
+              <span style="font-size:12px;font-weight:500">{{ lk.role }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:13px;font-weight:500">Davet bağlantısı</span><span style="font-size:12px;color:var(--muted-foreground)">Tek kullanımlık · 30 Eki 2026’ya kadar</span></div>
+              <div style="display:flex;gap:8px">
+                <span style="flex:1;min-width:0;height:36px;padding:0 10px;border-radius:6px;border:1px solid var(--input);background:var(--card);display:flex;align-items:center;gap:8px;font:13px 'Geist Mono',monospace;overflow:hidden;white-space:nowrap"><span style="display:flex;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.link }}"></path></svg></span>kozapass.com/davet#k7Qm…x2Pd</span>
+                <button onClick="{{ copy }}" style="height:36px;padding:0 12px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--card);color:var(--foreground);border:1px solid var(--input);box-shadow:var(--shadow-xs);display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap" style-hover="background:var(--accent)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ copyIcon }}"></path></svg>{{ copyT }}</button>
+              </div>
+              <span style="display:flex;gap:8px;font-size:12px;line-height:1.5;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;margin-top:2px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg><span>{{ lk.note }}</span></span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <span style="font-size:13px;font-weight:500">WhatsApp mesajı</span>
+              <div style="align-self:flex-start;max-width:440px;padding:10px 12px 6px;border-radius:12px 12px 12px 4px;background:var(--popover-muted);font-size:13px;line-height:1.55;display:flex;flex-direction:column;gap:4px"><span>Merhaba, Karaca Tekstil sizi KozaPass paneline davet etti. Şifrenizi belirleyip giriş yapmak için: <span style="color:var(--brand-text)">https://kozapass.com/davet#k7Qm…x2Pd</span> Bağlantı 30 Ekim 2026’ya kadar geçerli.</span><span style="align-self:flex-end;font-size:11px;color:var(--muted-foreground)">Önizleme</span></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ ov.isDeact }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:12px 24px 20px;display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.55;text-wrap:pretty">
+            <span>{{ dc.name }} panele giremez. Açık oturumu en geç 15 dakika içinde kapanır.</span>
+            <span style="color:var(--muted-foreground)">Yaptığı değişiklikler ve denetim kayıtları silinmez. İstediğinizde yeniden etkinleştirebilirsiniz.</span>
+          </div>
+        </sc-if>
+
+        <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px">
+          <button onClick="{{ closeOv }}" style="margin-left:auto;height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:transparent;color:var(--foreground);border:1px solid transparent;cursor:pointer" style-hover="background:var(--accent)">{{ ov.cancelT }}</button>
+          <sc-if value="{{ ov.isLink }}" hint-placeholder-val="{{ false }}"><button style="height:36px;padding:0 14px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:var(--primary);color:var(--primary-foreground);border:1px solid transparent;display:flex;align-items:center;gap:6px;cursor:pointer" style-hover="background:var(--primary-hover)"><svg width="15" height="15" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.msg }}"></path></svg>WhatsApp'ta paylaş</button></sc-if>
+          <sc-if value="{{ ov.hasCta }}" hint-placeholder-val="{{ false }}"><button onClick="{{ ov.ctaGo }}" disabled="{{ ov.ctaDis }}" style="height:36px;padding:0 16px;border-radius:6px;font:500 13px 'Geist',sans-serif;background:{{ ov.ctaBg }};color:{{ ov.ctaFg }};border:1px solid transparent;opacity:{{ ov.ctaOp }};cursor:pointer">{{ ov.ctaT }}</button></sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1080,&quot;height&quot;:760},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;users&quot;,&quot;audit&quot;],&quot;default&quot;:&quot;users&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;role&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;owner&quot;,&quot;admin&quot;,&quot;editor&quot;,&quot;viewer&quot;],&quot;default&quot;:&quot;owner&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ok&quot;,&quot;loading&quot;,&quot;error&quot;,&quot;empty&quot;],&quot;default&quot;:&quot;ok&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;overlay&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;invite&quot;,&quot;link&quot;,&quot;renew&quot;,&quot;role&quot;,&quot;deactivate&quot;],&quot;default&quot;:&quot;none&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;filter&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;user&quot;,&quot;none&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;err&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;last&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;prefill&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;copied&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;tip&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;menu&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:null,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  state = {};
+  g(k, d) { return this.state[k] !== undefined ? this.state[k] : (this.props[k] ?? d); }
+  componentDidUpdate(pp) { const ch = ['overlay', 'state', 'filter', 'role', 'mode'].some(k => pp[k] !== this.props[k]); if (ch) this.setState({ overlay: undefined, state: undefined, menu: undefined, typeF: undefined, whoF: undefined, dateF: undefined, tab: undefined }); }
+  renderVals() {
+    const ic = { plus: 'M12 5v14M5 12h14', more: 'M12 12h.01M19 12h.01M5 12h.01', lock: 'M5 11h14v11H5ZM7 11V7a5 5 0 0 1 10 0v4', x: 'M18 6 6 18M6 6l12 12',
+      link: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71', copy: 'M8 8h12v12H8ZM16 8V4H4v12h4', check: 'M20 6 9 17l-5-5',
+      msg: 'M7.9 20A9 9 0 1 0 4 16.1L2 22Z', refresh: 'M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5',
+      alert: 'M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z', chev: 'm6 9 6 6 6-6',
+      shield: 'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z',
+      userX: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M17 8l5 5M22 8l-5 5', userOk: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M16 11l2 2 4-4' };
+    const mode = this.props.mode || 'users', role = this.props.role || 'owner', owner = role === 'owner', canRead = owner || role === 'admin';
+    const st = this.g('state', 'ok'), overlay = this.g('overlay', 'none'), tip = this.state.tip !== undefined ? this.state.tip : (this.props.tip || null);
+    const RN = { owner: 'Sahip', admin: 'Yönetici', editor: 'Editör', viewer: 'Görüntüleyici' };
+    const RD = { owner: 'Her şey, kullanıcı ve rol yönetimi dahil.', admin: 'Onay, yayın, geri çekme ve tedarikçi ağı. Kullanıcıları görür, değiştiremez.', editor: 'Ürün, parti, tedarik zinciri, veri talebi ve Excel. Onay ve yayın yapamaz.', viewer: 'Her şeyi görür, hiçbir şeyi değiştiremez.' };
+    const me = owner ? 1 : 2;
+    const U = [
+      { id: 1, name: 'Selim Karaca', init: 'SK', email: 'selim@karacatekstil.com.tr', role: 'owner', s: 'active' },
+      { id: 2, name: 'Elif Yılmaz', init: 'EY', email: 'elif@karacatekstil.com.tr', role: 'admin', s: 'active' },
+      { id: 3, name: 'Hande Kaya', init: 'HK', email: 'hande@karacatekstil.com.tr', role: 'editor', s: 'active' },
+      { id: 4, name: 'Murat Demir', init: 'MD', email: 'murat@karacatekstil.com.tr', role: 'viewer', s: 'active' },
+      { id: 5, name: 'Zeynep Arslan', init: 'ZA', email: 'zeynep@karacatekstil.com.tr', role: 'editor', s: 'invited' },
+      { id: 6, name: 'Can Öztürk', init: 'CÖ', email: 'can@karacatekstil.com.tr', role: 'viewer', s: 'expired' },
+      { id: 7, name: 'Burak Şahin', init: 'BŞ', email: 'burak@karacatekstil.com.tr', role: 'editor', s: 'inactive' },
+    ];
+    const ST = { active: ['approved', 'Aktif', ''], invited: ['submitted', 'Davet bekliyor', '7 gün içinde · 6 gün kaldı'], expired: ['expiring', 'Davetin süresi doldu', '16 Eki 2026'], inactive: ['pending', 'Pasif', '9 Eki 2026’dan beri'] };
+    const pill = s => { const [k, t, note] = ST[s]; return { bg: `var(--status-${k}-muted)`, fg: `var(--status-${k}-foreground)`, dot: `var(--status-${k})`, t, note }; };
+    const set = o => this.setState(o);
+    const isEmptyS = st === 'empty';
+    const list = isEmptyS ? U.filter(u => u.id === me) : U;
+    const tab = this.g('tab', 'all');
+    const TB = [['all', 'Tümü', list.length], ['active', 'Aktif', list.filter(u => u.s === 'active').length], ['invited', 'Davet bekleyen', list.filter(u => u.s === 'invited' || u.s === 'expired').length], ['inactive', 'Pasif', list.filter(u => u.s === 'inactive').length]];
+    const tabs = TB.map(([k, t, n]) => ({ t, n, go: () => set({ tab: k, menu: null }), bg: tab === k ? 'var(--card)' : 'transparent', fg: tab === k ? 'var(--foreground)' : 'var(--muted-foreground)', sh: tab === k ? 'var(--shadow-xs)' : 'none' }));
+    const shown = list.filter(u => tab === 'all' || (tab === 'invited' ? (u.s === 'invited' || u.s === 'expired') : u.s === tab));
+    const menu = this.state.menu !== undefined ? this.state.menu : (this.props.menu != null ? Number(this.props.menu) : null);
+    const openOv = (o, uid) => () => set({ overlay: o, target: uid, menu: null, copied: false, pickRole: undefined });
+    const rows = (st === 'loading' || st === 'error') ? [] : shown.map(u => {
+      const isMe = u.id === me, lock = !owner || isMe, tk = 'row' + u.id;
+      const items = u.s === 'active' ? [{ t: 'Rolü değiştir', d: ic.shield, go: openOv('role', u.id) }, { t: 'Pasifleştir', d: ic.userX, go: openOv('deactivate', u.id), sep: true, red: true }]
+        : u.s === 'inactive' ? [{ t: 'Yeniden etkinleştir', d: ic.userOk, go: () => set({ menu: null }) }, { t: 'Rolü değiştir', d: ic.shield, go: openOv('role', u.id) }]
+        : [{ t: 'Bağlantıyı yenile', d: ic.refresh, go: openOv('renew', u.id) }, { t: 'Rolü değiştir', d: ic.shield, go: openOv('role', u.id) }];
+      return { ...u, me: isMe, roleT: RN[u.role], st: pill(u.s), dim: u.s === 'inactive' ? 0.6 : 1, bg: menu === u.id ? 'var(--accent)' : 'transparent',
+        op: lock ? 0.45 : 1, pe: 'auto', btnBg: menu === u.id ? 'var(--muted)' : 'transparent',
+        toggle: () => { if (!lock) set({ menu: menu === u.id ? null : u.id }); },
+        tipOn: () => lock && set({ tip: tk }), tipOff: () => set({ tip: null }), tipShow: lock && tip === tk, tipT: isMe ? 'Kendi rolünüzü değiştiremezsiniz' : 'Bu işlem için yetkiniz yok',
+        menuOpen: !lock && menu === u.id, items: items.map(m => ({ ...m, sep: !!m.sep, fg: m.red ? 'var(--status-rejected-foreground)' : 'var(--foreground)', hov: m.red ? 'var(--status-rejected-muted)' : 'var(--accent)' })) };
+    });
+    const invTip = tip === 'invite';
+    const inv = { dis: !owner, op: owner ? 1 : 0.45, pe: owner ? 'auto' : 'none', show: !owner && invTip, on: () => !owner && set({ tip: 'invite' }), off: () => set({ tip: null }) };
+
+    // Overlay
+    const targetId = this.state.target !== undefined ? this.state.target : Number(this.props.target || (overlay === 'role' ? 3 : overlay === 'deactivate' ? 4 : overlay === 'renew' ? 6 : 5));
+    const tu = U.find(u => u.id === targetId) || U[4];
+    const isInvite = overlay === 'invite', isRole = overlay === 'role', isLink = overlay === 'link' || overlay === 'renew', isDeact = overlay === 'deactivate';
+    const fName = this.state.fName !== undefined ? this.state.fName : (this.props.prefill ? 'Zeynep Arslan' : '');
+    const fEmail = this.state.fEmail !== undefined ? this.state.fEmail : (this.props.prefill ? 'zeynep@karacatekstil.com.tr' : '');
+    const dupEmail = U.some(u => u.email === fEmail.trim().toLowerCase() && u.id !== 5 && fEmail);
+    const pickRole = this.state.pickRole !== undefined ? this.state.pickRole : (isRole ? (this.props.pickRole || (tu.role === 'editor' ? 'admin' : tu.role)) : (this.props.pickRole || 'editor'));
+    const roleOpts = ['owner', 'admin', 'editor', 'viewer'].map((k, i) => ({ t: RN[k], d: RD[k], on: pickRole === k, cur: isRole && tu.role === k, pick: () => set({ pickRole: k }), bb: i < 3 ? '1px solid var(--border)' : 'none', bg: pickRole === k ? 'var(--accent)' : 'transparent', ring: pickRole === k ? '5px solid var(--primary)' : '1px solid var(--input)' }));
+    const lastOwner = isRole && this.props.err === 'last';
+    const invOk = fName.trim().length > 1 && /.+@.+\..+/.test(fEmail) && !dupEmail;
+    const ov = isInvite ? { title: 'Kişi davet et', sub: 'Kişi, bağlantıyı açıp şifresini belirleyince aktif olur.', cancelT: 'Vazgeç', hasCta: true, ctaT: 'Davet bağlantısı oluştur', ctaDis: !invOk, ctaOp: invOk ? 1 : 0.5, ctaBg: 'var(--primary)', ctaFg: 'var(--primary-foreground)', ctaGo: () => set({ overlay: 'link', target: 5 }) }
+      : isRole ? { title: 'Rolü değiştir', sub: tu.name + ' · ' + tu.email, cancelT: 'Vazgeç', hasCta: true, ctaT: 'Rolü kaydet', ctaDis: pickRole === tu.role, ctaOp: pickRole === tu.role ? 0.5 : 1, ctaBg: 'var(--primary)', ctaFg: 'var(--primary-foreground)', ctaGo: () => set({ overlay: 'none' }) }
+      : isLink ? { title: overlay === 'renew' ? 'Yeni davet bağlantısı' : 'Davet bağlantısı hazır', sub: overlay === 'renew' ? 'Önceki bağlantı artık çalışmıyor.' : 'Bağlantıyı kişiye siz iletin; e-posta gönderilmez.', cancelT: 'Kapat', hasCta: false }
+      : isDeact ? { title: tu.name + ' pasifleştirilsin mi?', sub: RN[tu.role] + ' · ' + tu.email, cancelT: 'Vazgeç', hasCta: true, ctaT: 'Pasifleştir', ctaDis: false, ctaOp: 1, ctaBg: 'var(--destructive)', ctaFg: 'var(--destructive-foreground)', ctaGo: () => set({ overlay: 'none' }) }
+      : { hasCta: false };
+    ov.isInvite = isInvite; ov.isRole = isRole; ov.isLink = isLink; ov.isDeact = isDeact;
+    const copied = this.state.copied !== undefined ? this.state.copied : !!this.props.copied;
+    const lk = { init: tu.init, name: tu.name, email: tu.email, role: RN[tu.role], note: 'Bağlantı yalnızca şimdi gösterilir. Kapattıktan sonra yeniden göremezsiniz; gerekirse yenisini oluşturun.' };
+
+    // Denetim
+    const A = [
+      { d: 0, time: '10:42', who: 1 + 1, act: 'Yayınladı', type: 'passport', label: 'KP-2026-0915-A', mono: 1, diff: 'sürüm 3' },
+      { d: 0, time: '10:31', who: 2, act: 'Onayladı', type: 'step', label: 'KP-2026-0915-A · Boya', mono: 1, diff: '' },
+      { d: 0, time: '10:05', who: 1, act: 'Rolünü değiştirdi', type: 'user', label: 'Hande Kaya', diff: 'rol: Görüntüleyici → Editör' },
+      { d: 0, time: '09:48', who: 3, act: 'Düzenledi', type: 'product', label: 'Organik pamuk tişört', diff: 'açıklama, kategori' },
+      { d: 0, time: '09:12', who: 1, act: 'Davet etti', type: 'user', label: 'Zeynep Arslan', diff: 'rol: Editör' },
+      { d: 1, time: '17:20', who: 3, act: 'İçe aktardı', type: 'import', label: 'urunler-ekim.xlsx', mono: 1, diff: '45 ürün eklendi, 5 satır hatalı' },
+      { d: 1, time: '16:02', who: 2, act: 'Düzeltme istedi', type: 'step', label: 'KP-2026-0912-B · İplik', mono: 1, diff: 'neden: sertifika eksik' },
+      { d: 1, time: '15:40', who: 2, act: 'Belgeyi doğruladı', type: 'step', label: 'GOTS · Ege İplik', diff: '' },
+      { d: 1, time: '14:11', who: 3, act: 'Oluşturdu', type: 'batch', label: 'KP-2026-0918-A', mono: 1, diff: '' },
+      { d: 1, time: '11:30', who: 2, act: 'Çeviriyi onayladı', type: 'translation', label: 'KP-2026-0915-A', mono: 1, diff: 'diller: EN, DE' },
+      { d: 1, time: '10:02', who: 1, act: 'Pasifleştirdi', type: 'user', label: 'Burak Şahin', diff: 'aktif: evet → hayır' },
+      { d: 1, time: '09:15', who: 2, act: 'Elle çözdü', type: 'alert', label: 'Sertifikanın süresi doluyor', diff: '' },
+      { d: 2, time: '16:48', who: 2, act: 'Ekledi', type: 'supplier', label: 'Denizli Boya A.Ş.', diff: '' },
+      { d: 2, time: '12:05', who: 2, act: 'Geri çekti', type: 'passport', label: 'KP-2026-0901-C', mono: 1, diff: 'sürüm 2' },
+      { d: 2, time: '11:22', who: 3, act: 'Düzenledi', type: 'batch', label: 'KP-2026-0912-B', mono: 1, diff: 'miktar: 1.200 → 1.350 adet' },
+    ];
+    const TY = { product: 'Ürün', batch: 'Parti', supplier: 'Tedarikçi', step: 'Adım ve belge', passport: 'Pasaport', translation: 'Çeviri', user: 'Kullanıcı', import: 'İçe aktarma', alert: 'Uyarı' };
+    const DAYS = [['Bugün', '23 Ekim 2026'], ['Dün', '22 Ekim 2026'], ['Salı', '20 Ekim 2026']];
+    const pf = this.props.filter || '';
+    const typeF = this.state.typeF !== undefined ? this.state.typeF : (pf === 'user' || pf === 'none' ? 'user' : '');
+    const whoF = this.state.whoF !== undefined ? this.state.whoF : (pf === 'user' ? '1' : pf === 'none' ? '4' : '');
+    const dateF = this.state.dateF !== undefined ? this.state.dateF : '30';
+    const fl = A.filter(e => (!typeF || e.type === typeF) && (!whoF || String(e.who) === whoF));
+    const groups = DAYS.map(([day, date], i) => ({ day, date, items: fl.filter(e => e.d === i).map(e => { const u = U.find(x => x.id === e.who); return { ...e, who: u.name, init: u.init, typeT: TY[e.type], font: e.mono ? "'Geist Mono',monospace" : 'inherit', diff: e.diff || '—' }; }) })).filter(g => g.items.length);
+    const opt = (v, t) => ({ v, t });
+    const filters = [
+      { label: 'Tür', val: typeF, valT: typeF ? TY[typeF] : 'Tümü', opts: [opt('', 'Tümü'), ...Object.keys(TY).map(k => opt(k, TY[k]))], onChange: e => set({ typeF: e.target.value }) },
+      { label: 'Kişi', val: whoF, valT: whoF ? U.find(u => String(u.id) === whoF).name : 'Herkes', opts: [opt('', 'Herkes'), ...U.map(u => opt(String(u.id), u.name))], onChange: e => set({ whoF: e.target.value }) },
+      { label: 'Tarih', val: dateF, valT: { '7': 'Son 7 gün', '30': 'Son 30 gün', all: 'Tüm zamanlar' }[dateF], opts: [opt('7', 'Son 7 gün'), opt('30', 'Son 30 gün'), opt('all', 'Tüm zamanlar')], onChange: e => set({ dateF: e.target.value }) },
+    ].map(f => ({ ...f, bd: (f.label !== 'Tarih' && f.val) ? 'var(--ring)' : 'var(--input)', bg: (f.label !== 'Tarih' && f.val) ? 'var(--accent)' : 'var(--card)' }));
+    const hasFilter = !!(typeF || whoF);
+    const aBusy = st === 'loading' || st === 'error';
+    const total = hasFilter ? fl.length : 1248;
+    const isUsers = mode === 'users' && canRead, isAudit = mode === 'audit' && canRead;
+    const retry = () => { set({ state: 'loading' }); clearTimeout(this._rt); this._rt = setTimeout(() => set({ state: 'ok' }), 900); };
+    return {
+      ic, title: mode === 'audit' ? 'Denetim izi' : 'Kullanıcılar',
+      subtitle: mode === 'audit' ? 'Firmanızdaki önemli değişiklikler: kim, neyi, ne zaman. En yeni üstte; kayıtlar silinmez.' : 'Panele erişimi olan ekip arkadaşlarınız ve rolleri.',
+      showInvite: mode === 'users' && canRead, inv, openInvite: openOv('invite', 5),
+      noAccess: !canRead, na: { title: mode === 'audit' ? 'Denetim izini sahip ve yöneticiler görür' : 'Kullanıcıları sahip ve yöneticiler görür', body: 'Rolünüz: ' + RN[role] + '. Erişim için firma sahibi Selim Karaca’ya başvurun.' },
+      isUsers, adminNote: role === 'admin', tabs, tabsOp: aBusy ? 0.5 : 1,
+      isError: isUsers && st === 'error', showTable: isUsers && st !== 'error', isLoading: st === 'loading', isEmpty: isUsers && isEmptyS, rows,
+      skel: [{ w1: '140px', w2: '90px' }, { w1: '120px', w2: '70px' }, { w1: '160px', w2: '100px' }, { w1: '110px', w2: '80px' }, { w1: '150px', w2: '90px' }],
+      retry,
+      isAudit, filters, hasFilter, clearFilters: () => set({ typeF: '', whoF: '' }), countT: aBusy ? '' : (hasFilter ? fl.length + ' kayıt' : '1.248 kayıt'),
+      aError: isAudit && st === 'error', aTable: isAudit && st !== 'error', aLoading: st === 'loading', groups: aBusy ? [] : groups, aEmpty: !aBusy && fl.length === 0, aPager: !aBusy && fl.length > 0,
+      pageT: hasFilter ? '1–' + fl.length + ' / ' + fl.length + ' kayıt' : '1–25 / 1.248 kayıt',
+      ovOn: canRead && overlay !== 'none', ov, closeOv: () => set({ overlay: 'none' }),
+      fName, fEmail, onName: e => set({ fName: e.target.value }), onEmail: e => set({ fEmail: e.target.value }),
+      emailBd: dupEmail ? 'var(--status-rejected)' : 'var(--input)', emailHint: dupEmail ? 'Bu e-posta firmanızda zaten kayıtlı.' : 'Kişi panele bu e-postayla giriş yapar.', emailHintFg: dupEmail ? 'var(--status-rejected-foreground)' : 'var(--muted-foreground)',
+      roleOpts, lastOwner, lk, copy: () => set({ copied: true }), copyT: copied ? 'Kopyalandı' : 'Bağlantıyı kopyala', copyIcon: copied ? ic.check : ic.copy,
+      dc: { name: tu.name },
+    };
+  }
+}
+</script>
+</body>
+</html>

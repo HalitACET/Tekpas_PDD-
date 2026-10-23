@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<svg aria-hidden="true" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" style="display:block;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><sc-for list="{{ paths }}" as="p" hint-placeholder-count="0"><path d="{{ p.d }}" style="stroke-width:{{ p.w }}"></path></sc-for><sc-if value="{{ hasText }}" hint-placeholder-val="{{ false }}"><text x="12" y="{{ ty }}" style="fill:currentColor;stroke:none;text-anchor:middle;font-family:'Geist Mono',monospace;font-weight:600;font-size:{{ fs }}">{{ text }}</text></sc-if></svg>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:64,&quot;height&quot;:64},&quot;code&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;w30&quot;,&quot;w40&quot;,&quot;w60&quot;,&quot;w95&quot;,&quot;wh&quot;,&quot;wx&quot;,&quot;ba&quot;,&quot;bo&quot;,&quot;bx&quot;,&quot;dtl&quot;,&quot;dtn&quot;,&quot;dtx&quot;,&quot;dh&quot;,&quot;df&quot;,&quot;ds&quot;,&quot;i1&quot;,&quot;i2&quot;,&quot;i3&quot;,&quot;ix&quot;,&quot;pP&quot;,&quot;pF&quot;,&quot;pW&quot;,&quot;px&quot;],&quot;default&quot;:&quot;w40&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;mod&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:0,&quot;min&quot;:0,&quot;max&quot;:2,&quot;tsType&quot;:&quot;number&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:28,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const code = String(this.props.code ?? 'w40'), mod = Number(this.props.mod ?? 0), size = Number(this.props.size ?? 28);
+    const TUB = 'M3 6l2.2 11h13.6L21 6', WAVE = 'M3 6c2 1.5 4 1.5 6 0s4-1.5 6 0 4 1.5 6 0';
+    const SQ = 'M4 3h16v16H4Z', CIR = 'M7 11a5 5 0 1 0 10 0a5 5 0 1 0-10 0', CIRB = 'M4.5 11a7.5 7.5 0 1 0 15 0a7.5 7.5 0 1 0-15 0';
+    const TRI = 'M12 3.5L21 18.5H3Z', IRON = 'M3 17h18l-1.5-6A3.5 3.5 0 0 0 16 8.5H9A6 6 0 0 0 3 14.5Z';
+    const X = 'M3 2.5l18 17M21 2.5L3 19.5';
+    const dot = (x, y) => 'M' + x + ' ' + y + 'h.01';
+    let paths = [], text = '', ty = 15, fs = '7px';
+    const k = code[0];
+    if (k === 'w') {
+      paths = [TUB, WAVE];
+      if (/^w\d+$/.test(code)) { text = code.slice(1); ty = 15; fs = '6.5px'; }
+      if (code === 'wh') paths.push('M9.5 15v-3.5a1 1 0 0 1 2 0V14M11.5 13.5v-4a1 1 0 0 1 2 0v4M13.5 13.5v-2.5a1 1 0 0 1 2 0V15');
+      if (code === 'wx') paths.push(X);
+    } else if (k === 'b') {
+      paths = [TRI];
+      if (code === 'bo') paths.push('M11 9l-3.5 7M15 9l-3.5 7');
+      if (code === 'bx') paths.push(X);
+    } else if (code.startsWith('dt')) {
+      paths = [SQ, CIR];
+      if (code === 'dtl') paths.push({ d: dot(12, 11), w: 2.6 });
+      if (code === 'dtn') paths.push({ d: dot(10.3, 11), w: 2.6 }, { d: dot(13.7, 11), w: 2.6 });
+      if (code === 'dtx') paths.push(X);
+    } else if (k === 'd') {
+      paths = [SQ];
+      if (code === 'dh') paths.push('M4 7c4 3.5 12 3.5 16 0');
+      if (code === 'df') paths.push('M7.5 11h9');
+      if (code === 'ds') paths.push('M4 9l6-6', 'M12 7.5v8');
+    } else if (k === 'i') {
+      paths = [IRON];
+      const n = code === 'i1' ? 1 : code === 'i2' ? 2 : code === 'i3' ? 3 : 0;
+      const xs = n === 1 ? [12.5] : n === 2 ? [10.5, 14.5] : n === 3 ? [9, 12.5, 16] : [];
+      xs.forEach(x => paths.push({ d: dot(x, 13.5), w: 2.4 }));
+      if (code === 'ix') paths.push(X);
+    } else if (k === 'p') {
+      paths = [CIRB];
+      if (code === 'pP' || code === 'pF' || code === 'pW') { text = code[1]; ty = 14; fs = '9px'; }
+      if (code === 'px') paths.push(X);
+    }
+    if (mod >= 1) paths.push('M5 21h14');
+    if (mod >= 2) paths.push('M5 23.2h14');
+    if (mod >= 1 && k !== 'w' && k !== 'p') paths = paths;
+    return { size, text, hasText: !!text, ty, fs, paths: paths.map(p => typeof p === 'string' ? { d: p, w: 1.5 } : p) };
+  }
+}
+</script>
+</body>
+</html>
