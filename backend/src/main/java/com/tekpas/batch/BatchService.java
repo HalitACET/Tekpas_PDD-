@@ -12,6 +12,7 @@ import com.tekpas.validation.ValidationTriggers;
 import com.tekpas.validation.dto.IssueCounts;
 import com.tekpas.batch.dto.NextBatchNoResponse;
 import com.tekpas.batch.dto.ScoreResponse;
+import com.tekpas.common.audit.AuditLog;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
@@ -53,11 +54,13 @@ public class BatchService {
     private final JdbcTemplate jdbc;
     private final ChainService chains;
     private final SupplierService suppliers;
+    private final AuditLog audit;
     private final Clock clock;
 
     public BatchService(BatchRepository batches, ProductRepository products, BatchNumbers numbers,
             ChainCounts chainCounts, ComplianceService compliance, PassportSummaries passportSummaries,
-            OpenIssueCounts openIssues, ValidationTriggers validation, JdbcTemplate jdbc, ChainService chains, SupplierService suppliers, Clock clock) {
+            OpenIssueCounts openIssues, ValidationTriggers validation, JdbcTemplate jdbc, ChainService chains,
+            SupplierService suppliers, AuditLog audit, Clock clock) {
         this.batches = batches;
         this.products = products;
         this.numbers = numbers;
@@ -69,6 +72,7 @@ public class BatchService {
         this.jdbc = jdbc;
         this.chains = chains;
         this.suppliers = suppliers;
+        this.audit = audit;
         this.clock = clock;
     }
 
@@ -149,6 +153,7 @@ public class BatchService {
         saveAndFlush(batch);
         // The product's last chain is copied (or the default one started): the batch is ready for suppliers.
         chains.startChain(batch);
+        audit.record(companyId, "BATCH", batch.getId(), "CREATE", AuditLog.details(batch.getBatchNo()));
         return toResponse(batch, product, chainCounts.of(batch.getId()),
                 compliance.of(companyId, ComplianceService.Target.of(batch)).score(), null, IssueCounts.NONE);
     }
@@ -182,6 +187,9 @@ public class BatchService {
         requireDateOrder(batch.getProducedFrom(), batch.getProducedTo());
         batch.touch(clock.instant());
         saveAndFlush(batch);
+        audit.record(companyId, "BATCH", id, "UPDATE", AuditLog.details(batch.getBatchNo(), AuditLog.changed(
+                request.batchNo(), "batchNo", request.productionOrderNo(), "productionOrderNo", request.quantity(),
+                "quantity", request.producedFrom(), "producedFrom", request.producedTo(), "producedTo")));
         if (request.producedFrom() != null || request.producedTo() != null) {
             validation.batchChanged(companyId, id);
         }
@@ -204,6 +212,7 @@ public class BatchService {
             throw ConflictException.state("BATCH_HAS_PASSPORT", "A batch with a passport cannot be deleted");
         }
         batches.delete(batch);
+        audit.record(companyId, "BATCH", id, "DELETE", AuditLog.details(batch.getBatchNo()));
     }
 
     private void saveAndFlush(Batch batch) {

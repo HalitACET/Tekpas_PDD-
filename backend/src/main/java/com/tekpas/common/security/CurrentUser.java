@@ -1,6 +1,7 @@
 package com.tekpas.common.security;
 
 import com.tekpas.company.UserRole;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,13 @@ public class CurrentUser {
 
     public UUID companyId() {
         return UUID.fromString(jwt().getClaimAsString(JwtClaims.COMPANY_ID));
+    }
+
+    /** The user of this request, or empty outside one (a background job, the demo seeder). */
+    public Optional<UUID> userIdIfAny() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth instanceof JwtAuthenticationToken token ? Optional.of(UUID.fromString(token.getToken().getSubject()))
+                : Optional.empty();
     }
 
     public UserRole role() {

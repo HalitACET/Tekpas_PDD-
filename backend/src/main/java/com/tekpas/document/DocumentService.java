@@ -3,6 +3,7 @@ package com.tekpas.document;
 import com.tekpas.ai.LlmGate;
 import com.tekpas.batch.BatchRepository;
 import com.tekpas.batch.BatchStatus;
+import com.tekpas.common.audit.AuditLog;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
@@ -67,13 +68,16 @@ public class DocumentService {
     private final RateLimiter limiter;
     private final ValidationTriggers validation;
     private final PhotoPages photos;
+    private final AuditLog audit;
     private final Clock clock;
     private final TransactionTemplate tx;
 
     public DocumentService(DocumentRepository documents, SupplyStepRepository steps, BatchRepository batches,
             AppUserRepository users, StepEvents events, FileStorage storage, FileInspector inspector,
             DocumentStore store, JobQueue jobs, LlmGate gate, RateLimiter limiter,
-            ValidationTriggers validation, PhotoPages photos, Clock clock, PlatformTransactionManager transactions) {
+            ValidationTriggers validation, PhotoPages photos, AuditLog audit, Clock clock,
+            PlatformTransactionManager transactions) {
+        this.audit = audit;
         this.documents = documents;
         this.steps = steps;
         this.batches = batches;
@@ -239,6 +243,8 @@ public class DocumentService {
         d.verify(request.docType(), certNo, holder, issuer, request.validFrom(), request.validUntil(), verification,
                 userId, clock.instant());
         String name = users.findById(userId).map(u -> u.getFullName()).orElse(null);
+        audit.record(companyId, userId, "DOCUMENT", d.getId(), "VERIFY",
+                Map.of("label", d.getOriginalName(), "docType", d.getDocType().name()));
         if (stepId != null) {
             events.record(stepId, d.getRequestId(), StepEventKind.DOCUMENT_VERIFIED, userId, name,
                     Map.of("documentId", d.getId().toString(), "docType", d.getDocType().name()));

@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/v1/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The company's audit trail, newest first
+         * @description Filters combine. Days are Turkish days (Europe/Istanbul). 50 entries a page, at most 100; pass nextBefore as before for older entries.
+         */
+        get: operations["listAudit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -1237,6 +1257,30 @@ export interface components {
             /** @example urn:tekpas:problem:validation */
             type: string;
         };
+        AuditEntry: {
+            action: string;
+            /** Format: date-time */
+            at: string;
+            /** Format: uuid */
+            batchId?: string | null;
+            details: {
+                [key: string]: unknown;
+            };
+            /** Format: uuid */
+            entityId: string;
+            entityType: string;
+            /** Format: int64 */
+            id: number;
+            label?: string | null;
+            /** Format: uuid */
+            userId?: string | null;
+            userName?: string | null;
+        };
+        AuditPage: {
+            entries: components["schemas"]["AuditEntry"][];
+            /** Format: int64 */
+            nextBefore?: number | null;
+        };
         AwaitingDocument: {
             /** Format: uuid */
             batchId: string;
@@ -2298,6 +2342,43 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listAudit: {
+        parameters: {
+            query?: {
+                entityType?: string;
+                userId?: string;
+                from?: string;
+                to?: string;
+                batchId?: string;
+                before?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of entries */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPage"];
+                };
+            };
+            /** @description Only OWNER and ADMIN */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ApiProblem"];
+                };
+            };
+        };
+    };
     login: {
         parameters: {
             query?: never;

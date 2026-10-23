@@ -1,11 +1,13 @@
 package com.tekpas.importer;
 
+import com.tekpas.common.audit.AuditLog;
 import com.tekpas.importer.ImportService.Payload;
 import com.tekpas.jobs.JobContext;
 import com.tekpas.jobs.JobHandler;
 import com.tekpas.jobs.JobType;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +25,13 @@ class ImportExcelJob implements JobHandler<Payload> {
 
     private final ImportStore store;
     private final ProductImport products;
+    private final AuditLog audit;
     private final Clock clock;
 
-    ImportExcelJob(ImportStore store, ProductImport products, Clock clock) {
+    ImportExcelJob(ImportStore store, ProductImport products, AuditLog audit, Clock clock) {
         this.store = store;
         this.products = products;
+        this.audit = audit;
         this.clock = clock;
     }
 
@@ -56,6 +60,10 @@ class ImportExcelJob implements JobHandler<Payload> {
             ProductImport.Result result = products.run(payload.companyId(), file.get());
             store.done(payload.companyId(), payload.importId(), result.total(), result.created(), result.failed(),
                     result.errors(), clock.instant());
+            // One entry for the whole file, in the name of whoever uploaded it (the job runs without a user).
+            store.uploader(payload.companyId(), payload.importId()).ifPresent(upload -> audit.record(payload.companyId(),
+                    upload.userId(), "IMPORT", payload.importId(), "IMPORT", Map.of("label", upload.fileName(),
+                            "created", result.created(), "failed", result.failed())));
             log.info("Import {}: {} rows, {} created, {} failed", payload.importId(), result.total(), result.created(),
                     result.failed());
         } catch (ProductImport.Refused e) {

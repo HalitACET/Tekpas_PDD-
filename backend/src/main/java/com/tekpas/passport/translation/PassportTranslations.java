@@ -4,6 +4,7 @@ import com.tekpas.ai.LlmBudget;
 import com.tekpas.ai.LlmGate;
 import com.tekpas.batch.Batch;
 import com.tekpas.batch.BatchRepository;
+import com.tekpas.common.audit.AuditLog;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
@@ -75,10 +76,13 @@ public class PassportTranslations {
     private final LlmBudget budget;
     private final JobQueue queue;
     private final JdbcTemplate jdbc;
+    private final AuditLog audit;
     private final Clock clock;
 
     public PassportTranslations(BatchRepository batches, ProductRepository products, SupplyStepRepository steps,
-            TranslationStore store, LlmGate gate, LlmBudget budget, JobQueue queue, JdbcTemplate jdbc, Clock clock) {
+            TranslationStore store, LlmGate gate, LlmBudget budget, JobQueue queue, JdbcTemplate jdbc, AuditLog audit,
+            Clock clock) {
+        this.audit = audit;
         this.batches = batches;
         this.products = products;
         this.steps = steps;
@@ -161,6 +165,10 @@ public class PassportTranslations {
             store.upsert(companyId, batchId, e.field(), e.language(), value, source, text.hash(),
                     e.approved() ? userId : null, clock.instant());
         }
+        long approved = request.entries().stream().filter(TranslationsUpdateRequest.Entry::approved).count();
+        long removed = request.entries().stream().filter(e -> e.text() == null || e.text().isBlank()).count();
+        audit.record(companyId, userId, "BATCH", batchId, "TRANSLATIONS", Map.of("approved", approved,
+                "removed", removed, "edited", request.entries().size() - approved - removed));
         return get(companyId, batchId);
     }
 

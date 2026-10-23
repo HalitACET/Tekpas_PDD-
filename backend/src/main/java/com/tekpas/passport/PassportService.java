@@ -7,6 +7,7 @@ import com.tekpas.batch.BatchService;
 import com.tekpas.batch.BatchStatus;
 import com.tekpas.batch.dto.BatchResponse;
 import com.tekpas.batch.dto.ScoreResponse;
+import com.tekpas.common.audit.AuditLog;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.FieldViolation;
 import com.tekpas.common.error.InvalidFieldsException;
@@ -62,11 +63,13 @@ public class PassportService {
     private final QrCodes qr;
     private final JobQueue jobs;
     private final ValidationService validation;
+    private final AuditLog audit;
 
     public PassportService(BatchRepository batches, BatchService batchService, BatchProgress progress,
             PassportRepository passports, PassportSnapshotBuilder builder, AppUserRepository users, JdbcTemplate jdbc,
             ObjectMapper json, Clock clock, PublicProperties publicProperties, QrCodes qr,
-            JobQueue jobs, ValidationService validation) {
+            JobQueue jobs, ValidationService validation, AuditLog audit) {
+        this.audit = audit;
         this.batches = batches;
         this.batchService = batchService;
         this.progress = progress;
@@ -120,8 +123,8 @@ public class PassportService {
         batch.touch(now);
 
         refreshPage(saved);
-        audit(companyId, userId, "PASSPORT", saved.getId(), "PUBLISH",
-                "{\"version\":" + version + ",\"completeness\":" + score.score() + "}");
+        audit.record(companyId, userId, "PASSPORT", saved.getId(), "PUBLISH",
+                Map.of("label", batch.getBatchNo(), "version", version, "completeness", score.score()));
         return toResponse(saved, names(List.of(saved)));
     }
 
@@ -164,7 +167,8 @@ public class PassportService {
             backToEditing(batch, now);
         }
         refreshPage(passport);
-        audit(companyId, userId, "PASSPORT", id, "WITHDRAW", null);
+        audit.record(companyId, userId, "PASSPORT", id, "WITHDRAW",
+                Map.of("label", passport.getBatchNo(), "version", passport.getVersion()));
         return toResponse(passport, names(List.of(passport)));
     }
 
@@ -179,7 +183,7 @@ public class PassportService {
             throw ConflictException.state("BATCH_NOT_PUBLISHED", "Only a published batch has a version to build on");
         }
         backToEditing(batch, clock.instant());
-        audit(companyId, userId, "BATCH", batchId, "PASSPORT_DRAFT", null);
+        audit.record(companyId, userId, "BATCH", batchId, "PASSPORT_DRAFT", AuditLog.details(batch.getBatchNo()));
         return batchService.get(companyId, batchId);
     }
 
@@ -197,14 +201,6 @@ public class PassportService {
         batch.setStatus(BatchStatus.COLLECTING);
         batch.touch(now);
         progress.refresh(batch.getId());
-    }
-
-    private void audit(UUID companyId, UUID userId, String entityType, UUID entityId, String action,
-            @Nullable String diff) {
-        jdbc.update("""
-                INSERT INTO audit_log (company_id, user_id, entity_type, entity_id, action, diff)
-                VALUES (?, ?, ?, ?, ?, ?::jsonb)
-                """, companyId, userId, entityType, entityId, action, diff);
     }
 
     private Map<UUID, String> names(List<Passport> list) {

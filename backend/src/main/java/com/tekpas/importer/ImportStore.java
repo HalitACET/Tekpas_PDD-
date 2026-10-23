@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.type.TypeReference;
@@ -68,6 +69,16 @@ class ImportStore {
                        errors = CAST(? AS jsonb), finished_at = ?
                 WHERE company_id = ? AND id = ?
                 """, total, created, failed, json.writeValueAsString(kept), Timestamp.from(now), companyId, id);
+    }
+
+    /** Who uploaded the file and its name: the import's audit entry. */
+    record Upload(@Nullable UUID userId, String fileName) {
+    }
+
+    Optional<Upload> uploader(UUID companyId, UUID id) {
+        return jdbc.query("SELECT created_by, file_name FROM import_job WHERE company_id = ? AND id = ?",
+                (rs, i) -> new Upload(rs.getObject("created_by", UUID.class), rs.getString("file_name")), companyId, id)
+                .stream().findFirst();
     }
 
     void failed(UUID companyId, UUID id, String code, Instant now) {

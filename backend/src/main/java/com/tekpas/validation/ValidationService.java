@@ -3,6 +3,7 @@ package com.tekpas.validation;
 import com.tekpas.ai.LlmGate;
 import com.tekpas.batch.Batch;
 import com.tekpas.batch.BatchRepository;
+import com.tekpas.common.audit.AuditLog;
 import com.tekpas.common.error.ConflictException;
 import com.tekpas.common.error.NotFoundException;
 import com.tekpas.company.AppUserRepository;
@@ -66,11 +67,13 @@ public class ValidationService {
     private final ValidationIssueRepository issues;
     private final LlmGate gate;
     private final JobQueue jobs;
+    private final AuditLog audit;
     private final Clock clock;
 
     public ValidationService(BatchRepository batches, ProductRepository products, SupplyStepRepository steps,
             DocumentRepository documents, CompanyRepository companies, AppUserRepository users,
-            ValidationIssueRepository issues, LlmGate gate, JobQueue jobs, Clock clock) {
+            ValidationIssueRepository issues, LlmGate gate, JobQueue jobs, AuditLog audit, Clock clock) {
+        this.audit = audit;
         this.batches = batches;
         this.products = products;
         this.steps = steps;
@@ -138,6 +141,7 @@ public class ValidationService {
                     "A blocking issue cannot be resolved by hand; correct the data");
         }
         issue.resolve(userId, clean(note), clock.instant());
+        audit.record(companyId, userId, "ISSUE", issueId, "RESOLVE", Map.of("code", issue.getCode().name()));
         return responses(List.of(issue)).getFirst();
     }
 
@@ -153,6 +157,7 @@ public class ValidationService {
                     "The issue closed itself when the data was corrected; run the checks to find it again");
         }
         issue.reopen();
+        audit.record(companyId, "ISSUE", issueId, "REOPEN", Map.of("code", issue.getCode().name()));
         return responses(List.of(issue)).getFirst();
     }
 
