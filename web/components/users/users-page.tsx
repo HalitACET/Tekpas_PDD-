@@ -213,8 +213,9 @@ function UserRow({
 
   let note = "";
   if (user.status === "INVITED" && user.invitationExpiresAt) {
-    const days = Math.floor((new Date(user.invitationExpiresAt).getTime() - now) / 86_400_000);
-    note = days >= 1 ? t("invitedNote", { days }) : t("invitedToday");
+    // Counted up, as on the supplier's link: a fresh invitation has "7 gün kaldı", the last day its own words.
+    const left = new Date(user.invitationExpiresAt).getTime() - now;
+    note = left >= 86_400_000 ? t("invitedNote", { days: Math.ceil(left / 86_400_000) }) : t("invitedToday");
   } else if (user.status === "INVITATION_EXPIRED" && user.invitationExpiresAt) {
     note = day.format(new Date(user.invitationExpiresAt));
   } else if (inactive && user.inactiveSince) {

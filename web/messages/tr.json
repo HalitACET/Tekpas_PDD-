@@ -2021,8 +2021,8 @@
       "INVITATION_EXPIRED": "Davetin süresi doldu",
       "INACTIVE": "Pasif"
     },
-    "invitedNote": "7 gün geçerli · {days, plural, one {# gün kaldı} other {# gün kaldı}}",
-    "invitedToday": "7 gün geçerli · bugün bitiyor",
+    "invitedNote": "7 gün içinde · {days, plural, one {# gün kaldı} other {# gün kaldı}}",
+    "invitedToday": "7 gün içinde · bugün bitiyor",
     "inactiveSince": "{date} tarihinden beri",
     "actions": "Kullanıcı işlemleri",
     "menuRole": "Rolü değiştir",

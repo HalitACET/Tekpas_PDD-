@@ -121,7 +121,7 @@ export function AuditPage() {
           </button>
         )}
         <span className="ml-auto text-xs text-muted-foreground" aria-live="polite">
-          {data && !busy ? t("count", { count: data.total }) : ""}
+          {data && !busy ? t("count", { count: number.format(data.total) }) : ""}
         </span>
       </div>
 
@@ -334,9 +334,18 @@ function RecordText({ entry }: { entry: AuditEntry }) {
 function DiffText({ entry }: { entry: AuditEntry }) {
   const t = useTranslations("audit");
   const tTeam = useTranslations("team");
+  const tStepField = useTranslations("batches.chain.panel.fields");
+  const tSupplierField = useTranslations("supplier.done.rows");
   const d = entry.details as Record<string, unknown>;
   const roleName = (r: unknown) => (typeof r === "string" && tTeam.has(`role.${r}.name`) ? tTeam(`role.${r}.name` as never) : String(r));
-  const fieldName = (f: unknown) => (typeof f === "string" && t.has(`field.${f}`) ? t(`field.${f}` as never) : String(f));
+  // Record fields have their own names; a step's fields are named as on the step panel and the supplier's form.
+  const fieldName = (f: unknown) => {
+    if (typeof f !== "string") return String(f);
+    if (t.has(`field.${f}`)) return t(`field.${f}` as never);
+    if (tStepField.has(f as never)) return tStepField(f as never);
+    if (tSupplierField.has(f as never)) return tSupplierField(f as never);
+    return f;
+  };
   const yesNo = (v: unknown) => (v ? t("diff.yes") : t("diff.no"));
 
   const parts: string[] = [];
