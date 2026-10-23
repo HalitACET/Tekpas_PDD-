@@ -123,7 +123,11 @@ class UserApiTest {
         clock.advance(Duration.ofDays(7).plusMinutes(1));
         MvcTestResult expired = open(second);
         assertThat(expired).hasStatus(410);
-        assertThat(fixtures.body(expired).path("reason").asString()).isEqualTo("INVITATION_EXPIRED");
+        JsonNode problem = fixtures.body(expired);
+        assertThat(problem.path("reason").asString()).isEqualTo("INVITATION_EXPIRED");
+        // Who to ask for a new link (design v1.2 173).
+        assertThat(problem.path("invitedByName").asString()).isEqualTo(owner.user().getFullName());
+        assertThat(problem.path("companyName").asString()).isEqualTo(owner.company().getName());
         assertThat(open("not-a-token")).hasStatus(404);
     }
 
@@ -139,7 +143,9 @@ class UserApiTest {
         assertThat(fixtures.body(promoted).path("role").asString()).isEqualTo("ADMIN");
         JsonNode mobileLogin = fixtures.login(editor.user(), ClientType.MOBILE);
 
-        assertThat(fixtures.patch(owner, uri, Map.of("active", false))).hasStatusOk();
+        MvcTestResult deactivated = fixtures.patch(owner, uri, Map.of("active", false));
+        assertThat(deactivated).hasStatusOk();
+        assertThat(fixtures.body(deactivated).path("inactiveSince").isNull()).isFalse();
 
         assertThat(fixtures.loginRequest(editor.user().getEmail(), TestFixtures.PASSWORD, ClientType.WEB))
                 .hasStatus(401);
@@ -150,7 +156,9 @@ class UserApiTest {
         assertThat(jdbc.queryForObject("SELECT diff->>'role' FROM audit_log WHERE entity_id = ? AND action = 'ROLE'",
                 String.class, editor.user().getId())).isEqualTo("[\"EDITOR\", \"ADMIN\"]");
 
-        assertThat(fixtures.patch(owner, uri, Map.of("active", true))).hasStatusOk();
+        MvcTestResult reactivated = fixtures.patch(owner, uri, Map.of("active", true));
+        assertThat(reactivated).hasStatusOk();
+        assertThat(fixtures.body(reactivated).path("inactiveSince").isNull()).isTrue();
         assertThat(fixtures.loginRequest(editor.user().getEmail(), TestFixtures.PASSWORD, ClientType.WEB))
                 .hasStatusOk();
     }

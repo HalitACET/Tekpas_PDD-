@@ -39,5 +39,7 @@ class MeTest {
         assertThat(body.path("company").path("id").asString()).isEqualTo(tenant.company().getId().toString());
         assertThat(body.path("company").path("name").asString()).isEqualTo(tenant.company().getName());
         assertThat(body.path("company").path("type").asString()).isEqualTo("MANUFACTURER");
+        // Named on the pages a role cannot open: "ask … for access" (design v1.2 169).
+        assertThat(body.path("ownerName").asString()).isEqualTo(tenant.user().getFullName());
     }
 }

@@ -4,6 +4,7 @@ import com.tekpas.company.AppUser;
 import com.tekpas.company.Company;
 import com.tekpas.company.UserRole;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 /**
  * {@code GET /auth/me}. Same fields as {@link UserSummary} today; kept separate so /me can grow
@@ -15,10 +16,12 @@ public record MeResponse(
         String fullName,
         UserRole role,
         String locale,
-        CompanySummary company) {
+        CompanySummary company,
+        @Nullable String ownerName) {
 
-    public static MeResponse from(AppUser user, Company company) {
+    /** @param ownerName the company's owner, for "ask … for access" (design v1.2 169); null without an active owner */
+    public static MeResponse from(AppUser user, Company company, @Nullable String ownerName) {
         return new MeResponse(user.getId(), user.getEmail(), user.getFullName(), user.getRole(),
-                user.getLocale(), CompanySummary.from(company));
+                user.getLocale(), CompanySummary.from(company), ownerName);
     }
 }

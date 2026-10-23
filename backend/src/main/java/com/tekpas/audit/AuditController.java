@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,17 +33,17 @@ public class AuditController {
 
     @GetMapping
     @Operation(operationId = "listAudit", summary = "The company's audit trail, newest first",
-            description = "Filters combine. Days are Turkish days (Europe/Istanbul). 50 entries a page, at most 100; "
-                    + "pass nextBefore as before for older entries.")
+            description = "Filters combine; entityType may repeat (STEP and DOCUMENT are \"steps and documents\"). "
+                    + "Days are Turkish days (Europe/Istanbul). 25 entries a page, at most 100; page is 0-based.")
     @ApiResponse(responseCode = "200", description = "A page of entries")
     @ApiResponse(responseCode = "403", description = "Only OWNER and ADMIN")
-    public AuditPage listAudit(@RequestParam(required = false) @Nullable String entityType,
+    public AuditPage listAudit(@RequestParam(required = false) @Nullable List<String> entityType,
             @RequestParam(required = false) @Nullable UUID userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Nullable LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Nullable LocalDate to,
             @RequestParam(required = false) @Nullable UUID batchId,
-            @RequestParam(required = false) @Nullable Long before,
+            @RequestParam(required = false) @Nullable Integer page,
             @RequestParam(required = false) @Nullable Integer size) {
-        return service.list(currentUser.companyId(), entityType, userId, from, to, batchId, before, size);
+        return service.list(currentUser.companyId(), entityType, userId, from, to, batchId, page, size);
     }
 }

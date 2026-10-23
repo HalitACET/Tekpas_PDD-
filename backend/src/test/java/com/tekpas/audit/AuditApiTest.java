@@ -99,11 +99,14 @@ class AuditApiTest {
         assertThat(entries(owner, "?userId=" + admin.user().getId())).hasSize(1);
         JsonNode first = fixtures.body(fixtures.get(owner, AUDIT + "?size=2"));
         assertThat(first.path("entries")).hasSize(2);
-        long before = first.path("nextBefore").asLong();
-        JsonNode second = fixtures.body(fixtures.get(owner, AUDIT + "?size=2&before=" + before));
+        assertThat(first.path("total").asLong()).isEqualTo(3);
+        JsonNode second = fixtures.body(fixtures.get(owner, AUDIT + "?size=2&page=1"));
         assertThat(second.path("entries")).hasSize(1);
-        assertThat(second.path("nextBefore").isNull()).isTrue();
+        assertThat(second.path("page").asInt()).isEqualTo(1);
         assertThat(entries(owner, "?from=2000-01-01&to=2000-01-02")).isEmpty();
+        // Several types at once ("Adım ve belge" is STEP and DOCUMENT).
+        assertThat(entries(owner, "?entityType=STEP&entityType=PRODUCT")).hasSize(3);
+        assertThat(entries(owner, "?entityType=STEP&entityType=DOCUMENT")).isEmpty();
     }
 
     @Test

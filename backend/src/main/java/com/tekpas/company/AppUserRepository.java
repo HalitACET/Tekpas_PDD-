@@ -15,4 +15,7 @@ public interface AppUserRepository extends JpaRepository<AppUser, UUID> {
     long countByCompanyIdAndRoleAndActiveTrue(UUID companyId, UserRole role);
 
     List<AppUser> findByCompanyIdAndRoleNot(UUID companyId, UserRole role);
+
+    /** The company's owner to name ("ask Selim Karaca"); the first by name when there are several. */
+    Optional<AppUser> findFirstByCompanyIdAndRoleAndActiveTrueOrderByFullNameAsc(UUID companyId, UserRole role);
 }

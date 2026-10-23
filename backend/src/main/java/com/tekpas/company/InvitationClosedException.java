@@ -2,6 +2,7 @@ package com.tekpas.company;
 
 import com.tekpas.common.error.ApiException;
 import com.tekpas.common.error.ProblemTypes;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -20,8 +21,15 @@ public class InvitationClosedException extends ApiException {
         return new InvitationClosedException(HttpStatus.NOT_FOUND, "INVITATION_INVALID", "No such invitation");
     }
 
-    static InvitationClosedException expired() {
-        return new InvitationClosedException(HttpStatus.GONE, "INVITATION_EXPIRED", "The invitation has expired");
+    /** With who to ask for a new link (design v1.2 173). */
+    static InvitationClosedException expired(String companyName, @Nullable String invitedByName) {
+        InvitationClosedException e = new InvitationClosedException(HttpStatus.GONE, "INVITATION_EXPIRED",
+                "The invitation has expired");
+        e.property("companyName", companyName);
+        if (invitedByName != null) {
+            e.property("invitedByName", invitedByName);
+        }
+        return e;
     }
 
     static InvitationClosedException used() {

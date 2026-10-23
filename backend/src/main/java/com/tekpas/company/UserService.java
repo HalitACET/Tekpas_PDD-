@@ -128,7 +128,7 @@ public class UserService {
             if (newActive) {
                 user.activate();
             } else {
-                user.deactivate();
+                user.deactivate(clock.instant());
                 refreshTokens.revokeAllOf(user.getId());
             }
         }
@@ -171,7 +171,10 @@ public class UserService {
             throw InvitationClosedException.used();
         }
         if (!invitation.expiresAt().isAfter(clock.instant())) {
-            throw InvitationClosedException.expired();
+            throw InvitationClosedException.expired(
+                    companies.findById(invitation.companyId()).map(Company::getName).orElse(""),
+                    invitation.invitedBy() == null ? null
+                            : users.findById(invitation.invitedBy()).map(AppUser::getFullName).orElse(null));
         }
         return invitation;
     }
@@ -212,6 +215,7 @@ public class UserService {
                 ? invitations.latestOf(user.getCompanyId(), user.getId()).map(Invitation::expiresAt).orElse(null)
                 : null;
         return new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getRole(), status,
-                user.getLastLoginAt(), expires, user.getId().equals(askingUserId));
+                user.getLastLoginAt(), expires, status == UserStatus.INACTIVE ? user.getDeactivatedAt() : null,
+                user.getId().equals(askingUserId));
     }
 }

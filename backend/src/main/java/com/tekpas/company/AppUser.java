@@ -41,6 +41,8 @@ public class AppUser {
 
     private Instant lastLoginAt;
 
+    private Instant deactivatedAt;
+
     @Column(insertable = false, updatable = false)
     private Instant createdAt;
 
@@ -78,6 +80,7 @@ public class AppUser {
 
     public void activate() {
         this.active = true;
+        this.deactivatedAt = null;
     }
 
     public void recordLogin(Instant at) {
@@ -85,7 +88,16 @@ public class AppUser {
     }
 
     public void deactivate() {
+        deactivate(Instant.now());
+    }
+
+    public void deactivate(Instant at) {
         this.active = false;
+        this.deactivatedAt = at;
+    }
+
+    public Instant getDeactivatedAt() {
+        return deactivatedAt;
     }
 
     public UUID getId() {

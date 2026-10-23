@@ -165,10 +165,10 @@ public class PassportTranslations {
             store.upsert(companyId, batchId, e.field(), e.language(), value, source, text.hash(),
                     e.approved() ? userId : null, clock.instant());
         }
-        long approved = request.entries().stream().filter(TranslationsUpdateRequest.Entry::approved).count();
-        long removed = request.entries().stream().filter(e -> e.text() == null || e.text().isBlank()).count();
-        audit.record(companyId, userId, "BATCH", batchId, "TRANSLATIONS", Map.of("approved", approved,
-                "removed", removed, "edited", request.entries().size() - approved - removed));
+        List<String> approvedLanguages = request.entries().stream().filter(TranslationsUpdateRequest.Entry::approved)
+                .map(e -> e.language().toUpperCase(java.util.Locale.ROOT)).distinct().sorted().toList();
+        audit.record(companyId, userId, "TRANSLATION", batchId, approvedLanguages.isEmpty() ? "EDIT" : "APPROVE",
+                Map.of("languages", approvedLanguages, "entries", request.entries().size()));
         return get(companyId, batchId);
     }
 
