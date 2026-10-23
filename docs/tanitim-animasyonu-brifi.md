@@ -28,7 +28,7 @@ KozaPass'i hiç görmemiş birine, anlatıcı olmadan, yaklaşık 2,5 dakikada a
 - **Süre:** 2:20–2:40. Sahne süreleri aşağıda; toplam bunun içinde kalsın.
 - **Ses olmadan anlaşılmalı:** her sahnede ekranda kısa, büyük bir metin var. Metinler okunacak kadar uzun kalsın (her 10 kelime için en az 3 saniye).
 - **Oynatma:** baştan sona kendiliğinden oynasın. Duraklat / oynat ve sahneler arasında ileri-geri gitme olsun. Sunumda elle ilerletilebilsin diye.
-- **Seslendirme (isteğe bağlı):** her sahnenin seslendirme cümlesi tabloda var. Animasyonun içine ses koymayın; metin ayrı kullanılabilsin.
+- **Seslendirme (isteğe bağlı):** her sahnenin seslendirme cümlesi tabloda var. Animasyonun içine ses koymayın; ses sonradan eklenir. Seslendirmenin son hâli ve nasıl ekleneceği: `docs/tanitim-seslendirme.md`.
 
 ---
 
