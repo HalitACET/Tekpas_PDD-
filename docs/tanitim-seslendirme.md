@@ -10,8 +10,13 @@ Claude Design'ın ürettiği tanıtım animasyonuna arkadan anlatan bir ses ekle
 
 | Yol | Ne gerekir | Artısı | Eksisi |
 | --- | --- | --- | --- |
-| **A. Yapay ses (önerilen)** | Clipchamp, ücretsiz, Microsoft'un video düzenleyicisi | Kayıt yok, tekrar denemesi kolay, ses temiz | Ses yine de biraz makine gibi |
+| **A. Yapay ses (Clipchamp)** | Clipchamp, ücretsiz, Microsoft'un video düzenleyicisi | Kayıt yok, tekrar denemesi kolay, ses temiz | Ses yine de biraz makine gibi |
 | **B. Kendi sesiniz** | Telefonun ses kaydedicisi + Clipchamp | Daha samimi; "projeyi yapan kişi anlatıyor" etkisi | Sessiz bir oda ve birkaç deneme gerekir |
+| **C. ElevenLabs** | ElevenLabs ücretsiz hesabı + Clipchamp | En doğal yapay ses | Ücretsiz planda ticari kullanım yok, ElevenLabs'i anmak gerekir (bkz. §5) |
+
+**Hangisi:**
+- **Okul sunumu:** C (en doğal ses; ücretsiz planda ElevenLabs'i anmak yeterli).
+- **Arden'e ya da başka bir firmaya tanıtım:** A ya da B. C'yi bu amaçla kullanacaksanız ücretli planı bir ay alın (§5).
 
 **Bilgisayarınızdaki Windows sesi (Microsoft Tolga):** eski ve robotik. Kullanmayın.
 
@@ -85,7 +90,44 @@ Claude Design'ın ürettiği tanıtım animasyonuna arkadan anlatan bir ses ekle
 
 ---
 
-## 5. Göstermeden önce kontrol
+## 5. Yol C: ElevenLabs
+
+ElevenLabs, sesi Clipchamp'tan daha doğal üretir. Video düzenleyici değildir: sesleri orada üretip indirirsiniz, videoya yine Clipchamp'te eklersiniz.
+
+**Önce lisansa bakın:**
+- **Ücretsiz plan:** ayda 10.000 karakter. Bu senaryonun tamamı 1.390 karakter; bütün metni yaklaşık 7 kez baştan üretmeye yeter.
+- **Kısıtlar:** üretilen ses ticari amaçla kullanılamaz ve ElevenLabs'in adı anılmalıdır.
+- **Okul sunumu:** ücretsiz plan uygundur; videonun sonuna "Seslendirme: ElevenLabs" yazın (aşağıda 10. adım).
+- **Bir firmaya ürün olarak tanıtım (örneğin Arden):** bu ticari kullanım sayılabilir.
+  - Ya ElevenLabs'in en ucuz ücretli planını (Starter) bir ay alıp sonra iptal edin,
+  - ya da Yol A'yı kullanın.
+- **Güncel şartlar:** başlamadan `elevenlabs.io/pricing` sayfasından kontrol edin; bu bilgiler oradan değil, başka sitelerden derlendi.
+
+**Adımlar:**
+1. **Hesap:** `elevenlabs.io` → **Sign up** (Google hesabıyla olabilir). Ücretsiz planda (**Free**) kalın; kart bilgisi istenirse ücretsiz planı seçtiğinizden emin olun.
+2. **Ses seçimi:** sol menü **Voices** → **Voice Library**.
+   - Dil filtresinde **Turkish**'i seçin, birkaç sesi dinleyin.
+   - Beğendiğinizi **Add to my voices** ile ekleyin.
+   - Anadili Türkçe olan bir ses aksansız okur; varsayılan İngilizce sesler Türkçeyi yabancı aksanıyla okur.
+3. **Metin okuma ekranı:** sol menü **Text to Speech**.
+   - Ses: 2. adımda eklediğiniz ses.
+   - Model: **Eleven Multilingual v2** (Türkçeyi destekleyen model).
+4. **Ayarlar** (dişli simgesi):
+   - **Stability** %50 civarı: daha düşükse ses dalgalanır, daha yüksekse tekdüzeleşir.
+   - **Similarity** %75.
+   - **Style** 0.
+   - **Speed** 0,95: biraz yavaş, yönetici rahat dinlesin.
+   - Bu ayarları 16 sahnede de değiştirmeyin; ses her sahnede aynı kalsın.
+5. **1. sahne:** §2'deki tablodan metni yapıştırın → **Generate** → dinleyin.
+   - Bir kelime bozuksa §2'deki okunuş tablosundaki yazımı deneyip yeniden üretin.
+   - Her üretim kredi harcar.
+6. **İndirme:** beğendiğinizi indirme simgesiyle MP3 olarak indirin. Dosya adını sahne numarası yapın: `01.mp3`, `02.mp3` … Sıralama karışmasın.
+7. **Kalan sahneler:** 5. ve 6. adımları 2'den 16'ya kadar tekrarlayın. Bütün metni tek parça üretmeyin; ayrı parçalar videoya hizalamayı kolaylaştırır.
+8. **Videoya ekleme:** Clipchamp'te videoyu açın, 16 MP3'ü **Medyanızı içe aktarın** ile ekleyin.
+9. **Hizalama ve dışa aktarma:** her parçayı kendi sahnesinin ilk görüntüsüne sürükleyin. Müzik, kontrol ve dışa aktarma Yol A'nın **6–10.** adımlarıyla aynı.
+10. **Ad anma (ücretsiz planda):** Clipchamp'te son sahneye küçük bir yazı ekleyin: sol menü **Metin** → "Seslendirme: ElevenLabs". Son 3 saniyede, köşede durması yeterli.
+
+## 6. Göstermeden önce kontrol
 
 - [ ] Ses bütün videoda aynı ses seviyesinde mi? Bir sahne çok yüksek ya da alçaksa o parçanın sesini ayarlayın.
 - [ ] Her cümle kendi görüntüsünün üstünde mi? Özellikle 9. sahne (yapay zekâ) ve 10. sahne (uyarı) yanlış görüntüde kalmasın.
