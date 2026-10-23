@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box}input,select,textarea,button{font:inherit}@keyframes kp-spin{to{transform:rotate(360deg)}}</style>
+</helmet>
+<div lang="tr" style="width:{{ L.w }};min-height:{{ L.minH }};background:var(--background);color:var(--foreground);font-family:'Geist',system-ui,sans-serif;border-radius:{{ L.radius }};overflow:hidden;box-shadow:{{ L.frame }};display:flex;flex-direction:column">
+  <sc-if value="{{ mobile }}" hint-placeholder-val="{{ true }}"><div style="height:44px;flex:none;display:flex;align-items:flex-end;padding:0 32px 6px;font:600 15px 'Geist',sans-serif;background:var(--story)">9:41</div></sc-if>
+  <header style="height:56px;flex:none;display:flex;align-items:center;gap:8px;padding:0 {{ L.hpad }};background:var(--story);border-bottom:1px solid var(--story-border)">
+    <svg width="22" height="22" viewBox="0 0 32 32"><g transform="translate(13 18.5) rotate(35)"><ellipse rx="8.5" ry="11.5" style="fill:var(--brand)"></ellipse><path d="M-7.2 -2.5Q0 0.5 7.2 -2.5M-6.8 4Q0 7 6.8 4" style="fill:none;stroke:var(--story);stroke-width:2;stroke-linecap:round"></path></g><path d="M19.6 9.2C22.5 5.5 25 9.5 29.5 3" style="fill:none;stroke:var(--brand);stroke-width:2.6;stroke-linecap:round"></path></svg>
+    <span style="font-weight:600;font-size:16px;letter-spacing:-0.03em">KozaPass</span>
+    <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted-foreground)"><svg width="14" height="14" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg>Güvenli bağlantı</span>
+  </header>
+
+  <div style="flex:1;display:flex;justify-content:center;align-items:flex-start;gap:48px;padding:{{ L.pad }}">
+    <sc-if value="{{ aside }}" hint-placeholder-val="{{ false }}">
+      <aside style="width:340px;flex:none;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:10px;background:var(--silk);color:#3D3A35;font:600 14px 'Geist',sans-serif;display:flex;align-items:center;justify-content:center">KT</span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">Karaca Tekstil A.Ş.</span><span style="font-size:13px;color:var(--muted-foreground)">sizi KozaPass paneline davet etti</span></span></div>
+        <div style="border:1px solid var(--border);border-radius:12px;background:var(--card)">
+          <sc-for list="{{ info }}" as="c" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-bottom:{{ c.bb }}"><span style="font-size:12px;color:var(--muted-foreground)">{{ c.k }}</span><span style="font-size:14px;font-weight:500">{{ c.v }}</span><sc-if value="{{ c.hasD }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;line-height:1.5;color:var(--muted-foreground);text-wrap:pretty">{{ c.d }}</span></sc-if></div></sc-for>
+        </div>
+        <div style="display:flex;gap:10px;padding:14px 16px;border-radius:12px;background:var(--muted);font-size:13px;line-height:1.5"><span style="display:flex;color:var(--muted-foreground);margin-top:2px"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.lock }}"></path></svg></span><span><span style="font-weight:500">Bu bağlantı yalnızca size özel.</span> Bir kez kullanılır ve 30 Ekim 2026’da kapanır. Kimseyle paylaşmayın.</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:13px"><span style="color:var(--muted-foreground)">Davet eden</span><span style="font-weight:500">Selim Karaca · Karaca Tekstil</span></div>
+      </aside>
+    </sc-if>
+
+    <div style="width:{{ L.mainW }};max-width:100%;display:flex;flex-direction:column;gap:20px">
+      <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+        <div aria-busy="true" style="display:flex;flex-direction:column;gap:16px;padding-top:8px">
+          <span style="display:flex;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:10px;background:var(--skeleton)"></span><span style="display:flex;flex-direction:column;gap:6px"><span style="width:150px;height:12px;border-radius:4px;background:var(--skeleton)"></span><span style="width:110px;height:10px;border-radius:4px;background:var(--skeleton)"></span></span></span>
+          <span style="width:70%;height:24px;border-radius:6px;background:var(--skeleton)"></span>
+          <span style="width:100%;height:120px;border-radius:12px;background:var(--skeleton)"></span>
+          <span style="width:100%;height:48px;border-radius:8px;background:var(--skeleton)"></span>
+          <span style="font-size:13px;color:var(--muted-foreground)">Davet kontrol ediliyor…</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isForm }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:20px;padding-top:8px">
+          <sc-if value="{{ mobile }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:10px;background:var(--silk);color:#3D3A35;font:600 14px 'Geist',sans-serif;display:flex;align-items:center;justify-content:center;flex:none">KT</span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">Karaca Tekstil A.Ş.</span><span style="font-size:13px;color:var(--muted-foreground)">sizi KozaPass paneline davet etti</span></span></div></sc-if>
+          <div style="display:flex;flex-direction:column;gap:8px"><h1 style="margin:0;font:400 {{ L.h1 }} 'Newsreader',serif;letter-spacing:-0.015em">Hoş geldiniz, Zeynep</h1><span style="font-size:{{ L.body }};line-height:1.55;color:var(--muted-foreground);text-wrap:pretty">Şifrenizi belirleyin. Sonra bu e-posta ve şifreyle panele giriş yaparsınız.</span></div>
+          <sc-if value="{{ mobile }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1px solid var(--border);border-radius:12px;background:var(--card)">
+              <sc-for list="{{ info }}" as="c" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-bottom:{{ c.bb }}"><span style="font-size:13px;color:var(--muted-foreground)">{{ c.k }}</span><span style="font-size:16px;font-weight:500">{{ c.v }}</span><sc-if value="{{ c.hasD }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;line-height:1.5;color:var(--muted-foreground);text-wrap:pretty">{{ c.d }}</span></sc-if></div></sc-for>
+            </div>
+          </sc-if>
+          <div style="display:flex;flex-direction:column;gap:16px;padding:{{ L.cardPad }};border:{{ L.cardBd }};border-radius:12px;background:{{ L.cardBg }}">
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:{{ L.label }};font-weight:500">Şifre
+              <span style="position:relative;display:flex"><input type="{{ pwType }}" value="{{ pw }}" onChange="{{ onPw }}" autocomplete="new-password" aria-invalid="{{ pwErr.on }}" style="flex:1;min-width:0;height:{{ L.inputH }};padding:0 72px 0 12px;border-radius:8px;border:1px solid {{ pwErr.bd }};background:var(--card);color:var(--foreground);font-size:{{ L.input }};font-weight:400;outline:none" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)"><button onClick="{{ toggleShow }}" style="position:absolute;right:4px;top:4px;bottom:4px;padding:0 12px;border-radius:6px;border:none;background:transparent;color:var(--muted-foreground);font-size:{{ L.label }};font-weight:500;cursor:pointer" style-hover="background:var(--accent)">{{ showT }}</button></span>
+              <span style="display:flex;align-items:center;gap:6px;font-size:{{ L.hint }};font-weight:400;color:{{ rule.fg }}"><svg width="14" height="14" viewBox="0 0 24 24" style="flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ rule.d }}"></path></svg>{{ rule.t }}</span>
+            </label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:{{ L.label }};font-weight:500">Şifre tekrar
+              <input type="{{ pwType }}" value="{{ pw2 }}" onChange="{{ onPw2 }}" autocomplete="new-password" aria-invalid="{{ mm.on }}" style="height:{{ L.inputH }};padding:0 12px;border-radius:8px;border:1px solid {{ mm.bd }};background:var(--card);color:var(--foreground);font-size:{{ L.input }};font-weight:400;outline:none" style-focus="border-color:var(--ring);box-shadow:0 0 0 3px var(--ring-soft)">
+              <sc-if value="{{ mm.on }}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size:{{ L.hint }};font-weight:400;color:var(--status-rejected-foreground)">Şifreler eşleşmiyor.</span></sc-if>
+            </label>
+            <sc-if value="{{ srvErr }}" hint-placeholder-val="{{ false }}"><div role="alert" style="display:flex;gap:10px;padding:12px 14px;border-radius:8px;border:1px solid var(--status-rejected);background:var(--status-rejected-muted);color:var(--status-rejected-foreground);font-size:{{ L.hint }};line-height:1.45"><span style="display:flex;margin-top:1px"><svg width="16" height="16" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.alert }}"></path></svg></span><span style="display:flex;flex-direction:column;gap:4px"><span>Şifre kaydedilemedi. Bağlantınızı kontrol edip yeniden deneyin.</span><span style="font:12px 'Geist Mono',monospace">Hata: 503</span></span></div></sc-if>
+            <button onClick="{{ submit }}" style="height:{{ L.btnH }};border-radius:8px;border:none;background:var(--primary);color:var(--primary-foreground);font-size:{{ L.btn }};font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;opacity:{{ ctaOp }}" style-hover="background:var(--primary-hover)">{{ spin }}{{ ctaT }}</button>
+          </div>
+          <sc-if value="{{ mobile }}" hint-placeholder-val="{{ true }}"><span style="font-size:14px;line-height:1.5;color:var(--muted-foreground);text-align:center;text-wrap:pretty">Bu bağlantı yalnızca size özel, bir kez kullanılır ve 30 Ekim 2026’da kapanır.</span></sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px;padding-top:24px;align-items:{{ L.doneAlign }};text-align:{{ L.doneText }}">
+          <span style="width:56px;height:56px;border-radius:50%;background:var(--status-approved-muted);color:var(--status-approved-foreground);display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="{{ ic.check }}"></path></svg></span>
+          <div style="display:flex;flex-direction:column;gap:8px"><h1 style="margin:0;font:400 {{ L.h1 }} 'Newsreader',serif;letter-spacing:-0.015em">Hesabınız hazır</h1><span style="font-size:{{ L.body }};line-height:1.55;color:var(--muted-foreground);text-wrap:pretty">Karaca Tekstil panelinde Editör olarak çalışabilirsiniz. Giriş ekranında e-postanız hazır gelir.</span></div>
+          <button style="align-self:stretch;height:{{ L.btnH }};border-radius:8px;border:none;background:var(--primary);color:var(--primary-foreground);font-size:{{ L.btn }};font-weight:500;cursor:pointer" style-hover="background:var(--primary-hover)">Panele giriş yap</button>
+          <span style="font-size:{{ L.hint }};color:var(--muted-foreground)">zeynep@karacatekstil.com.tr</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isErr }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px;padding-top:24px">
+          <span style="width:56px;height:56px;border-radius:50%;background:{{ er.bg }};color:{{ er.fg }};display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="{{ er.icon }}"></path></svg></span>
+          <div style="display:flex;flex-direction:column;gap:8px"><h1 style="margin:0;font:400 {{ L.h1 }} 'Newsreader',serif;letter-spacing:-0.015em">{{ er.title }}</h1><span style="font-size:{{ L.body }};line-height:1.55;color:var(--muted-foreground);text-wrap:pretty">{{ er.body }}</span></div>
+          <sc-if value="{{ er.hasWho }}" hint-placeholder-val="{{ true }}"><div style="border:1px solid var(--border);border-radius:12px;background:var(--card);padding:12px 16px;display:flex;flex-direction:column;gap:2px"><span style="font-size:{{ L.hint }};color:var(--muted-foreground)">{{ er.whoLabel }}</span><span style="font-size:{{ L.body }};font-weight:500">Selim Karaca · Karaca Tekstil</span><span style="font:{{ L.body }} 'Geist Mono',monospace">+90 224 443 12 00</span></div></sc-if>
+          <sc-if value="{{ er.hasCta }}" hint-placeholder-val="{{ false }}"><button style="height:{{ L.btnH }};border-radius:8px;border:none;background:var(--primary);color:var(--primary-foreground);font-size:{{ L.btn }};font-weight:500;cursor:pointer" style-hover="background:var(--primary-hover)">Giriş yap</button></sc-if>
+          <span style="font:12px 'Geist Mono',monospace;color:var(--muted-foreground)">{{ er.code }}</span>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;desktop&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;loading&quot;,&quot;form&quot;,&quot;short&quot;,&quot;mismatch&quot;,&quot;ok&quot;,&quot;submitting&quot;,&quot;server&quot;,&quot;done&quot;,&quot;expired&quot;,&quot;used&quot;,&quot;invalid&quot;],&quot;default&quot;:&quot;form&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {};
+  componentDidUpdate(pp) { if (pp.state !== this.props.state) this.setState({ st: undefined, pw: undefined, pw2: undefined, show: undefined }); }
+  renderVals() {
+    const ic = { lock: 'M5 11h14v11H5ZM7 11V7a5 5 0 0 1 10 0v4', check: 'M20 6 9 17l-5-5', dot: 'M12 12h.01', alert: 'M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z',
+      clock: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20M12 6v6l4 2', link: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71', userOk: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M16 11l2 2 4-4', x: 'M18 6 6 18M6 6l12 12' };
+    const desktop = !!this.props.desktop, mobile = !desktop;
+    const st = this.state.st || this.props.state || 'form';
+    const L = desktop
+      ? { w: '1280px', minH: '800px', radius: '10px', frame: '0 20px 50px -20px rgba(28,27,25,.35)', pad: '48px 64px 64px', mainW: '440px', hpad: '64px', h1: '32px/40px', body: '15px', label: '13px', input: '14px', inputH: '40px', hint: '13px', btn: '15px', btnH: '44px', cardPad: '24px', cardBd: '1px solid var(--border)', cardBg: 'var(--card)', doneAlign: 'stretch', doneText: 'left' }
+      : { w: '390px', minH: '844px', radius: '36px', frame: '0 20px 50px -20px rgba(28,27,25,.3),0 0 0 8px #1F1E1C', pad: '16px 16px 32px', mainW: '100%', hpad: '16px', h1: '30px/38px', body: '16px', label: '15px', input: '17px', inputH: '52px', hint: '14px', btn: '17px', btnH: '56px', cardPad: '0', cardBd: 'none', cardBg: 'transparent', doneAlign: 'stretch', doneText: 'left' };
+    const preset = { short: ['kozapass', 'kozapass'], mismatch: ['Ipek.Koza.2026', 'Ipek.Koza.206'], ok: ['Ipek.Koza.2026', 'Ipek.Koza.2026'], submitting: ['Ipek.Koza.2026', 'Ipek.Koza.2026'], server: ['Ipek.Koza.2026', 'Ipek.Koza.2026'] }[st] || ['', ''];
+    const pw = this.state.pw ?? preset[0], pw2 = this.state.pw2 ?? preset[1];
+    const tried = this.state.tried || st === 'short' || st === 'mismatch';
+    const longOk = pw.length >= 10;
+    const rule = longOk ? { fg: 'var(--status-approved-foreground)', d: ic.check, t: 'En az 10 karakter' }
+      : tried && pw ? { fg: 'var(--status-rejected-foreground)', d: ic.x, t: 'En az 10 karakter olmalı · şu an ' + pw.length }
+      : { fg: 'var(--muted-foreground)', d: ic.dot, t: 'En az 10 karakter' };
+    const mmOn = tried && longOk && pw2 !== pw;
+    const submitting = st === 'submitting';
+    const spin = submitting ? React.createElement('span', { style: { width: 16, height: 16, borderRadius: '50%', border: '2px solid currentColor', borderRightColor: 'transparent', animation: 'kp-spin .7s linear infinite' } }) : null;
+    const ERS = {
+      expired: { tone: 'pending', icon: ic.clock, title: 'Bu davetin süresi doldu', body: 'Davet bağlantıları 7 gün geçerli. Selim Karaca’dan yeni bir bağlantı isteyin.', whoLabel: 'Yeni bağlantı için', code: 'Hata: INVITATION_EXPIRED', hasWho: true },
+      used: { tone: 'approved', icon: ic.userOk, title: 'Bu davet zaten kullanıldı', body: 'Şifrenizi daha önce belirlediyseniz e-postanız ve şifrenizle giriş yapın.', code: 'Durum: INVITATION_USED', hasWho: false, hasCta: true },
+      invalid: { tone: 'pending', icon: ic.link, title: 'Bağlantı geçersiz', body: 'Adres eksik kopyalanmış ya da bağlantı yenilenmiş olabilir. Mesajdaki en son bağlantıya dokunarak tekrar açın.', whoLabel: 'Sorun sürerse', code: 'Hata: INVITATION_NOT_FOUND', hasWho: false },
+    };
+    const er0 = ERS[st] || ERS.expired;
+    const info = [{ k: 'Ad soyad', v: 'Zeynep Arslan' }, { k: 'E-posta', v: 'zeynep@karacatekstil.com.tr' }, { k: 'Rol', v: 'Editör', d: 'Ürün, parti, tedarik zinciri, veri talebi ve Excel. Onay ve yayın yapamaz.' }].map((c, i, a) => ({ ...c, hasD: !!c.d, bb: i < a.length - 1 ? '1px solid var(--border)' : 'none' }));
+    const isForm = ['form', 'short', 'mismatch', 'ok', 'submitting', 'server'].includes(st);
+    return {
+      ic, L, mobile, aside: desktop && (isForm || st === 'loading'), info,
+      isLoading: st === 'loading', isForm, isDone: st === 'done', isErr: !!ERS[st], er: { ...er0, bg: 'var(--status-' + er0.tone + '-muted)', fg: 'var(--status-' + er0.tone + '-foreground)', hasCta: !!er0.hasCta, hasWho: !!er0.hasWho },
+      pw, pw2, onPw: e => this.setState({ pw: e.target.value }), onPw2: e => this.setState({ pw2: e.target.value }),
+      pwType: this.state.show ? 'text' : 'password', showT: this.state.show ? 'Gizle' : 'Göster', toggleShow: e => { e.preventDefault(); this.setState({ show: !this.state.show }); },
+      rule, pwErr: { on: tried && !longOk, bd: tried && !longOk ? 'var(--status-rejected)' : 'var(--input)' }, mm: { on: mmOn, bd: mmOn ? 'var(--status-rejected)' : 'var(--input)' },
+      srvErr: st === 'server', spin, ctaT: submitting ? 'Kaydediliyor…' : 'Şifremi belirle', ctaOp: submitting ? 0.7 : 1,
+      submit: e => { e.preventDefault(); if (!longOk || pw2 !== pw) return this.setState({ tried: true }); this.setState({ st: 'submitting' }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ st: 'done' }), 900); },
+    };
+  }
+}
+</script>
+</body>
+</html>

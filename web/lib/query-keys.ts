@@ -57,6 +57,17 @@ export const queryKeys = {
     /** The batch's free texts and their translations before publishing (M11, design v1.1 140). */
     translations: (batchId: string) => [...queryKeys.passports.all, "translations", batchId] as const,
   },
+  /** The company's users (M12, design v1.2 160–169). */
+  users: {
+    all: ["users"] as const,
+  },
+  /** The audit trail (M12, design v1.2 180–184): one page per filter set. */
+  audit: {
+    all: ["audit"] as const,
+    page: (filters: object, page: number) => ["audit", filters, page] as const,
+  },
+  /** GET /auth/me: the owner's name on pages a role cannot open (design v1.2 169). */
+  me: ["me"] as const,
   /** Excel imports (M11, design v1.1 150–157): the page's history, one import, the products page's strip. */
   imports: {
     all: ["imports"] as const,

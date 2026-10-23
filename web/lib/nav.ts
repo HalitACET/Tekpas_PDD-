@@ -1,6 +1,6 @@
-import { Factory, FileText, Inbox, Layers, Package, SlidersHorizontal, Upload, Users, type LucideIcon } from "lucide-react";
+import { Factory, FileText, History, Inbox, Layers, Package, SlidersHorizontal, Upload, Users, type LucideIcon } from "lucide-react";
 
-export type PageKey = "tasks" | "products" | "batches" | "suppliers" | "documents" | "imports" | "users" | "settings";
+export type PageKey = "tasks" | "products" | "batches" | "suppliers" | "documents" | "imports" | "users" | "audit" | "settings";
 
 export interface NavItem {
   key: PageKey;
@@ -21,7 +21,7 @@ export const NAV: NavGroup[] = [
   { items: [item("tasks", Inbox)] },
   { title: "passport", items: [item("products", Package), item("batches", Layers)] },
   { title: "supplyChain", items: [item("suppliers", Factory), item("documents", FileText), item("imports", Upload)] },
-  { title: "admin", items: [item("users", Users), item("settings", SlidersHorizontal)] },
+  { title: "admin", items: [item("users", Users), item("audit", History), item("settings", SlidersHorizontal)] },
 ];
 
 export const PAGE_KEYS: PageKey[] = NAV.flatMap((group) => group.items.map((i) => i.key));

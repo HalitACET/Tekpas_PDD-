@@ -2,9 +2,9 @@
 
 Projede benim yapamadığım, sizin yapmanız ya da karar vermeniz gereken her şey burada. Her kilometre taşında güncellenir. Biten işi `[x]` yapın ya da bana söyleyin, ben işaretlerim.
 
-Sıra önerisi: önce **A** (tasarım; M12 ekranları buna bağlı), sonra **C** (canlı kontroller, 10 dakika), sonra telefon (**B**) ve dil (**D**). Demo (**E**) demo tarihine göre.
+Sıra önerisi: önce **C** (canlı kontroller, 15 dakika), sonra telefon (**B**) ve dil (**D**). Demo (**E**) demo tarihine göre.
 
-Son güncelleme: 23.10.2026 (M12 ve M13 taslakları).
+Son güncelleme: 23.10.2026 (M12 bitti: kullanıcılar, davet sayfası, denetim izi).
 
 ---
 
@@ -12,9 +12,7 @@ Son güncelleme: 23.10.2026 (M12 ve M13 taslakları).
 
 Onaylı tasarım olmadan ekran kodlamıyorum (CLAUDE.md). Brifi verdiğimde Claude Design'a yapıştırıp çıkan dosyaları `docs/design/vX.Y/` klasörüne koymanız yeterli.
 
-- [ ] **M12 ekranları (Claude Design v1.2):** Kullanıcılar (160), davet kabul sayfası (161), Denetim izi (162).
-  - Brif hazır: `docs/m12-tasarim-brifi.md` dosyasının tamamını Claude Design'a yapıştırın, çıkan dosyaları `docs/design/v1.2/` klasörüne koyun.
-  - Backend'i bitti (PR #110–#113). Tasarım gelince ekranları ben yaparım; bu, M12'yi kapatan son iş.
+- [x] **M12 ekranları (Claude Design v1.2):** Kullanıcılar, davet kabul sayfası, Denetim izi. Tasarım geldi, ekranlar yapıldı (PR #118).
 - [ ] **Eski tasarım borçları (acil değil, tek seferde bir brifle istenebilir):**
   - Mobil web liste (768 px altı): masaüstü tablo şimdilik yana kayıyor; tasarım 16'nın web uyarlaması gerekiyor (PLAN §6).
   - "Belgeler" sayfasının tamamı: firma çapında belge listesi ve "Tedarikçiden iste". Bugün yalnızca "Belge yükle" diyaloğu var (PLAN §6).
@@ -48,6 +46,15 @@ Bu bilgisayardan Vercel ve Render'a TLS bağlantısı kurulamıyor (curl, PowerS
     3. Satırın sonu şöyle görünür: `xff=2 vercel=x-real-ip,x-vercel-forwarded-for` ya da `xff=2 vercel=none`. Bu kısmı bana iletin.
   - **Sonuç:** başlık varsa IP başına sınırları geri açarım (PLAN M10, iki madde).
 - [ ] **Uyuyan sunucuda erken kesilen istek** (M10 T5'ten): sunucu uyurken sayfayı açıp birkaç saniyede kapatın, sonra yeniden açın. Uyanma devam etmiş mi, yoksa baştan mı başladı? Render log'undaki "Started TekpasApplication" saatine bakmak yeterli.
+- [ ] **M12: davet bağlantısı baştan sona** (canlıda, 5 dakika). Gerçek bir hesapla yapılmalı, bu yüzden sizde.
+  1. Sahip hesabıyla giriş yapın → sol menü **Kullanıcılar** → **Kişi davet et**.
+  2. Kendinize ait ikinci bir e-posta adresi yazın (gerçek bir kişinin adresi değil), rol **Görüntüleyici** → **Davet bağlantısı oluştur**.
+  3. **Bağlantıyı kopyala**'ya basın, bağlantıyı telefonda açın (WhatsApp'tan kendinize gönderebilirsiniz).
+  4. Sayfada firma adı, ad soyad ve rol görünmeli. 10 karakterden kısa şifre kabul edilmemeli. Şifreyi belirleyin → **Panele giriş yap**: giriş ekranında e-posta dolu gelmeli.
+  5. Aynı bağlantıyı bir daha açın: "Bu davet zaten kullanıldı" görünmeli.
+  6. Bilgisayarda **Denetim izi**'nde bugünün altında "Davet etti" ve "Katıldı" satırları görünmeli.
+  7. Bitince deneme kişisini **Kullanıcılar**'da **Pasifleştir**in.
+  - Bir adım farklıysa ekran görüntüsünü bana iletin.
 - [ ] **Gemini model adı:** AI Studio'da kullandığınız modelin kimliği hâlâ geçerli mi; Render'daki `GEMINI_MODEL` ile karşılaştırın (PLAN §7). Demo öncesi bir kez.
 
 ## D. Dil kontrolü (M11 T8)

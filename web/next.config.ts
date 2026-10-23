@@ -10,7 +10,8 @@ if (process.env.VERCEL && !process.env.BACKEND_URL) {
 }
 
 const nextConfig: NextConfig = {
-  // The supplier's link page (/r#<token>) is private: nothing cached, indexed or passed on as a referrer.
+  // The supplier's link page (/r#<token>) and the invitation page (/davet#<token>) are private: nothing cached,
+  // indexed or passed on as a referrer.
   async headers() {
     return [
       {
@@ -23,6 +24,15 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/r",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
+      {
+        // The invitation link (/davet#<token>, M12) carries a secret the same way.
+        source: "/davet",
         headers: [
           { key: "Referrer-Policy", value: "no-referrer" },
           { key: "X-Robots-Tag", value: "noindex, nofollow" },
