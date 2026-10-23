@@ -265,17 +265,19 @@ Plan: `docs/m11-plan.md` (çeviri taslağı ve onay, snapshot `schemaVersion: 3`
 
 ### M12 — Detaylı roller, denetim izi, test
 Plan: `docs/m12-plan.md` (giriş deneme sınırı, rol matrisi testi, kullanıcı daveti, denetim izi, kritik akış e2e'leri, kararlar). Tasarım brifi: `docs/m12-tasarim-brifi.md` → Claude Design v1.2 (kullanıcılar, davet kabulü, denetim izi). Backend tasarım beklemeden, ekranlar tasarımdan sonra.
-- [ ] §2 rol matrisinin tamamı + kullanıcı yönetimi ekranı
-- [ ] Denetim izi ekranı (kim, neyi, ne zaman)
-- [ ] Kritik akışlar için Playwright testleri
-- [ ] Login rate limiting (IP + e-posta başına deneme sınırı)
+- [ ] §2 rol matrisinin tamamı + kullanıcı yönetimi ekranı _Durum (PR #111, #112):_ matris bir testle korunuyor (`AccessMatrixTest`, bulunan sapma: tedarikçi ağı EDITOR'e açıktı, düzeltildi); kullanıcı daveti, rol ve pasifleştirme API'si hazır. Ekranlar Claude Design v1.2'yi bekliyor.
+- [ ] Denetim izi ekranı (kim, neyi, ne zaman) _Durum (PR #113):_ önemli eylemler `audit_log`'a yazılıyor, `GET /audit` hazır; ekran v1.2'yi bekliyor.
+- [x] Kritik akışlar için Playwright testleri _Sonuç (PR #114):_ herkese açık pasaport sayfası için sahte backend sunucusu; giriş, parti, tedarikçi formu, onay ve yayın diyaloğu zaten e2e'de (142 test).
+- [x] Login rate limiting (IP + e-posta başına deneme sınırı) _Sonuç (PR #110):_ e-posta başına 15 dk'da 5, IP başına 20 (IP doğrulanınca), genel 300/dk; web ve mobil kaç dakika beklemek gerektiğini söylüyor.
+
+Kabul durumu: "EDITOR yayınla butonunu göremez, API da 403 döner" testli (`PassportApiTest`); "her yayın denetim izinde görünür" testli (`AuditApiTest`). Ekranlar tasarım bekliyor.
 
 **Kabul:** EDITOR yayınla butonunu göremez, API da 403 döner. Her yayın denetim izinde görünür.
 
 ### M13 — Bitirme teslimi
-- [ ] `docs/haftalik/` notlarından rapor taslağı
-- [ ] Mimari diyagram, veri modeli diyagramı, ekran görüntüleri
-- [ ] Sunum, APK, canlı link, kaynak kod teslimi
+- [x] `docs/haftalik/` notlarından rapor taslağı _Sonuç:_ `docs/rapor/rapor-taslagi.md` (özet, gereksinimler, mimari, veri modeli, uygulama, güvenlik, test, dağıtım, sonuç). Kaynakça ve okul şablonu kullanıcıda.
+- [x] Mimari diyagram, veri modeli diyagramı, ekran görüntüleri _Sonuç:_ `docs/rapor/mimari.md` (sistem, dağıtım, üç akış), `docs/rapor/veri-modeli.md` (22 tablo, ER), görüntüler `docs/design/impl-*` ve `docs/haftalik/img/`.
+- [ ] Sunum, APK, canlı link, kaynak kod teslimi _Durum:_ sunum taslağı `docs/rapor/sunum-taslagi.md`; teslimin kendisi kullanıcıda (`docs/kullanici-isleri.md` F).
 
 ---
 
