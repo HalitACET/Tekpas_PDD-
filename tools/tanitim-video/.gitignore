@@ -1,0 +1,6 @@
+# Local tools, downloads and outputs of the video build (README.md)
+.venv/
+voices/
+out/
+recordings/
+.env

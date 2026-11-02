@@ -13,13 +13,23 @@ Son güncelleme: 23.10.2026 (M12 bitti: kullanıcılar, davet sayfası, denetim 
 Onaylı tasarım olmadan ekran kodlamıyorum (CLAUDE.md). Brifi verdiğimde Claude Design'a yapıştırıp çıkan dosyaları `docs/design/vX.Y/` klasörüne koymanız yeterli.
 
 - [x] **M12 ekranları (Claude Design v1.2):** Kullanıcılar, davet kabul sayfası, Denetim izi. Tasarım geldi, ekranlar yapıldı (PR #118).
-- [ ] **Tanıtım animasyonu (Arden ve diğer izleyiciler için, ~2,5 dakika):**
+- [ ] **Kodla üretilen sesli tanıtım videosu:** `tools/tanitim-video/out/kozapass-tanitim-piper.mp4`.
+  - Video yalnızca bu bilgisayarda; git'e girmez. Yeniden üretmek için: `node tools/tanitim-video/make.mjs` (ayrıntı: `tools/tanitim-video/README.md`).
+  1. Baştan sona izleyin. Yanlış okunan bir kelime ya da size uymayan bir cümle olursa hangi sahne olduğunu söyleyin; metni ya da okunuşunu düzeltip yeniden üretirim.
+  2. **Sesin lisansı:** şimdiki ses, Piper'ın Türkçe sesi (DFKI). Lisansı ticari olmayan kullanıma izin veriyor (CC BY-NC-SA 4.0).
+     - Okul sunumu için uygun; kaynağı videonun sonunda yazıyor.
+     - Arden'e ürün olarak tanıtmak ticari kullanım sayılabilir. O zaman iki yol var:
+     - **Gemini sesi:** daha doğal. AI Studio'dan (aistudio.google.com/apikey) anahtarınızı kopyalayın ve `tools/tanitim-video/.env` dosyasına yazın. Nasıl yazılacağı README'de. Bana anahtarı göndermeyin; "anahtarı koydum" demeniz yeterli, gerisini ben çalıştırırım.
+     - **Kendi sesiniz:** 16 cümleyi telefonla ayrı ayrı kaydedin (`01.m4a` … `16.m4a`), `tools/tanitim-video/recordings/` klasörüne koyun ve bana söyleyin. Sesler sahnelere kendiliğinden oturur.
+  3. Videoyu göndermeden önce telefonda da bir kez izleyin. Son sahnedeki QR kodu okutun; `kozapass.vercel.app` açılmalı.
+- [x] **Tanıtım animasyonu (Claude Design):** Claude Design'da üretildi ve beğenildi; dosyası depoda yok. Ses eklemek için yukarıdaki kodla üretilen video ya da aşağıdaki yollar kullanılabilir.
+  Brif ve adımlar (başvuru için):
   1. Brif hazır: `docs/tanitim-animasyonu-brifi.md`. Dosyanın tamamını Claude Design'a yapıştırın.
   2. Brifin 6. bölümündeki 18 görseli yükleyin. Hepsi depoda; yolları tabloda yazıyor.
   3. Çıkan dosyaları `docs/design/animasyon/` klasörüne koyun ve bana söyleyin. Brifle karşılaştırırım: olmayan bir özellik gösterilmiş mi, rakamlar değişmiş mi?
   4. **Videoya çevirme:** Claude Design MP4 veremezse animasyonu tam ekranda oynatıp Windows'un kendi kaydıyla kaydedin. `Win + Alt + R` kaydı başlatır ve durdurur; dosya Videolar → Yakalamalar klasörüne düşer.
   5. Göstermeden önce bir kez baştan sona izleyin: metinler okunacak kadar ekranda kalıyor mu? Son sahnedeki adres (`kozapass.vercel.app`) açılıyor mu?
-- [ ] **Tanıtım videosuna ses:** `docs/tanitim-seslendirme.md` dosyasında.
+- [ ] **Claude Design videosuna elle ses (gerekirse):** `docs/tanitim-seslendirme.md` dosyasında.
   - Sahne sahne okunacak metin ve her sahnenin ilk görüntüsü var.
   - Üç yol adım adım anlatılıyor: Clipchamp'in ücretsiz yapay sesi, kendi sesiniz ya da ElevenLabs.
   - ElevenLabs'in ücretsiz planı okul sunumu için uygun. Firmaya tanıtımda ticari kullanım sayılabilir; belgenin 5. bölümüne bakın.
