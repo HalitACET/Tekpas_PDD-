@@ -1,0 +1,504 @@
+/* The video frame: 1920 × 1080, KozaPass tokens (web/app/globals.css). */
+:root {
+  --bg: #faf6ee;
+  --bg-deep: #f1e9dc;
+  --card: #ffffff;
+  --border: #efe6d8;
+  --line: #d9cdb8;
+  --fg: #1c1b19;
+  --muted: #5f5a52;
+  --faint: #8a857c;
+  --brand: #8c2f4b;
+  --brand-muted: #f5e8ec;
+  --rejected: #d92d20;
+  --serif: "Newsreader", Georgia, serif;
+  --sans: "Geist", system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+#frame {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: radial-gradient(120% 95% at 50% 38%, #fdfaf4 0%, var(--bg) 55%, var(--bg-deep) 100%);
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+}
+
+/* Small brand mark, top left, in every scene but the first and the last. */
+.brand-mini {
+  position: absolute;
+  left: 64px;
+  top: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 600 25px/1 var(--sans);
+  letter-spacing: -0.03em;
+}
+
+/* Text column of the screenshot scenes. */
+.text-col {
+  position: absolute;
+  left: 120px;
+  top: 110px;
+  width: 520px;
+  height: 820px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 26px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font: 600 21px/1 var(--sans);
+  letter-spacing: 0.14em;
+  color: var(--brand);
+}
+
+.chip::before {
+  content: "";
+  width: 36px;
+  height: 2px;
+  background: var(--brand);
+}
+
+.title {
+  font: 400 64px/1.1 var(--serif);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.body {
+  font: 400 30px/1.45 var(--sans);
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.emphasis {
+  align-self: flex-start;
+  padding: 15px 26px;
+  border-radius: 999px;
+  background: var(--brand-muted);
+  color: var(--brand);
+  font: 600 28px/1 var(--sans);
+}
+
+/* Text on top of the illustrated scenes. */
+.top-text {
+  position: absolute;
+  left: 180px;
+  right: 180px;
+  top: 116px;
+  text-align: center;
+}
+
+.top-text .title {
+  font-size: 68px;
+}
+
+.top-text .body {
+  margin-top: 16px;
+}
+
+/* Device frames around the screenshots. */
+.shot {
+  position: absolute;
+}
+
+.browser {
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow:
+    0 44px 90px -42px rgba(28, 27, 25, 0.5),
+    0 0 0 1px rgba(28, 27, 25, 0.08);
+}
+
+.browser .bar {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  background: #f4f0e9;
+  border-bottom: 1px solid #e8e1d5;
+}
+
+.browser .bar i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #dcd2c2;
+}
+
+.browser .url {
+  margin-left: 16px;
+  height: 26px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 8px;
+  border: 1px solid #ece5d9;
+  background: #fff;
+  font: 500 14px/1 var(--sans);
+  color: #6b665e;
+}
+
+.vp {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+}
+
+.vp img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+
+.phone {
+  padding: 13px;
+  border-radius: 56px;
+  background: #1c1b19;
+  box-shadow:
+    0 50px 100px -46px rgba(28, 27, 25, 0.62),
+    0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+.phone .vp {
+  border-radius: 43px;
+  background: var(--bg);
+}
+
+.shot-label {
+  position: absolute;
+  left: 50%;
+  top: -64px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: var(--fg);
+  color: #faf8f4;
+  font: 600 21px/1 var(--sans);
+}
+
+/* The highlight: a brand-coloured ring, the rest of the screen slightly dimmed. */
+.hl {
+  position: absolute;
+  border: 3px solid var(--brand);
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 4000px rgba(28, 27, 25, 0.2),
+    0 0 0 8px rgba(140, 47, 75, 0.16);
+}
+
+/* Progress line: Parti → Tedarikçi → Belge ve AI → Kontrol → Pasaport. */
+.progress {
+  position: absolute;
+  left: 460px;
+  top: 990px;
+  width: 1000px;
+  height: 60px;
+}
+
+.progress .track,
+.progress .fill {
+  position: absolute;
+  left: 0;
+  top: 9px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.progress .track {
+  width: 100%;
+  background: #e6dccb;
+}
+
+.progress .fill {
+  background: var(--brand);
+}
+
+.stop {
+  position: absolute;
+  top: 0;
+}
+
+.stop b {
+  position: absolute;
+  left: -11px;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  background: var(--bg);
+}
+
+.stop span {
+  position: absolute;
+  top: 34px;
+  left: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font: 500 19px/1 var(--sans);
+  color: var(--faint);
+}
+
+.stop.done b,
+.stop.active b {
+  border-color: var(--brand);
+  background: var(--brand);
+}
+
+.stop.active b {
+  box-shadow: 0 0 0 7px rgba(140, 47, 75, 0.18);
+}
+
+.stop.done span {
+  color: var(--muted);
+}
+
+.stop.active span {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* Illustrations: supply chain cards, messages, the certificate. */
+.card {
+  position: absolute;
+  width: 300px;
+  height: 128px;
+  margin: -64px 0 0 -150px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: 0 26px 50px -32px rgba(28, 27, 25, 0.45);
+}
+
+.card .ic,
+.cert .ic {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: var(--brand-muted);
+  color: var(--brand);
+}
+
+.card .lb,
+.cert .lb {
+  font: 600 30px/1.1 var(--sans);
+}
+
+.card .sb,
+.cert .sb {
+  margin-top: 7px;
+  font: 400 21px/1 var(--sans);
+  color: var(--muted);
+}
+
+.token {
+  position: absolute;
+  width: 62px;
+  height: 62px;
+  margin: -31px 0 0 -31px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #fff;
+  box-shadow: 0 16px 30px -14px rgba(28, 27, 25, 0.6);
+}
+
+.cert {
+  position: absolute;
+  width: 330px;
+  height: 116px;
+  margin: -58px 0 0 -165px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: 0 26px 50px -32px rgba(28, 27, 25, 0.45);
+}
+
+.cert .lb {
+  font-size: 26px;
+}
+
+.stamp {
+  position: absolute;
+  right: -70px;
+  bottom: -40px;
+  padding: 10px 16px;
+  border: 4px solid var(--rejected);
+  border-radius: 10px;
+  background: rgba(253, 236, 234, 0.92);
+  color: var(--rejected);
+  font: 700 26px/1 var(--sans);
+  letter-spacing: 0.08em;
+}
+
+.tag {
+  position: absolute;
+  left: 750px;
+  top: 300px;
+  width: 420px;
+  height: 720px;
+  transform-origin: 50% 0;
+}
+
+.lines {
+  position: absolute;
+  inset: 0;
+}
+
+.pp-pill {
+  position: absolute;
+  left: 960px;
+  top: 812px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 36px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font: 600 36px/1 var(--sans);
+  white-space: nowrap;
+  box-shadow: 0 30px 60px -30px rgba(140, 47, 75, 0.8);
+}
+
+/* First and last scene. */
+.intro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.intro-row {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+}
+
+.intro-word {
+  font: 600 150px/1 var(--sans);
+  letter-spacing: -0.045em;
+}
+
+.intro-tag {
+  font: 400 52px/1.2 var(--serif);
+  color: var(--muted);
+}
+
+.outro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 130px;
+}
+
+.o-left {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.o-brand {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  font: 600 116px/1 var(--sans);
+  letter-spacing: -0.045em;
+}
+
+.o-slogan {
+  font: 400 64px/1.1 var(--serif);
+  letter-spacing: -0.015em;
+}
+
+.o-url {
+  font: 500 40px/1 var(--mono);
+  color: var(--brand);
+}
+
+.o-qr {
+  width: 340px;
+  padding: 34px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: 0 40px 80px -44px rgba(28, 27, 25, 0.55);
+  text-align: center;
+}
+
+.o-qr svg {
+  display: block;
+  width: 272px;
+  height: 272px;
+}
+
+.o-qr div {
+  margin-top: 18px;
+  font: 500 22px/1 var(--sans);
+  color: var(--muted);
+}
+
+.o-notes {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 52px;
+  text-align: center;
+  font: 400 20px/1.6 var(--sans);
+  color: var(--faint);
+}

@@ -2,6 +2,11 @@
 
 Claude Design'ın ürettiği tanıtım animasyonuna arkadan anlatan bir ses eklemek için. Senaryo: `docs/tanitim-animasyonu-brifi.md`.
 
+**Kodla üretilen sesli video:** `tools/tanitim-video/` aynı senaryoyu ve aynı seslendirme metnini kullanır.
+- Görüntüyü ve sesi tek komutla, eşzamanlı üretir; Clipchamp gerekmez.
+- Ses için Piper, Gemini ya da sizin kayıtlarınız kullanılabilir.
+- Ayrıntı: `tools/tanitim-video/README.md`. Aşağıdaki yollar, Claude Design videosuna elle ses eklemek içindir.
+
 **Videoyu depoya koymayın.** Video dosyası büyük; git'e değil, kendi bilgisayarınızda ya da Drive'da durmalı.
 
 ---
